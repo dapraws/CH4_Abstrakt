@@ -55,6 +55,33 @@ Use the feature matrix in `docs/FEATURE_FRAMEWORK_MATRIX.md` as the canonical ma
 - Keep UI code in SwiftUI, feature logic in feature folders, and framework access behind shared providers.
 - Use App Groups for extension-safe shared data.
 - Treat widgets and future Live Activities as consumers of shared feature data, not as independent business-logic silos.
+- Follow MVVM consistently across the app and extension-facing features.
+
+## MVVM Rules
+
+### Model
+
+- Own domain data, configuration data, timeline payloads, and persistence-friendly structures.
+- Keep framework-specific types near the provider layer; prefer app-owned models in feature code.
+- Represent empty, denied, loading, and stale states explicitly when a widget can render in those conditions.
+
+### View
+
+- SwiftUI views should focus on composition, styling, and state rendering.
+- Views should not talk directly to `EventKit`, `HealthKit`, `CoreLocation`, `WeatherKit`, or persistence APIs.
+- Widget views should stay especially lightweight and render precomputed view data whenever possible.
+
+### ViewModel
+
+- Coordinate providers, permission state, formatting, filtering, and view-ready transformation.
+- Expose values that are already tailored for rendering, instead of making views assemble business logic.
+- Own screen-level and widget-customization behavior, but avoid becoming a dumping ground for persistence and framework code.
+
+### Provider / Service Support
+
+- Shared providers wrap Apple frameworks and feed feature view models.
+- Providers are not a replacement for MVVM; they support the ViewModel layer by isolating framework access.
+- Permission requests, data fetches, and entitlement-sensitive code should stay behind provider abstractions.
 
 ## Folder Intent
 
@@ -66,6 +93,17 @@ Abstrakt/
 └── WidgetExtension/      WidgetKit bundle and widget registrations
 ```
 
+Recommended feature structure:
+
+```text
+Features/
+└── <FeatureName>/
+    ├── Models/
+    ├── ViewModels/
+    ├── Views/
+    └── Mappers/          Optional, for complex provider-to-view transformations
+```
+
 ## Documentation Rule
 
 When adding a new feature or extension surface, update:
@@ -73,4 +111,3 @@ When adding a new feature or extension surface, update:
 1. `README.md`
 2. `docs/FEATURE_FRAMEWORK_MATRIX.md`
 3. `docs/DESIGN_FOUNDATION.md` if the feature introduces a new size, layout rule, or styling pattern
-

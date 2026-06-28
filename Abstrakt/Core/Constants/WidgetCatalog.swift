@@ -1,0 +1,59 @@
+import Foundation
+
+enum WidgetCatalog {
+    static let items: [WidgetCatalogItem] = [
+        WidgetCatalogItem(
+            id: "battery-bars-small",
+            name: "Battery Bars",
+            size: .small,
+            categories: [.utility, .classic],
+            isPro: false
+        ),
+        WidgetCatalogItem(
+            id: "step-health-small",
+            name: "Step Health",
+            size: .small,
+            categories: [.health, .minimalism],
+            isPro: false
+        ),
+        WidgetCatalogItem(
+            id: "daily-dashboard-medium",
+            name: "Daily Dashboard",
+            size: .medium,
+            categories: [.portal, .weather, .calendar, .clock],
+            isPro: false
+        ),
+    ]
+
+    static func galleryItems(for category: WidgetCategory) -> [WidgetCatalogItem] {
+        let ids = galleryOrder[category] ?? galleryOrder[.all] ?? items.map(\.id)
+        return ids.compactMap(itemByID)
+    }
+
+    private static let galleryOrder: [WidgetCategory: [String]] = [
+        .all: [
+            "battery-bars-small",
+            "step-health-small",
+            "daily-dashboard-medium",
+        ],
+        .classic: [
+            "battery-bars-small",
+        ],
+        .portal: [
+            "daily-dashboard-medium",
+        ],
+        .health: [
+            "step-health-small",
+        ],
+        .weather: [
+            "daily-dashboard-medium",
+        ],
+        .clock: [
+            "daily-dashboard-medium",
+        ],
+    ]
+
+    private static func itemByID(_ id: String) -> WidgetCatalogItem? {
+        items.first { $0.id == id }
+    }
+}

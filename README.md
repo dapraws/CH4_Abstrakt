@@ -1,115 +1,94 @@
 # Abstrakt
 
-Abstrakt is a native SwiftUI app for building and managing usable Apple extension experiences, starting with widgets and expanding toward Live Activities and Dynamic Island.
+Abstrakt is a native SwiftUI app for discovering, configuring, previewing, and saving widget presets before users place them on the iPhone Home Screen. The product is inspired by widget-first apps such as Koco, but it is built around Apple-native frameworks, a simple data layer, and an extension-safe architecture that can grow into Live Activities later.
 
-## What This Project Is
+## Product Direction
 
-- A SwiftUI iOS app
-- A WidgetKit-based extension ecosystem
-- A design-system-first foundation for glanceable utility surfaces
-- Not a reusable Swift package or library
+- Host app first: gallery, widget detail, customization sheets, saved library, and settings
+- WidgetKit first: Home Screen widget experiences for `small`, `medium`, and `large`
+- Native framework features: `HealthKit`, `WeatherKit`, `CoreLocation`, `EventKit`, `Foundation`, and related Apple APIs
+- Design-system-first: semantic light/dark theming, typography roles, spacing, surface styling, and widget size tokens
 
-## Current Focus
-
-The repository is currently laying down the product foundation:
-
-- Main app shell
-- Widget extension structure
-- Early `Clock` and `Calendar` widget modules
-- Shared theme and data-provider placeholders
-- Documentation that defines the intended architecture and design system
-
-## Planned Feature Families
-
-Each feature should map cleanly to a native Apple framework.
-
-| Feature | Primary Framework |
-|---|---|
-| Battery | `UIKit` (`UIDevice`) |
-| Health Info | `HealthKit` |
-| Calendar | `EventKit` |
-| Reminder | `EventKit` |
-| Location | `CoreLocation` |
-| Health | `HealthKit` |
-| Time | `Foundation` |
-| Weather | `WeatherKit` |
-
-See [docs/FEATURE_FRAMEWORK_MATRIX.md](/Users/msafdev/Code/swift/CH4_Abstrakt/docs/FEATURE_FRAMEWORK_MATRIX.md) for the full framework map, permission expectations, and implementation notes.
-
-## Surfaces
-
-### Shipping Now
-
-- Home Screen widgets
-- Lock Screen widgets
-- Main app configuration and preview experience
-
-### Planned
-
-- Live Activities via `ActivityKit`
-- Dynamic Island experiences for supported devices
-- Additional extension surfaces as the product grows
-
-## Widget Size Foundation
-
-Current reference sizes for Home Screen widgets:
-
-| Size | Points |
-|---|---|
-| Small | `170 x 170` |
-| Medium | `360 x 170` |
-| Large | `360 x 376` |
-
-Lock Screen and future activity surfaces are documented in [docs/DESIGN_FOUNDATION.md](/Users/msafdev/Code/swift/CH4_Abstrakt/docs/DESIGN_FOUNDATION.md).
-
-## Architecture Direction
+## Current Architecture
 
 ```text
 Abstrakt/
-├── App/                  App entry and future app flows
-├── Features/             Feature modules and widget views
-├── Shared/               Theme, providers, persistence, constants
-└── WidgetExtension/      WidgetKit bundle and widget registration
+├── App/
+│   ├── AbstraktApp.swift
+│   ├── Screens/
+│   ├── Components/
+│   ├── ContentView.swift
+│   └── Configuration/
+├── Core/
+│   ├── Models/
+│   ├── Services/
+│   ├── Storage/
+│   ├── Constants/
+│   └── Extensions/
+├── DesignSystem/
+├── Widgets/
+│   ├── ClassicClock/
+│   └── TodayMinimal/
+└── WidgetExtension/
+    ├── WidgetBundle.swift
+    ├── Widgets/
+    └── Providers/
 ```
 
-Guiding principles:
+## App Flow
 
-- Keep feature data access behind shared framework-specific providers
-- Use App Groups for extension-readable shared state
-- Keep widgets lightweight and rendering-focused
-- Reuse feature models later for Live Activities and Dynamic Island
+The intended main-app flow is:
 
-## Design Foundation
+1. Browse the widget gallery.
+2. Choose a widget and open a customization sheet.
+3. Preview the chosen widget size on-device style.
+4. Adjust flexible options such as theme mode, font, font weight, gradient, icon set, counters, or per-widget settings.
+5. Save that configured widget preset into the Library page.
+6. From the Home Screen, the user adds a system widget and selects the saved preset through the widget configuration flow.
 
-Abstrakt should ship with a shared design language across app and extensions:
+This means the app library is the source of truth for saved widget presets, while WidgetKit is the renderer on the Home Screen.
 
-- Semantic colors for light and dark mode
-- Shared typography roles
-- Reusable widget layout tokens
-- Clear empty, loading, and denied-permission states
+## Widget Size Direction
 
-See [docs/DESIGN_FOUNDATION.md](/Users/msafdev/Code/swift/CH4_Abstrakt/docs/DESIGN_FOUNDATION.md) for the initial design rules.
+For now the app should focus on iPhone Home Screen sizes only:
 
-## Agent-Friendly Documentation
+- `Small`
+- `Medium`
+- `Large`
 
-If you are onboarding into the repository, start with:
+Lock Screen widgets, StandBy layouts, Live Activities, and Dynamic Island remain planned follow-up surfaces, but they are not the primary app flow yet.
 
-1. [AGENTS.md](/Users/msafdev/Code/swift/CH4_Abstrakt/AGENTS.md)
-2. [docs/PROJECT_OVERVIEW.md](/Users/msafdev/Code/swift/CH4_Abstrakt/docs/PROJECT_OVERVIEW.md)
-3. [docs/FEATURE_FRAMEWORK_MATRIX.md](/Users/msafdev/Code/swift/CH4_Abstrakt/docs/FEATURE_FRAMEWORK_MATRIX.md)
-4. [docs/DESIGN_FOUNDATION.md](/Users/msafdev/Code/swift/CH4_Abstrakt/docs/DESIGN_FOUNDATION.md)
+## Customization Model
 
-## Getting Started
+Customization is intentionally flexible:
 
-1. Open `Abstrakt.xcodeproj` in Xcode.
-2. Set up signing in [Abstrakt/Config/Signing.xcconfig](/Users/msafdev/Code/swift/CH4_Abstrakt/Abstrakt/Config/Signing.xcconfig).
-3. Build the app target and widget extension target together.
-4. Use the documentation above as the current source of truth for architecture and feature direction.
+- Some widgets expose only a few toggles.
+- Some widgets open nested sheets such as font pickers.
+- Some widgets use inline segmented controls or checkbox-style rows.
+- Some widgets support metric-specific settings such as step goals or counters.
 
-## Recommended Next Implementation Steps
+Because of that, customization belongs to `App/Configuration/` plus widget-specific configuration sheets inside each widget folder.
 
-1. Establish shared theme tokens in `Shared/Theme/`.
-2. Add provider modules for the planned Apple frameworks.
-3. Flesh out the widget bundle registration.
-4. Replace the placeholder `ContentView` with a feature gallery or extension dashboard.
-5. Add preview coverage for widget sizes, color schemes, and permission states.
+## Widget Naming Direction
+
+- Widget folders should be named after the actual widget entry users browse in the gallery.
+- Good names: `ClassicClock`, `TodayMinimal`, `BentoGridOne`, `GradientClock`
+- Avoid naming widget folders after raw framework/data sources such as `Clock` or `Calendar`
+
+The underlying data source still belongs in `Core/Services/`, but the widget itself should be named by the user-facing design/preset identity.
+
+## Core Model Direction
+
+`Core/Models/` is the shared model layer for the app. That is where common types such as widget presets, widget sizes, appearance modes, catalog items, and categories should live.
+
+Not every widget needs its own `Model` or `ViewModel` file. A widget folder should only add local types when it truly has unique configuration or presentation logic that is not shared.
+
+## Documentation Map
+
+Start here when making architecture or product changes:
+
+1. [docs/PROJECT_OVERVIEW.md](/Users/msafdev/Code/swift/CH4_Abstrakt/docs/PROJECT_OVERVIEW.md)
+2. [docs/FEATURE_FRAMEWORK_MATRIX.md](/Users/msafdev/Code/swift/CH4_Abstrakt/docs/FEATURE_FRAMEWORK_MATRIX.md)
+3. [docs/DESIGN_FOUNDATION.md](/Users/msafdev/Code/swift/CH4_Abstrakt/docs/DESIGN_FOUNDATION.md)
+4. [docs/architecture/FOLDER_STRUCTURE.md](/Users/msafdev/Code/swift/CH4_Abstrakt/docs/architecture/FOLDER_STRUCTURE.md)
+5. [docs/product/WIDGET_LIBRARY_FLOW.md](/Users/msafdev/Code/swift/CH4_Abstrakt/docs/product/WIDGET_LIBRARY_FLOW.md)

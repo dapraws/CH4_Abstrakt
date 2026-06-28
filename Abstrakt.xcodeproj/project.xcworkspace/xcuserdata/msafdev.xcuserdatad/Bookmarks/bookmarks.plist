@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>top-level-items</key>
+	<array>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>XcodeLocation</key>
+					<string>{"IndexPath":[2,65]}</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>payload</key>
+					<string>x-xcode-log://7E80B532-F16A-4552-B192-1A69E1EF4B8C</string>
+				</dict>
+				<key>scheme</key>
+				<string>x-xcode-log</string>
+				<key>type</key>
+				<string>IDELogDocumentLocation</string>
+			</dict>
+			<key>title</key>
+			<string>Sign Abstrakt.debug.dylib</string>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+	</array>
+</dict>
+</plist>

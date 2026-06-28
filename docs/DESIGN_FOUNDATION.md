@@ -1,143 +1,153 @@
 # Design Foundation
 
-This document defines the initial UI foundation for Abstrakt across the main app and Apple extension surfaces.
+This document defines the UI foundation for Abstrakt across the main app, widget previews, and the Home Screen widget extension.
 
 ## Design Goals
 
-- Glanceable at small sizes
-- Strong visual hierarchy with minimal text
-- High contrast in both light and dark mode
-- Easy to theme without breaking readability
-- Consistent between app previews and real widget rendering
+- Glanceable in widget sizes
+- High contrast in both light and dark environments
+- Flexible enough for widget-specific customization
+- Consistent between app previews and actual WidgetKit rendering
+- Strong enough to support a library of saved presets rather than one-off widget screens
 
-## Color System
+## Appearance Modes
 
-Define semantic color roles first, then map those roles to concrete light and dark values.
+Every configurable widget should support appearance choices where relevant:
 
-### Core Roles
+- `System`
+- `Light`
+- `Dark`
 
-- `background.primary`
-- `background.secondary`
+Rules:
+
+- `System` follows the current device context.
+- `Light` and `Dark` must preview deterministically inside the app sheet even if the app itself is running in another appearance.
+- Saved presets should persist the appearance choice as part of widget configuration when the widget supports it.
+
+## Semantic Color Roles
+
+Start from roles, not hard-coded values.
+
+- `background.app`
+- `background.sheet`
+- `background.preview`
 - `surface.primary`
-- `surface.elevated`
+- `surface.secondary`
+- `surface.selected`
 - `content.primary`
 - `content.secondary`
 - `content.tertiary`
 - `accent.primary`
 - `accent.secondary`
-- `positive`
-- `warning`
-- `critical`
 - `border.subtle`
-- `border.strong`
-
-### Light Mode Direction
-
-- Backgrounds should stay bright but not pure white-heavy.
-- Elevated surfaces can use soft neutral tinting to avoid a sterile look.
-- Accent colors should remain saturated enough to survive widget blur and wallpaper noise.
-
-### Dark Mode Direction
-
-- Prefer layered charcoal and graphite surfaces over flat black everywhere.
-- Maintain stronger separation between background, card, and accent elements.
-- Avoid low-contrast gray-on-gray text for glanceable content.
+- `border.focus`
+- `state.positive`
+- `state.warning`
+- `state.critical`
 
 ## Typography Roles
 
-Prefer semantic roles over one-off font calls.
+The app needs two kinds of typography tokens:
+
+### Semantic UI Roles
 
 - `display`
 - `title`
 - `headline`
 - `body`
 - `caption`
-- `metric`
 - `micro`
 
-## Layout Principles
+### Widget Style Roles
 
-- Prioritize one focal metric or message per widget.
-- Use stacked information density: primary metric first, secondary context second, decoration last.
-- Keep padding generous enough for rounded-corner clipping and wallpaper noise.
-- Avoid relying on long labels in small and accessory widgets.
-- Design empty, loading, and permission-denied states as first-class layouts.
+These represent user-selectable visual families when a widget supports font customization:
 
-## Widget Sizes
+- `Default`
+- `Round`
+- `Serif`
+- `Mono`
+- `Pixel`
+- Additional families can be added later per widget or globally
 
-Use these sizes as the default design reference.
+User-selected font families should map back into shared typography tokens instead of being scattered in view code.
 
-### Home Screen Widgets
+## Layout Foundation
 
-| Size | Points |
+### Home Screen Sizes
+
+| Size | Use |
 |---|---|
-| Small | `170 x 170` |
-| Medium | `360 x 170` |
-| Large | `360 x 376` |
+| `Small` | One focal metric or compact message |
+| `Medium` | One main metric plus supporting context |
+| `Large` | Multi-block composition or richer supporting content |
 
-### Lock Screen / Accessory Widgets
+For now these are the core shipping sizes for the app flow and library organization.
 
-| Type | Guidance |
-|---|---|
-| Inline | Single-line text, status, or compact summary |
-| Circular | One metric, ring, icon, or time-centric presentation |
-| Rectangular | Two-level hierarchy with title plus key data |
+### Customization Sheet Pattern
 
-### Future Activity Surfaces
+The app customization experience should support:
 
-| Surface | Guidance |
-|---|---|
-| Live Activity | Compact status + evolving progress/state |
-| Dynamic Island Compact | Extremely condensed icon + metric |
-| Dynamic Island Minimal | Single symbol or single value |
-| Dynamic Island Expanded | Multi-region summary using ActivityKit regions |
+- A top widget preview
+- Inline segmented choices such as appearance mode
+- Tap-to-open rows for nested pickers such as font selection
+- Checkbox or tile-style choices for style presets
+- A primary save or try action at the bottom
 
-## Widget Composition Pattern
+This is intentionally a flexible pattern, because not every widget needs the same control set.
 
-Every widget layout should define:
+## Library Page Pattern
 
-- Primary content
-- Supporting content
-- Accent treatment
-- Background treatment
+Saved presets should be grouped by widget size:
+
+- `Small`
+- `Medium`
+- `Large`
+
+Each library item should clearly communicate:
+
+- Widget family
+- Style or preset name
+- Optional badge such as `Pro`, category, or configuration variant
+- A preview that resembles the actual Home Screen widget
+
+## Widget State Rules
+
+Every widget family should plan for:
+
+- Loaded state
 - Empty state
-- Permission-denied state
+- Permission denied state
+- Stale-data state
 
-## Best Practices
-
-- Use semantic colors, not hard-coded per-widget colors in view bodies.
-- Build widget-specific layout presets on top of shared spacing and radius tokens.
-- Keep text count low in small sizes.
-- Test every design in light mode, dark mode, and tinted wallpaper conditions.
-- Prefer vector-safe SF Symbols and minimal ornamentation in accessory sizes.
-- Ensure health, weather, and calendar widgets all remain useful with stale or partial data.
+These should be designed at the same level as the happy path, especially for framework-backed widgets.
 
 ## Recommended Token Families
 
 ```text
-Shared/Theme/
-├── Colors.swift
-├── Typography.swift
-├── Spacing.swift
-├── Radius.swift
-├── Shadows.swift
-└── WidgetLayoutTokens.swift
+DesignSystem/
+├── AppColors.swift
+├── AppFonts.swift
+├── AppSpacing.swift
+├── AppRadius.swift
+└── WidgetAppearanceTokens.swift
 ```
+
+Likely concrete files over time:
+
+- `AppColors.swift`
+- `WidgetAppearanceTokens.swift`
+- `AppFonts.swift`
+- `WidgetFontCatalog.swift`
+- `AppSpacing.swift`
+- `AppRadius.swift`
+- `WidgetSizeTokens.swift`
+- `SurfaceStyles.swift`
 
 ## Preview Requirements
 
-Every new widget or extension surface should be previewed in:
+Each widget preview should be validated in:
 
-- Light mode
-- Dark mode
-- Smallest supported size
-- Largest supported size
-- Empty state
-- Denied permission state
-
-## Extension-Specific Notes
-
-- Widget layouts should avoid deep navigation assumptions.
-- Lock screen and future Dynamic Island views must be even more compact than Home Screen widgets.
-- Live Activity designs should reuse the same color and type roles, but optimize for continuous status updates rather than static snapshots.
-
+- `Small`, `Medium`, and `Large` where supported
+- `System`, `Light`, and `Dark` appearance variants where supported
+- Empty and permission-denied states for framework-backed widgets
+- At least one saved-library card presentation

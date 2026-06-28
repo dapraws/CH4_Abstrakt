@@ -5,8 +5,7 @@
 //  Created by Muhammad Darrel Prawira on 23/06/26.
 //
 
-CODE_SIGN_STYLE = Automatic
-CODE_SIGN_IDENTITY = Apple Development
+DEVELOPMENT_TEAM = 26C3R3K269
 
 // Include a local configuration file that won't be tracked by Git
 #include? "Signing.local.xcconfig"
