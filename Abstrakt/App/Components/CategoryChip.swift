@@ -7,14 +7,14 @@ struct CategoryChip: View {
     var body: some View {
         HStack(spacing: 5) {
             Image(systemName: category.systemImage)
-                .font(.system(size: 14, weight: .black))
+                .font(AppFonts.font(.iconBadge))
 
             Text(category.title)
                 .font(AppFonts.font(.chip))
         }
         .foregroundStyle(isSelected ? AppColors.chipTextSelected : AppColors.chipText)
-        .padding(.horizontal, 12)
-        .frame(height: 30)
+        .padding(.horizontal, 16)
+        .frame(height: 32)
         .background(isSelected ? AppColors.chipSelected : AppColors.chip)
         .overlay {
             RoundedRectangle(cornerRadius: 15, style: .continuous)

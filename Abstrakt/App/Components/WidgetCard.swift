@@ -6,23 +6,38 @@ struct WidgetCard: View {
     var showsTitle = true
 
     var body: some View {
-        VStack(alignment: item.size == .small ? .leading : .center, spacing: 10) {
-            widgetPreview(for: item)
-                .frame(height: item.featuredHeight)
+        VStack(alignment: item.size == .small ? .leading : .center, spacing: titleSpacing) {
+            WidgetPreview(item: item, usesPlaceholderPreview: usesPlaceholderPreview)
+                .frame(width: item.size.previewWidth, height: item.size.previewHeight)
 
             if showsTitle {
                 Text("\(item.displayName) | \(item.primaryCategory.title)")
-                    .font(AppFonts.font(.bodyStrong))
+                    .font(AppFonts.font(.subHeading))
                     .foregroundStyle(AppColors.primaryText)
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
         }
+        .frame(width: item.size.previewWidth)
     }
 
+    private var titleSpacing: CGFloat {
+        switch item.size {
+        case .small:
+            10
+        case .medium, .large:
+            18
+        }
+    }
+}
+
+struct WidgetPreview: View {
+    let item: WidgetCatalogItem
+    var usesPlaceholderPreview = false
+
     @ViewBuilder
-    private func widgetPreview(for item: WidgetCatalogItem) -> some View {
+    var body: some View {
         if usesPlaceholderPreview {
             widgetBackground
         } else {
@@ -38,10 +53,10 @@ struct WidgetCard: View {
                     .overlay(alignment: .topLeading) {
                         VStack(alignment: .leading, spacing: 12) {
                             Text(item.displayName)
-                                .font(item.size == .small ? AppFonts.font(.bodyStrong) : AppFonts.font(.titleCompact))
+                                .font(item.size == .small ? AppFonts.widgetFont(.widgetBody, theme: .sfProRounded) : AppFonts.widgetFont(.widgetHeading, theme: .sfProRounded))
                                 .foregroundStyle(AppColors.widgetPrimaryText)
                             Text(item.primaryCategory.title)
-                                .font(AppFonts.font(.body))
+                                .font(AppFonts.widgetFont(.widgetCaption, theme: .sfProRounded))
                                 .foregroundStyle(AppColors.widgetSecondaryText)
                         }
                         .padding(20)

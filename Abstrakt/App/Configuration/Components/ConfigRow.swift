@@ -11,7 +11,7 @@ struct ConfigRow: View {
             Text(value)
                 .foregroundStyle(.secondary)
         }
-        .font(.headline)
+        .font(AppFonts.font(.heading3))
     }
 }
 
