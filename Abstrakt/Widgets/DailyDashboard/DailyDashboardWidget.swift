@@ -6,10 +6,29 @@ struct DailyDashboardSnapshot: Codable, Hashable {
     let high: Int
     let low: Int
     let weatherSymbol: String
+
+    private var temperatureUnit: TemperatureUnitPreference {
+        TemperatureUnitPreference.from(
+            id: UserDefaults(suiteName: AppGroupConstants.suiteName)?.string(forKey: AppSettingsPreference.temperatureUnitKey) ?? TemperatureUnitPreference.celsius.id
+        )
+    }
+
+    var displayTemperature: Int {
+        temperatureUnit.convertFromCelsius(temperature)
+    }
+
+    var displayHigh: Int {
+        temperatureUnit.convertFromCelsius(high)
+    }
+
+    var displayLow: Int {
+        temperatureUnit.convertFromCelsius(low)
+    }
 }
 
 struct DailyDashboardWidget: View {
     let snapshot: DailyDashboardSnapshot
+    private let fontTheme: AppFontTheme = .sfProRounded
 
     init(snapshot: DailyDashboardSnapshot = .placeholder) {
         self.snapshot = snapshot
@@ -19,13 +38,17 @@ struct DailyDashboardWidget: View {
         HStack(spacing: 8) {
             VStack(spacing: 8) {
                 timeCard
+                    .frame(maxHeight: .infinity)
                 weatherCard
             }
             .frame(width: 132)
+            .frame(maxHeight: .infinity)
 
             calendarCard
+                .frame(maxHeight: .infinity)
         }
         .padding(8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(AppColors.widgetBackground)
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
@@ -39,10 +62,10 @@ struct DailyDashboardWidget: View {
                 HStack {
                     Spacer()
                     HStack(spacing: 3) {
-                        Text("\(snapshot.temperature)")
+                        Text("\(snapshot.displayTemperature)")
                         Text(snapshot.weatherSymbol)
                     }
-                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                    .font(AppFonts.widgetFont(.widgetMeta, theme: fontTheme))
                     .foregroundStyle(AppColors.widgetPrimaryText)
                     .padding(.horizontal, 7)
                     .frame(height: 18)
@@ -51,7 +74,7 @@ struct DailyDashboardWidget: View {
                 }
 
                 Text(snapshot.date.formatted(.dateTime.hour().minute()))
-                    .font(.system(size: 41, weight: .bold, design: .rounded))
+                    .font(AppFonts.widgetFont(.widgetDisplay, theme: fontTheme))
                     .minimumScaleFactor(0.72)
                     .foregroundStyle(AppColors.widgetPrimaryText)
             }
@@ -65,22 +88,22 @@ struct DailyDashboardWidget: View {
                 .fill(AppColors.appBackground.opacity(0.82))
 
             HStack(alignment: .center) {
-                Text("\(snapshot.temperature)")
-                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                Text("\(snapshot.displayTemperature)")
+                    .font(AppFonts.widgetFont(.widgetTitle, theme: fontTheme))
                     .foregroundStyle(AppColors.widgetPrimaryText)
 
                 Text("°")
-                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .font(AppFonts.widgetFont(.heading2, theme: fontTheme))
                     .foregroundStyle(AppColors.widgetPrimaryText)
                     .offset(x: -5, y: -5)
 
                 Spacer(minLength: 2)
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("▲ \(snapshot.high)°")
-                    Text("▼ \(snapshot.low)°")
+                    Text("▲ \(snapshot.displayHigh)°")
+                    Text("▼ \(snapshot.displayLow)°")
                 }
-                .font(.system(size: 9, weight: .bold, design: .rounded))
+                .font(AppFonts.widgetFont(.widgetMeta, theme: fontTheme))
                 .foregroundStyle(AppColors.widgetSecondaryText)
             }
             .padding(.horizontal, 10)
@@ -95,19 +118,19 @@ struct DailyDashboardWidget: View {
 
             VStack(spacing: 9) {
                 HStack {
-                    ForEach(weekdaySymbols, id: \.self) { weekday in
+                    ForEach(Array(weekdaySymbols.enumerated()), id: \.offset) { _, weekday in
                         Text(weekday)
                             .frame(maxWidth: .infinity)
                     }
                 }
-                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .font(AppFonts.widgetFont(.widgetCaption, theme: fontTheme))
                 .foregroundStyle(Color(red: 1, green: 0.36, blue: 0.42))
 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7), spacing: 7) {
                     ForEach(calendarDays.indices, id: \.self) { index in
                         let value = calendarDays[index]
                         Text(value == 0 ? "" : "\(value)")
-                            .font(.system(size: 9, weight: .semibold, design: .rounded))
+                            .font(AppFonts.widgetFont(.widgetMeta, theme: fontTheme))
                             .foregroundStyle(AppColors.widgetPrimaryText.opacity(value == highlightedDay ? 1 : 0.86))
                             .frame(width: 20, height: 18)
                             .background {
@@ -151,7 +174,21 @@ extension DailyDashboardSnapshot {
     )
 }
 
-#Preview {
-    DailyDashboardWidget()
+#Preview("Daily Dashboard") {
+    DailyDashboardWidget(
+        snapshot: DailyDashboardSnapshot(
+            date: .dailyDashboardPreviewDate,
+            temperature: 25,
+            high: 30,
+            low: 24,
+            weatherSymbol: "🌥️"
+        )
+    )
         .frame(width: 364, height: 170)
+}
+
+private extension Date {
+    static let dailyDashboardPreviewDate = Calendar.current.date(
+        from: DateComponents(year: 2026, month: 6, day: 29, hour: 9, minute: 41)
+    ) ?? .now
 }
