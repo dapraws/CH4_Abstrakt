@@ -1,70 +1,56 @@
 import SwiftUI
 
 struct LibraryScreen: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedSize: WidgetSize = .small
 
     private var sizeCounts: [WidgetSize: Int] {
-        Dictionary(grouping: WidgetCatalog.items, by: \.size).mapValues(\.count)
+        Dictionary(grouping: WidgetPreset.seededLibrary, by: \.size).mapValues(\.count)
     }
 
-    private var filteredItems: [WidgetCatalogItem] {
-        WidgetCatalog.items.filter { $0.size == selectedSize }
+    private func presets(for size: WidgetSize) -> [WidgetPreset] {
+        WidgetPreset.seededLibrary.filter { $0.size == size }
     }
 
     var body: some View {
         ZStack(alignment: .bottom) {
             libraryBackdrop
 
-            ScrollFadeView(showsIndicators: false, headerHeight: 78, contentTopPadding: 6) { fadeProgress in
-                libraryHeader(fadeProgress: fadeProgress)
-            } content: {
-                LazyVStack(spacing: 0) {
-                    ForEach(filteredItems) { item in
-                        LibraryWidgetRow(item: item)
-                    }
+            TabView(selection: $selectedSize) {
+                ForEach(WidgetSize.allCases) { size in
+                    LibrarySizePage(
+                        size: size,
+                        presets: presets(for: size),
+                        palette: palette,
+                        headerHeight: headerHeight
+                    )
+                    .tag(size)
                 }
             }
+            .tabViewStyle(.page(indexDisplayMode: .never))
 
+            VStack(spacing: 0) {
+                libraryHeader
+                    .frame(height: headerHeight)
+                    .zIndex(1)
+
+                Spacer(minLength: 0)
+            }
         }
         .background(Color.clear)
     }
 
-    private func libraryHeader(fadeProgress: CGFloat) -> some View {
-        ZStack(alignment: .bottom) {
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .opacity(Double(0.68 + (0.16 * fadeProgress)))
-                .mask(
-                    LinearGradient(
-                        stops: [
-                            .init(color: .black, location: 0),
-                            .init(color: .black, location: 0.68),
-                            .init(color: .clear, location: 1),
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .ignoresSafeArea(edges: .top)
+    private var palette: LibraryPalette {
+        LibraryPalette(colorScheme: colorScheme)
+    }
 
-            AppColors.appBackground
-                .opacity(Double(0.16 + (0.14 * fadeProgress)))
-                .mask(
-                    LinearGradient(
-                        stops: [
-                            .init(color: .black, location: 0),
-                            .init(color: .clear, location: 1),
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .ignoresSafeArea(edges: .top)
+    private var headerHeight: CGFloat {
+        70
+    }
 
+    private var libraryHeader: some View {
+        FadingNavigationBar(fadeProgress: 1) {
             sizePicker
-                .padding(.horizontal, AppSpacing.screenHorizontal)
-                .padding(.top, 10)
-                .padding(.bottom, 8)
         }
     }
 
@@ -75,15 +61,11 @@ struct LibraryScreen: View {
                     selectedSize = size
                 } label: {
                     Text("\(size.title) (\(sizeCounts[size, default: 0]))")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
-                        .foregroundStyle(selectedSize == size ? AppColors.chipTextSelected : AppColors.primaryText.opacity(0.64))
+                        .font(AppFonts.font(.heading3))
+                        .foregroundStyle(selectedSize == size ? palette.chipTextSelected : palette.chipText)
                         .frame(maxWidth: .infinity)
                         .frame(height: 52)
-                        .background(selectedSize == size ? AppColors.chipSelected : AppColors.chip.opacity(0.58))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 25, style: .continuous)
-                                .stroke(selectedSize == size ? AppColors.chipBorderSelected : AppColors.chipBorder, lineWidth: 0.5)
-                        }
+                        .background(selectedSize == size ? palette.chipSelected : palette.chip)
                         .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
                 }
                 .buttonStyle(.plain)
@@ -93,86 +75,230 @@ struct LibraryScreen: View {
 
     private var libraryBackdrop: some View {
         ZStack {
-            Rectangle()
-                .fill(.ultraThinMaterial)
+            palette.background
 
-            AppColors.appBackground
-                .opacity(0.28)
+            RadialGradient(
+                colors: [
+                    palette.backgroundWash,
+                    Color.clear,
+                ],
+                center: .bottom,
+                startRadius: 24,
+                endRadius: 420
+            )
+
+            palette.scrim
         }
         .ignoresSafeArea()
     }
 
 }
 
+private struct LibraryPalette {
+    let colorScheme: ColorScheme
+
+    var isDark: Bool {
+        colorScheme == .dark
+    }
+
+    var background: Color {
+        isDark ? Color(red: 0.16, green: 0.16, blue: 0.18) : AppColors.appBackground
+    }
+
+    var backgroundWash: Color {
+        isDark ? Color(red: 0.46, green: 0.26, blue: 0.46).opacity(0.28) : Color.white.opacity(0.46)
+    }
+
+    var scrim: Color {
+        isDark ? Color.black.opacity(0.1) : Color.white.opacity(0.08)
+    }
+
+    var chip: Color {
+        isDark ? Color.white.opacity(0.16) : Color.white.opacity(0.66)
+    }
+
+    var chipSelected: Color {
+        isDark ? Color.white : Color(red: 0.08, green: 0.08, blue: 0.1)
+    }
+
+    var chipText: Color {
+        primaryText.opacity(0.62)
+    }
+
+    var chipTextSelected: Color {
+        isDark ? Color(red: 0.08, green: 0.08, blue: 0.1) : Color.white
+    }
+
+    var primaryText: Color {
+        isDark ? Color.white : Color(red: 0.08, green: 0.08, blue: 0.1)
+    }
+
+    var secondaryText: Color {
+        primaryText.opacity(0.5)
+    }
+
+    var separator: Color {
+        primaryText.opacity(0.12)
+    }
+}
+
+private struct LibrarySizePage: View {
+    let size: WidgetSize
+    let presets: [WidgetPreset]
+    let palette: LibraryPalette
+    let headerHeight: CGFloat
+
+    var body: some View {
+        ScrollView(showsIndicators: false) {
+            LazyVStack(spacing: 0) {
+                if presets.isEmpty {
+                    LibraryEmptyState(size: size, palette: palette)
+                } else {
+                    ForEach(presets) { preset in
+                        LibraryWidgetRow(preset: preset, palette: palette)
+                    }
+                }
+            }
+            .padding(.top, headerHeight - 10)
+            .padding(.bottom, 140)
+        }
+    }
+}
+
+private struct LibraryEmptyState: View {
+    let size: WidgetSize
+    let palette: LibraryPalette
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Image(systemName: emptyIcon)
+                .font(AppFonts.font(.title))
+                .foregroundStyle(palette.secondaryText)
+                .frame(width: 68, height: 68)
+                .background(palette.chip)
+                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+
+            VStack(spacing: 6) {
+                Text("No \(size.title.lowercased()) widgets")
+                    .font(AppFonts.font(.heading2))
+                    .foregroundStyle(palette.primaryText)
+
+                Text("Saved \(size.title.lowercased()) widgets will appear here.")
+                    .font(AppFonts.font(.body))
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(palette.secondaryText)
+                    .lineLimit(2)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, AppSpacing.screenHorizontal)
+        .padding(.top, 128)
+    }
+
+    private var emptyIcon: String {
+        switch size {
+        case .small:
+            "square"
+        case .medium:
+            "rectangle"
+        case .large:
+            "rectangle.grid.1x2"
+        }
+    }
+}
+
 private struct LibraryWidgetRow: View {
-    let item: WidgetCatalogItem
+    let preset: WidgetPreset
+    let palette: LibraryPalette
+
+    private var item: WidgetCatalogItem? {
+        WidgetCatalog.item(withID: preset.widgetID)
+    }
+
+    private var displayName: String {
+        preset.name
+    }
+
+    private var category: WidgetCategory {
+        item?.primaryCategory ?? .all
+    }
+
+    private var size: WidgetSize {
+        preset.size
+    }
 
     var body: some View {
         GeometryReader { proxy in
-            let textWidth = max(112, proxy.size.width - AppSpacing.screenHorizontal - previewFrameWidth - contentGap - previewTrailingInset)
+            let contentWidth = proxy.size.width - AppSpacing.screenHorizontal
+            let textWidth = min(contentWidth * textWidthRatio, maximumTextWidth)
+            let previewColumnWidth = max(0, contentWidth - textWidth - contentGap)
+            let previewSize = scaledPreviewSize
 
-            ZStack(alignment: .trailing) {
+            HStack(alignment: .top, spacing: contentGap) {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("\(item.displayName) | \(item.primaryCategory.title)")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundStyle(AppColors.primaryText)
+                    Text(displayName)
+                        .font(AppFonts.font(titleFontRole))
+                        .foregroundStyle(palette.primaryText)
                         .lineLimit(2)
                         .truncationMode(.tail)
                         .fixedSize(horizontal: false, vertical: true)
 
                     HStack(spacing: 7) {
-                        Image(systemName: item.primaryCategory.systemImage)
-                            .font(.system(size: 16, weight: .bold))
+                        Image(systemName: category.systemImage)
+                            .font(AppFonts.font(categoryFontRole))
 
-                        Text(item.primaryCategory.title)
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
+                        Text(category.title)
+                            .font(AppFonts.font(categoryFontRole))
                             .lineLimit(1)
                             .truncationMode(.tail)
                     }
-                    .foregroundStyle(AppColors.secondaryText)
+                    .foregroundStyle(palette.secondaryText)
                 }
-                .frame(width: textWidth, alignment: .leading)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, AppSpacing.screenHorizontal)
+                .frame(width: textWidth, height: rowHeight - textBottomPadding, alignment: .bottomLeading)
+                .padding(.bottom, textBottomPadding)
 
-                ZStack(alignment: .leading) {
-                    WidgetCard(item: item, showsTitle: false)
-                        .frame(width: previewContentWidth)
-                        .scaleEffect(previewScale, anchor: .leading)
-                        .rotationEffect(.degrees(rotationDegrees), anchor: .center)
-                        .offset(x: previewContentOffset, y: previewYOffset)
+                ZStack(alignment: .topLeading) {
+                    if let item {
+                        WidgetPreview(item: item)
+                            .frame(width: size.previewWidth, height: size.previewHeight)
+                            .scaleEffect(previewScale, anchor: .topLeading)
+                            .frame(width: previewSize.width, height: previewSize.height, alignment: .topLeading)
+                            .rotationEffect(.degrees(rotationDegrees), anchor: .center)
+                            .offset(x: previewXOffset, y: previewYOffset)
+                    }
                 }
-                .frame(width: previewFrameWidth, height: rowHeight, alignment: .leading)
-                .padding(.trailing, previewTrailingInset)
+                .frame(width: previewColumnWidth, height: rowHeight, alignment: .topLeading)
                 .clipped()
             }
+            .padding(.leading, AppSpacing.screenHorizontal)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity)
         .frame(height: rowHeight)
         .clipped()
         .overlay(alignment: .bottom) {
             Rectangle()
-                .fill(AppColors.primaryText.opacity(0.12))
+                .fill(palette.separator)
                 .frame(height: 1)
                 .padding(.leading, AppSpacing.screenHorizontal)
         }
     }
 
     private var rowHeight: CGFloat {
-        switch item.size {
+        switch size {
         case .small:
-            150
+            170
         case .medium:
-            160
+            170
         case .large:
-            168
+            184
         }
     }
 
     private var contentGap: CGFloat {
-        switch item.size {
+        switch size {
         case .small:
-            8
+            20
         case .medium:
             10
         case .large:
@@ -180,89 +306,103 @@ private struct LibraryWidgetRow: View {
         }
     }
 
-    private var previewTrailingInset: CGFloat {
-        switch item.size {
+    private var textWidthRatio: CGFloat {
+        switch size {
         case .small:
-            16
+            0.4
         case .medium:
-            6
+            0.3
         case .large:
-            4
+            0.5
         }
     }
 
-    private var previewFrameWidth: CGFloat {
-        previewVisibleWidth + rotationBleed
+    private var maximumTextWidth: CGFloat {
+        switch size {
+        case .small:
+            150
+        case .medium:
+            120
+        case .large:
+            186
+        }
     }
 
-    private var rotationBleed: CGFloat {
-        switch item.size {
+    private var scaledPreviewSize: CGSize {
+        CGSize(
+            width: size.previewWidth * previewScale,
+            height: size.previewHeight * previewScale
+        )
+    }
+
+    private var previewScale: CGFloat {
+        switch size {
         case .small:
-            14
+            0.96
         case .medium:
-            18
+            0.64
+        case .large:
+            0.56
+        }
+    }
+
+    private var textBottomPadding: CGFloat {
+        switch size {
+        case .small:
+            34
+        case .medium:
+            32
+        case .large:
+            36
+        }
+    }
+
+    private var previewXOffset: CGFloat {
+        switch size {
+        case .small:
+            20
+        case .medium:
+            10
+        case .large:
+            0
+        }
+    }
+
+    private var previewYOffset: CGFloat {
+        switch size {
+        case .small:
+            48
+        case .medium:
+            72
         case .large:
             24
         }
     }
 
-    private var previewVisibleWidth: CGFloat {
-        switch item.size {
+    private var titleFontRole: AppFontRole {
+        switch size {
         case .small:
-            164
+            .heading2
         case .medium:
-            220
+            .heading3
         case .large:
-            230
+            .heading3
         }
     }
 
-    private var previewContentWidth: CGFloat {
-        switch item.size {
+    private var categoryFontRole: AppFontRole {
+        switch size {
         case .small:
-            168
+            .heading3
         case .medium:
-            250
+            .chip
         case .large:
-            480
-        }
-    }
-
-    private var previewScale: CGFloat {
-        switch item.size {
-        case .small:
-            0.96
-        case .medium:
-            0.82
-        case .large:
-            0.44
-        }
-    }
-
-    private var previewContentOffset: CGFloat {
-        switch item.size {
-        case .small:
-            rotationBleed * 0.5
-        case .medium:
-            rotationBleed * 0.5
-        case .large:
-            rotationBleed * 0.5
-        }
-    }
-
-    private var previewYOffset: CGFloat {
-        switch item.size {
-        case .small:
-            32
-        case .medium:
-            32
-        case .large:
-            32
+            .chip
         }
     }
 
     private var rotationDegrees: Double {
-        let seed = item.id.unicodeScalars.reduce(0) { $0 + Int($1.value) }
+        let seed = preset.widgetID.unicodeScalars.reduce(0) { $0 + Int($1.value) }
         let angles = [-1.8, 1.2, -1.1, 1.6, -0.7]
         return angles[seed % angles.count]
     }
