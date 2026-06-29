@@ -12,8 +12,8 @@ This repository is a native SwiftUI app, not a reusable library. The product goa
 ## Current State
 
 - The codebase is in early foundation stage.
-- Existing widget feature folders currently include `Clock` and `Calendar`.
-- Shared theme, persistence, and constants files exist but are mostly placeholders.
+- Existing widget folders currently include `BatteryBars`, `StepHealth`, and `DailyDashboard`.
+- Shared theme, persistence, constants, service, and widget-size token files are being established.
 - Documentation should be treated as the source of intent until implementation catches up.
 
 ## Read This First
@@ -87,16 +87,17 @@ Use the feature matrix in `docs/FEATURE_FRAMEWORK_MATRIX.md` as the canonical ma
 
 ```text
 Abstrakt/
-├── App/                  Main app entry and app-level composition
-├── Features/             Product feature modules grouped by surface/use case
-├── Shared/               Cross-feature tokens, providers, persistence, constants
-└── WidgetExtension/      WidgetKit bundle and widget registrations
+├── App/                       Main app entry, screens, components, and configuration
+├── Core/                      App-owned models, services, storage, and constants
+├── DesignSystem/              Cross-feature tokens for color, type, spacing, radius, and widget sizes
+├── Widgets/                   User-facing widget preview/rendering folders
+└── AbstraktWidgetsExtension/  WidgetKit bundle, widget registrations, intents, and shared extension data
 ```
 
 Recommended feature structure:
 
 ```text
-Features/
+Widgets/
 └── <FeatureName>/
     ├── Models/
     ├── ViewModels/
