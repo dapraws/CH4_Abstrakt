@@ -6,16 +6,29 @@
 //
 
 import SwiftUI
+import WidgetKit
 
 struct ContentView: View {
+    private static let activeWidgetRefreshInterval: Duration = .seconds(1)
+    private static let libraryTransitionAnimation = Animation.smooth(duration: 0.2)
+    
+    @Environment(\.scenePhase) private var scenePhase
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
     @State private var selectedTab: BottomBarTab = .gallery
     @State private var showsLibrary = false
-
-    private var libraryCount: Int {
-        WidgetCatalog.items.count
+    @State private var selectedGalleryItem: WidgetCatalogItem?
+    
+    private let runsLiveWidgetTasks: Bool
+    
+    init(runsLiveWidgetTasks: Bool = true) {
+        self.runsLiveWidgetTasks = runsLiveWidgetTasks
     }
-
+    
+    private var libraryCount: Int {
+        WidgetPreset.seededLibrary.count
+    }
+    
     var body: some View {
         Group {
             if hasCompletedOnboarding {
@@ -26,61 +39,76 @@ struct ContentView: View {
                 }
             }
         }
+        .task {
+            guard runsLiveWidgetTasks else {
+                return
+            }
+            
+            await refreshWidgetData()
+            HealthSummaryProvider.shared.startObservingTodayMetrics {
+                Task { @MainActor in
+                    await refreshFastChangingWidgetData()
+                }
+            }
+        }
+        .task(id: scenePhase) {
+            guard runsLiveWidgetTasks, scenePhase == .active else {
+                return
+            }
+            
+            await runActiveWidgetRefreshLoop()
+        }
     }
-
+    
     private var appShell: some View {
         ZStack(alignment: .bottom) {
             currentScreen
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(AppColors.appBackground)
                 .blur(radius: showsLibrary ? 18 : 0)
-                .scaleEffect(showsLibrary ? 1.02 : 1)
-                .animation(.smooth(duration: 0.24), value: showsLibrary)
-
+                .animation(Self.libraryTransitionAnimation, value: showsLibrary)
+            
             if !showsLibrary {
                 bottomBarEffect
             }
-
+            
             BottomBar(
                 selectedTab: bottomBarSelection,
                 libraryCount: libraryCount,
                 isLibraryPresented: showsLibrary
             ) {
-                withAnimation(.spring(duration: 0.48, bounce: 0.16)) {
+                withAnimation(Self.libraryTransitionAnimation) {
                     showsLibrary = false
                 }
             }
-            .animation(.spring(duration: 0.48, bounce: 0.16), value: showsLibrary)
+            .animation(Self.libraryTransitionAnimation, value: showsLibrary)
             .zIndex(3)
-
+            
             if showsLibrary {
                 LibraryScreen()
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
-                .zIndex(2)
+                    .transition(.opacity)
+                    .zIndex(2)
+            }
+
+            if let selectedGalleryItem {
+                WidgetPreviewSheetCover(item: selectedGalleryItem) {
+                    self.selectedGalleryItem = nil
+                }
+                .zIndex(4)
             }
         }
         .ignoresSafeArea(edges: .bottom)
-        .task {
-            SharedModelContainer.write(
-                clock: ClockDataProvider.currentSnapshot(),
-                calendar: EventKitProvider.placeholderSnapshot()
-            )
-            SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
-            SharedModelContainer.write(dashboard: .placeholder)
-
-            await HealthSummaryProvider.shared.requestAuthorization()
-            let health = await HealthSummaryProvider.shared.todaySnapshot()
-            SharedModelContainer.write(health: health)
-        }
     }
-
+    
     @ViewBuilder
     private var currentScreen: some View {
         switch selectedTab {
         case .home:
             HomeScreen()
         case .gallery:
-            GalleryScreen()
+            GalleryScreen { item in
+                selectedGalleryItem = item
+            }
         case .widgets:
             WIPScreen()
         case .settings:
@@ -89,13 +117,13 @@ struct ContentView: View {
             EmptyView()
         }
     }
-
+    
     private var bottomBarSelection: Binding<BottomBarTab> {
         Binding {
             selectedTab
         } set: { newValue in
             if newValue == .library {
-                withAnimation(.spring(duration: 0.48, bounce: 0.16)) {
+                withAnimation(Self.libraryTransitionAnimation) {
                     showsLibrary = true
                 }
             } else {
@@ -105,7 +133,7 @@ struct ContentView: View {
             }
         }
     }
-
+    
     private var bottomBarEffect: some View {
         LinearGradient(
             stops: [
@@ -119,8 +147,47 @@ struct ContentView: View {
         .frame(height: 116)
         .allowsHitTesting(false)
     }
+    
+    private func refreshWidgetData() async {
+        SharedModelContainer.write(
+            clock: ClockDataProvider.currentSnapshot(),
+            calendar: EventKitProvider.placeholderSnapshot()
+        )
+        SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
+        SharedModelContainer.write(widgetPresets: WidgetPreset.seededLibrary)
+        
+        await refreshHealthWidgetData()
+        
+        let dashboard = await WeatherDashboardProvider.shared.dashboardSnapshot()
+        SharedModelContainer.write(dashboard: dashboard)
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+    
+    private func runActiveWidgetRefreshLoop() async {
+        while !Task.isCancelled {
+            await refreshFastChangingWidgetData()
+            
+            do {
+                try await Task.sleep(for: Self.activeWidgetRefreshInterval)
+            } catch {
+                return
+            }
+        }
+    }
+    
+    private func refreshFastChangingWidgetData() async {
+        SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
+        await refreshHealthWidgetData()
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+    
+    private func refreshHealthWidgetData() async {
+        await HealthSummaryProvider.shared.requestAuthorization()
+        let health = await HealthSummaryProvider.shared.todaySnapshot()
+        SharedModelContainer.write(health: health)
+    }
 }
 
 #Preview {
-    ContentView()
+    ContentView(runsLiveWidgetTasks: false)
 }

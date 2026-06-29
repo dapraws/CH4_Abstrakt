@@ -39,7 +39,7 @@ struct OnboardingScreen: View {
                     }
                 } label: {
                     Text(currentStep == steps.count - 1 ? "Start" : "Next")
-                        .font(AppFonts.font(.bodyStrong))
+                        .font(AppFonts.font(.heading3))
                         .foregroundStyle(AppColors.chipTextSelected)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)

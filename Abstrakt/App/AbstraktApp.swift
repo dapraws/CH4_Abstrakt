@@ -9,6 +9,10 @@ import SwiftUI
 
 @main
 struct AbstraktApp: App {
+    init() {
+        AppFonts.registerCustomFonts()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

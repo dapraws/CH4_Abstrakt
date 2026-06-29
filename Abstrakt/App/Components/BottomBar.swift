@@ -6,6 +6,10 @@ struct BottomBar: View {
     var isLibraryPresented = false
     var onLibraryBack: (() -> Void)?
 
+    private let tabIconFont = Font.system(size: 18, weight: .bold, design: .rounded)
+    private let backIconFont = Font.system(size: 16, weight: .bold, design: .rounded)
+    private let libraryBadgeFont = Font.system(size: 12, weight: .black, design: .rounded)
+
     var body: some View {
         ZStack {
             tabBarContent
@@ -25,15 +29,15 @@ struct BottomBar: View {
         .padding(.horizontal, isLibraryPresented ? 18 : 18)
         .frame(width: isLibraryPresented ? 116 : nil)
         .frame(maxWidth: isLibraryPresented ? nil : .infinity)
-        .frame(height: 58)
-        .scaleEffect(isLibraryPresented ? 0.97 : 0.94)
+        .frame(height: 64)
+        .scaleEffect(0.94)
         .background(AppColors.tabBar)
         .overlay {
             RoundedRectangle(cornerRadius: isLibraryPresented ? 22 : 27, style: .continuous)
                 .stroke(AppColors.tabBarBorder, lineWidth: 0.5)
         }
-        .clipShape(RoundedRectangle(cornerRadius: isLibraryPresented ? 24 : 27, style: .continuous))
-        .padding(.horizontal, isLibraryPresented ? 0 : 48)
+        .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+        .padding(.horizontal, isLibraryPresented ? 0 : 50)
         .padding(.bottom, AppSpacing.bottomBarInset)
         .animation(containerAnimation, value: isLibraryPresented)
     }
@@ -74,7 +78,7 @@ struct BottomBar: View {
                             }
 
                         Text("\(libraryCount)")
-                            .font(AppFonts.font(.tab))
+                            .font(libraryBadgeFont)
                             .foregroundStyle(Color.black)
                     }
                     .frame(maxWidth: .infinity)
@@ -90,10 +94,10 @@ struct BottomBar: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "arrowshape.turn.up.backward.fill")
-                    .font(.system(size: 15, weight: .black))
+                    .font(backIconFont)
 
                 Text("Back")
-                    .font(AppFonts.font(.bodyStrong))
+                    .font(AppFonts.font(.heading3))
             }
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
@@ -106,7 +110,7 @@ struct BottomBar: View {
             selectedTab = tab
         } label: {
             Image(systemName: tab.systemImage)
-                .font(.system(size: 18, weight: .bold))
+                .font(tabIconFont)
                 .foregroundStyle(selectedTab == tab ? AppColors.tabBarIconSelected : AppColors.tabBarIcon)
                 .frame(maxWidth: .infinity)
                 .frame(height: 22)
@@ -124,7 +128,7 @@ struct BottomBar: View {
     }
 
     private var containerAnimation: Animation {
-        .spring(duration: 0.48, bounce: 0.16)
+        .smooth(duration: 0.2)
     }
 
     private var tabContentAnimation: Animation {
