@@ -20,13 +20,21 @@ enum WidgetSize: String, CaseIterable, Codable, Identifiable {
     }
 
     var previewHeight: CGFloat {
+        previewSize.height
+    }
+
+    var previewWidth: CGFloat {
+        previewSize.width
+    }
+
+    var previewSize: CGSize {
         switch self {
         case .small:
-            170
+            WidgetSizeTokens.defaultHomeSmall
         case .medium:
-            170
+            WidgetSizeTokens.defaultHomeMedium
         case .large:
-            376
+            WidgetSizeTokens.defaultHomeLarge
         }
     }
 }

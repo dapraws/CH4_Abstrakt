@@ -1,6 +1,6 @@
 import Foundation
 
-enum WidgetCatalog {
+nonisolated enum WidgetCatalog {
     static let items: [WidgetCatalogItem] = [
         WidgetCatalogItem(
             id: "battery-bars-small",
@@ -27,7 +27,11 @@ enum WidgetCatalog {
 
     static func galleryItems(for category: WidgetCategory) -> [WidgetCatalogItem] {
         let ids = galleryOrder[category] ?? galleryOrder[.all] ?? items.map(\.id)
-        return ids.compactMap(itemByID)
+        return ids.compactMap { item(withID: $0) }
+    }
+
+    static func item(withID id: String) -> WidgetCatalogItem? {
+        items.first { $0.id == id }
     }
 
     private static let galleryOrder: [WidgetCategory: [String]] = [
@@ -52,8 +56,4 @@ enum WidgetCatalog {
             "daily-dashboard-medium",
         ],
     ]
-
-    private static func itemByID(_ id: String) -> WidgetCatalogItem? {
-        items.first { $0.id == id }
-    }
 }

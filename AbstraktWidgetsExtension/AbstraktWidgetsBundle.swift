@@ -3,9 +3,13 @@ import WidgetKit
 
 @main
 struct AbstraktWidgetsBundle: WidgetBundle {
+    init() {
+        WidgetFonts.registerCustomFonts()
+    }
+
     var body: some Widget {
-        BatteryBarsHomeWidget()
-        StepHealthHomeWidget()
-        DailyDashboardHomeWidget()
+        SmallSolidWidget()
+        MediumSolidWidget()
+        LargeSolidWidget()
     }
 }

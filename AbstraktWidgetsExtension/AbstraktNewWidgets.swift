@@ -1,17 +1,40 @@
+import Foundation
 import SwiftUI
 import WidgetKit
+
+struct SmallSolidWidgetEntry: TimelineEntry {
+    let date: Date
+    let selectedWidgetID: String?
+    let battery: BatteryWidgetEntry
+    let health: StepWidgetEntry
+}
+
+struct MediumSolidWidgetEntry: TimelineEntry {
+    let date: Date
+    let selectedWidgetID: String?
+    let dashboard: DashboardWidgetEntry
+}
+
+struct LargeSolidWidgetEntry: TimelineEntry {
+    let date: Date
+    let selectedWidgetID: String?
+    let battery: BatteryWidgetEntry
+    let health: StepWidgetEntry
+    let dashboard: DashboardWidgetEntry
+}
 
 struct BatteryWidgetEntry: TimelineEntry {
     let date: Date
     let level: Int
-    let estimatedHoursRemaining: Int?
+    let estimatedMinutesRemaining: Int?
     let isCharging: Bool
 }
 
 struct StepWidgetEntry: TimelineEntry {
     let date: Date
     let steps: Int
-    let distanceKilometers: Double
+    let distanceValue: Double
+    let distanceUnitName: String
 }
 
 struct DashboardWidgetEntry: TimelineEntry {
@@ -22,96 +45,307 @@ struct DashboardWidgetEntry: TimelineEntry {
     let weatherSymbol: String
 }
 
-struct BatteryBarsProvider: TimelineProvider {
-    func placeholder(in context: Context) -> BatteryWidgetEntry {
-        BatteryWidgetEntry(date: .now, level: 52, estimatedHoursRemaining: 5, isCharging: false)
+private let widgetTimelineRefreshInterval: TimeInterval = 1
+
+struct SmallSolidWidgetProvider: AppIntentTimelineProvider {
+    typealias Entry = SmallSolidWidgetEntry
+    typealias Intent = SmallSolidWidgetIntent
+
+    func placeholder(in context: Context) -> SmallSolidWidgetEntry {
+        SmallSolidWidgetEntry.current(selectedWidgetName: SolidWidgetSelection.choose)
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (BatteryWidgetEntry) -> Void) {
-        completion(WidgetSharedStore.batteryEntry)
+    func snapshot(for configuration: SmallSolidWidgetIntent, in context: Context) async -> SmallSolidWidgetEntry {
+        SmallSolidWidgetEntry.current(selectedWidgetName: configuration.currentWidget ?? SolidWidgetSelection.choose)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<BatteryWidgetEntry>) -> Void) {
-        completion(Timeline(entries: [WidgetSharedStore.batteryEntry], policy: .after(nextMinute())))
-    }
-}
-
-struct StepHealthProvider: TimelineProvider {
-    func placeholder(in context: Context) -> StepWidgetEntry {
-        StepWidgetEntry(date: .now, steps: 3_192, distanceKilometers: 2.14)
-    }
-
-    func getSnapshot(in context: Context, completion: @escaping (StepWidgetEntry) -> Void) {
-        completion(WidgetSharedStore.healthEntry)
-    }
-
-    func getTimeline(in context: Context, completion: @escaping (Timeline<StepWidgetEntry>) -> Void) {
-        completion(Timeline(entries: [WidgetSharedStore.healthEntry], policy: .after(nextMinute())))
+    func timeline(for configuration: SmallSolidWidgetIntent, in context: Context) async -> Timeline<SmallSolidWidgetEntry> {
+        Timeline(
+            entries: [SmallSolidWidgetEntry.current(selectedWidgetName: configuration.currentWidget ?? SolidWidgetSelection.choose)],
+            policy: .after(nextWidgetRefreshDate())
+        )
     }
 }
 
-struct DailyDashboardProvider: TimelineProvider {
-    func placeholder(in context: Context) -> DashboardWidgetEntry {
-        DashboardWidgetEntry(date: .now, temperature: 25, high: 30, low: 24, weatherSymbol: "🌥️")
+struct MediumSolidWidgetProvider: AppIntentTimelineProvider {
+    typealias Entry = MediumSolidWidgetEntry
+    typealias Intent = MediumSolidWidgetIntent
+
+    func placeholder(in context: Context) -> MediumSolidWidgetEntry {
+        MediumSolidWidgetEntry.current(selectedWidgetName: SolidWidgetSelection.choose)
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (DashboardWidgetEntry) -> Void) {
-        completion(WidgetSharedStore.dashboardEntry)
+    func snapshot(for configuration: MediumSolidWidgetIntent, in context: Context) async -> MediumSolidWidgetEntry {
+        MediumSolidWidgetEntry.current(selectedWidgetName: configuration.currentWidget ?? SolidWidgetSelection.choose)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<DashboardWidgetEntry>) -> Void) {
-        completion(Timeline(entries: [WidgetSharedStore.dashboardEntry], policy: .after(nextMinute())))
+    func timeline(for configuration: MediumSolidWidgetIntent, in context: Context) async -> Timeline<MediumSolidWidgetEntry> {
+        Timeline(
+            entries: [MediumSolidWidgetEntry.current(selectedWidgetName: configuration.currentWidget ?? SolidWidgetSelection.choose)],
+            policy: .after(nextWidgetRefreshDate())
+        )
     }
 }
 
-struct BatteryBarsHomeWidget: Widget {
-    let kind = "BatteryBarsHomeWidget"
+struct LargeSolidWidgetProvider: AppIntentTimelineProvider {
+    typealias Entry = LargeSolidWidgetEntry
+    typealias Intent = LargeSolidWidgetIntent
+
+    func placeholder(in context: Context) -> LargeSolidWidgetEntry {
+        LargeSolidWidgetEntry.current(selectedWidgetName: SolidWidgetSelection.choose)
+    }
+
+    func snapshot(for configuration: LargeSolidWidgetIntent, in context: Context) async -> LargeSolidWidgetEntry {
+        LargeSolidWidgetEntry.current(selectedWidgetName: configuration.currentWidget ?? SolidWidgetSelection.choose)
+    }
+
+    func timeline(for configuration: LargeSolidWidgetIntent, in context: Context) async -> Timeline<LargeSolidWidgetEntry> {
+        Timeline(
+            entries: [LargeSolidWidgetEntry.current(selectedWidgetName: configuration.currentWidget ?? SolidWidgetSelection.choose)],
+            policy: .after(nextWidgetRefreshDate())
+        )
+    }
+}
+
+private func nextWidgetRefreshDate() -> Date {
+    .now.addingTimeInterval(widgetTimelineRefreshInterval)
+}
+
+struct SmallSolidWidget: Widget {
+    let kind = "AbstraktSolidSmallWidget.v3"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: BatteryBarsProvider()) { entry in
-            BatteryBarsWidgetView(entry: entry)
+        AppIntentConfiguration(kind: kind, intent: SmallSolidWidgetIntent.self, provider: SmallSolidWidgetProvider()) { entry in
+            SmallSolidWidgetView(entry: entry)
         }
-        .configurationDisplayName("Battery Bars")
-        .description("Battery percentage and estimated remaining runtime.")
+        .configurationDisplayName("Solid Widget")
+        .description("Small Widget")
         .supportedFamilies([.systemSmall])
+        .contentMarginsDisabled()
     }
 }
 
-struct StepHealthHomeWidget: Widget {
-    let kind = "StepHealthHomeWidget"
+struct MediumSolidWidget: Widget {
+    let kind = "AbstraktSolidMediumWidget.v3"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: StepHealthProvider()) { entry in
-            StepHealthWidgetView(entry: entry)
+        AppIntentConfiguration(kind: kind, intent: MediumSolidWidgetIntent.self, provider: MediumSolidWidgetProvider()) { entry in
+            MediumSolidWidgetView(entry: entry)
         }
-        .configurationDisplayName("Step Health")
-        .description("Today's steps and walking distance.")
-        .supportedFamilies([.systemSmall])
-    }
-}
-
-struct DailyDashboardHomeWidget: Widget {
-    let kind = "DailyDashboardHomeWidget"
-
-    var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: DailyDashboardProvider()) { entry in
-            DailyDashboardWidgetView(entry: entry)
-        }
-        .configurationDisplayName("Daily Dashboard")
-        .description("Time, weather, and calendar overview.")
+        .configurationDisplayName("Solid Widget")
+        .description("Medium Widget")
         .supportedFamilies([.systemMedium])
+        .contentMarginsDisabled()
     }
 }
 
-private func nextMinute() -> Date {
-    Calendar.current.date(byAdding: .minute, value: 1, to: .now) ?? .now.addingTimeInterval(60)
+struct LargeSolidWidget: Widget {
+    let kind = "AbstraktSolidLargeWidget.v3"
+
+    var body: some WidgetConfiguration {
+        AppIntentConfiguration(kind: kind, intent: LargeSolidWidgetIntent.self, provider: LargeSolidWidgetProvider()) { entry in
+            LargeSolidWidgetView(entry: entry)
+        }
+        .configurationDisplayName("Solid Widget")
+        .description("Large Widget")
+        .supportedFamilies([.systemLarge])
+        .contentMarginsDisabled()
+    }
 }
 
 private let widgetBackground = Color(red: 0.02, green: 0.02, blue: 0.02)
 private let widgetForeground = Color(red: 0.96, green: 0.96, blue: 0.96)
 
+private extension SmallSolidWidgetEntry {
+    static func current(selectedWidgetName: String) -> SmallSolidWidgetEntry {
+        SmallSolidWidgetEntry(
+            date: .now,
+            selectedWidgetID: SolidWidgetSelection.widgetID(for: selectedWidgetName, size: "small"),
+            battery: BatteryWidgetEntry(
+                date: .now,
+                level: WidgetSharedStore.batteryLevel,
+                estimatedMinutesRemaining: WidgetSharedStore.batteryEstimatedMinutes,
+                isCharging: WidgetSharedStore.batteryIsCharging
+            ),
+            health: StepWidgetEntry(
+                date: .now,
+                steps: WidgetSharedStore.healthSteps,
+                distanceValue: WidgetSharedStore.healthDistanceValue,
+                distanceUnitName: WidgetSharedStore.healthDistanceUnitName
+            )
+        )
+    }
+}
+
+private extension MediumSolidWidgetEntry {
+    static func current(selectedWidgetName: String) -> MediumSolidWidgetEntry {
+        MediumSolidWidgetEntry(
+            date: .now,
+            selectedWidgetID: SolidWidgetSelection.widgetID(for: selectedWidgetName, size: "medium"),
+            dashboard: DashboardWidgetEntry(
+                date: .now,
+                temperature: WidgetSharedStore.weatherTemperature,
+                high: WidgetSharedStore.weatherHigh,
+                low: WidgetSharedStore.weatherLow,
+                weatherSymbol: WidgetSharedStore.weatherSymbol
+            )
+        )
+    }
+}
+
+private extension LargeSolidWidgetEntry {
+    static func current(selectedWidgetName: String) -> LargeSolidWidgetEntry {
+        LargeSolidWidgetEntry(
+            date: .now,
+            selectedWidgetID: SolidWidgetSelection.widgetID(for: selectedWidgetName, size: "large"),
+            battery: BatteryWidgetEntry(
+                date: .now,
+                level: WidgetSharedStore.batteryLevel,
+                estimatedMinutesRemaining: WidgetSharedStore.batteryEstimatedMinutes,
+                isCharging: WidgetSharedStore.batteryIsCharging
+            ),
+            health: StepWidgetEntry(
+                date: .now,
+                steps: WidgetSharedStore.healthSteps,
+                distanceValue: WidgetSharedStore.healthDistanceValue,
+                distanceUnitName: WidgetSharedStore.healthDistanceUnitName
+            ),
+            dashboard: DashboardWidgetEntry(
+                date: .now,
+                temperature: WidgetSharedStore.weatherTemperature,
+                high: WidgetSharedStore.weatherHigh,
+                low: WidgetSharedStore.weatherLow,
+                weatherSymbol: WidgetSharedStore.weatherSymbol
+            )
+        )
+    }
+}
+
+private struct SmallSolidWidgetView: View {
+    let entry: SmallSolidWidgetEntry
+
+    var body: some View {
+        switch entry.selectedWidgetID {
+        case "battery-bars-small":
+            BatteryBarsWidgetView(entry: entry.battery)
+        case "step-health-small":
+            StepHealthWidgetView(entry: entry.health)
+        default:
+            InstructionSolidWidgetView()
+        }
+    }
+}
+
+private struct MediumSolidWidgetView: View {
+    let entry: MediumSolidWidgetEntry
+
+    var body: some View {
+        switch entry.selectedWidgetID {
+        case "daily-dashboard-medium":
+            DailyDashboardWidgetView(entry: entry.dashboard)
+        default:
+            InstructionSolidWidgetView()
+        }
+    }
+}
+
+private struct LargeSolidWidgetView: View {
+    let entry: LargeSolidWidgetEntry
+
+    var body: some View {
+        switch entry.selectedWidgetID {
+        default:
+            InstructionSolidWidgetView()
+        }
+    }
+}
+
+private struct InstructionSolidWidgetView: View {
+    @Environment(\.widgetFamily) private var widgetFamily
+    private let fontTheme: WidgetFontTheme = .sfProRounded
+
+    var body: some View {
+        ZStack {
+            widgetBackground
+
+            VStack(alignment: .leading, spacing: rowSpacing) {
+                instructionRow(number: 1, text: "Touch and hold", isActive: true)
+                instructionRow(number: 2, text: "\"Edit Widget\"", isActive: false)
+                instructionRow(number: 3, text: "Select a widget", isActive: true)
+                instructionRow(number: 4, text: "Tap \"Done\"", isActive: false)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+            .padding(contentPadding)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .containerBackground(widgetBackground, for: .widget)
+    }
+
+    private func instructionRow(number: Int, text: String, isActive: Bool) -> some View {
+        HStack(spacing: 8) {
+            Text("\(number)")
+                .font(WidgetFonts.font(.iconBadge, theme: fontTheme))
+                .foregroundStyle(isActive ? widgetBackground : widgetForeground.opacity(0.42))
+                .frame(width: numberBadgeSize, height: numberBadgeSize)
+                .background(isActive ? widgetForeground : widgetForeground.opacity(0.18))
+                .clipShape(Circle())
+
+            Text(text)
+                .font(WidgetFonts.font(instructionTextRole, theme: fontTheme))
+                .foregroundStyle(isActive ? widgetForeground : widgetForeground.opacity(0.42))
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+        }
+    }
+
+    private var instructionTextRole: WidgetFontRole {
+        switch widgetFamily {
+        case .systemSmall:
+            .caption
+        case .systemMedium:
+            .body
+        default:
+            .heading
+        }
+    }
+
+    private var numberBadgeSize: CGFloat {
+        switch widgetFamily {
+        case .systemSmall:
+            14
+        case .systemMedium:
+            16
+        default:
+            17
+        }
+    }
+
+    private var rowSpacing: CGFloat {
+        switch widgetFamily {
+        case .systemSmall:
+            8
+        case .systemMedium:
+            10
+        default:
+            11
+        }
+    }
+
+    private var contentPadding: CGFloat {
+        switch widgetFamily {
+        case .systemSmall:
+            18
+        case .systemMedium:
+            20
+        default:
+            24
+        }
+    }
+}
+
 private struct BatteryBarsWidgetView: View {
     let entry: BatteryWidgetEntry
+    private let fontTheme: WidgetFontTheme = .sfProRounded
 
     var body: some View {
         ZStack {
@@ -120,37 +354,90 @@ private struct BatteryBarsWidgetView: View {
             VStack(spacing: 24) {
                 HStack(spacing: 5) {
                     Image(systemName: "bolt.fill")
-                        .font(.system(size: 13, weight: .black))
+                        .font(WidgetFonts.font(.caption, theme: fontTheme))
                         .foregroundStyle(Color(red: 1, green: 0.35, blue: 0.22))
 
                     Text("\(entry.level)%")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(WidgetFonts.font(.heading, theme: fontTheme))
                         .foregroundStyle(widgetForeground)
                 }
 
                 HStack(spacing: 6) {
                     ForEach(0..<5, id: \.self) { index in
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .fill(index < filledSegments ? Color(red: 1, green: 0.35, blue: 0.22) : widgetForeground.opacity(0.08))
-                            .frame(width: 21, height: 44)
+                        BatteryLevelBarView(
+                            fillFraction: barFillFraction(at: index),
+                            fillColor: Color(red: 1, green: 0.35, blue: 0.22),
+                            backgroundColor: widgetForeground.opacity(0.08)
+                        )
                     }
                 }
 
-                Text(entry.isCharging ? "Charging" : "- \(entry.estimatedHoursRemaining ?? 5) hours")
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                Text(timeRemainingLabel)
+                    .font(WidgetFonts.font(.caption, theme: fontTheme))
                     .foregroundStyle(widgetForeground.opacity(0.32))
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .containerBackground(widgetBackground, for: .widget)
     }
 
-    private var filledSegments: Int {
-        max(0, min(5, Int(ceil(Double(entry.level) / 20.0))))
+    private func barFillFraction(at index: Int) -> Double {
+        min(max((Double(max(0, min(100, entry.level))) / 100.0 * 5.0) - Double(index), 0), 1)
+    }
+
+    private var timeRemainingLabel: String {
+        if entry.isCharging {
+            return "Charging"
+        }
+
+        guard let estimatedMinutesRemaining = entry.estimatedMinutesRemaining else {
+            return "Estimating"
+        }
+
+        return "- \(Self.durationLabel(for: estimatedMinutesRemaining))"
+    }
+
+    private static func durationLabel(for minutes: Int) -> String {
+        let clampedMinutes = max(0, minutes)
+        let hours = clampedMinutes / 60
+        let remainingMinutes = clampedMinutes % 60
+
+        switch (hours, remainingMinutes) {
+        case (0, 0):
+            return "< 1 min"
+        case (0, _):
+            return "\(remainingMinutes)m"
+        case (_, 0):
+            return "\(hours)h"
+        default:
+            return "\(hours)h \(remainingMinutes)m"
+        }
+    }
+}
+
+private struct BatteryLevelBarView: View {
+    let fillFraction: Double
+    let fillColor: Color
+    let backgroundColor: Color
+
+    private let barSize = CGSize(width: 21, height: 44)
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 4, style: .continuous)
+            .fill(backgroundColor)
+            .frame(width: barSize.width, height: barSize.height)
+            .overlay(alignment: .bottom) {
+                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    .fill(fillColor)
+                    .frame(width: barSize.width, height: barSize.height * min(max(fillFraction, 0), 1))
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
     }
 }
 
 private struct StepHealthWidgetView: View {
     let entry: StepWidgetEntry
+    private let fontTheme: WidgetFontTheme = .fusionPixel
 
     var body: some View {
         ZStack {
@@ -162,14 +449,15 @@ private struct StepHealthWidgetView: View {
 
                 Spacer()
 
-                Text("You've walked\n\(entry.steps.formatted(.number)) steps,\ndistance is\n\(entry.distanceKilometers.formatted(.number.precision(.fractionLength(2)))) kilometers.")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
-                    .lineSpacing(2)
+                Text("You've walked\n\(entry.steps.formatted(.number)) steps,\ndistance is\n\(entry.distanceValue.formatted(.number.precision(.fractionLength(2)))) \(entry.distanceUnitName).")
+                    .font(WidgetFonts.font(.body, theme: fontTheme))
+                    .lineSpacing(WidgetFonts.lineSpacing(.body, theme: fontTheme))
                     .foregroundStyle(widgetForeground.opacity(0.7))
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .padding(18)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .containerBackground(widgetBackground, for: .widget)
     }
 
@@ -185,18 +473,23 @@ private struct StepHealthWidgetView: View {
 
 private struct DailyDashboardWidgetView: View {
     let entry: DashboardWidgetEntry
+    private let fontTheme: WidgetFontTheme = .sfProRounded
 
     var body: some View {
         HStack(spacing: 8) {
             VStack(spacing: 8) {
                 timeCard
+                    .frame(maxHeight: .infinity)
                 weatherCard
             }
             .frame(width: 132)
+            .frame(maxHeight: .infinity)
 
             calendarCard
+                .frame(maxHeight: .infinity)
         }
         .padding(8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .containerBackground(Color.white, for: .widget)
     }
 
@@ -208,7 +501,7 @@ private struct DailyDashboardWidgetView: View {
                     HStack {
                         Spacer()
                         Text("\(entry.temperature)° \(entry.weatherSymbol)")
-                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .font(WidgetFonts.font(.meta, theme: fontTheme))
                             .padding(.horizontal, 7)
                             .frame(height: 18)
                             .background(Color.black.opacity(0.12))
@@ -216,7 +509,7 @@ private struct DailyDashboardWidgetView: View {
                     }
 
                     Text(entry.date.formatted(.dateTime.hour().minute()))
-                        .font(.system(size: 41, weight: .bold, design: .rounded))
+                        .font(WidgetFonts.font(.display, theme: fontTheme))
                         .foregroundStyle(Color.black)
                         .minimumScaleFactor(0.72)
                 }
@@ -231,16 +524,16 @@ private struct DailyDashboardWidgetView: View {
             .overlay {
                 HStack {
                     Text("\(entry.temperature)")
-                        .font(.system(size: 30, weight: .bold, design: .rounded))
+                        .font(WidgetFonts.font(.title, theme: fontTheme))
                     Text("°")
-                        .font(.system(size: 19, weight: .bold, design: .rounded))
+                        .font(WidgetFonts.font(.heading, theme: fontTheme))
                         .offset(x: -5, y: -5)
                     Spacer(minLength: 2)
                     VStack(alignment: .leading, spacing: 3) {
                         Text("▲ \(entry.high)°")
                         Text("▼ \(entry.low)°")
                     }
-                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                    .font(WidgetFonts.font(.meta, theme: fontTheme))
                     .foregroundStyle(Color.black.opacity(0.5))
                 }
                 .padding(.horizontal, 10)
@@ -253,19 +546,19 @@ private struct DailyDashboardWidgetView: View {
             .overlay {
                 VStack(spacing: 9) {
                     HStack {
-                        ForEach(["S", "M", "T", "W", "T", "F", "S"], id: \.self) { weekday in
+                        ForEach(Array(["S", "M", "T", "W", "T", "F", "S"].enumerated()), id: \.offset) { _, weekday in
                             Text(weekday)
                                 .frame(maxWidth: .infinity)
                         }
                     }
-                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                    .font(WidgetFonts.font(.caption, theme: fontTheme))
                     .foregroundStyle(Color(red: 1, green: 0.36, blue: 0.42))
 
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7), spacing: 7) {
                         ForEach(calendarDays.indices, id: \.self) { index in
                             let value = calendarDays[index]
                             Text(value == 0 ? "" : "\(value)")
-                                .font(.system(size: 9, weight: .semibold, design: .rounded))
+                                .font(WidgetFonts.font(.meta, theme: fontTheme))
                                 .frame(width: 20, height: 18)
                                 .background {
                                     if value == highlightedDay {
@@ -292,4 +585,99 @@ private struct DailyDashboardWidgetView: View {
         let leading = calendar.component(.weekday, from: monthStart) - 1
         return Array(repeating: 0, count: leading) + Array(range)
     }
+}
+
+private extension SmallSolidWidgetEntry {
+    static func preview(selectedWidgetID: String?) -> SmallSolidWidgetEntry {
+        SmallSolidWidgetEntry(
+            date: .widgetPreviewDate,
+            selectedWidgetID: selectedWidgetID,
+            battery: BatteryWidgetEntry(
+                date: .widgetPreviewDate,
+                level: 76,
+                estimatedMinutesRemaining: 456,
+                isCharging: false
+            ),
+            health: StepWidgetEntry(
+                date: .widgetPreviewDate,
+                steps: 8_436,
+                distanceValue: 5.72,
+                distanceUnitName: "kilometers"
+            )
+        )
+    }
+}
+
+private extension MediumSolidWidgetEntry {
+    static func preview(selectedWidgetID: String?) -> MediumSolidWidgetEntry {
+        MediumSolidWidgetEntry(
+            date: .widgetPreviewDate,
+            selectedWidgetID: selectedWidgetID,
+            dashboard: DashboardWidgetEntry(
+                date: .widgetPreviewDate,
+                temperature: 25,
+                high: 30,
+                low: 24,
+                weatherSymbol: "🌥️"
+            )
+        )
+    }
+}
+
+private extension LargeSolidWidgetEntry {
+    static func preview(selectedWidgetID: String?) -> LargeSolidWidgetEntry {
+        LargeSolidWidgetEntry(
+            date: .widgetPreviewDate,
+            selectedWidgetID: selectedWidgetID,
+            battery: BatteryWidgetEntry(
+                date: .widgetPreviewDate,
+                level: 76,
+                estimatedMinutesRemaining: 456,
+                isCharging: false
+            ),
+            health: StepWidgetEntry(
+                date: .widgetPreviewDate,
+                steps: 8_436,
+                distanceValue: 5.72,
+                distanceUnitName: "kilometers"
+            ),
+            dashboard: DashboardWidgetEntry(
+                date: .widgetPreviewDate,
+                temperature: 25,
+                high: 30,
+                low: 24,
+                weatherSymbol: "🌥️"
+            )
+        )
+    }
+}
+
+private extension Date {
+    static let widgetPreviewDate = Calendar.current.date(
+        from: DateComponents(year: 2026, month: 6, day: 29, hour: 9, minute: 41)
+    ) ?? .now
+}
+
+#Preview("Small - Battery Bars", as: .systemSmall) {
+    SmallSolidWidget()
+} timeline: {
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "battery-bars-small")
+}
+
+#Preview("Small - Step Health", as: .systemSmall) {
+    SmallSolidWidget()
+} timeline: {
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "step-health-small")
+}
+
+#Preview("Medium - Daily Dashboard", as: .systemMedium) {
+    MediumSolidWidget()
+} timeline: {
+    MediumSolidWidgetEntry.preview(selectedWidgetID: "daily-dashboard-medium")
+}
+
+#Preview("Large - Choose Widget", as: .systemLarge) {
+    LargeSolidWidget()
+} timeline: {
+    LargeSolidWidgetEntry.preview(selectedWidgetID: nil)
 }
