@@ -7,16 +7,17 @@ Abstrakt is a SwiftUI iOS app that helps users build a personal library of saved
 ## Product Shape
 
 - Host app: discovery, previews, configuration sheets, saved library, permissions, and settings
-- Widget extension: renders the actual Home Screen widget surfaces
+- Widget extension: exposes three size-based `Solid Widget` renderers and renders saved presets on the Home Screen
 - Future surfaces: Lock Screen widgets, StandBy, Live Activities, and Dynamic Island
 
 ## Near-Term Priorities
 
-- Refine the app structure around screens under `App/Screens/`
+- Continue refining the app structure around screens under `App/Screens/`
 - Keep widget entries cleanly separated under `Widgets/`
-- Establish app-owned core models for saved widget presets and per-widget configuration
+- Keep app-owned core models for saved widget presets and per-widget configuration
 - Build service boundaries around Apple-native frameworks
-- Make light, dark, and system appearance modes first-class in both previews and saved configuration
+- Keep light, dark, and system appearance modes first-class in both previews and saved configuration
+- Keep global app preferences, such as units and app font, separate from widget-specific saved preset styling
 
 ## Core User Experience
 
@@ -37,10 +38,16 @@ WidgetKit Selection On Home Screen
 Important UX constraints:
 
 - Users choose between `Small`, `Medium`, and `Large` for Home Screen placement.
+- The iOS widget gallery exposes `Solid Widget` with `Small Widget`, `Medium Widget`, and `Large Widget` slots.
+- The system `Current Widget` picker must filter saved presets by the selected slot's size.
 - Not every widget needs the same settings.
 - Some settings should be inline in the first sheet.
 - Some settings should push or open a second sheet, such as font selection.
 - The saved Library should group presets by widget size so users understand what is ready to place.
+- Library tabs should be swipeable as well as tappable, with size counts kept visible in the tab chips.
+- Library rows should crop the widget preview under the row divider instead of shrinking the design into a tiny thumbnail.
+- Preview sheets should use a full-width bottom sheet treatment with a drag indicator, title metadata below the rendered widget, and a bottom save action separated from the widget preview layer.
+- Unit preferences should use compact picker/menu controls from Settings and persist through shared storage for widget rendering.
 
 ## Recommended Module Direction
 
@@ -68,6 +75,7 @@ Abstrakt/
 
 - The host app owns gallery state, customization state, permission messaging, and saved widget presets.
 - `Core/Storage/` should hold saved preset storage abstractions.
+- `Core/Settings/` should hold shared preference types for app and widget surfaces, such as temperature unit, temperature display, and distance unit.
 - `WidgetExtension/` should consume saved configuration data rather than inventing its own parallel model layer.
 - Widget-specific folders should define their own configurable views only when needed, but serialize into app-owned preset models.
 

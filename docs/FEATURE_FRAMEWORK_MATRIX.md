@@ -15,11 +15,12 @@ This file is the canonical mapping between widget features and Apple-native fram
 |---|---|---|---|---|
 | Clock | Glanceable time and date widgets | `Foundation` | `WidgetKit` | Supports typography, theme, style variants, and size-specific layouts. |
 | Calendar | Upcoming events and date context | `EventKit` | `Foundation`, `WidgetKit` | Requires explicit calendar permission and should render empty/denied states clearly. |
-| Health | Steps, activity, sleep, and other personal metrics | `HealthKit` | `WidgetKit`, `Foundation` | Good candidate for per-widget goals, counters, progress styles, and metric selection. |
-| Weather | Current conditions and short forecasts | `WeatherKit` | `CoreLocation`, `Foundation`, `WidgetKit` | Location is a dependency when using current-place weather. |
+| Health | Steps, activity, sleep, and other personal metrics | `HealthKit` | `WidgetKit`, `Foundation` | Reads today's step count and walking/running distance after Health authorization. Unsupported devices fall back to preview data; real zero-step days should render as zero. |
+| Weather | Current conditions and short forecasts | `WeatherKit` | `CoreLocation`, `Foundation`, `WidgetKit` | Uses when-in-use location authorization for current-place weather, then writes temperature, high/low, and condition symbol to shared widget storage. |
 | Location | Place, commute, daylight, or contextual location widgets | `CoreLocation` | `MapKit`, `Foundation`, `WidgetKit` | Should minimize refresh frequency and clearly explain permission use. |
 | Reminders | Task and completion widgets | `EventKit` | `Foundation`, `WidgetKit` | User-facing family stays separate from Calendar even though the API owner overlaps. |
-| Battery | Device battery status widgets | `UIKit` (`UIDevice`) | `WidgetKit`, `Foundation` | Small, compact, and well suited to Home Screen utility widgets. |
+| Battery | Device battery status widgets | `UIKit` (`UIDevice`) | `WidgetKit`, `Foundation` | Uses `UIDevice` battery monitoring in the host app and writes level/charging state to shared widget storage. |
+| App Preferences | App font, temperature unit, temperature display, distance unit | `Foundation` | `SwiftUI`, `WidgetKit` | Stored through app/shared preferences. App font affects only the host app; unit preferences are shared with widget rendering. |
 
 ## Customization Expectations By Family
 
@@ -32,6 +33,7 @@ This file is the canonical mapping between widget features and Apple-native fram
 | Location | Label style, map/no-map variant, icon set, accent treatment |
 | Reminders | Count style, completion focus, category filter, typography |
 | Battery | Style preset, threshold emphasis, accent color, compact/full presentation |
+| App Preferences | App font theme, temperature unit, temperature display mode, distance unit |
 
 ## Permission Expectations
 
@@ -44,6 +46,27 @@ This file is the canonical mapping between widget features and Apple-native fram
 | Location | Location authorization via `CoreLocation` |
 | Reminders | Reminders access via `EventKit` |
 | Battery | No explicit user permission for device battery state |
+| App Preferences | No permission required |
+
+## Current Live Data Refresh
+
+The host app refreshes widget-facing data on launch and whenever the scene becomes active:
+
+- Health: requests `HealthKit` read access for step count and walking/running distance, then stores today's totals.
+- Battery: enables `UIDevice` battery monitoring, stores percentage and charging state, and estimates remaining hours when discharging.
+- Weather: requests when-in-use location authorization, fetches local WeatherKit conditions, and stores current temperature plus today's high/low.
+
+The WidgetKit extension reads these values from the App Group. It should not request HealthKit, CoreLocation, or WeatherKit access directly.
+
+Shared unit preferences are also read from the App Group:
+
+- Temperature unit: `Celsius` or `Fahrenheit`
+- Temperature display: `Actual` or `Feels Like`
+- Distance unit: `Kilometers` or `Miles`
+
+These preferences affect formatted widget values. They should not be modeled as per-widget visual style unless a specific widget later needs an override.
+
+For active development, the app also runs a one-second host-app refresh loop while the scene is active and registers HealthKit observer queries for step/distance changes. The WidgetKit extension requests a one-second timeline reload, but iOS may throttle normal Home Screen widget reloads. True per-second background behavior should move to Live Activities or another system surface designed for live updates.
 
 ## Suggested Service Layout
 
@@ -84,3 +107,5 @@ App Library + WidgetExtension Rendering
 ```
 
 The host app should be where preset composition happens. WidgetKit should mostly render what has already been decided and saved.
+
+For the current iOS Home Screen scope, WidgetKit exposes only three system-visible `Solid Widget` slots: `Small Widget`, `Medium Widget`, and `Large Widget`. Individual feature presets such as Battery, Health, or Dashboard should appear in the app library and in the WidgetKit `Current Widget` picker only when their saved size matches the selected slot.
