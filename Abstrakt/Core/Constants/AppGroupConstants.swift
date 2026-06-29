@@ -8,6 +8,7 @@ enum AppGroupConstants {
     static let sharedCalendarDetailKey = "shared.calendar.detail"
     static let sharedBatteryLevelKey = "shared.battery.level"
     static let sharedBatteryEstimatedHoursKey = "shared.battery.estimatedHours"
+    static let sharedBatteryEstimatedMinutesKey = "shared.battery.estimatedMinutes"
     static let sharedBatteryIsChargingKey = "shared.battery.isCharging"
     static let sharedHealthStepsKey = "shared.health.steps"
     static let sharedHealthDistanceKilometersKey = "shared.health.distanceKilometers"
@@ -15,4 +16,8 @@ enum AppGroupConstants {
     static let sharedWeatherHighKey = "shared.weather.high"
     static let sharedWeatherLowKey = "shared.weather.low"
     static let sharedWeatherSymbolKey = "shared.weather.symbol"
+    static let sharedWidgetPresetsKey = "shared.widget.presets"
+    static let settingsTemperatureUnitKey = "settings.temperatureUnit"
+    static let settingsTemperatureDisplayKey = "settings.temperatureDisplay"
+    static let settingsDistanceUnitKey = "settings.distanceUnit"
 }

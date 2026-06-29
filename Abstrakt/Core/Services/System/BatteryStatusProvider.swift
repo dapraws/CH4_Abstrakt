@@ -3,11 +3,15 @@ import UIKit
 
 struct BatterySnapshot: Codable, Hashable {
     let level: Int
-    let estimatedHoursRemaining: Int?
+    let estimatedMinutesRemaining: Int?
     let isCharging: Bool
 
-    var filledSegments: Int {
-        max(0, min(5, Int(ceil(Double(level) / 20.0))))
+    var normalizedLevel: Double {
+        Double(max(0, min(100, level))) / 100.0
+    }
+
+    func barFillFraction(at index: Int) -> Double {
+        min(max((normalizedLevel * 5.0) - Double(index), 0), 1)
     }
 
     var timeRemainingLabel: String {
@@ -15,11 +19,28 @@ struct BatterySnapshot: Codable, Hashable {
             return "Charging"
         }
 
-        guard let estimatedHoursRemaining else {
+        guard let estimatedMinutesRemaining else {
             return "Estimating"
         }
 
-        return "- \(estimatedHoursRemaining) hours"
+        return "\(Self.durationLabel(for: estimatedMinutesRemaining))"
+    }
+
+    static func durationLabel(for minutes: Int) -> String {
+        let clampedMinutes = max(0, minutes)
+        let hours = clampedMinutes / 60
+        let remainingMinutes = clampedMinutes % 60
+
+        switch (hours, remainingMinutes) {
+        case (0, 0):
+            return "< 1 min"
+        case (0, _):
+            return "\(remainingMinutes)m"
+        case (_, 0):
+            return "\(hours)h"
+        default:
+            return "\(hours)h \(remainingMinutes)m"
+        }
     }
 }
 
@@ -28,22 +49,22 @@ enum BatteryStatusProvider {
         UIDevice.current.isBatteryMonitoringEnabled = true
 
         let rawLevel = UIDevice.current.batteryLevel
-        let level = rawLevel >= 0 ? Int((rawLevel * 100).rounded()) : 52
+        let level = rawLevel >= 0 ? Int((rawLevel * 100).rounded()) : 0
         let state = UIDevice.current.batteryState
 
         return BatterySnapshot(
             level: level,
-            estimatedHoursRemaining: estimatedHoursRemaining(for: level, state: state),
+            estimatedMinutesRemaining: estimatedMinutesRemaining(for: level, state: state),
             isCharging: state == .charging || state == .full
         )
     }
 
-    private static func estimatedHoursRemaining(for level: Int, state: UIDevice.BatteryState) -> Int? {
+    private static func estimatedMinutesRemaining(for level: Int, state: UIDevice.BatteryState) -> Int? {
         guard state != .charging, state != .full else {
             return nil
         }
 
-        // iOS does not expose exact runtime remaining, so this MVP estimates from level.
-        return max(1, Int(round(Double(level) / 10.0)))
+        // iOS does not expose exact runtime remaining, so this estimates from a 10-hour full charge.
+        return max(0, Int(round(Double(max(0, min(100, level))) * 6.0)))
     }
 }

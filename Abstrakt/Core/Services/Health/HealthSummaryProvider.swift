@@ -10,7 +10,16 @@ struct HealthSummarySnapshot: Codable, Hashable {
     }
 
     var distanceLabel: String {
-        distanceKilometers.formatted(.number.precision(.fractionLength(2)))
+        let unit = DistanceUnitPreference.from(
+            id: UserDefaults(suiteName: AppGroupConstants.suiteName)?.string(forKey: AppSettingsPreference.distanceUnitKey) ?? DistanceUnitPreference.kilometers.id
+        )
+        return unit.convertFromKilometers(distanceKilometers).formatted(.number.precision(.fractionLength(2)))
+    }
+
+    var distanceUnitName: String {
+        DistanceUnitPreference.from(
+            id: UserDefaults(suiteName: AppGroupConstants.suiteName)?.string(forKey: AppSettingsPreference.distanceUnitKey) ?? DistanceUnitPreference.kilometers.id
+        ).noun
     }
 }
 
@@ -18,6 +27,7 @@ final class HealthSummaryProvider {
     static let shared = HealthSummaryProvider()
 
     private let store = HKHealthStore()
+    private var observerQueries: [HKObserverQuery] = []
 
     private init() {}
 
@@ -45,11 +55,32 @@ final class HealthSummaryProvider {
         let stepCount = Int(await steps.rounded())
         let kilometers = await distance / 1_000
 
-        if stepCount == 0, kilometers == 0 {
-            return Self.placeholder
+        return HealthSummarySnapshot(steps: stepCount, distanceKilometers: kilometers)
+    }
+
+    func startObservingTodayMetrics(onChange: @escaping @Sendable () -> Void) {
+        guard HKHealthStore.isHealthDataAvailable(), observerQueries.isEmpty else {
+            return
         }
 
-        return HealthSummarySnapshot(steps: stepCount, distanceKilometers: kilometers)
+        let sampleTypes = [
+            HKQuantityType(.stepCount),
+            HKQuantityType(.distanceWalkingRunning),
+        ]
+
+        observerQueries = sampleTypes.map { sampleType in
+            let query = HKObserverQuery(sampleType: sampleType, predicate: nil) { _, completionHandler, error in
+                if error == nil {
+                    onChange()
+                }
+
+                completionHandler()
+            }
+
+            store.execute(query)
+            store.enableBackgroundDelivery(for: sampleType, frequency: .immediate) { _, _ in }
+            return query
+        }
     }
 
     private func quantitySum(for quantityType: HKQuantityType, unit: HKUnit) async -> Double {
