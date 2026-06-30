@@ -17,6 +17,7 @@ Abstrakt is a SwiftUI iOS app that helps users build a personal library of saved
 - Keep widget entries cleanly separated under `Widgets/`
 - Keep app-owned core models for saved widget presets and per-widget configuration
 - Build service boundaries around Apple-native frameworks
+- Keep portal-style app launchers backed by App Intents, with framework data still fetched by host-app providers and cached for WidgetKit.
 - Keep light, dark, and system appearance modes first-class in both previews and saved configuration
 - Keep global app preferences, such as units and app font, separate from widget-specific saved preset styling
 
@@ -81,6 +82,7 @@ Abstrakt/
 - `Core/Settings/` should hold shared preference types for app and widget surfaces, such as temperature unit, temperature display, and distance unit.
 - `WidgetExtension/` should consume saved configuration data and route WidgetKit entries into shared widget renderers rather than owning duplicate visual implementations.
 - Widget-specific folders should define their render snapshots and SwiftUI views in an extension-safe way. App-only provider adapters can live beside those views behind `#if !WIDGET_EXTENSION`.
+- Interactive widget buttons should use App Intents available to the widget extension. Framework-backed data such as WeatherKit still flows through the host app and App Group storage.
 
 ## MVVM Architecture
 

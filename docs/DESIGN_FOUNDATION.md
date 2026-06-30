@@ -103,6 +103,7 @@ Rules:
 - App preview cards must preserve the measured widget aspect ratio and fit the available container width instead of requiring a hardcoded table entry for every Apple device.
 - Widget preview titles should sit outside the widget surface with enough separation to read as metadata, not as part of the widget itself.
 - Widget layouts must remain responsive when preview width is constrained below the baseline width.
+- Small portal launcher widgets may use overlapping app-icon clusters when each tappable icon remains visually distinct and the header has a single-line fallback scale.
 - Lock Screen `Circular`, `Rectangular`, and `Inline` dimensions are documented here for future iOS widget expansion, but the shipping app flow remains Home Screen first.
 - Do not invent custom preview aspect ratios when one of these rows applies.
 
