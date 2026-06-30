@@ -16,6 +16,8 @@ enum AppGroupConstants {
     static let sharedWeatherHighKey = "shared.weather.high"
     static let sharedWeatherLowKey = "shared.weather.low"
     static let sharedWeatherSymbolKey = "shared.weather.symbol"
+    static let sharedPortalWeatherTemperatureKey = "shared.portal.weather.temperature"
+    static let sharedPortalWeatherPlaceNameKey = "shared.portal.weather.placeName"
     static let sharedWidgetPresetsKey = "shared.widget.presets"
     static let settingsAppFontThemeKey = "appFontTheme"
     static let settingsTemperatureUnitKey = "settings.temperatureUnit"

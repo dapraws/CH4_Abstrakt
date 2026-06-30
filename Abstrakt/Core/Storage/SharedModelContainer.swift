@@ -38,6 +38,12 @@ enum SharedModelContainer {
         defaults?.synchronize()
     }
 
+    static func write(portal: PortalWidgetSnapshot) {
+        defaults?.set(portal.temperature, forKey: AppGroupConstants.sharedPortalWeatherTemperatureKey)
+        defaults?.set(portal.placeName, forKey: AppGroupConstants.sharedPortalWeatherPlaceNameKey)
+        defaults?.synchronize()
+    }
+
     static func write(appFontThemeID: String) {
         defaults?.set(appFontThemeID, forKey: AppGroupConstants.settingsAppFontThemeKey)
         defaults?.synchronize()

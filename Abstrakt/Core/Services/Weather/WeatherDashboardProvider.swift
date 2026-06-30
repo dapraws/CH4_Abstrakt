@@ -10,6 +10,7 @@ final class WeatherDashboardProvider: NSObject, CLLocationManagerDelegate {
     private let weatherService = WeatherService.shared
     private var authorizationContinuation: CheckedContinuation<CLAuthorizationStatus, Never>?
     private var locationContinuation: CheckedContinuation<CLLocation?, Never>?
+    private let denpasarLocation = CLLocation(latitude: -8.6500, longitude: 115.2167)
 
     private override init() {
         super.init()
@@ -38,6 +39,19 @@ final class WeatherDashboardProvider: NSObject, CLLocationManagerDelegate {
                 high: Int((today?.highTemperature ?? current.temperature).converted(to: .celsius).value.rounded()),
                 low: Int((today?.lowTemperature ?? current.temperature).converted(to: .celsius).value.rounded()),
                 weatherSymbol: symbol(for: current.symbolName)
+            )
+        } catch {
+            return .placeholder
+        }
+    }
+
+    func denpasarPortalSnapshot() async -> PortalWidgetSnapshot {
+        do {
+            let weather = try await weatherService.weather(for: denpasarLocation)
+            return PortalWidgetSnapshot(
+                date: .now,
+                temperature: Int(weather.currentWeather.temperature.converted(to: .celsius).value.rounded()),
+                placeName: "Denpasar"
             )
         } catch {
             return .placeholder

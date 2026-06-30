@@ -17,6 +17,13 @@ nonisolated enum WidgetCatalog {
             isPro: false
         ),
         WidgetCatalogItem(
+            id: "portal-widget-small",
+            name: "Portal Widget",
+            size: .small,
+            categories: [.portal, .weather, .calendar, .utility],
+            isPro: false
+        ),
+        WidgetCatalogItem(
             id: "daily-dashboard-medium",
             name: "Daily Dashboard",
             size: .medium,
@@ -38,18 +45,25 @@ nonisolated enum WidgetCatalog {
         .all: [
             "battery-bars-small",
             "step-health-small",
+            "portal-widget-small",
             "daily-dashboard-medium",
         ],
         .classic: [
             "battery-bars-small",
         ],
         .portal: [
+            "portal-widget-small",
             "daily-dashboard-medium",
         ],
         .health: [
             "step-health-small",
         ],
         .weather: [
+            "portal-widget-small",
+            "daily-dashboard-medium",
+        ],
+        .calendar: [
+            "portal-widget-small",
             "daily-dashboard-medium",
         ],
         .clock: [

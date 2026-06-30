@@ -25,6 +25,13 @@ extension WidgetPreset {
             appearanceMode: .system
         ),
         WidgetPreset(
+            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0004") ?? UUID(),
+            widgetID: "portal-widget-small",
+            name: "Portal Widget | Apps",
+            size: .small,
+            appearanceMode: .system
+        ),
+        WidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0003") ?? UUID(),
             widgetID: "daily-dashboard-medium",
             name: "Daily Dashboard | Portal",

@@ -103,6 +103,14 @@ enum WidgetSharedStore {
         defaults?.string(forKey: "shared.weather.symbol") ?? "🌥️"
     }
 
+    static var portalWeatherTemperatureCelsius: Int {
+        defaults?.object(forKey: "shared.portal.weather.temperature") as? Int ?? 16
+    }
+
+    static var portalWeatherPlaceName: String {
+        defaults?.string(forKey: "shared.portal.weather.placeName") ?? "Denpasar"
+    }
+
     static func savedPresets(size: String) -> [SavedWidgetPreset] {
         allSavedPresets.filter { $0.size == size }
     }
@@ -157,6 +165,13 @@ enum WidgetSharedStore {
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0002") ?? UUID(),
             widgetID: "step-health-small",
             name: "Step Health | Minimalism",
+            size: "small",
+            appearanceMode: "system"
+        ),
+        SavedWidgetPreset(
+            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0004") ?? UUID(),
+            widgetID: "portal-widget-small",
+            name: "Portal Widget | Apps",
             size: "small",
             appearanceMode: "system"
         ),

@@ -64,6 +64,8 @@ struct WidgetPreview: View {
                     BatteryBarsWidget(fontTheme: widgetFontTheme)
                 case "step-health-small":
                     StepHealthWidget(fontTheme: widgetFontTheme)
+                case "portal-widget-small":
+                    PortalWidget(fontTheme: widgetFontTheme)
                 case "daily-dashboard-medium":
                     DailyDashboardWidget(fontTheme: widgetFontTheme)
                 default:

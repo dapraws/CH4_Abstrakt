@@ -9,6 +9,7 @@ struct SmallSolidWidgetEntry: TimelineEntry {
     let selectedWidgetID: String?
     let battery: BatteryWidgetEntry
     let health: StepWidgetEntry
+    let portal: PortalSmallWidgetEntry
 }
 
 struct MediumSolidWidgetEntry: TimelineEntry {
@@ -45,6 +46,12 @@ struct DashboardWidgetEntry: TimelineEntry {
     let high: Int
     let low: Int
     let weatherSymbol: String
+}
+
+struct PortalSmallWidgetEntry: TimelineEntry {
+    let date: Date
+    let temperature: Int
+    let placeName: String
 }
 
 private let widgetTimelineRefreshInterval: TimeInterval = 1
@@ -177,6 +184,11 @@ private extension SmallSolidWidgetEntry {
                 steps: WidgetSharedStore.healthSteps,
                 distanceValue: WidgetSharedStore.healthDistanceValue,
                 distanceUnitName: WidgetSharedStore.healthDistanceUnitName
+            ),
+            portal: PortalSmallWidgetEntry(
+                date: .now,
+                temperature: WidgetSharedStore.portalWeatherTemperatureCelsius,
+                placeName: WidgetSharedStore.portalWeatherPlaceName
             )
         )
     }
@@ -260,6 +272,16 @@ private extension DashboardWidgetEntry {
     }
 }
 
+private extension PortalSmallWidgetEntry {
+    var renderSnapshot: PortalWidgetSnapshot {
+        PortalWidgetSnapshot(
+            date: date,
+            temperature: temperature,
+            placeName: placeName
+        )
+    }
+}
+
 // MARK: - Widget Views
 
 private struct SmallSolidWidgetView: View {
@@ -277,6 +299,13 @@ private struct SmallSolidWidgetView: View {
             StepHealthWidget(
                 snapshot: entry.health.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
+                clipsToWidgetShape: false
+            )
+        case "portal-widget-small":
+            PortalWidget(
+                snapshot: entry.portal.renderSnapshot,
+                fontTheme: WidgetSharedStore.appFontTheme,
+                usesInteractiveButtons: true,
                 clipsToWidgetShape: false
             )
         default:
@@ -424,6 +453,11 @@ private extension SmallSolidWidgetEntry {
                 steps: 8_436,
                 distanceValue: 5.72,
                 distanceUnitName: "kilometers"
+            ),
+            portal: PortalSmallWidgetEntry(
+                date: Calendar.current.date(from: DateComponents(year: 2026, month: 6, day: 26, hour: 9, minute: 41)) ?? .widgetPreviewDate,
+                temperature: 16,
+                placeName: "Denpasar"
             )
         )
     }
@@ -489,6 +523,12 @@ private extension Date {
     SmallSolidWidget()
 } timeline: {
     SmallSolidWidgetEntry.preview(selectedWidgetID: "step-health-small")
+}
+
+#Preview("Small - Portal Widget", as: .systemSmall) {
+    SmallSolidWidget()
+} timeline: {
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "portal-widget-small")
 }
 
 #Preview("Medium - Daily Dashboard", as: .systemMedium) {
