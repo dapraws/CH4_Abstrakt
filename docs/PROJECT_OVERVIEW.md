@@ -8,6 +8,7 @@ Abstrakt is a SwiftUI iOS app that helps users build a personal library of saved
 
 - Host app: discovery, previews, configuration sheets, saved library, permissions, and settings
 - Widget extension: exposes three size-based `Solid Widget` renderers and renders saved presets on the Home Screen
+- Shared render layer: widget visuals live under `Abstrakt/Widgets/` and are compiled into both the host app and WidgetKit extension
 - Future surfaces: Lock Screen widgets, StandBy, Live Activities, and Dynamic Island
 
 ## Near-Term Priorities
@@ -48,6 +49,7 @@ Important UX constraints:
 - Library rows should crop the widget preview under the row divider instead of shrinking the design into a tiny thumbnail.
 - Preview sheets should use a full-width bottom sheet treatment with a drag indicator, title metadata below the rendered widget, and a bottom save action separated from the widget preview layer.
 - Unit preferences should use compact picker/menu controls from Settings and persist through shared storage for widget rendering.
+- App font changes should persist to shared storage and reload WidgetKit timelines so in-app previews and Home Screen widgets use the same selected typography.
 
 ## Recommended Module Direction
 
@@ -67,6 +69,7 @@ Abstrakt/
 │   └── Extensions/
 ├── DesignSystem/
 ├── Widgets/
+│   ├── SharedWidgetStyle.swift
 │   └── <WidgetName>/
 └── WidgetExtension/
 ```
@@ -76,8 +79,8 @@ Abstrakt/
 - The host app owns gallery state, customization state, permission messaging, and saved widget presets.
 - `Core/Storage/` should hold saved preset storage abstractions.
 - `Core/Settings/` should hold shared preference types for app and widget surfaces, such as temperature unit, temperature display, and distance unit.
-- `WidgetExtension/` should consume saved configuration data rather than inventing its own parallel model layer.
-- Widget-specific folders should define their own configurable views only when needed, but serialize into app-owned preset models.
+- `WidgetExtension/` should consume saved configuration data and route WidgetKit entries into shared widget renderers rather than owning duplicate visual implementations.
+- Widget-specific folders should define their render snapshots and SwiftUI views in an extension-safe way. App-only provider adapters can live beside those views behind `#if !WIDGET_EXTENSION`.
 
 ## MVVM Architecture
 
@@ -104,6 +107,7 @@ Not every widget needs a dedicated view model. Add one only when the widget has 
 - Renders the gallery, preview sheets, customization components, and library lists
 - Remains focused on layout, state rendering, and design tokens
 - Does not directly fetch `HealthKit`, `WeatherKit`, `CoreLocation`, or `EventKit`
+- Widget render views under `Abstrakt/Widgets/` must avoid app-only dependencies unless guarded, because the extension target compiles those files too.
 
 ### Service Layer
 

@@ -35,10 +35,9 @@ Abstrakt/
 │   ├── AppColors.swift
 │   ├── AppFonts.swift
 │   ├── Fonts/
-│   ├── WidgetFonts.swift
-│   ├── WidgetFontCatalog.swift
 │   └── WidgetSizeTokens.swift
 ├── Widgets/
+│   ├── SharedWidgetStyle.swift
 │   ├── BatteryBars/
 │   ├── StepHealth/
 │   └── DailyDashboard/
@@ -49,7 +48,6 @@ Abstrakt/
     ├── Fonts/
     └── Shared/
         ├── SavedWidgetPreset.swift
-        ├── WidgetFonts.swift
         └── WidgetSharedStore.swift
 ```
 
@@ -61,8 +59,8 @@ Abstrakt/
 - `Core/Settings/` owns shared preference enums and storage keys that both the app and widgets need.
 - `DesignSystem/` holds app-wide design tokens without burying them under another shared layer.
 - `DesignSystem/Fonts/` stores host-app custom font files and should mirror any extension-needed font files under `AbstraktWidgetsExtension/Fonts/`.
-- `Widgets/` owns widget-entry-specific UI and configuration sheets.
-- `WidgetExtension/` stays focused on WidgetKit registration and rendering.
+- `Widgets/` owns widget-entry-specific UI, extension-safe render snapshots, and shared widget styling used by both the app and WidgetKit extension.
+- `WidgetExtension/` stays focused on WidgetKit registration, timeline entries, App Intents, and size-slot routing. It should not duplicate widget visual implementations.
 
 ## Naming Rules
 
@@ -72,4 +70,5 @@ Abstrakt/
 - Put shared domain/config/catalog types in `Core/Models/`, not in every widget folder.
 - Put shared app/widget preference types in `Core/Settings/`, not in screen files.
 - Add a widget-local view model only when that widget has truly unique presentation logic.
-- Keep app font preferences in the app design system; widgets should use explicit widget font themes so installed widget layouts remain stable.
+- Keep shared widget renderers extension-safe. Guard app-only provider adapters with `#if !WIDGET_EXTENSION`.
+- Share app font preferences with WidgetKit through App Group storage; use explicit saved-preset configuration only when a widget needs its own override.

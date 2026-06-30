@@ -66,7 +66,7 @@ The app needs two kinds of typography tokens:
 
 ### Widget Style Roles
 
-Widgets use the same semantic sizing model, but each widget chooses its own font theme explicitly instead of inheriting the app preference. This keeps app settings from unexpectedly changing installed widget layouts.
+Widgets use the same semantic sizing model, and the selected app font theme is shared with WidgetKit so Home Screen widgets and in-app previews stay visually aligned. Per-widget font overrides can still be added later as explicit saved-preset configuration.
 
 - `widgetDisplay`
 - `widgetTitle`
@@ -80,37 +80,31 @@ The app font picker currently exposes `SF Pro`, `SF Pro Rounded`, `Quicksand`, a
 Rules:
 
 - Use `AppFonts` token roles for host-app UI instead of static font sizes.
-- Use `WidgetFonts` or explicit widget font themes for WidgetKit and rendered widget previews.
+- Use `AbstraktWidgetFonts` and `AbstraktWidgetFontTheme` for shared widget renderers that compile into both the app and WidgetKit extension.
 - Bottom bar icon sizing should stay stable and must not change based on the selected app font.
 - App font changes should update visible app rows immediately without requiring a screen refresh.
+- App font changes should also be written to App Group storage and trigger a WidgetKit timeline reload.
 
 ## Layout Foundation
 
-### iOS Widget Dimension Matrix
+### iOS Widget Size Baselines
 
-Abstrakt is currently focused on iPhone widget design. Use these point sizes as the canonical dimensions for app previews, WidgetKit rendering checks, and size-specific layout decisions.
+Abstrakt is currently focused on iPhone widget design. Use these point sizes as measured fallbacks and aspect-ratio baselines for app previews, WidgetKit rendering checks, and size-specific layout decisions. Do not maintain a device-by-device Apple hardware table in app code; WidgetKit supplies the real widget container size at render time, and in-app previews should fit available width while preserving the family ratio.
 
-| Screen Size (Portrait, pt) | Small (pt) | Medium (pt) | Large (pt) | Circular (pt) | Rectangular (pt) | Inline (pt) |
-| -------------------------: | ---------: | ----------: | ---------: | ------------: | ---------------: | ----------: |
-|                    430x932 |    170x170 |     364x170 |    364x382 |         76x76 |           172x76 |      257x26 |
-|                    428x926 |    170x170 |     364x170 |    364x382 |         76x76 |           172x76 |      257x26 |
-|                    414x896 |    169x169 |     360x169 |    360x379 |         76x76 |           160x72 |      248x26 |
-|                    414x736 |    159x159 |     348x157 |    348x357 |         76x76 |           170x76 |      248x26 |
-|                    393x852 |    158x158 |     338x158 |    338x354 |         72x72 |           160x72 |      234x26 |
-|                    390x844 |    158x158 |     338x158 |    338x354 |         72x72 |           160x72 |      234x26 |
-|                    375x812 |    155x155 |     329x155 |    329x345 |         72x72 |           157x72 |      225x26 |
-|                    375x667 |    148x148 |     321x148 |    321x324 |         68x68 |           153x68 |      225x26 |
-|                    360x780 |    155x155 |     329x155 |    329x345 |         72x72 |           157x72 |      225x26 |
-|                    320x568 |    141x141 |     292x141 |    292x311 |           N/A |              N/A |         N/A |
+| Family | Baseline Size (pt) | Ratio | Use |
+|---|---:|---:|---|
+| `Small` | 170x170 | 1.00 | One focal metric or compact message |
+| `Medium` | 364x170 | 2.14 | One main metric plus supporting context |
+| `Large` | 364x382 | 0.95 | Multi-block composition or richer supporting content |
 
 Rules:
 
 - The default app preview baseline is the modern large iPhone size: `Small` 170x170, `Medium` 364x170, and `Large` 364x382.
-- App preview cards must preserve the canonical widget aspect ratio and cap their width from the widget size tokens so previews do not stretch or compress inside flexible gallery layouts.
+- App preview cards must preserve the measured widget aspect ratio and fit the available container width instead of requiring a hardcoded table entry for every Apple device.
 - Widget preview titles should sit outside the widget surface with enough separation to read as metadata, not as part of the widget itself.
-- Widget layouts must remain responsive down to the 320x568 row.
+- Widget layouts must remain responsive when preview width is constrained below the baseline width.
 - Lock Screen `Circular`, `Rectangular`, and `Inline` dimensions are documented here for future iOS widget expansion, but the shipping app flow remains Home Screen first.
-- Do not invent custom preview dimensions when one of these rows applies.
+- Do not invent custom preview aspect ratios when one of these rows applies.
 
 ### Home Screen Sizes
 
@@ -120,7 +114,7 @@ Rules:
 | `Medium` | One main metric plus supporting context |
 | `Large` | Multi-block composition or richer supporting content |
 
-For now these are the core shipping sizes for the app flow and library organization. The design default is `170x170`, `364x170`, and `364x382`, with smaller device rows handled through scaling and responsive layout.
+For now these are the core shipping sizes for the app flow and library organization. The design default is `170x170`, `364x170`, and `364x382`, with smaller device rows handled through measured-ratio scaling and responsive layout.
 
 ### Customization Sheet Pattern
 
@@ -209,7 +203,7 @@ Likely concrete files over time:
 - `AppColors.swift`
 - `WidgetAppearanceTokens.swift`
 - `AppFonts.swift` owns app font roles and selectable app font themes. Current themes are `SF Pro`, `SF Pro Rounded`, `Quicksand`, and `Fusion Pixel`; custom font files live in `DesignSystem/Fonts` and are registered at app launch.
-- `WidgetFonts.swift` owns extension-safe widget font roles and explicit per-widget font themes.
+- `Abstrakt/Widgets/SharedWidgetStyle.swift` owns extension-safe widget font roles, shared widget palettes, and custom font registration for both the host app and WidgetKit extension.
 - `WidgetFontCatalog.swift`
 - `AppSpacing.swift`
 - `AppRadius.swift`

@@ -20,7 +20,7 @@ This file is the canonical mapping between widget features and Apple-native fram
 | Location | Place, commute, daylight, or contextual location widgets | `CoreLocation` | `MapKit`, `Foundation`, `WidgetKit` | Should minimize refresh frequency and clearly explain permission use. |
 | Reminders | Task and completion widgets | `EventKit` | `Foundation`, `WidgetKit` | User-facing family stays separate from Calendar even though the API owner overlaps. |
 | Battery | Device battery status widgets | `UIKit` (`UIDevice`) | `WidgetKit`, `Foundation` | Uses `UIDevice` battery monitoring in the host app and writes level/charging state to shared widget storage. |
-| App Preferences | App font, temperature unit, temperature display, distance unit | `Foundation` | `SwiftUI`, `WidgetKit` | Stored through app/shared preferences. App font affects only the host app; unit preferences are shared with widget rendering. |
+| App Preferences | App font, temperature unit, temperature display, distance unit | `Foundation` | `SwiftUI`, `WidgetKit` | Stored through app/shared preferences. App font and unit preferences are shared with widget rendering. |
 
 ## Customization Expectations By Family
 
@@ -60,11 +60,12 @@ The WidgetKit extension reads these values from the App Group. It should not req
 
 Shared unit preferences are also read from the App Group:
 
+- App font theme: `SF Pro`, `SF Pro Rounded`, `Quicksand`, or `Fusion Pixel`
 - Temperature unit: `Celsius` or `Fahrenheit`
 - Temperature display: `Actual` or `Feels Like`
 - Distance unit: `Kilometers` or `Miles`
 
-These preferences affect formatted widget values. They should not be modeled as per-widget visual style unless a specific widget later needs an override.
+These preferences affect widget typography and formatted widget values. They should not be modeled as per-widget visual style unless a specific widget later needs an override.
 
 For active development, the app also runs a one-second host-app refresh loop while the scene is active and registers HealthKit observer queries for step/distance changes. The WidgetKit extension requests a one-second timeline reload, but iOS may throttle normal Home Screen widget reloads. True per-second background behavior should move to Live Activities or another system surface designed for live updates.
 
@@ -103,9 +104,11 @@ Customization ViewModel
     ↓
 Saved Widget Preset
     ↓
-App Library + WidgetExtension Rendering
+Shared Widget Renderer
+    ↓
+App Library + WidgetExtension Slots
 ```
 
-The host app should be where preset composition happens. WidgetKit should mostly render what has already been decided and saved.
+The host app should be where preset composition happens. WidgetKit should mostly route timeline data and saved configuration into shared renderers under `Abstrakt/Widgets/`.
 
 For the current iOS Home Screen scope, WidgetKit exposes only three system-visible `Solid Widget` slots: `Small Widget`, `Medium Widget`, and `Large Widget`. Individual feature presets such as Battery, Health, or Dashboard should appear in the app library and in the WidgetKit `Current Widget` picker only when their saved size matches the selected slot.

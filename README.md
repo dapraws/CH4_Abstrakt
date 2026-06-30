@@ -27,6 +27,7 @@ Abstrakt/
 │   └── Extensions/
 ├── DesignSystem/
 ├── Widgets/
+│   ├── SharedWidgetStyle.swift
 │   ├── BatteryBars/
 │   ├── StepHealth/
 │   └── DailyDashboard/
@@ -57,10 +58,10 @@ The current app foundation includes:
 - Preview sheets that render the selected widget, show its display title, and keep the bottom save action in a separate control layer.
 - A Library screen grouped by `Small`, `Medium`, and `Large`, with swipeable size tabs, empty states, and cropped/scaled preview rows that hint at the saved widget surface.
 - Settings for app font selection, temperature unit, temperature display, distance unit, access/permissions, FAQ, change icon, and release notes.
-- Shared settings storage for widget-facing unit preferences through the App Group.
-- A design-system font foundation with app font themes and extension-safe widget font roles.
+- Shared settings storage for widget-facing unit preferences and the selected widget font through the App Group.
+- Shared widget renderers under `Abstrakt/Widgets/` that are compiled into both the host app and the WidgetKit extension.
 
-The app font preference affects only the host app. Widgets choose their own explicit font theme so saved widget layouts do not shift unexpectedly when the app UI font changes.
+The app font preference is written to shared storage so Home Screen widgets and in-app previews can render with matching typography. Widget views must stay extension-safe because the WidgetKit target also compiles the shared files under `Abstrakt/Widgets/`.
 
 ## System Widget Flow
 
@@ -79,6 +80,8 @@ For now the app should focus on iPhone Home Screen sizes only:
 - `Small`: default preview target `170x170`
 - `Medium`: default preview target `364x170`
 - `Large`: default preview target `364x382`
+
+These values are measured fallback sizes and aspect-ratio baselines, not a device-by-device sizing table. In-app previews should fit the available container width while preserving the widget family's measured aspect ratio; WidgetKit widgets should render into the size supplied by the system.
 
 Lock Screen widgets, StandBy layouts, Live Activities, and Dynamic Island remain planned follow-up surfaces, but they are not the primary app flow yet.
 
@@ -102,6 +105,15 @@ Global settings such as temperature unit, temperature display, and distance unit
 - Avoid naming widget folders after raw framework/data sources such as `Clock` or `Calendar`
 
 The underlying data source still belongs in `Core/Services/`, but the widget itself should be named by the user-facing design/preset identity.
+
+## Shared Widget Rendering
+
+Widget visuals should be implemented once under `Abstrakt/Widgets/` and reused by both the host app and `AbstraktWidgetsExtension`.
+
+- `Abstrakt/Widgets/<WidgetName>/` owns the SwiftUI renderer and any render snapshots that are safe for both targets.
+- `Abstrakt/Widgets/SharedWidgetStyle.swift` owns extension-safe widget typography, palette, and custom font registration.
+- `AbstraktWidgetsExtension/AbstraktNewWidgets.swift` owns WidgetKit timelines, entries, size-slot routing, and App Intent configuration only.
+- App-only provider adapters or preview conveniences inside shared widget files must be guarded with `#if !WIDGET_EXTENSION`.
 
 ## Core Model Direction
 
