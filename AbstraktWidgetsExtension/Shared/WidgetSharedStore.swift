@@ -5,8 +5,13 @@ enum WidgetSharedStore {
 
     private static let defaults = UserDefaults(suiteName: suiteName)
     private static let sharedWidgetPresetsKey = "shared.widget.presets"
+    private static let appFontThemeKey = "appFontTheme"
     private static let temperatureUnitKey = "settings.temperatureUnit"
     private static let distanceUnitKey = "settings.distanceUnit"
+
+    static var appFontTheme: AbstraktWidgetFontTheme {
+        AbstraktWidgetFontTheme.from(id: defaults?.string(forKey: appFontThemeKey) ?? AbstraktWidgetFontTheme.sfProRounded.id)
+    }
 
     static var clockTime: String {
         defaults?.string(forKey: "shared.clock.time") ?? Date.now.formatted(.dateTime.hour().minute())
@@ -74,12 +79,24 @@ enum WidgetSharedStore {
         convertedTemperature(defaults?.object(forKey: "shared.weather.temperature") as? Int ?? 25)
     }
 
+    static var weatherTemperatureCelsius: Int {
+        defaults?.object(forKey: "shared.weather.temperature") as? Int ?? 25
+    }
+
     static var weatherHigh: Int {
         convertedTemperature(defaults?.object(forKey: "shared.weather.high") as? Int ?? 30)
     }
 
+    static var weatherHighCelsius: Int {
+        defaults?.object(forKey: "shared.weather.high") as? Int ?? 30
+    }
+
     static var weatherLow: Int {
         convertedTemperature(defaults?.object(forKey: "shared.weather.low") as? Int ?? 24)
+    }
+
+    static var weatherLowCelsius: Int {
+        defaults?.object(forKey: "shared.weather.low") as? Int ?? 24
     }
 
     static var weatherSymbol: String {

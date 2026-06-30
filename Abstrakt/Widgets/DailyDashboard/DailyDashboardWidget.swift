@@ -7,94 +7,133 @@ struct DailyDashboardSnapshot: Codable, Hashable {
     let low: Int
     let weatherSymbol: String
 
-    private var temperatureUnit: TemperatureUnitPreference {
-        TemperatureUnitPreference.from(
-            id: UserDefaults(suiteName: AppGroupConstants.suiteName)?.string(forKey: AppSettingsPreference.temperatureUnitKey) ?? TemperatureUnitPreference.celsius.id
-        )
+    private var usesFahrenheit: Bool {
+        UserDefaults(suiteName: "group.msaf.abstrakt")?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
     }
 
     var displayTemperature: Int {
-        temperatureUnit.convertFromCelsius(temperature)
+        convertedFromCelsius(temperature)
     }
 
     var displayHigh: Int {
-        temperatureUnit.convertFromCelsius(high)
+        convertedFromCelsius(high)
     }
 
     var displayLow: Int {
-        temperatureUnit.convertFromCelsius(low)
+        convertedFromCelsius(low)
+    }
+
+    private func convertedFromCelsius(_ celsius: Int) -> Int {
+        guard usesFahrenheit else {
+            return celsius
+        }
+
+        return Int((Double(celsius) * 9.0 / 5.0 + 32.0).rounded())
     }
 }
 
 struct DailyDashboardWidget: View {
-    let snapshot: DailyDashboardSnapshot
-    private let fontTheme: AppFontTheme = .sfProRounded
+    private static let widgetCornerRadius: CGFloat = 30
 
-    init(snapshot: DailyDashboardSnapshot = .placeholder) {
+    let snapshot: DailyDashboardSnapshot
+    let fontTheme: AbstraktWidgetFontTheme
+    var clipsToWidgetShape = true
+
+    @Environment(\.colorScheme) private var colorScheme
+
+    init(
+        snapshot: DailyDashboardSnapshot = .placeholder,
+        fontTheme: AbstraktWidgetFontTheme = .selectedAppTheme,
+        clipsToWidgetShape: Bool = true
+    ) {
         self.snapshot = snapshot
+        self.fontTheme = fontTheme
+        self.clipsToWidgetShape = clipsToWidgetShape
     }
 
     var body: some View {
-        HStack(spacing: 8) {
-            VStack(spacing: 8) {
-                timeCard
-                    .frame(maxHeight: .infinity)
-                weatherCard
+        ZStack {
+            palette.background
+            GeometryReader { proxy in
+                let metrics = DailyDashboardMetrics(size: proxy.size)
+                widgetContent(metrics: metrics)
             }
-            .frame(width: 132)
-            .frame(maxHeight: .infinity)
-
-            calendarCard
-                .frame(maxHeight: .infinity)
         }
-        .padding(8)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(AppColors.widgetBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
+        .clipShape(
+            RoundedRectangle(
+                cornerRadius: clipsToWidgetShape ? Self.widgetCornerRadius : 0,
+                style: .continuous
+            )
+        )
     }
 
-    private var timeCard: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 17, style: .continuous)
-                .fill(AppColors.appBackground.opacity(0.82))
+    private func widgetContent(metrics: DailyDashboardMetrics) -> some View {
+        HStack(spacing: metrics.spacing) {
+            VStack(spacing: metrics.spacing) {
+                timeCard(metrics: metrics)
+                    .frame(maxHeight: .infinity)
+                weatherCard(metrics: metrics)
+            }
+            .frame(width: metrics.leftColumnWidth)
+            .frame(maxHeight: .infinity)
 
-            VStack(alignment: .leading, spacing: 6) {
+            calendarCard(metrics: metrics)
+                .frame(maxHeight: .infinity)
+        }
+        .padding(metrics.outerPadding)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func timeCard(metrics: DailyDashboardMetrics) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: metrics.cardCornerRadius, style: .continuous)
+                .fill(palette.cardBackground)
+
+            VStack(alignment: .leading, spacing: metrics.timeStackSpacing) {
                 HStack {
                     Spacer()
                     HStack(spacing: 3) {
-                        Text("\(snapshot.displayTemperature)")
+                        Text("\(snapshot.displayTemperature)°")
                         Text(snapshot.weatherSymbol)
                     }
-                    .font(AppFonts.widgetFont(.widgetMeta, theme: fontTheme))
-                    .foregroundStyle(AppColors.widgetPrimaryText)
+                    .font(AbstraktWidgetFonts.font(.meta, theme: fontTheme))
+                    .foregroundStyle(palette.foreground)
                     .padding(.horizontal, 7)
-                    .frame(height: 18)
-                    .background(AppColors.widgetPrimaryText.opacity(0.12))
+                    .frame(height: metrics.badgeHeight)
+                    .background(palette.badgeFill)
                     .clipShape(Capsule())
                 }
 
-                Text(snapshot.date.formatted(.dateTime.hour().minute()))
-                    .font(AppFonts.widgetFont(.widgetDisplay, theme: fontTheme))
-                    .minimumScaleFactor(0.72)
-                    .foregroundStyle(AppColors.widgetPrimaryText)
+                HStack(alignment: .firstTextBaseline, spacing: 0) {
+                    Text(timeDisplay.prefix)
+                        .foregroundStyle(palette.foreground)
+                    Text(timeDisplay.minute)
+                        .foregroundStyle(palette.foreground.opacity(0.42))
+                }
+                .font(AbstraktWidgetFonts.font(.displayCompact, theme: fontTheme))
+                .lineLimit(1)
+                .minimumScaleFactor(metrics.displayMinimumScale)
             }
-            .padding(10)
+            .padding(metrics.cardPadding)
         }
     }
 
-    private var weatherCard: some View {
+    private func weatherCard(metrics: DailyDashboardMetrics) -> some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 15, style: .continuous)
-                .fill(AppColors.appBackground.opacity(0.82))
+            RoundedRectangle(cornerRadius: metrics.cardCornerRadius, style: .continuous)
+                .fill(palette.cardBackground)
 
             HStack(alignment: .center) {
                 Text("\(snapshot.displayTemperature)")
-                    .font(AppFonts.widgetFont(.widgetTitle, theme: fontTheme))
-                    .foregroundStyle(AppColors.widgetPrimaryText)
+                    .font(AbstraktWidgetFonts.font(.title, theme: fontTheme))
+                    .lineLimit(1)
+                    .minimumScaleFactor(metrics.temperatureMinimumScale)
+                    .foregroundStyle(palette.foreground)
 
                 Text("°")
-                    .font(AppFonts.widgetFont(.heading2, theme: fontTheme))
-                    .foregroundStyle(AppColors.widgetPrimaryText)
+                    .font(AbstraktWidgetFonts.font(.heading, theme: fontTheme))
+                    .foregroundStyle(palette.foreground)
                     .offset(x: -5, y: -5)
 
                 Spacer(minLength: 2)
@@ -103,47 +142,55 @@ struct DailyDashboardWidget: View {
                     Text("▲ \(snapshot.displayHigh)°")
                     Text("▼ \(snapshot.displayLow)°")
                 }
-                .font(AppFonts.widgetFont(.widgetMeta, theme: fontTheme))
-                .foregroundStyle(AppColors.widgetSecondaryText)
+                .font(AbstraktWidgetFonts.font(.meta, theme: fontTheme))
+                .lineLimit(1)
+                .minimumScaleFactor(0.82)
+                .foregroundStyle(palette.secondaryForeground)
             }
-            .padding(.horizontal, 10)
+            .padding(.horizontal, metrics.cardPadding)
         }
-        .frame(height: 56)
+        .frame(height: metrics.weatherHeight)
     }
 
-    private var calendarCard: some View {
+    private func calendarCard(metrics: DailyDashboardMetrics) -> some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(AppColors.appBackground.opacity(0.82))
+            RoundedRectangle(cornerRadius: metrics.cardCornerRadius, style: .continuous)
+                .fill(palette.cardBackground)
 
-            VStack(spacing: 9) {
+            VStack(spacing: metrics.calendarSectionSpacing) {
                 HStack {
                     ForEach(Array(weekdaySymbols.enumerated()), id: \.offset) { _, weekday in
                         Text(weekday)
                             .frame(maxWidth: .infinity)
                     }
                 }
-                .font(AppFonts.widgetFont(.widgetCaption, theme: fontTheme))
+                .font(AbstraktWidgetFonts.font(.caption, theme: fontTheme))
                 .foregroundStyle(Color(red: 1, green: 0.36, blue: 0.42))
 
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7), spacing: 7) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7), spacing: metrics.calendarRowSpacing) {
                     ForEach(calendarDays.indices, id: \.self) { index in
                         let value = calendarDays[index]
                         Text(value == 0 ? "" : "\(value)")
-                            .font(AppFonts.widgetFont(.widgetMeta, theme: fontTheme))
-                            .foregroundStyle(AppColors.widgetPrimaryText.opacity(value == highlightedDay ? 1 : 0.86))
-                            .frame(width: 20, height: 18)
+                            .font(AbstraktWidgetFonts.font(.meta, theme: fontTheme))
+                            .lineLimit(1)
+                            .minimumScaleFactor(metrics.calendarMinimumScale)
+                            .foregroundStyle(palette.foreground.opacity(value == highlightedDay ? 1 : 0.86))
+                            .frame(width: metrics.dayCellWidth, height: metrics.dayCellHeight)
                             .background {
                                 if value == highlightedDay {
-                                    RoundedRectangle(cornerRadius: 5, style: .continuous)
+                                    RoundedRectangle(cornerRadius: metrics.highlightCornerRadius, style: .continuous)
                                         .fill(Color(red: 0.55, green: 0.63, blue: 1.0))
                                 }
                             }
                     }
                 }
             }
-            .padding(14)
+            .padding(metrics.calendarPadding)
         }
+    }
+
+    private var palette: AbstraktWidgetPalette {
+        AbstraktWidgetPalette(colorScheme: colorScheme)
     }
 
     private var weekdaySymbols: [String] {
@@ -154,6 +201,18 @@ struct DailyDashboardWidget: View {
         Calendar.current.component(.day, from: snapshot.date)
     }
 
+    private var timeDisplay: (prefix: String, minute: String) {
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: snapshot.date)
+        let minute = calendar.component(.minute, from: snapshot.date)
+        let separator = Locale.current.identifier.hasPrefix("id") ? "." : ":"
+
+        return (
+            prefix: String(format: "%02d%@", hour, separator),
+            minute: String(format: "%02d", minute)
+        )
+    }
+
     private var calendarDays: [Int] {
         let calendar = Calendar.current
         let components = calendar.dateComponents([.year, .month], from: snapshot.date)
@@ -161,6 +220,90 @@ struct DailyDashboardWidget: View {
         let range = calendar.range(of: .day, in: .month, for: monthStart) ?? 1..<31
         let leading = calendar.component(.weekday, from: monthStart) - 1
         return Array(repeating: 0, count: leading) + Array(range)
+    }
+}
+
+private struct DailyDashboardMetrics {
+    let size: CGSize
+
+    var outerPadding: CGFloat {
+        clamped(size.height * 0.064, minimum: 7, maximum: 7)
+    }
+
+    var spacing: CGFloat {
+        clamped(size.height * 0.052, minimum: 7, maximum: 7)
+    }
+
+    var cardCornerRadius: CGFloat {
+        max(18, 30 - outerPadding)
+    }
+
+    var leftColumnWidth: CGFloat {
+        min(size.width * 0.365, 132)
+    }
+
+    var weatherHeight: CGFloat {
+        clamped(size.height * 0.305, minimum: 47, maximum: 54)
+    }
+
+    var cardPadding: CGFloat {
+        clamped(size.height * 0.052, minimum: 8, maximum: 10)
+    }
+
+    var badgeHeight: CGFloat {
+        clamped(size.height * 0.106, minimum: 17, maximum: 19)
+    }
+
+    var timeStackSpacing: CGFloat {
+        clamped(size.height * 0.035, minimum: 4, maximum: 6)
+    }
+
+    var calendarPadding: EdgeInsets {
+        let vertical = clamped(size.height * 0.07, minimum: 10, maximum: 13)
+        let horizontal = clamped(size.width * 0.038, minimum: 10, maximum: 14)
+
+        return EdgeInsets(
+            top: vertical,
+            leading: horizontal,
+            bottom: vertical,
+            trailing: horizontal
+        )
+    }
+
+    var calendarSectionSpacing: CGFloat {
+        clamped(size.height * 0.041, minimum: 5, maximum: 7)
+    }
+
+    var calendarRowSpacing: CGFloat {
+        clamped(size.height * 0.034, minimum: 4, maximum: 6)
+    }
+
+    var dayCellWidth: CGFloat {
+        clamped(size.width * 0.055, minimum: 18, maximum: 21)
+    }
+
+    var dayCellHeight: CGFloat {
+        clamped(size.height * 0.104, minimum: 16, maximum: 18)
+    }
+
+    var highlightCornerRadius: CGFloat {
+        clamped(size.height * 0.035, minimum: 5, maximum: 6)
+    }
+
+    var displayMinimumScale: CGFloat {
+        size.height < 165 ? 0.7 : 0.78
+    }
+
+    var temperatureMinimumScale: CGFloat {
+        size.height < 165 ? 0.72 : 0.82
+    }
+
+    var calendarMinimumScale: CGFloat {
+        size.height < 165 ? 0.72 : 0.86
+    }
+
+    private func clamped(_ value: CGFloat, minimum: CGFloat, maximum: CGFloat) -> CGFloat {
+        min(max(value, minimum), maximum)
     }
 }
 
@@ -184,7 +327,7 @@ extension DailyDashboardSnapshot {
             weatherSymbol: "🌥️"
         )
     )
-        .frame(width: 364, height: 170)
+    .frame(width: 364, height: 170)
 }
 
 private extension Date {

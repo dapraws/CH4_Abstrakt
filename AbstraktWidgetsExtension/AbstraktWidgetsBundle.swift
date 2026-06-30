@@ -4,7 +4,7 @@ import WidgetKit
 @main
 struct AbstraktWidgetsBundle: WidgetBundle {
     init() {
-        WidgetFonts.registerCustomFonts()
+        AbstraktWidgetFonts.registerCustomFonts()
     }
 
     var body: some Widget {

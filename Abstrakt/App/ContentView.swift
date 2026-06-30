@@ -39,6 +39,10 @@ struct ContentView: View {
                 }
             }
         }
+        .onChange(of: appFontThemeID) { _, newValue in
+            SharedModelContainer.write(appFontThemeID: newValue)
+            WidgetCenter.shared.reloadAllTimelines()
+        }
         .task {
             guard runsLiveWidgetTasks else {
                 return
@@ -68,9 +72,9 @@ struct ContentView: View {
                 .blur(radius: showsLibrary ? 18 : 0)
                 .animation(Self.libraryTransitionAnimation, value: showsLibrary)
             
-            if !showsLibrary {
-                bottomBarEffect
-            }
+            bottomBarEffect
+                .opacity(showsLibrary ? 0 : 1)
+                .animation(Self.libraryTransitionAnimation, value: showsLibrary)
             
             BottomBar(
                 selectedTab: bottomBarSelection,
@@ -154,6 +158,7 @@ struct ContentView: View {
             calendar: EventKitProvider.placeholderSnapshot()
         )
         SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
+        SharedModelContainer.write(appFontThemeID: appFontThemeID)
         SharedModelContainer.write(widgetPresets: WidgetPreset.seededLibrary)
         
         await refreshHealthWidgetData()

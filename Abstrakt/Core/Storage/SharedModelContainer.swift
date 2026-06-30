@@ -38,6 +38,11 @@ enum SharedModelContainer {
         defaults?.synchronize()
     }
 
+    static func write(appFontThemeID: String) {
+        defaults?.set(appFontThemeID, forKey: AppGroupConstants.settingsAppFontThemeKey)
+        defaults?.synchronize()
+    }
+
     static func write(widgetPresets: [WidgetPreset]) {
         guard let data = try? JSONEncoder().encode(widgetPresets) else {
             return

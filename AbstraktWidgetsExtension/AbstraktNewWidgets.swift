@@ -153,9 +153,6 @@ struct LargeSolidWidget: Widget {
     }
 }
 
-private let widgetBackground = Color(red: 0.02, green: 0.02, blue: 0.02)
-private let widgetForeground = Color(red: 0.96, green: 0.96, blue: 0.96)
-
 private extension SmallSolidWidgetEntry {
     static func current(selectedWidgetName: String) -> SmallSolidWidgetEntry {
         SmallSolidWidgetEntry(
@@ -184,9 +181,9 @@ private extension MediumSolidWidgetEntry {
             selectedWidgetID: SolidWidgetSelection.widgetID(for: selectedWidgetName, size: "medium"),
             dashboard: DashboardWidgetEntry(
                 date: .now,
-                temperature: WidgetSharedStore.weatherTemperature,
-                high: WidgetSharedStore.weatherHigh,
-                low: WidgetSharedStore.weatherLow,
+                temperature: WidgetSharedStore.weatherTemperatureCelsius,
+                high: WidgetSharedStore.weatherHighCelsius,
+                low: WidgetSharedStore.weatherLowCelsius,
                 weatherSymbol: WidgetSharedStore.weatherSymbol
             )
         )
@@ -212,9 +209,9 @@ private extension LargeSolidWidgetEntry {
             ),
             dashboard: DashboardWidgetEntry(
                 date: .now,
-                temperature: WidgetSharedStore.weatherTemperature,
-                high: WidgetSharedStore.weatherHigh,
-                low: WidgetSharedStore.weatherLow,
+                temperature: WidgetSharedStore.weatherTemperatureCelsius,
+                high: WidgetSharedStore.weatherHighCelsius,
+                low: WidgetSharedStore.weatherLowCelsius,
                 weatherSymbol: WidgetSharedStore.weatherSymbol
             )
         )
@@ -227,9 +224,25 @@ private struct SmallSolidWidgetView: View {
     var body: some View {
         switch entry.selectedWidgetID {
         case "battery-bars-small":
-            BatteryBarsWidgetView(entry: entry.battery)
+            BatteryBarsWidget(
+                snapshot: BatteryBarsRenderSnapshot(
+                    level: entry.battery.level,
+                    estimatedMinutesRemaining: entry.battery.estimatedMinutesRemaining,
+                    isCharging: entry.battery.isCharging
+                ),
+                fontTheme: WidgetSharedStore.appFontTheme,
+                clipsToWidgetShape: false
+            )
         case "step-health-small":
-            StepHealthWidgetView(entry: entry.health)
+            StepHealthWidget(
+                snapshot: StepHealthRenderSnapshot(
+                    steps: entry.health.steps,
+                    distanceValue: entry.health.distanceValue,
+                    distanceUnitName: entry.health.distanceUnitName
+                ),
+                fontTheme: WidgetSharedStore.appFontTheme,
+                clipsToWidgetShape: false
+            )
         default:
             InstructionSolidWidgetView()
         }
@@ -242,7 +255,17 @@ private struct MediumSolidWidgetView: View {
     var body: some View {
         switch entry.selectedWidgetID {
         case "daily-dashboard-medium":
-            DailyDashboardWidgetView(entry: entry.dashboard)
+            DailyDashboardWidget(
+                snapshot: DailyDashboardSnapshot(
+                    date: entry.dashboard.date,
+                    temperature: entry.dashboard.temperature,
+                    high: entry.dashboard.high,
+                    low: entry.dashboard.low,
+                    weatherSymbol: entry.dashboard.weatherSymbol
+                ),
+                fontTheme: WidgetSharedStore.appFontTheme,
+                clipsToWidgetShape: false
+            )
         default:
             InstructionSolidWidgetView()
         }
@@ -262,11 +285,19 @@ private struct LargeSolidWidgetView: View {
 
 private struct InstructionSolidWidgetView: View {
     @Environment(\.widgetFamily) private var widgetFamily
-    private let fontTheme: WidgetFontTheme = .sfProRounded
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var fontTheme: AbstraktWidgetFontTheme {
+        WidgetSharedStore.appFontTheme
+    }
+
+    private var palette: AbstraktWidgetPalette {
+        AbstraktWidgetPalette(colorScheme: colorScheme)
+    }
 
     var body: some View {
         ZStack {
-            widgetBackground
+            palette.background
 
             VStack(alignment: .leading, spacing: rowSpacing) {
                 instructionRow(number: 1, text: "Touch and hold", isActive: true)
@@ -278,27 +309,27 @@ private struct InstructionSolidWidgetView: View {
             .padding(contentPadding)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .containerBackground(widgetBackground, for: .widget)
+        .containerBackground(palette.background, for: .widget)
     }
 
     private func instructionRow(number: Int, text: String, isActive: Bool) -> some View {
         HStack(spacing: 8) {
             Text("\(number)")
-                .font(WidgetFonts.font(.iconBadge, theme: fontTheme))
-                .foregroundStyle(isActive ? widgetBackground : widgetForeground.opacity(0.42))
+                .font(AbstraktWidgetFonts.font(.iconBadge, theme: fontTheme))
+                .foregroundStyle(isActive ? palette.background : palette.foreground.opacity(0.42))
                 .frame(width: numberBadgeSize, height: numberBadgeSize)
-                .background(isActive ? widgetForeground : widgetForeground.opacity(0.18))
+                .background(isActive ? palette.foreground : palette.foreground.opacity(0.18))
                 .clipShape(Circle())
 
             Text(text)
-                .font(WidgetFonts.font(instructionTextRole, theme: fontTheme))
-                .foregroundStyle(isActive ? widgetForeground : widgetForeground.opacity(0.42))
+                .font(AbstraktWidgetFonts.font(instructionTextRole, theme: fontTheme))
+                .foregroundStyle(isActive ? palette.foreground : palette.foreground.opacity(0.42))
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
         }
     }
 
-    private var instructionTextRole: WidgetFontRole {
+    private var instructionTextRole: AbstraktWidgetFontRole {
         switch widgetFamily {
         case .systemSmall:
             .caption
@@ -340,250 +371,6 @@ private struct InstructionSolidWidgetView: View {
         default:
             24
         }
-    }
-}
-
-private struct BatteryBarsWidgetView: View {
-    let entry: BatteryWidgetEntry
-    private let fontTheme: WidgetFontTheme = .sfProRounded
-
-    var body: some View {
-        ZStack {
-            widgetBackground
-
-            VStack(spacing: 24) {
-                HStack(spacing: 5) {
-                    Image(systemName: "bolt.fill")
-                        .font(WidgetFonts.font(.caption, theme: fontTheme))
-                        .foregroundStyle(Color(red: 1, green: 0.35, blue: 0.22))
-
-                    Text("\(entry.level)%")
-                        .font(WidgetFonts.font(.heading, theme: fontTheme))
-                        .foregroundStyle(widgetForeground)
-                }
-
-                HStack(spacing: 6) {
-                    ForEach(0..<5, id: \.self) { index in
-                        BatteryLevelBarView(
-                            fillFraction: barFillFraction(at: index),
-                            fillColor: Color(red: 1, green: 0.35, blue: 0.22),
-                            backgroundColor: widgetForeground.opacity(0.08)
-                        )
-                    }
-                }
-
-                Text(timeRemainingLabel)
-                    .font(WidgetFonts.font(.caption, theme: fontTheme))
-                    .foregroundStyle(widgetForeground.opacity(0.32))
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .containerBackground(widgetBackground, for: .widget)
-    }
-
-    private func barFillFraction(at index: Int) -> Double {
-        min(max((Double(max(0, min(100, entry.level))) / 100.0 * 5.0) - Double(index), 0), 1)
-    }
-
-    private var timeRemainingLabel: String {
-        if entry.isCharging {
-            return "Charging"
-        }
-
-        guard let estimatedMinutesRemaining = entry.estimatedMinutesRemaining else {
-            return "Estimating"
-        }
-
-        return "- \(Self.durationLabel(for: estimatedMinutesRemaining))"
-    }
-
-    private static func durationLabel(for minutes: Int) -> String {
-        let clampedMinutes = max(0, minutes)
-        let hours = clampedMinutes / 60
-        let remainingMinutes = clampedMinutes % 60
-
-        switch (hours, remainingMinutes) {
-        case (0, 0):
-            return "< 1 min"
-        case (0, _):
-            return "\(remainingMinutes)m"
-        case (_, 0):
-            return "\(hours)h"
-        default:
-            return "\(hours)h \(remainingMinutes)m"
-        }
-    }
-}
-
-private struct BatteryLevelBarView: View {
-    let fillFraction: Double
-    let fillColor: Color
-    let backgroundColor: Color
-
-    private let barSize = CGSize(width: 21, height: 44)
-
-    var body: some View {
-        RoundedRectangle(cornerRadius: 4, style: .continuous)
-            .fill(backgroundColor)
-            .frame(width: barSize.width, height: barSize.height)
-            .overlay(alignment: .bottom) {
-                RoundedRectangle(cornerRadius: 4, style: .continuous)
-                    .fill(fillColor)
-                    .frame(width: barSize.width, height: barSize.height * min(max(fillFraction, 0), 1))
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-    }
-}
-
-private struct StepHealthWidgetView: View {
-    let entry: StepWidgetEntry
-    private let fontTheme: WidgetFontTheme = .fusionPixel
-
-    var body: some View {
-        ZStack {
-            widgetBackground
-
-            VStack(alignment: .leading) {
-                stairIcon
-                    .frame(width: 27, height: 18)
-
-                Spacer()
-
-                Text("You've walked\n\(entry.steps.formatted(.number)) steps,\ndistance is\n\(entry.distanceValue.formatted(.number.precision(.fractionLength(2)))) \(entry.distanceUnitName).")
-                    .font(WidgetFonts.font(.body, theme: fontTheme))
-                    .lineSpacing(WidgetFonts.lineSpacing(.body, theme: fontTheme))
-                    .foregroundStyle(widgetForeground.opacity(0.7))
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .padding(18)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .containerBackground(widgetBackground, for: .widget)
-    }
-
-    private var stairIcon: some View {
-        ZStack(alignment: .bottomLeading) {
-            Rectangle().frame(width: 7, height: 3)
-            Rectangle().frame(width: 14, height: 7)
-            Rectangle().frame(width: 21, height: 12)
-        }
-        .foregroundStyle(widgetForeground)
-    }
-}
-
-private struct DailyDashboardWidgetView: View {
-    let entry: DashboardWidgetEntry
-    private let fontTheme: WidgetFontTheme = .sfProRounded
-
-    var body: some View {
-        HStack(spacing: 8) {
-            VStack(spacing: 8) {
-                timeCard
-                    .frame(maxHeight: .infinity)
-                weatherCard
-            }
-            .frame(width: 132)
-            .frame(maxHeight: .infinity)
-
-            calendarCard
-                .frame(maxHeight: .infinity)
-        }
-        .padding(8)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .containerBackground(Color.white, for: .widget)
-    }
-
-    private var timeCard: some View {
-        RoundedRectangle(cornerRadius: 17, style: .continuous)
-            .fill(Color(red: 0.95, green: 0.96, blue: 0.98))
-            .overlay {
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Spacer()
-                        Text("\(entry.temperature)° \(entry.weatherSymbol)")
-                            .font(WidgetFonts.font(.meta, theme: fontTheme))
-                            .padding(.horizontal, 7)
-                            .frame(height: 18)
-                            .background(Color.black.opacity(0.12))
-                            .clipShape(Capsule())
-                    }
-
-                    Text(entry.date.formatted(.dateTime.hour().minute()))
-                        .font(WidgetFonts.font(.display, theme: fontTheme))
-                        .foregroundStyle(Color.black)
-                        .minimumScaleFactor(0.72)
-                }
-                .padding(10)
-            }
-    }
-
-    private var weatherCard: some View {
-        RoundedRectangle(cornerRadius: 15, style: .continuous)
-            .fill(Color(red: 0.95, green: 0.96, blue: 0.98))
-            .frame(height: 56)
-            .overlay {
-                HStack {
-                    Text("\(entry.temperature)")
-                        .font(WidgetFonts.font(.title, theme: fontTheme))
-                    Text("°")
-                        .font(WidgetFonts.font(.heading, theme: fontTheme))
-                        .offset(x: -5, y: -5)
-                    Spacer(minLength: 2)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("▲ \(entry.high)°")
-                        Text("▼ \(entry.low)°")
-                    }
-                    .font(WidgetFonts.font(.meta, theme: fontTheme))
-                    .foregroundStyle(Color.black.opacity(0.5))
-                }
-                .padding(.horizontal, 10)
-            }
-    }
-
-    private var calendarCard: some View {
-        RoundedRectangle(cornerRadius: 18, style: .continuous)
-            .fill(Color(red: 0.95, green: 0.96, blue: 0.98))
-            .overlay {
-                VStack(spacing: 9) {
-                    HStack {
-                        ForEach(Array(["S", "M", "T", "W", "T", "F", "S"].enumerated()), id: \.offset) { _, weekday in
-                            Text(weekday)
-                                .frame(maxWidth: .infinity)
-                        }
-                    }
-                    .font(WidgetFonts.font(.caption, theme: fontTheme))
-                    .foregroundStyle(Color(red: 1, green: 0.36, blue: 0.42))
-
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7), spacing: 7) {
-                        ForEach(calendarDays.indices, id: \.self) { index in
-                            let value = calendarDays[index]
-                            Text(value == 0 ? "" : "\(value)")
-                                .font(WidgetFonts.font(.meta, theme: fontTheme))
-                                .frame(width: 20, height: 18)
-                                .background {
-                                    if value == highlightedDay {
-                                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                            .fill(Color(red: 0.55, green: 0.63, blue: 1.0))
-                                    }
-                                }
-                        }
-                    }
-                }
-                .padding(14)
-            }
-    }
-
-    private var highlightedDay: Int {
-        Calendar.current.component(.day, from: entry.date)
-    }
-
-    private var calendarDays: [Int] {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.year, .month], from: entry.date)
-        let monthStart = calendar.date(from: components) ?? entry.date
-        let range = calendar.range(of: .day, in: .month, for: monthStart) ?? 1..<31
-        let leading = calendar.component(.weekday, from: monthStart) - 1
-        return Array(repeating: 0, count: leading) + Array(range)
     }
 }
 

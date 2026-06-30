@@ -1,8 +1,11 @@
 import SwiftUI
 
 struct FontPickerSheet: View {
+    private static let settingsStore = UserDefaults(suiteName: AppGroupConstants.suiteName)
+
     @Environment(\.dismiss) private var dismiss
     @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
+    @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore) private var sharedAppFontThemeID = AppFonts.defaultTheme.id
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: 2)
     private let tileCornerRadius: CGFloat = 24
@@ -57,6 +60,7 @@ struct FontPickerSheet: View {
         return Button {
             withAnimation(.smooth(duration: 0.18)) {
                 appFontThemeID = theme.id
+                sharedAppFontThemeID = theme.id
             }
         } label: {
             ZStack {
