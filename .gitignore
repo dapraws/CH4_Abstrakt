@@ -1,8 +1,11 @@
-# Xcode
-.DS_Store
-*.xcuserstate
-xcschememanagement.plist
-Signing.local.xcconfig
+# Generated build output
+build/
+DerivedData/
+*.xcarchive
+*.xcresult
+*.dSYM/
 
-# Generated
-*.pbxproj
+# Local generated user state
+.DS_Store
+xcuserdata/
+*.xcuserstate
