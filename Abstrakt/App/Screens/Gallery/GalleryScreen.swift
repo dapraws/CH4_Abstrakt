@@ -1,5 +1,38 @@
 import SwiftUI
 
+private enum GalleryRow: Identifiable {
+    case pair(WidgetCatalogItem, WidgetCatalogItem?)
+    case single(WidgetCatalogItem)
+
+    var id: String {
+        switch self {
+        case let .pair(first, second):
+            "\(first.id)-\(second?.id ?? "empty")"
+        case let .single(entry):
+            entry.id
+        }
+    }
+}
+
+private struct GalleryRowWidthKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+private struct GalleryRowWidthReporter: View {
+    var body: some View {
+        GeometryReader { proxy in
+            Color.clear.preference(
+                key: GalleryRowWidthKey.self,
+                value: proxy.size.width
+            )
+        }
+    }
+}
+
 struct GalleryScreen: View {
     @State private var selectedCategory: WidgetCategory = .all
     
@@ -10,20 +43,6 @@ struct GalleryScreen: View {
     
     init(onSelectItem: @escaping (WidgetCatalogItem) -> Void = { _ in }) {
         self.onSelectItem = onSelectItem
-    }
-    
-    private enum GalleryRow: Identifiable {
-        case pair(WidgetCatalogItem, WidgetCatalogItem?)
-        case single(WidgetCatalogItem)
-        
-        var id: String {
-            switch self {
-            case let .pair(first, second):
-                "\(first.id)-\(second?.id ?? "empty")"
-            case let .single(entry):
-                entry.id
-            }
-        }
     }
     
     private var filteredEntries: [GalleryEntry] {
@@ -74,50 +93,98 @@ struct GalleryScreen: View {
                         }
                     }
                     .padding(.horizontal, AppSpacing.screenHorizontal)
-                    .padding(.trailing, 40)
                 }
                 .padding(.horizontal, -AppSpacing.screenHorizontal)
                 .scrollClipDisabled()
             }
         } content: {
-            LazyVStack(alignment: .leading, spacing: 22) {
+            LazyVStack(alignment: .leading, spacing: AppSpacing.cardGap) {
                 ForEach(galleryRows) { row in
-                    switch row {
-                    case let .single(entry):
-                        Button {
-                            onSelectItem(entry)
-                        } label: {
-                            WidgetCard(item: entry)
-                        }
-                        .buttonStyle(.plain)
-                    case let .pair(first, second):
-                        HStack(alignment: .top, spacing: 22) {
-                            Button {
-                                onSelectItem(first)
-                            } label: {
-                                WidgetCard(item: first)
-                            }
-                            .buttonStyle(.plain)
-                            
-                            if let second {
-                                Button {
-                                    onSelectItem(second)
-                                } label: {
-                                    WidgetCard(item: second)
-                                }
-                                .buttonStyle(.plain)
-                            } else {
-                                Spacer()
-                                    .frame(maxWidth: .infinity)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+                    GalleryRowView(row: row, onSelectItem: onSelectItem)
                 }
             }
             .padding(.horizontal, AppSpacing.screenHorizontal)
         }
         .background(AppColors.appBackground)
+    }
+}
+
+private struct GalleryRowView: View {
+    let row: GalleryRow
+    let onSelectItem: (WidgetCatalogItem) -> Void
+    @State private var availableWidth: CGFloat = 0
+
+    var body: some View {
+        rowContent(availableWidth: availableWidth)
+            .frame(maxWidth: .infinity)
+            .background(GalleryRowWidthReporter())
+            .onPreferenceChange(GalleryRowWidthKey.self, perform: updateAvailableWidth)
+    }
+
+    @ViewBuilder
+    private func rowContent(availableWidth: CGFloat) -> some View {
+        switch row {
+        case let .single(entry):
+            let previewWidth = previewWidth(for: entry.size, availableWidth: availableWidth)
+
+            Button {
+                onSelectItem(entry)
+            } label: {
+                WidgetCard(item: entry, maximumPreviewWidth: previewWidth, maximumPreviewScale: maximumScale(for: entry.size))
+            }
+            .buttonStyle(.plain)
+            .frame(maxWidth: .infinity, alignment: .center)
+
+        case let .pair(first, second):
+            let spacing = pairSpacing(for: availableWidth)
+            let previewWidth = previewWidth(for: first.size, availableWidth: max(0, (availableWidth - spacing) / 2))
+
+            HStack(alignment: .top, spacing: spacing) {
+                Button {
+                    onSelectItem(first)
+                } label: {
+                    WidgetCard(item: first, maximumPreviewWidth: previewWidth, maximumPreviewScale: maximumScale(for: first.size))
+                }
+                .buttonStyle(.plain)
+
+                if let second {
+                    Button {
+                        onSelectItem(second)
+                    } label: {
+                        WidgetCard(item: second, maximumPreviewWidth: previewWidth, maximumPreviewScale: maximumScale(for: second.size))
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    Spacer(minLength: 0)
+                        .frame(width: previewWidth)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+    }
+
+    private func pairSpacing(for availableWidth: CGFloat) -> CGFloat {
+        min(max(availableWidth * 0.055, 14), 22)
+    }
+
+    private func previewWidth(for size: WidgetSize, availableWidth: CGFloat) -> CGFloat {
+        min(max(availableWidth, 0), size.previewWidth * maximumScale(for: size))
+    }
+
+    private func maximumScale(for size: WidgetSize) -> CGFloat {
+        switch size {
+        case .small:
+            1.14
+        case .medium:
+            1.16
+        case .large:
+            1.08
+        }
+    }
+
+    private func updateAvailableWidth(_ width: CGFloat) {
+        guard width > 0, abs(availableWidth - width) > 0.5 else { return }
+        availableWidth = width
     }
 }
 
@@ -254,36 +321,46 @@ private struct WidgetPreviewSheet: View {
     }
     
     var body: some View {
-        ZStack(alignment: .bottom) {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 20) {
-                    WidgetPreview(item: item)
-                        .frame(width: item.size.previewWidth, height: item.size.previewHeight)
-                        .scaleEffect(previewScale)
-                        .frame(
-                            width: item.size.previewWidth * previewScale,
-                            height: item.size.previewHeight * previewScale
-                        )
-                    
-                    Text("\(item.displayName) | \(item.primaryCategory.title)")
-                        .font(AppFonts.font(.heading3))
-                        .foregroundStyle(AppColors.primaryText)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .frame(maxWidth: min(item.size.previewWidth * previewScale, 320), alignment: .center)
+        GeometryReader { proxy in
+            let previewSize = item.size.previewSize(
+                fittingWidth: max(0, proxy.size.width - (AppSpacing.screenHorizontal * 2))
+            )
+            let scaledPreviewSize = CGSize(
+                width: previewSize.width * previewScale,
+                height: previewSize.height * previewScale
+            )
+
+            ZStack(alignment: .bottom) {
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
+                        WidgetPreview(item: item)
+                            .frame(width: previewSize.width, height: previewSize.height)
+                            .scaleEffect(previewScale)
+                            .frame(
+                                width: scaledPreviewSize.width,
+                                height: scaledPreviewSize.height
+                            )
+
+                        Text("\(item.displayName) | \(item.primaryCategory.title)")
+                            .font(AppFonts.font(.heading3))
+                            .foregroundStyle(AppColors.primaryText)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                            .frame(maxWidth: min(scaledPreviewSize.width, 320), alignment: .center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 36)
+                    .padding(.bottom, 132 + AppSpacing.bottomBarInset)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 62)
-                .padding(.bottom, 132 + AppSpacing.bottomBarInset)
+
+                SaveWidgetButton()
+                    .padding(.horizontal, AppSpacing.screenHorizontal)
+                    .padding(.bottom, AppSpacing.bottomBarInset)
             }
-            
-            SaveWidgetButton()
-                .padding(.horizontal, AppSpacing.screenHorizontal)
-                .padding(.bottom, AppSpacing.bottomBarInset)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(AppColors.appBackground)
+            .ignoresSafeArea(.container, edges: [.horizontal, .bottom])
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(AppColors.appBackground)
-        .ignoresSafeArea(.container, edges: [.horizontal, .bottom])
     }
 }
 
@@ -306,7 +383,7 @@ private struct SaveWidgetButtonContent: View {
     
     var body: some View {
         buttonLabel
-            .foregroundStyle(Color.green.opacity(0.52))
+            .foregroundStyle(Color.green.opacity(0.64))
             .overlay {
                 GeometryReader { proxy in
                     buttonLabel

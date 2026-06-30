@@ -38,6 +38,8 @@ struct SettingsScreen: View {
                 }
             } content: {
                 VStack(spacing: 20) {
+                    headerActions
+                    
                     SettingsSection(title: "Display & Appearance", fontTheme: selectedTheme) {
                         settingsButtonRow(
                             icon: "textformat",
@@ -126,8 +128,6 @@ struct SettingsScreen: View {
                         )
                     }
 
-                    footerActions
-
                     VStack(spacing: 10) {
                         Image(systemName: "heart.fill")
                             .font(AppFonts.font(.heading2))
@@ -159,7 +159,7 @@ struct SettingsScreen: View {
         .sensoryFeedback(.selection, trigger: distanceUnitID)
     }
 
-    private var footerActions: some View {
+    private var headerActions: some View {
         HStack(spacing: 0) {
             footerAction(icon: "arrowshape.turn.up.right.fill", title: "Share App", color: Color(red: 0.08, green: 0.79, blue: 0.55))
             footerDivider

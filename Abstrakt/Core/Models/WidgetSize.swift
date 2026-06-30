@@ -37,4 +37,18 @@ enum WidgetSize: String, CaseIterable, Codable, Identifiable {
             WidgetSizeTokens.defaultHomeLarge
         }
     }
+
+    var previewAspectRatio: CGFloat {
+        previewWidth / previewHeight
+    }
+
+    func previewSize(fittingWidth availableWidth: CGFloat, maximumScale: CGFloat = 1) -> CGSize {
+        let maximumWidth = previewWidth * max(maximumScale, 0)
+        let width = min(max(availableWidth, 0), maximumWidth)
+        return CGSize(width: width, height: width / previewAspectRatio)
+    }
+
+    func previewHeight(fittingWidth availableWidth: CGFloat) -> CGFloat {
+        previewSize(fittingWidth: availableWidth).height
+    }
 }

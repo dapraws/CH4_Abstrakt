@@ -232,7 +232,11 @@ private struct LibraryWidgetRow: View {
             let contentWidth = proxy.size.width - AppSpacing.screenHorizontal
             let textWidth = min(contentWidth * textWidthRatio, maximumTextWidth)
             let previewColumnWidth = max(0, contentWidth - textWidth - contentGap)
-            let previewSize = scaledPreviewSize
+            let previewSize = size.previewSize(fittingWidth: previewColumnWidth / previewScale)
+            let scaledPreviewSize = CGSize(
+                width: previewSize.width * previewScale,
+                height: previewSize.height * previewScale
+            )
 
             HStack(alignment: .top, spacing: contentGap) {
                 VStack(alignment: .leading, spacing: 12) {
@@ -260,9 +264,9 @@ private struct LibraryWidgetRow: View {
                 ZStack(alignment: .topLeading) {
                     if let item {
                         WidgetPreview(item: item)
-                            .frame(width: size.previewWidth, height: size.previewHeight)
+                            .frame(width: previewSize.width, height: previewSize.height)
                             .scaleEffect(previewScale, anchor: .topLeading)
-                            .frame(width: previewSize.width, height: previewSize.height, alignment: .topLeading)
+                            .frame(width: scaledPreviewSize.width, height: scaledPreviewSize.height, alignment: .topLeading)
                             .rotationEffect(.degrees(rotationDegrees), anchor: .center)
                             .offset(x: previewXOffset, y: previewYOffset)
                     }
@@ -326,13 +330,6 @@ private struct LibraryWidgetRow: View {
         case .large:
             186
         }
-    }
-
-    private var scaledPreviewSize: CGSize {
-        CGSize(
-            width: size.previewWidth * previewScale,
-            height: size.previewHeight * previewScale
-        )
     }
 
     private var previewScale: CGFloat {
