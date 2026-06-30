@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - Render Snapshot
+
 struct BatteryBarsRenderSnapshot: Codable, Hashable {
     let level: Int
     let estimatedMinutesRemaining: Int?
@@ -55,6 +57,8 @@ extension BatteryBarsRenderSnapshot {
 }
 #endif
 
+// MARK: - Widget
+
 struct BatteryBarsWidget: View {
     let snapshot: BatteryBarsRenderSnapshot
     let fontTheme: AbstraktWidgetFontTheme
@@ -86,6 +90,8 @@ struct BatteryBarsWidget: View {
     }
     #endif
 
+    // MARK: Body
+
     var body: some View {
         ZStack {
             palette.background
@@ -99,6 +105,8 @@ struct BatteryBarsWidget: View {
             )
         )
     }
+
+    // MARK: Content
 
     private var widgetContent: some View {
         VStack(spacing: 24) {
@@ -133,6 +141,8 @@ struct BatteryBarsWidget: View {
         AbstraktWidgetPalette(colorScheme: colorScheme)
     }
 }
+
+// MARK: - Level Bar
 
 private struct BatteryLevelBar: View {
     let fillFraction: Double

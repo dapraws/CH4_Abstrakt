@@ -2,6 +2,8 @@ import Foundation
 import SwiftUI
 import WidgetKit
 
+// MARK: - Timeline Entries
+
 struct SmallSolidWidgetEntry: TimelineEntry {
     let date: Date
     let selectedWidgetID: String?
@@ -46,6 +48,8 @@ struct DashboardWidgetEntry: TimelineEntry {
 }
 
 private let widgetTimelineRefreshInterval: TimeInterval = 1
+
+// MARK: - Timeline Providers
 
 struct SmallSolidWidgetProvider: AppIntentTimelineProvider {
     typealias Entry = SmallSolidWidgetEntry
@@ -111,6 +115,8 @@ private func nextWidgetRefreshDate() -> Date {
     .now.addingTimeInterval(widgetTimelineRefreshInterval)
 }
 
+// MARK: - Widget Configurations
+
 struct SmallSolidWidget: Widget {
     let kind = "AbstraktSolidSmallWidget.v3"
 
@@ -152,6 +158,8 @@ struct LargeSolidWidget: Widget {
         .contentMarginsDisabled()
     }
 }
+
+// MARK: - Current Entry Factories
 
 private extension SmallSolidWidgetEntry {
     static func current(selectedWidgetName: String) -> SmallSolidWidgetEntry {
@@ -218,6 +226,42 @@ private extension LargeSolidWidgetEntry {
     }
 }
 
+// MARK: - Render Snapshot Mapping
+
+private extension BatteryWidgetEntry {
+    var renderSnapshot: BatteryBarsRenderSnapshot {
+        BatteryBarsRenderSnapshot(
+            level: level,
+            estimatedMinutesRemaining: estimatedMinutesRemaining,
+            isCharging: isCharging
+        )
+    }
+}
+
+private extension StepWidgetEntry {
+    var renderSnapshot: StepHealthRenderSnapshot {
+        StepHealthRenderSnapshot(
+            steps: steps,
+            distanceValue: distanceValue,
+            distanceUnitName: distanceUnitName
+        )
+    }
+}
+
+private extension DashboardWidgetEntry {
+    var renderSnapshot: DailyDashboardSnapshot {
+        DailyDashboardSnapshot(
+            date: date,
+            temperature: temperature,
+            high: high,
+            low: low,
+            weatherSymbol: weatherSymbol
+        )
+    }
+}
+
+// MARK: - Widget Views
+
 private struct SmallSolidWidgetView: View {
     let entry: SmallSolidWidgetEntry
 
@@ -225,21 +269,13 @@ private struct SmallSolidWidgetView: View {
         switch entry.selectedWidgetID {
         case "battery-bars-small":
             BatteryBarsWidget(
-                snapshot: BatteryBarsRenderSnapshot(
-                    level: entry.battery.level,
-                    estimatedMinutesRemaining: entry.battery.estimatedMinutesRemaining,
-                    isCharging: entry.battery.isCharging
-                ),
+                snapshot: entry.battery.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
         case "step-health-small":
             StepHealthWidget(
-                snapshot: StepHealthRenderSnapshot(
-                    steps: entry.health.steps,
-                    distanceValue: entry.health.distanceValue,
-                    distanceUnitName: entry.health.distanceUnitName
-                ),
+                snapshot: entry.health.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
@@ -256,13 +292,7 @@ private struct MediumSolidWidgetView: View {
         switch entry.selectedWidgetID {
         case "daily-dashboard-medium":
             DailyDashboardWidget(
-                snapshot: DailyDashboardSnapshot(
-                    date: entry.dashboard.date,
-                    temperature: entry.dashboard.temperature,
-                    high: entry.dashboard.high,
-                    low: entry.dashboard.low,
-                    weatherSymbol: entry.dashboard.weatherSymbol
-                ),
+                snapshot: entry.dashboard.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
@@ -282,6 +312,8 @@ private struct LargeSolidWidgetView: View {
         }
     }
 }
+
+// MARK: - Instruction Placeholder
 
 private struct InstructionSolidWidgetView: View {
     @Environment(\.widgetFamily) private var widgetFamily
@@ -373,6 +405,8 @@ private struct InstructionSolidWidgetView: View {
         }
     }
 }
+
+// MARK: - Previews
 
 private extension SmallSolidWidgetEntry {
     static func preview(selectedWidgetID: String?) -> SmallSolidWidgetEntry {

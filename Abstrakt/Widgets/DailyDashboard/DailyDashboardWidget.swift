@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - Render Snapshot
+
 struct DailyDashboardSnapshot: Codable, Hashable {
     let date: Date
     let temperature: Int
@@ -32,6 +34,8 @@ struct DailyDashboardSnapshot: Codable, Hashable {
     }
 }
 
+// MARK: - Widget
+
 struct DailyDashboardWidget: View {
     private static let widgetCornerRadius: CGFloat = 30
 
@@ -51,6 +55,8 @@ struct DailyDashboardWidget: View {
         self.clipsToWidgetShape = clipsToWidgetShape
     }
 
+    // MARK: Body
+
     var body: some View {
         ZStack {
             palette.background
@@ -67,6 +73,8 @@ struct DailyDashboardWidget: View {
             )
         )
     }
+
+    // MARK: Content
 
     private func widgetContent(metrics: DailyDashboardMetrics) -> some View {
         HStack(spacing: metrics.spacing) {
@@ -168,8 +176,7 @@ struct DailyDashboardWidget: View {
                 .foregroundStyle(Color(red: 1, green: 0.36, blue: 0.42))
 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7), spacing: metrics.calendarRowSpacing) {
-                    ForEach(calendarDays.indices, id: \.self) { index in
-                        let value = calendarDays[index]
+                    ForEach(Array(calendarDays.enumerated()), id: \.offset) { _, value in
                         Text(value == 0 ? "" : "\(value)")
                             .font(AbstraktWidgetFonts.font(.meta, theme: fontTheme))
                             .lineLimit(1)
@@ -222,6 +229,8 @@ struct DailyDashboardWidget: View {
         return Array(repeating: 0, count: leading) + Array(range)
     }
 }
+
+// MARK: - Layout Metrics
 
 private struct DailyDashboardMetrics {
     let size: CGSize
@@ -306,6 +315,8 @@ private struct DailyDashboardMetrics {
         min(max(value, minimum), maximum)
     }
 }
+
+// MARK: - Preview Data
 
 extension DailyDashboardSnapshot {
     static let placeholder = DailyDashboardSnapshot(

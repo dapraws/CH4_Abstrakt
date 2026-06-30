@@ -1,8 +1,17 @@
 import SwiftUI
 
+// MARK: - Library Screen
+
 struct LibraryScreen: View {
+    // MARK: Environment
+
     @Environment(\.colorScheme) private var colorScheme
+
+    // MARK: State
+
     @State private var selectedSize: WidgetSize = .small
+
+    // MARK: Data
 
     private var sizeCounts: [WidgetSize: Int] {
         Dictionary(grouping: WidgetPreset.seededLibrary, by: \.size).mapValues(\.count)
@@ -11,6 +20,8 @@ struct LibraryScreen: View {
     private func presets(for size: WidgetSize) -> [WidgetPreset] {
         WidgetPreset.seededLibrary.filter { $0.size == size }
     }
+
+    // MARK: Body
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -40,6 +51,8 @@ struct LibraryScreen: View {
         .background(Color.clear)
     }
 
+    // MARK: Styling
+
     private var palette: LibraryPalette {
         LibraryPalette(colorScheme: colorScheme)
     }
@@ -47,6 +60,8 @@ struct LibraryScreen: View {
     private var headerHeight: CGFloat {
         70
     }
+
+    // MARK: Header
 
     private var libraryHeader: some View {
         FadingNavigationBar(fadeProgress: 1) {
@@ -73,6 +88,8 @@ struct LibraryScreen: View {
         }
     }
 
+    // MARK: Backdrop
+
     private var libraryBackdrop: some View {
         ZStack {
             palette.background
@@ -93,6 +110,8 @@ struct LibraryScreen: View {
     }
 
 }
+
+// MARK: - Palette
 
 private struct LibraryPalette {
     let colorScheme: ColorScheme
@@ -142,6 +161,8 @@ private struct LibraryPalette {
     }
 }
 
+// MARK: - Size Page
+
 private struct LibrarySizePage: View {
     let size: WidgetSize
     let presets: [WidgetPreset]
@@ -164,6 +185,8 @@ private struct LibrarySizePage: View {
         }
     }
 }
+
+// MARK: - Empty State
 
 private struct LibraryEmptyState: View {
     let size: WidgetSize
@@ -207,9 +230,13 @@ private struct LibraryEmptyState: View {
     }
 }
 
+// MARK: - Widget Row
+
 private struct LibraryWidgetRow: View {
     let preset: WidgetPreset
     let palette: LibraryPalette
+
+    // MARK: Data
 
     private var item: WidgetCatalogItem? {
         WidgetCatalog.item(withID: preset.widgetID)
@@ -226,6 +253,8 @@ private struct LibraryWidgetRow: View {
     private var size: WidgetSize {
         preset.size
     }
+
+    // MARK: Body
 
     var body: some View {
         GeometryReader { proxy in
@@ -287,6 +316,8 @@ private struct LibraryWidgetRow: View {
                 .padding(.leading, AppSpacing.screenHorizontal)
         }
     }
+
+    // MARK: Layout Metrics
 
     private var rowHeight: CGFloat {
         switch size {
@@ -376,6 +407,8 @@ private struct LibraryWidgetRow: View {
         }
     }
 
+    // MARK: Typography
+
     private var titleFontRole: AppFontRole {
         switch size {
         case .small:
@@ -397,6 +430,8 @@ private struct LibraryWidgetRow: View {
             .chip
         }
     }
+
+    // MARK: Visual Variation
 
     private var rotationDegrees: Double {
         let seed = preset.widgetID.unicodeScalars.reduce(0) { $0 + Int($1.value) }

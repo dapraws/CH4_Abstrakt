@@ -2,7 +2,11 @@ import SwiftUI
 import WidgetKit
 
 struct SettingsScreen: View {
+    // MARK: - Storage
+
     private static let settingsStore = UserDefaults(suiteName: AppGroupConstants.suiteName)
+
+    // MARK: - State
 
     @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
     @AppStorage(AppSettingsPreference.temperatureUnitKey, store: settingsStore) private var temperatureUnitID = TemperatureUnitPreference.celsius.id
@@ -10,6 +14,8 @@ struct SettingsScreen: View {
     @AppStorage(AppSettingsPreference.distanceUnitKey, store: settingsStore) private var distanceUnitID = DistanceUnitPreference.kilometers.id
     @State private var showsFontPicker = false
     @State private var path: [SettingsRoute] = []
+
+    // MARK: - Derived Settings
 
     private var selectedTheme: AppFontTheme {
         AppFontTheme.from(id: appFontThemeID)
@@ -27,6 +33,8 @@ struct SettingsScreen: View {
         DistanceUnitPreference.from(id: distanceUnitID)
     }
 
+    // MARK: - Body
+
     var body: some View {
         NavigationStack(path: $path) {
             ScrollFadeView(showsIndicators: false, headerHeight: 36, contentTopPadding: 8, contentBottomPadding: 78, coordinateSpaceName: "settingsScroll") { fadeProgress in
@@ -39,106 +47,12 @@ struct SettingsScreen: View {
             } content: {
                 VStack(spacing: 20) {
                     headerActions
-                    
-                    SettingsSection(title: "Display & Appearance", fontTheme: selectedTheme) {
-                        settingsButtonRow(
-                            icon: "textformat",
-                            iconColor: .white,
-                            iconBackground: AppColors.accentBlue,
-                            title: "App Font",
-                            value: selectedTheme.displayName
-                        ) {
-                            showsFontPicker = true
-                        }
-
-                        settingsNavigationRow(
-                            icon: "app.badge",
-                            iconColor: .white,
-                            iconBackground: Color(red: 0.08, green: 0.82, blue: 0.56),
-                            title: "Change Icon",
-                            value: "Default",
-                            route: .changeIcon
-                        )
-                    }
-
-                    SettingsSection(title: "Temperature", fontTheme: selectedTheme) {
-                        settingsMenuRow(
-                            icon: "sun.max.fill",
-                            iconColor: .white,
-                            iconBackground: Color(red: 1, green: 0.55, blue: 0.36),
-                            title: "Temperature Unit",
-                            value: temperatureUnit.displayName
-                        ) {
-                            temperatureUnitButton(.celsius)
-                            temperatureUnitButton(.fahrenheit)
-                        }
-
-                        settingsMenuRow(
-                            icon: "thermometer.medium",
-                            iconColor: .white,
-                            iconBackground: Color(red: 0.31, green: 0.56, blue: 1),
-                            title: "Temperature Display",
-                            value: temperatureDisplay.displayName
-                        ) {
-                            temperatureDisplayButton(.actual)
-                            temperatureDisplayButton(.feelsLike)
-                        }
-                    }
-
-                    SettingsSection(title: "Measurements", fontTheme: selectedTheme) {
-                        settingsMenuRow(
-                            icon: "figure.walk",
-                            iconColor: .white,
-                            iconBackground: Color(red: 0.45, green: 0.36, blue: 1),
-                            title: "Distance Unit",
-                            value: distanceUnit.displayName
-                        ) {
-                            distanceUnitButton(.kilometers)
-                            distanceUnitButton(.miles)
-                        }
-                    }
-
-                    SettingsSection(title: "Widgets & Dynamic Island", fontTheme: selectedTheme) {
-                        settingsNavigationRow(
-                            icon: "heart.fill",
-                            iconColor: .white,
-                            iconBackground: Color(red: 1, green: 0.42, blue: 0.39),
-                            title: "Access & Permissions",
-                            value: "2",
-                            route: .permissions,
-                            valueStyle: .warning
-                        )
-
-                        settingsNavigationRow(
-                            icon: "questionmark",
-                            iconColor: .black,
-                            iconBackground: Color(red: 1, green: 0.78, blue: 0.31),
-                            title: "Help & FAQ",
-                            route: .faq
-                        )
-                    }
-
-                    SettingsSection(title: "Others", fontTheme: selectedTheme) {
-                        settingsNavigationRow(
-                            icon: "arrow.up",
-                            iconColor: .white,
-                            iconBackground: Color(red: 0.31, green: 0.56, blue: 1),
-                            title: "What's New",
-                            route: .whatsNew
-                        )
-                    }
-
-                    VStack(spacing: 10) {
-                        Image(systemName: "heart.fill")
-                            .font(AppFonts.font(.heading2))
-                            .foregroundStyle(AppColors.accentPink)
-
-                        Text("Made by SSJ (1.23.0) Build 01")
-                            .font(AppFonts.font(.caption))
-                            .foregroundStyle(AppColors.tertiaryText)
-                    }
-                    .padding(.top, 6)
-                    .padding(.bottom, 24)
+                    displayAppearanceSection
+                    temperatureSection
+                    measurementsSection
+                    widgetsSection
+                    othersSection
+                    aboutFooter
                 }
                 .padding(.horizontal, AppSpacing.screenHorizontal)
             }
@@ -158,6 +72,122 @@ struct SettingsScreen: View {
         .sensoryFeedback(.selection, trigger: temperatureDisplayID)
         .sensoryFeedback(.selection, trigger: distanceUnitID)
     }
+
+    // MARK: - Sections
+
+    private var displayAppearanceSection: some View {
+        SettingsSection(title: "Display & Appearance", fontTheme: selectedTheme) {
+            settingsButtonRow(
+                icon: "textformat",
+                iconColor: .white,
+                iconBackground: AppColors.accentBlue,
+                title: "App Font",
+                value: selectedTheme.displayName
+            ) {
+                showsFontPicker = true
+            }
+
+            settingsNavigationRow(
+                icon: "app.badge",
+                iconColor: .white,
+                iconBackground: Color(red: 0.08, green: 0.82, blue: 0.56),
+                title: "Change Icon",
+                value: "Default",
+                route: .changeIcon
+            )
+        }
+    }
+
+    private var temperatureSection: some View {
+        SettingsSection(title: "Temperature", fontTheme: selectedTheme) {
+            settingsMenuRow(
+                icon: "sun.max.fill",
+                iconColor: .white,
+                iconBackground: Color(red: 1, green: 0.55, blue: 0.36),
+                title: "Temperature Unit",
+                value: temperatureUnit.displayName
+            ) {
+                temperatureUnitButton(.celsius)
+                temperatureUnitButton(.fahrenheit)
+            }
+
+            settingsMenuRow(
+                icon: "thermometer.medium",
+                iconColor: .white,
+                iconBackground: Color(red: 0.31, green: 0.56, blue: 1),
+                title: "Temperature Display",
+                value: temperatureDisplay.displayName
+            ) {
+                temperatureDisplayButton(.actual)
+                temperatureDisplayButton(.feelsLike)
+            }
+        }
+    }
+
+    private var measurementsSection: some View {
+        SettingsSection(title: "Measurements", fontTheme: selectedTheme) {
+            settingsMenuRow(
+                icon: "figure.walk",
+                iconColor: .white,
+                iconBackground: Color(red: 0.45, green: 0.36, blue: 1),
+                title: "Distance Unit",
+                value: distanceUnit.displayName
+            ) {
+                distanceUnitButton(.kilometers)
+                distanceUnitButton(.miles)
+            }
+        }
+    }
+
+    private var widgetsSection: some View {
+        SettingsSection(title: "Widgets & Dynamic Island", fontTheme: selectedTheme) {
+            settingsNavigationRow(
+                icon: "heart.fill",
+                iconColor: .white,
+                iconBackground: Color(red: 1, green: 0.42, blue: 0.39),
+                title: "Access & Permissions",
+                value: "2",
+                route: .permissions,
+                valueStyle: .warning
+            )
+
+            settingsNavigationRow(
+                icon: "questionmark",
+                iconColor: .black,
+                iconBackground: Color(red: 1, green: 0.78, blue: 0.31),
+                title: "Help & FAQ",
+                route: .faq
+            )
+        }
+    }
+
+    private var othersSection: some View {
+        SettingsSection(title: "Others", fontTheme: selectedTheme) {
+            settingsNavigationRow(
+                icon: "arrow.up",
+                iconColor: .white,
+                iconBackground: Color(red: 0.31, green: 0.56, blue: 1),
+                title: "What's New",
+                route: .whatsNew
+            )
+        }
+    }
+
+    private var aboutFooter: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "heart.fill")
+                .font(AppFonts.font(.heading2))
+                .foregroundStyle(AppColors.accentPink)
+
+            Text("Made by SSJ (1.23.0) Build 01")
+                .font(AppFonts.font(.caption))
+                .foregroundStyle(AppColors.tertiaryText)
+        }
+        .padding(.top, 6)
+        .padding(.bottom, 24)
+    }
+
+    // MARK: - Header Actions
 
     private var headerActions: some View {
         HStack(spacing: 0) {
@@ -196,6 +226,8 @@ struct SettingsScreen: View {
         }
         .buttonStyle(.plain)
     }
+
+    // MARK: - Rows
 
     private func settingsButtonRow(
         icon: String,
@@ -275,13 +307,12 @@ struct SettingsScreen: View {
         }
     }
 
+    // MARK: - Menu Actions
+
     @ViewBuilder
     private func temperatureUnitButton(_ unit: TemperatureUnitPreference) -> some View {
         Button {
-            withAnimation(.smooth(duration: 0.18)) {
-                temperatureUnitID = unit.id
-            }
-            WidgetCenter.shared.reloadAllTimelines()
+            setTemperatureUnit(unit)
         } label: {
             Label(unit.displayName, systemImage: temperatureUnit == unit ? "checkmark.circle.fill" : "circle")
         }
@@ -290,10 +321,7 @@ struct SettingsScreen: View {
     @ViewBuilder
     private func temperatureDisplayButton(_ display: TemperatureDisplayPreference) -> some View {
         Button {
-            withAnimation(.smooth(duration: 0.18)) {
-                temperatureDisplayID = display.id
-            }
-            WidgetCenter.shared.reloadAllTimelines()
+            setTemperatureDisplay(display)
         } label: {
             Label(display.displayName, systemImage: temperatureDisplay == display ? "checkmark.circle.fill" : "circle")
         }
@@ -302,15 +330,39 @@ struct SettingsScreen: View {
     @ViewBuilder
     private func distanceUnitButton(_ unit: DistanceUnitPreference) -> some View {
         Button {
-            withAnimation(.smooth(duration: 0.18)) {
-                distanceUnitID = unit.id
-            }
-            WidgetCenter.shared.reloadAllTimelines()
+            setDistanceUnit(unit)
         } label: {
             Label(unit.displayName, systemImage: distanceUnit == unit ? "checkmark.circle.fill" : "circle")
         }
     }
+
+    private func setTemperatureUnit(_ unit: TemperatureUnitPreference) {
+        withAnimation(.smooth(duration: 0.18)) {
+            temperatureUnitID = unit.id
+        }
+        reloadWidgetTimelines()
+    }
+
+    private func setTemperatureDisplay(_ display: TemperatureDisplayPreference) {
+        withAnimation(.smooth(duration: 0.18)) {
+            temperatureDisplayID = display.id
+        }
+        reloadWidgetTimelines()
+    }
+
+    private func setDistanceUnit(_ unit: DistanceUnitPreference) {
+        withAnimation(.smooth(duration: 0.18)) {
+            distanceUnitID = unit.id
+        }
+        reloadWidgetTimelines()
+    }
+
+    private func reloadWidgetTimelines() {
+        WidgetCenter.shared.reloadAllTimelines()
+    }
 }
+
+// MARK: - Routes
 
 private enum SettingsRoute: Hashable {
     case changeIcon
@@ -323,6 +375,8 @@ private enum SettingsRowValueStyle {
     case plain
     case warning
 }
+
+// MARK: - Shared Rows
 
 private struct SettingsSection<Content: View>: View {
     let title: String
@@ -412,6 +466,8 @@ private struct SettingsRowContent: View {
         }
     }
 }
+
+// MARK: - Detail Screen
 
 private struct SettingsDetailScreen: View {
     let route: SettingsRoute

@@ -1,6 +1,8 @@
 import CoreText
 import SwiftUI
 
+// MARK: - Font Roles
+
 enum AbstraktWidgetFontRole {
     case display
     case displayCompact
@@ -12,6 +14,8 @@ enum AbstraktWidgetFontRole {
     case iconBadge
 }
 
+// MARK: - Font Theme
+
 enum AbstraktWidgetFontTheme: String, CaseIterable, Identifiable {
     case sfPro = "sf-pro"
     case sfProRounded = "sf-pro-rounded"
@@ -21,13 +25,13 @@ enum AbstraktWidgetFontTheme: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     static var selectedAppTheme: AbstraktWidgetFontTheme {
-        from(id: UserDefaults.standard.string(forKey: "appFontTheme") ?? sfProRounded.id)
+        from(id: UserDefaults.standard.string(forKey: storageKey) ?? sfProRounded.id)
     }
 
     static var sharedAppTheme: AbstraktWidgetFontTheme {
         from(
-            id: UserDefaults(suiteName: "group.msaf.abstrakt")?.string(forKey: "appFontTheme")
-                ?? UserDefaults.standard.string(forKey: "appFontTheme")
+            id: UserDefaults(suiteName: appGroupSuiteName)?.string(forKey: storageKey)
+                ?? UserDefaults.standard.string(forKey: storageKey)
                 ?? sfProRounded.id
         )
     }
@@ -39,7 +43,12 @@ enum AbstraktWidgetFontTheme: String, CaseIterable, Identifiable {
 
         return Self(rawValue: id) ?? .sfProRounded
     }
+
+    private static let appGroupSuiteName = "group.msaf.abstrakt"
+    private static let storageKey = "appFontTheme"
 }
+
+// MARK: - Font Factory
 
 enum AbstraktWidgetFonts {
     static func registerCustomFonts(in bundle: Bundle = .main) {
@@ -63,7 +72,7 @@ enum AbstraktWidgetFonts {
         case .quicksand:
             return .custom(quicksandName(for: token.weight), size: token.size)
         case .fusionPixel:
-            return .custom("Fusion-Pixel-10px-Proportional-zh_hant-Regular", size: token.size)
+            return .custom(AbstraktWidgetFontName.fusionPixel, size: token.size)
         }
     }
 
@@ -84,6 +93,8 @@ enum AbstraktWidgetFonts {
         }
     }
 }
+
+// MARK: - Palette
 
 struct AbstraktWidgetPalette {
     let colorScheme: ColorScheme
@@ -120,6 +131,8 @@ struct AbstraktWidgetPalette {
         foreground.opacity(isDark ? 0.18 : 0.12)
     }
 }
+
+// MARK: - Font Tokens
 
 private enum AbstraktWidgetFontWeight {
     case regular
@@ -168,14 +181,14 @@ private struct BaseAbstraktWidgetFontToken {
 
     init(role: AbstraktWidgetFontRole) {
         switch role {
-            case .display:
-                size = 41
-                weight = .bold
-                lineSpacing = -2
-            case .displayCompact:
-                size = 32
-                weight = .bold
-                lineSpacing = -2
+        case .display:
+            size = 41
+            weight = .bold
+            lineSpacing = -2
+        case .displayCompact:
+            size = 32
+            weight = .bold
+            lineSpacing = -2
         case .title:
             size = 30
             weight = .bold
@@ -211,8 +224,8 @@ private extension AbstraktWidgetFontTheme {
             return 1
         case .fusionPixel:
             switch role {
-                case .display, .displayCompact, .title:
-                    return 0.74
+            case .display, .displayCompact, .title:
+                return 0.74
             case .heading, .body:
                 return 0.78
             case .caption, .meta, .iconBadge:
@@ -238,6 +251,12 @@ private extension AbstraktWidgetFontTheme {
             }
         }
     }
+}
+
+// MARK: - Font Files
+
+private enum AbstraktWidgetFontName {
+    static let fusionPixel = "Fusion-Pixel-10px-Proportional-zh_hant-Regular"
 }
 
 private enum AbstraktWidgetFontFile: String, CaseIterable {

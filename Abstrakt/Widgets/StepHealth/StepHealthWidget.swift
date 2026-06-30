@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - Render Snapshot
+
 struct StepHealthRenderSnapshot: Codable, Hashable {
     let stepsLabel: String
     let distanceLabel: String
@@ -29,6 +31,8 @@ extension StepHealthRenderSnapshot {
     }
 }
 #endif
+
+// MARK: - Widget
 
 struct StepHealthWidget: View {
     let snapshot: StepHealthRenderSnapshot
@@ -61,6 +65,8 @@ struct StepHealthWidget: View {
     }
     #endif
 
+    // MARK: Body
+
     var body: some View {
         ZStack {
             palette.background
@@ -74,6 +80,8 @@ struct StepHealthWidget: View {
             )
         )
     }
+
+    // MARK: Content
 
     private var widgetContent: some View {
         VStack(alignment: .leading) {

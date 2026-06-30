@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - Row Model
+
 private enum GalleryRow: Identifiable {
     case pair(WidgetCatalogItem, WidgetCatalogItem?)
     case single(WidgetCatalogItem)
@@ -14,6 +16,8 @@ private enum GalleryRow: Identifiable {
     }
 }
 
+// MARK: - Width Measurement
+
 private struct GalleryRowWidthKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
 
@@ -22,6 +26,7 @@ private struct GalleryRowWidthKey: PreferenceKey {
     }
 }
 
+/// Reports row width without imposing a row height, so card titles keep their natural layout.
 private struct GalleryRowWidthReporter: View {
     var body: some View {
         GeometryReader { proxy in
@@ -33,29 +38,37 @@ private struct GalleryRowWidthReporter: View {
     }
 }
 
+// MARK: - Gallery Screen
+
 struct GalleryScreen: View {
+    // MARK: State
+
     @State private var selectedCategory: WidgetCategory = .all
-    
+
+    // MARK: Properties
+
     private let featuredCategories: [WidgetCategory] = [.all, .classic, .portal, .health, .weather, .clock]
     private let onSelectItem: (WidgetCatalogItem) -> Void
-    
+
     private typealias GalleryEntry = WidgetCatalogItem
-    
+
     init(onSelectItem: @escaping (WidgetCatalogItem) -> Void = { _ in }) {
         self.onSelectItem = onSelectItem
     }
-    
+
+    // MARK: Data
+
     private var filteredEntries: [GalleryEntry] {
         WidgetCatalog.galleryItems(for: selectedCategory)
     }
-    
+
     private var galleryRows: [GalleryRow] {
         var rows: [GalleryRow] = []
-        
+
         var index = 0
         while index < filteredEntries.count {
             let current = filteredEntries[index]
-            
+
             if current.size == .small {
                 let nextIndex = index + 1
                 if nextIndex < filteredEntries.count, filteredEntries[nextIndex].size == .small {
@@ -70,14 +83,18 @@ struct GalleryScreen: View {
                 index += 1
             }
         }
-        
+
         return rows
     }
-    
+
+    // MARK: Body
+
     var body: some View {
         galleryContent
     }
-    
+
+    // MARK: Content
+
     private var galleryContent: some View {
         ScrollFadeView(showsIndicators: false, headerHeight: 48, contentTopPadding: 12) { fadeProgress in
             FadingNavigationBar(fadeProgress: fadeProgress) {
@@ -108,6 +125,8 @@ struct GalleryScreen: View {
         .background(AppColors.appBackground)
     }
 }
+
+// MARK: - Gallery Row
 
 private struct GalleryRowView: View {
     let row: GalleryRow
@@ -188,19 +207,32 @@ private struct GalleryRowView: View {
     }
 }
 
+// MARK: - Preview Sheet Cover
+
 struct WidgetPreviewSheetCover: View {
     let item: WidgetCatalogItem
     let onDismiss: () -> Void
+
+    // MARK: Environment
+
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    // MARK: State
+
     @State private var isPresented = false
     @State private var dragOffset: CGFloat = 0
+
+    // MARK: Properties
+
     private let upwardResistanceLimit: CGFloat = 28
-    
+
+    // MARK: Body
+
     var body: some View {
         GeometryReader { proxy in
             let sheetHeight = proxy.size.height * 0.92
             let hiddenOffset = sheetHeight + upwardResistanceLimit
-            
+
             ZStack(alignment: .bottom) {
                 Color.black
                     .opacity(isPresented ? 0.24 : 0)
@@ -209,7 +241,7 @@ struct WidgetPreviewSheetCover: View {
                     .onTapGesture {
                         close()
                     }
-                
+
                 WidgetPreviewSheet(item: item)
                     .frame(width: proxy.size.width, height: sheetHeight)
                     .clipShape(UnevenRoundedRectangle(
@@ -244,14 +276,16 @@ struct WidgetPreviewSheetCover: View {
             }
         }
     }
-    
+
+    // MARK: Drag Handle
+
     private var sheetDragHandle: some View {
         VStack(spacing: 0) {
             Capsule()
                 .fill(AppColors.primaryText.opacity(0.16))
                 .frame(width: 48, height: 6)
                 .padding(.top, 9)
-            
+
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity)
@@ -259,20 +293,20 @@ struct WidgetPreviewSheetCover: View {
         .contentShape(Rectangle())
         .gesture(sheetDragGesture)
     }
-    
+
     private var sheetDragGesture: some Gesture {
         DragGesture(minimumDistance: 4, coordinateSpace: .global)
             .onChanged { value in
                 var transaction = Transaction()
                 transaction.disablesAnimations = true
-                
+
                 withTransaction(transaction) {
                     dragOffset = interactiveDragOffset(value.translation.height)
                 }
             }
             .onEnded { value in
                 let shouldDismiss = value.translation.height > 90 || value.predictedEndTranslation.height > 180
-                
+
                 if shouldDismiss {
                     close()
                 } else {
@@ -282,21 +316,23 @@ struct WidgetPreviewSheetCover: View {
                 }
             }
     }
-    
+
     private func interactiveDragOffset(_ translation: CGFloat) -> CGFloat {
         if translation >= 0 {
             return translation
         }
-        
+
         return max(translation * 0.18, -upwardResistanceLimit)
     }
-    
+
+    // MARK: Actions
+
     private func close() {
         guard !reduceMotion else {
             onDismiss()
             return
         }
-        
+
         withAnimation(.smooth(duration: 0.34, extraBounce: 0), completionCriteria: .logicallyComplete) {
             isPresented = false
             dragOffset = 0
@@ -306,9 +342,11 @@ struct WidgetPreviewSheetCover: View {
     }
 }
 
+// MARK: - Preview Sheet
+
 private struct WidgetPreviewSheet: View {
     let item: WidgetCatalogItem
-    
+
     private var previewScale: CGFloat {
         switch item.size {
         case .small:
@@ -319,7 +357,7 @@ private struct WidgetPreviewSheet: View {
             0.72
         }
     }
-    
+
     var body: some View {
         GeometryReader { proxy in
             let previewSize = item.size.previewSize(
@@ -364,6 +402,8 @@ private struct WidgetPreviewSheet: View {
     }
 }
 
+// MARK: - Save Button
+
 private struct SaveWidgetButton: View {
     var body: some View {
         Button {} label: {
@@ -380,7 +420,7 @@ private struct SaveWidgetButton: View {
 
 private struct SaveWidgetButtonContent: View {
     @State private var shimmerPhase: CGFloat = -1
-    
+
     var body: some View {
         buttonLabel
             .foregroundStyle(Color.green.opacity(0.64))
@@ -419,7 +459,7 @@ private struct SaveWidgetButtonContent: View {
                 }
             }
     }
-    
+
     private var buttonLabel: some View {
         HStack(spacing: 10) {
             Image(systemName: "checkmark.seal.fill")

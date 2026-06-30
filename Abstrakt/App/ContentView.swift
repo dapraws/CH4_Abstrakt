@@ -9,26 +9,37 @@ import SwiftUI
 import WidgetKit
 
 struct ContentView: View {
+    // MARK: - Constants
+
     private static let activeWidgetRefreshInterval: Duration = .seconds(1)
     private static let libraryTransitionAnimation = Animation.smooth(duration: 0.2)
-    
+
+    // MARK: - Environment
+
     @Environment(\.scenePhase) private var scenePhase
+
+    // MARK: - State
+
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
     @State private var selectedTab: BottomBarTab = .gallery
     @State private var showsLibrary = false
     @State private var selectedGalleryItem: WidgetCatalogItem?
-    
+
+    // MARK: - Properties
+
     private let runsLiveWidgetTasks: Bool
-    
+
     init(runsLiveWidgetTasks: Bool = true) {
         self.runsLiveWidgetTasks = runsLiveWidgetTasks
     }
-    
+
     private var libraryCount: Int {
         WidgetPreset.seededLibrary.count
     }
-    
+
+    // MARK: - Body
+
     var body: some View {
         Group {
             if hasCompletedOnboarding {
@@ -63,7 +74,9 @@ struct ContentView: View {
             await runActiveWidgetRefreshLoop()
         }
     }
-    
+
+    // MARK: - App Shell
+
     private var appShell: some View {
         ZStack(alignment: .bottom) {
             currentScreen
@@ -103,7 +116,7 @@ struct ContentView: View {
         }
         .ignoresSafeArea(edges: .bottom)
     }
-    
+
     @ViewBuilder
     private var currentScreen: some View {
         switch selectedTab {
@@ -121,7 +134,9 @@ struct ContentView: View {
             EmptyView()
         }
     }
-    
+
+    // MARK: - Bottom Bar
+
     private var bottomBarSelection: Binding<BottomBarTab> {
         Binding {
             selectedTab
@@ -137,7 +152,7 @@ struct ContentView: View {
             }
         }
     }
-    
+
     private var bottomBarEffect: some View {
         LinearGradient(
             stops: [
@@ -151,7 +166,9 @@ struct ContentView: View {
         .frame(height: 116)
         .allowsHitTesting(false)
     }
-    
+
+    // MARK: - Widget Data Refresh
+
     private func refreshWidgetData() async {
         SharedModelContainer.write(
             clock: ClockDataProvider.currentSnapshot(),
@@ -167,11 +184,11 @@ struct ContentView: View {
         SharedModelContainer.write(dashboard: dashboard)
         WidgetCenter.shared.reloadAllTimelines()
     }
-    
+
     private func runActiveWidgetRefreshLoop() async {
         while !Task.isCancelled {
             await refreshFastChangingWidgetData()
-            
+
             do {
                 try await Task.sleep(for: Self.activeWidgetRefreshInterval)
             } catch {
