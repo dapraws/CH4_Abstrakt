@@ -24,74 +24,242 @@ struct PortalWidgetSnapshot: Codable, Hashable {
 
 // MARK: - App Shortcuts
 
-enum PortalApp: String, AppEnum {
+enum PortalApp: String, AppEnum, Codable, Identifiable {
+    case calls
     case calendar
+    case activity
+    case books
+    case faceTime
+    case findMy
+    case mail
     case messages
     case music
     case maps
+    case photos
+    case safari
     case shortcuts
     case settings
+    case store
+    case translate
+
+    var id: String { rawValue }
     
     static var typeDisplayRepresentation: TypeDisplayRepresentation = "Portal App"
     
     static var caseDisplayRepresentations: [PortalApp: DisplayRepresentation] = [
+        .calls: "Phone",
         .calendar: "Calendar",
+        .activity: "Activity",
+        .books: "Books",
+        .faceTime: "FaceTime",
+        .findMy: "Find My",
+        .mail: "Mail",
         .messages: "Messages",
         .music: "Music",
         .maps: "Maps",
+        .photos: "Photos",
+        .safari: "Safari",
         .shortcuts: "Shortcuts",
         .settings: "Settings",
+        .store: "App Store",
+        .translate: "Translate",
     ]
+
+    static let availableApps: [PortalApp] = [
+        .calls,
+        .messages,
+        .shortcuts,
+        .settings,
+        .activity,
+        .music,
+        .books,
+        .calendar,
+        .faceTime,
+        .findMy,
+        .mail,
+        .photos,
+        .maps,
+        .safari,
+        .store,
+        .translate,
+    ]
+
+    static let defaultSelection: [PortalApp] = [
+        .messages,
+        .music,
+        .maps,
+        .calendar,
+        .shortcuts,
+        .settings,
+    ]
+
+    static func selection(from storedValue: String?) -> [PortalApp] {
+        let apps = (storedValue ?? "")
+            .split(separator: ",")
+            .compactMap { PortalApp(rawValue: String($0)) }
+            .uniqued()
+
+        guard apps.count == 6 else {
+            return defaultSelection
+        }
+
+        return apps
+    }
+
+    static func storageValue(for apps: [PortalApp]) -> String {
+        apps.prefix(6).map(\.rawValue).joined(separator: ",")
+    }
     
     var title: String {
         switch self {
+        case .calls:
+            "Phone"
         case .calendar:
             "Calendar"
+        case .activity:
+            "Activity"
+        case .books:
+            "Books"
+        case .faceTime:
+            "FaceTime"
+        case .findMy:
+            "Find My"
+        case .mail:
+            "Mail"
         case .messages:
             "Messages"
         case .music:
             "Music"
         case .maps:
             "Maps"
+        case .photos:
+            "Photos"
+        case .safari:
+            "Safari"
         case .shortcuts:
             "Shortcuts"
         case .settings:
             "Settings"
+        case .store:
+            "App Store"
+        case .translate:
+            "Translate"
         }
     }
     
     var assetName: String {
         switch self {
+        case .calls:
+            "calls"
         case .calendar:
             "calendar"
+        case .activity:
+            "fitness"
+        case .books:
+            "books"
+        case .faceTime:
+            "facetime"
+        case .findMy:
+            "find-my"
+        case .mail:
+            "mail"
         case .messages:
             "messages"
         case .music:
             "music"
         case .maps:
             "maps"
+        case .photos:
+            "photos"
+        case .safari:
+            "safari"
         case .shortcuts:
             "shortcuts"
         case .settings:
             "settings"
+        case .store:
+            "store"
+        case .translate:
+            "translate"
         }
     }
     
     var launchURL: URL {
         switch self {
+        case .calls:
+            URL(string: "tel://")!
         case .calendar:
             URL(string: "calshow://")!
+        case .activity:
+            URL(string: "fitnessapp://")!
+        case .books:
+            URL(string: "ibooks://")!
+        case .faceTime:
+            URL(string: "facetime://")!
+        case .findMy:
+            URL(string: "findmy://")!
+        case .mail:
+            URL(string: "message://")!
         case .messages:
             URL(string: "sms://")!
         case .music:
             URL(string: "music://")!
         case .maps:
             URL(string: "maps://?q=Denpasar")!
+        case .photos:
+            URL(string: "photos-redirect://")!
+        case .safari:
+            URL(string: "https://www.apple.com")!
         case .shortcuts:
             URL(string: "shortcuts://")!
         case .settings:
             URL(string: "App-Prefs:root")!
+        case .store:
+            URL(string: "itms-apps://apps.apple.com")!
+        case .translate:
+            URL(string: "translate://")!
         }
+    }
+}
+
+enum PortalIconClipStyle: String, CaseIterable, Identifiable, Codable, Hashable {
+    case `default`
+    case circle
+    case bloom
+
+    var id: String { rawValue }
+
+    static func from(id: String?) -> PortalIconClipStyle {
+        PortalIconClipStyle(rawValue: id ?? "") ?? .default
+    }
+
+    var title: String {
+        switch self {
+        case .default:
+            "Default"
+        case .circle:
+            "Circle"
+        case .bloom:
+            "Bloom"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .default:
+            "app"
+        case .circle:
+            "circle"
+        case .bloom:
+            "seal"
+        }
+    }
+}
+
+private extension Array where Element: Hashable {
+    func uniqued() -> [Element] {
+        var seen = Set<Element>()
+        return filter { seen.insert($0).inserted }
     }
 }
 
@@ -101,6 +269,60 @@ struct OpenPortalCalendarIntent: AppIntent {
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.calendar.launchURL))
+    }
+}
+
+struct OpenPortalCallsIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open Phone"
+    static var description = IntentDescription("Open Phone from the Portal widget.")
+
+    func perform() async throws -> some IntentResult & OpensIntent {
+        .result(opensIntent: OpenURLIntent(PortalApp.calls.launchURL))
+    }
+}
+
+struct OpenPortalActivityIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open Activity"
+    static var description = IntentDescription("Open Activity from the Portal widget.")
+
+    func perform() async throws -> some IntentResult & OpensIntent {
+        .result(opensIntent: OpenURLIntent(PortalApp.activity.launchURL))
+    }
+}
+
+struct OpenPortalBooksIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open Books"
+    static var description = IntentDescription("Open Books from the Portal widget.")
+
+    func perform() async throws -> some IntentResult & OpensIntent {
+        .result(opensIntent: OpenURLIntent(PortalApp.books.launchURL))
+    }
+}
+
+struct OpenPortalFaceTimeIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open FaceTime"
+    static var description = IntentDescription("Open FaceTime from the Portal widget.")
+
+    func perform() async throws -> some IntentResult & OpensIntent {
+        .result(opensIntent: OpenURLIntent(PortalApp.faceTime.launchURL))
+    }
+}
+
+struct OpenPortalFindMyIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open Find My"
+    static var description = IntentDescription("Open Find My from the Portal widget.")
+
+    func perform() async throws -> some IntentResult & OpensIntent {
+        .result(opensIntent: OpenURLIntent(PortalApp.findMy.launchURL))
+    }
+}
+
+struct OpenPortalMailIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open Mail"
+    static var description = IntentDescription("Open Mail from the Portal widget.")
+
+    func perform() async throws -> some IntentResult & OpensIntent {
+        .result(opensIntent: OpenURLIntent(PortalApp.mail.launchURL))
     }
 }
 
@@ -131,12 +353,48 @@ struct OpenPortalMapsIntent: AppIntent {
     }
 }
 
+struct OpenPortalPhotosIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open Photos"
+    static var description = IntentDescription("Open Photos from the Portal widget.")
+
+    func perform() async throws -> some IntentResult & OpensIntent {
+        .result(opensIntent: OpenURLIntent(PortalApp.photos.launchURL))
+    }
+}
+
+struct OpenPortalSafariIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open Safari"
+    static var description = IntentDescription("Open Safari from the Portal widget.")
+
+    func perform() async throws -> some IntentResult & OpensIntent {
+        .result(opensIntent: OpenURLIntent(PortalApp.safari.launchURL))
+    }
+}
+
 struct OpenPortalShortcutsIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Shortcuts"
     static var description = IntentDescription("Open Shortcuts from the Portal widget.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.shortcuts.launchURL))
+    }
+}
+
+struct OpenPortalStoreIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open App Store"
+    static var description = IntentDescription("Open App Store from the Portal widget.")
+
+    func perform() async throws -> some IntentResult & OpensIntent {
+        .result(opensIntent: OpenURLIntent(PortalApp.store.launchURL))
+    }
+}
+
+struct OpenPortalTranslateIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open Translate"
+    static var description = IntentDescription("Open Translate from the Portal widget.")
+
+    func perform() async throws -> some IntentResult & OpensIntent {
+        .result(opensIntent: OpenURLIntent(PortalApp.translate.launchURL))
     }
 }
 
@@ -156,6 +414,8 @@ struct PortalWidget: View {
     
     let snapshot: PortalWidgetSnapshot
     let fontTheme: AbstraktWidgetFontTheme
+    let selectedApps: [PortalApp]
+    let iconClipStyle: PortalIconClipStyle
     var usesInteractiveButtons = false
     var clipsToWidgetShape = true
     
@@ -164,11 +424,15 @@ struct PortalWidget: View {
     init(
         snapshot: PortalWidgetSnapshot = .placeholder,
         fontTheme: AbstraktWidgetFontTheme = .selectedAppTheme,
+        selectedApps: [PortalApp] = PortalApp.defaultSelection,
+        iconClipStyle: PortalIconClipStyle = .default,
         usesInteractiveButtons: Bool = false,
         clipsToWidgetShape: Bool = true
     ) {
         self.snapshot = snapshot
         self.fontTheme = fontTheme
+        self.selectedApps = Array(selectedApps.prefix(6))
+        self.iconClipStyle = iconClipStyle
         self.usesInteractiveButtons = usesInteractiveButtons
         self.clipsToWidgetShape = clipsToWidgetShape
     }
@@ -223,47 +487,54 @@ struct PortalWidget: View {
     
     private func appCluster(metrics: PortalWidgetMetrics) -> some View {
         ZStack {
-            portalIcon(.messages, metrics: metrics)
-                .offset(x: -metrics.columnOffset, y: -metrics.rowOffset + visualYAxisCorrection(for: .messages, metrics: metrics))
-                .rotationEffect(.degrees(4))
-            
-            portalIcon(.music, metrics: metrics)
-                .offset(x: 0, y: -metrics.rowOffset + visualYAxisCorrection(for: .music, metrics: metrics))
-                .rotationEffect(.degrees(-6))
-            
-            portalIcon(.maps, metrics: metrics)
-                .offset(x: metrics.columnOffset, y: -metrics.rowOffset + visualYAxisCorrection(for: .maps, metrics: metrics))
-                .rotationEffect(.degrees(4))
-            
-            portalIcon(.calendar, metrics: metrics)
-                .offset(x: -metrics.columnOffset, y: metrics.rowOffset + visualYAxisCorrection(for: .calendar, metrics: metrics))
-                .rotationEffect(.degrees(-4))
-
-            portalIcon(.shortcuts, metrics: metrics)
-                .offset(x: 0, y: metrics.rowOffset + visualYAxisCorrection(for: .shortcuts, metrics: metrics))
-                .rotationEffect(.degrees(3))
-            
-            portalIcon(.settings, metrics: metrics)
-                .offset(x: metrics.columnOffset, y: metrics.rowOffset + visualYAxisCorrection(for: .settings, metrics: metrics))
-                .rotationEffect(.degrees(-5))
+            ForEach(Array(displayApps.enumerated()), id: \.element.rawValue) { index, app in
+                portalIcon(app, metrics: metrics)
+                    .offset(iconOffset(index: index, metrics: metrics))
+                    .rotationEffect(.degrees(iconRotation(index: index)))
+            }
         }
         .frame(width: metrics.clusterWidth, height: metrics.clusterHeight)
         .padding(.top, metrics.clusterTopPadding)
     }
 
-    private func visualYAxisCorrection(for app: PortalApp, metrics: PortalWidgetMetrics) -> CGFloat {
-        switch app {
-        case .music, .shortcuts:
-            0
-        case .messages:
-            metrics.iconSize * 0.105
-        case .maps:
-            metrics.iconSize * -0.055
-        case .calendar:
-            metrics.iconSize * -0.045
-        case .settings:
-            metrics.iconSize * 0.08
+    private var displayApps: [PortalApp] {
+        let apps = selectedApps.uniqued()
+        guard apps.count == 6 else {
+            return PortalApp.defaultSelection
         }
+
+        return apps
+    }
+
+    private func iconOffset(index: Int, metrics: PortalWidgetMetrics) -> CGSize {
+        let column = index % 3
+        let row = index / 3
+        let x: CGFloat
+
+        switch column {
+        case 0:
+            x = -metrics.columnOffset
+        case 1:
+            x = 0
+        default:
+            x = metrics.columnOffset
+        }
+
+        let baseY = row == 0 ? -metrics.rowOffset : metrics.rowOffset
+        return CGSize(
+            width: x,
+            height: baseY + visualYAxisCorrection(index: index, metrics: metrics)
+        )
+    }
+
+    private func iconRotation(index: Int) -> Double {
+        let rotations: [Double] = [4, -6, 4, -4, 3, -5]
+        return rotations[min(index, rotations.count - 1)]
+    }
+
+    private func visualYAxisCorrection(index: Int, metrics: PortalWidgetMetrics) -> CGFloat {
+        let corrections: [CGFloat] = [0.105, 0, -0.055, -0.045, 0, 0.08]
+        return metrics.iconSize * corrections[min(index, corrections.count - 1)]
     }
     
     @ViewBuilder
@@ -273,8 +544,8 @@ struct PortalWidget: View {
             .interpolation(.high)
             .scaledToFill()
             .frame(width: metrics.iconSize, height: metrics.iconSize)
-            .clipShape(RoundedRectangle(cornerRadius: metrics.iconCornerRadius, style: .continuous))
-            .contentShape(RoundedRectangle(cornerRadius: metrics.iconCornerRadius, style: .continuous))
+            .clipShape(PortalIconShape(style: iconClipStyle, cornerRadius: metrics.iconCornerRadius))
+            .contentShape(PortalIconShape(style: iconClipStyle, cornerRadius: metrics.iconCornerRadius))
             .accessibilityLabel(app.title)
         
         if usesInteractiveButtons {
@@ -289,8 +560,26 @@ struct PortalWidget: View {
     @ViewBuilder
     private func portalButton<Label: View>(for app: PortalApp, @ViewBuilder label: () -> Label) -> some View {
         switch app {
+        case .calls:
+            Button(role: nil, intent: OpenPortalCallsIntent(), label: label)
+                .buttonStyle(.plain)
         case .calendar:
             Button(role: nil, intent: OpenPortalCalendarIntent(), label: label)
+                .buttonStyle(.plain)
+        case .activity:
+            Button(role: nil, intent: OpenPortalActivityIntent(), label: label)
+                .buttonStyle(.plain)
+        case .books:
+            Button(role: nil, intent: OpenPortalBooksIntent(), label: label)
+                .buttonStyle(.plain)
+        case .faceTime:
+            Button(role: nil, intent: OpenPortalFaceTimeIntent(), label: label)
+                .buttonStyle(.plain)
+        case .findMy:
+            Button(role: nil, intent: OpenPortalFindMyIntent(), label: label)
+                .buttonStyle(.plain)
+        case .mail:
+            Button(role: nil, intent: OpenPortalMailIntent(), label: label)
                 .buttonStyle(.plain)
         case .messages:
             Button(role: nil, intent: OpenPortalMessagesIntent(), label: label)
@@ -301,11 +590,23 @@ struct PortalWidget: View {
         case .maps:
             Button(role: nil, intent: OpenPortalMapsIntent(), label: label)
                 .buttonStyle(.plain)
+        case .photos:
+            Button(role: nil, intent: OpenPortalPhotosIntent(), label: label)
+                .buttonStyle(.plain)
+        case .safari:
+            Button(role: nil, intent: OpenPortalSafariIntent(), label: label)
+                .buttonStyle(.plain)
         case .shortcuts:
             Button(role: nil, intent: OpenPortalShortcutsIntent(), label: label)
                 .buttonStyle(.plain)
         case .settings:
             Button(role: nil, intent: OpenPortalSettingsIntent(), label: label)
+                .buttonStyle(.plain)
+        case .store:
+            Button(role: nil, intent: OpenPortalStoreIntent(), label: label)
+                .buttonStyle(.plain)
+        case .translate:
+            Button(role: nil, intent: OpenPortalTranslateIntent(), label: label)
                 .buttonStyle(.plain)
         }
     }
@@ -397,6 +698,50 @@ private struct PortalWidgetMetrics {
     
     var clusterTopPadding: CGFloat {
         0
+    }
+}
+
+struct PortalIconShape: Shape {
+    let style: PortalIconClipStyle
+    let cornerRadius: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        switch style {
+        case .default:
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .path(in: rect)
+        case .circle:
+            Circle().path(in: rect)
+        case .bloom:
+            bloomPath(in: rect)
+        }
+    }
+
+    private func bloomPath(in rect: CGRect) -> Path {
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let baseRadius = min(rect.width, rect.height) * 0.43
+        let petalDepth = baseRadius * 0.05
+        let steps = 160
+
+        var path = Path()
+
+        for step in 0...steps {
+            let angle = (Double(step) / Double(steps)) * Double.pi * 2
+            let radius = baseRadius + cos(angle * 10) * petalDepth
+            let point = CGPoint(
+                x: center.x + CGFloat(cos(angle)) * radius,
+                y: center.y + CGFloat(sin(angle)) * radius
+            )
+
+            if step == 0 {
+                path.move(to: point)
+            } else {
+                path.addLine(to: point)
+            }
+        }
+
+        path.closeSubpath()
+        return path
     }
 }
 
