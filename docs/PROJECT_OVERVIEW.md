@@ -17,7 +17,7 @@ Abstrakt is a SwiftUI iOS app that helps users build a personal library of saved
 - Keep widget entries cleanly separated under `Widgets/`
 - Keep app-owned core models for saved widget presets and per-widget configuration
 - Build service boundaries around Apple-native frameworks
-- Keep portal-style app launchers backed by App Intents, with framework data still fetched by host-app providers and cached for WidgetKit.
+- Keep portal-style app launchers configurable through the host app, backed by App Intents, with framework data still fetched by host-app providers and cached for WidgetKit.
 - Keep light, dark, and system appearance modes first-class in both previews and saved configuration
 - Keep global app preferences, such as units and app font, separate from widget-specific saved preset styling
 
@@ -51,6 +51,7 @@ Important UX constraints:
 - Preview sheets should use a full-width bottom sheet treatment with a drag indicator, title metadata below the rendered widget, and a bottom save action separated from the widget preview layer.
 - Unit preferences should use compact picker/menu controls from Settings and persist through shared storage for widget rendering.
 - App font changes should persist to shared storage and reload WidgetKit timelines so in-app previews and Home Screen widgets use the same selected typography.
+- Portal launcher MiniApp selection and icon clip style should persist to shared storage and reload WidgetKit timelines so the Home Screen renderer matches the in-app preview.
 
 ## Recommended Module Direction
 

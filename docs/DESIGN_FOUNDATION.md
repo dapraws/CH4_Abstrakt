@@ -104,6 +104,7 @@ Rules:
 - Widget preview titles should sit outside the widget surface with enough separation to read as metadata, not as part of the widget itself.
 - Widget layouts must remain responsive when preview width is constrained below the baseline width.
 - Small portal launcher widgets may use overlapping app-icon clusters when each tappable icon remains visually distinct and the header has a single-line fallback scale.
+- Portal launcher customization uses a compact MiniApps opener for the selected six apps and a menu-only icon clip control for `Default`, `Circle`, and `Bloom`.
 - Lock Screen `Circular`, `Rectangular`, and `Inline` dimensions are documented here for future iOS widget expansion, but the shipping app flow remains Home Screen first.
 - Do not invent custom preview aspect ratios when one of these rows applies.
 
