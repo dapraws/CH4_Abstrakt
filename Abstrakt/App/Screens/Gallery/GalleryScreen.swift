@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 // MARK: - Row Model
 
@@ -345,7 +346,48 @@ struct WidgetPreviewSheetCover: View {
 // MARK: - Preview Sheet
 
 private struct WidgetPreviewSheet: View {
+    private static let settingsStore = UserDefaults(suiteName: AppGroupConstants.suiteName)
+
     let item: WidgetCatalogItem
+    @AppStorage(AppGroupConstants.portalSelectedAppsKey, store: settingsStore) private var portalSelectedAppsValue = PortalApp.storageValue(for: PortalApp.defaultSelection)
+    @AppStorage(AppGroupConstants.portalIconClipStyleKey, store: settingsStore) private var portalIconClipStyleID = PortalIconClipStyle.default.id
+    @State private var showsAppsPicker = false
+
+    private var portalSelectedApps: [PortalApp] {
+        get {
+            PortalApp.selection(from: portalSelectedAppsValue)
+        }
+        nonmutating set {
+            portalSelectedAppsValue = PortalApp.storageValue(for: newValue)
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+    }
+
+    private var portalIconClipStyle: PortalIconClipStyle {
+        get {
+            PortalIconClipStyle.from(id: portalIconClipStyleID)
+        }
+        nonmutating set {
+            portalIconClipStyleID = newValue.id
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+    }
+
+    private var portalSelectedAppsBinding: Binding<[PortalApp]> {
+        Binding {
+            portalSelectedApps
+        } set: { newValue in
+            portalSelectedApps = newValue
+        }
+    }
+
+    private var portalIconClipStyleBinding: Binding<PortalIconClipStyle> {
+        Binding {
+            portalIconClipStyle
+        } set: { newValue in
+            portalIconClipStyle = newValue
+        }
+    }
 
     private var previewScale: CGFloat {
         switch item.size {
@@ -371,7 +413,11 @@ private struct WidgetPreviewSheet: View {
             ZStack(alignment: .bottom) {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
-                        WidgetPreview(item: item)
+                        WidgetPreview(
+                            item: item,
+                            portalSelectedAppsOverride: item.id == "portal-widget-small" ? portalSelectedApps : nil,
+                            portalIconClipStyleOverride: item.id == "portal-widget-small" ? portalIconClipStyle : nil
+                        )
                             .frame(width: previewSize.width, height: previewSize.height)
                             .scaleEffect(previewScale)
                             .frame(
@@ -383,8 +429,19 @@ private struct WidgetPreviewSheet: View {
                             .font(AppFonts.font(.heading3))
                             .foregroundStyle(AppColors.primaryText)
                             .multilineTextAlignment(.center)
-                            .lineLimit(2)
-                            .frame(maxWidth: min(scaledPreviewSize.width, 320), alignment: .center)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.72)
+                            .frame(maxWidth: .infinity, alignment: .center)
+
+                        if item.id == "portal-widget-small" {
+                            PortalWidgetCustomizationControls(
+                                selectedApps: portalSelectedAppsBinding,
+                                clipStyle: portalIconClipStyleBinding
+                            ) {
+                                showsAppsPicker = true
+                            }
+                            .padding(.top, 10)
+                        }
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.top, 36)
@@ -399,6 +456,72 @@ private struct WidgetPreviewSheet: View {
             .background(AppColors.appBackground)
             .ignoresSafeArea(.container, edges: [.horizontal, .bottom])
         }
+        .sheet(isPresented: $showsAppsPicker) {
+            AppsPickerSheet(selectedApps: portalSelectedAppsBinding)
+                .presentationDetents([.fraction(0.8)])
+        }
+    }
+}
+
+// MARK: - Portal Customization
+
+private struct PortalWidgetCustomizationControls: View {
+    @Binding var selectedApps: [PortalApp]
+    @Binding var clipStyle: PortalIconClipStyle
+    let openAppsPicker: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(action: openAppsPicker) {
+                HStack(spacing: -9) {
+                    ForEach(selectedApps.prefix(6), id: \.rawValue) { app in
+                        Image(app.assetName)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 34, height: 34)
+                            .clipShape(PortalIconShape(style: clipStyle, cornerRadius: 11))
+                    }
+
+                }
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
+                .frame(height: 58)
+                .background(AppColors.cardSoft)
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Choose MiniApps")
+
+            PortalClipStyleMenu(clipStyle: $clipStyle)
+        }
+        .frame(maxWidth: 340)
+    }
+}
+
+private struct PortalClipStyleMenu: View {
+    @Binding var clipStyle: PortalIconClipStyle
+
+    var body: some View {
+        Menu {
+            ForEach(PortalIconClipStyle.allCases) { style in
+                Button {
+                    withAnimation(.smooth(duration: 0.18)) {
+                        clipStyle = style
+                    }
+                } label: {
+                    Label(style.title, systemImage: clipStyle == style ? "checkmark.circle.fill" : style.systemImage)
+                }
+            }
+        } label: {
+            Label("Icon clip style", systemImage: clipStyle.systemImage)
+                .font(AppFonts.font(.heading3))
+                .foregroundStyle(AppColors.primaryText)
+                .labelStyle(.iconOnly)
+                .frame(width: 58, height: 58)
+                .background(AppColors.cardSoft)
+                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 }
 
