@@ -38,5 +38,12 @@ extension WidgetPreset {
             size: .medium,
             appearanceMode: .system
         ),
+        WidgetPreset(
+            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0005") ?? UUID(),
+            widgetID: "device-storage-small",
+            name: "Device Storage | Utility",
+            size: .small,
+            appearanceMode: .system
+        ),
     ]
 }

@@ -68,6 +68,8 @@ struct WidgetPreview: View {
                     PortalWidget(fontTheme: widgetFontTheme)
                 case "daily-dashboard-medium":
                     DailyDashboardWidget(fontTheme: widgetFontTheme)
+                case "device-storage-small":
+                    DeviceStorageWidget(fontTheme: widgetFontTheme)
                 default:
                     widgetBackground
                         .overlay(alignment: .topLeading) {
