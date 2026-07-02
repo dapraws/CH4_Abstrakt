@@ -85,8 +85,10 @@ struct StepHealthWidget: View {
 
     private var widgetContent: some View {
         VStack(alignment: .leading) {
-            stairIcon
-                .frame(width: 27, height: 18)
+            Image("walking-color")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32, height: 32)
 
             Spacer()
 
