@@ -576,6 +576,12 @@ private extension Date {
     SmallSolidWidgetEntry.preview(selectedWidgetID: "portal-widget-small")
 }
 
+#Preview("Small - Device Storage", as: .systemSmall) {
+    SmallSolidWidget()
+} timeline: {
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "device-storage-small")
+}
+
 #Preview("Medium - Daily Dashboard", as: .systemMedium) {
     MediumSolidWidget()
 } timeline: {
