@@ -57,4 +57,16 @@ enum SharedModelContainer {
         defaults?.set(data, forKey: AppGroupConstants.sharedWidgetPresetsKey)
         defaults?.synchronize()
     }
+
+    static func write(classicWeather: ClassicWeatherSnapshot) {
+        guard let data = try? JSONEncoder().encode(classicWeather) else { return }
+        defaults?.set(data, forKey: AppGroupConstants.sharedClassicWeatherKey)
+        defaults?.synchronize()
+    }
+
+    static func write(sunEventWeather: SunEventWeatherSnapshot) {
+        guard let data = try? JSONEncoder().encode(sunEventWeather) else { return }
+        defaults?.set(data, forKey: AppGroupConstants.sharedSunEventWeatherKey)
+        defaults?.synchronize()
+    }
 }

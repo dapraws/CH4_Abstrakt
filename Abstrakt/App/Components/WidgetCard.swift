@@ -68,6 +68,10 @@ struct WidgetPreview: View {
                     PortalWidget(fontTheme: widgetFontTheme)
                 case "daily-dashboard-medium":
                     DailyDashboardWidget(fontTheme: widgetFontTheme)
+                case "classic-weather-small":
+                    ClassicWeatherWidget(fontTheme: widgetFontTheme)
+                case "sunevent-weather-small":
+                    SunEventWeatherWidget(fontTheme: widgetFontTheme)
                 default:
                     widgetBackground
                         .overlay(alignment: .topLeading) {

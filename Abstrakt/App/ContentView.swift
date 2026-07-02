@@ -170,6 +170,7 @@ struct ContentView: View {
     // MARK: - Widget Data Refresh
 
     private func refreshWidgetData() async {
+        print("[refreshWidgetData] Starting refresh...")
         SharedModelContainer.write(
             clock: ClockDataProvider.currentSnapshot(),
             calendar: EventKitProvider.placeholderSnapshot()
@@ -178,12 +179,20 @@ struct ContentView: View {
         SharedModelContainer.write(appFontThemeID: appFontThemeID)
         SharedModelContainer.write(widgetPresets: WidgetPreset.seededLibrary)
         
-        await refreshHealthWidgetData()
-        
+        print("[refreshWidgetData] Fetching weather data...")
         let dashboard = await WeatherDashboardProvider.shared.dashboardSnapshot()
         SharedModelContainer.write(dashboard: dashboard)
-        let portal = await WeatherDashboardProvider.shared.denpasarPortalSnapshot()
+        let portal = await WeatherDashboardProvider.shared.portalSnapshot()
         SharedModelContainer.write(portal: portal)
+        let classicWeather = await WeatherDashboardProvider.shared.classicWeatherSnapshot()
+        SharedModelContainer.write(classicWeather: classicWeather)
+        let sunEventWeather = await WeatherDashboardProvider.shared.sunEventWeatherSnapshot()
+        SharedModelContainer.write(sunEventWeather: sunEventWeather)
+        
+        print("[refreshWidgetData] Fetching health data...")
+        await refreshHealthWidgetData()
+        
+        print("[refreshWidgetData] Reloading widget timelines...")
         WidgetCenter.shared.reloadAllTimelines()
     }
 

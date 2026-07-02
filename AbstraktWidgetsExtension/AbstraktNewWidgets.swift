@@ -10,6 +10,8 @@ struct SmallSolidWidgetEntry: TimelineEntry {
     let battery: BatteryWidgetEntry
     let health: StepWidgetEntry
     let portal: PortalSmallWidgetEntry
+    let classicWeather: ClassicWeatherSnapshot
+    let sunEventWeather: SunEventWeatherSnapshot
 }
 
 struct MediumSolidWidgetEntry: TimelineEntry {
@@ -189,7 +191,9 @@ private extension SmallSolidWidgetEntry {
                 date: .now,
                 temperature: WidgetSharedStore.portalWeatherTemperatureCelsius,
                 placeName: WidgetSharedStore.portalWeatherPlaceName
-            )
+            ),
+            classicWeather: WidgetSharedStore.classicWeather,
+            sunEventWeather: WidgetSharedStore.sunEventWeather
         )
     }
 }
@@ -306,6 +310,18 @@ private struct SmallSolidWidgetView: View {
                 snapshot: entry.portal.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 usesInteractiveButtons: true,
+                clipsToWidgetShape: false
+            )
+        case "classic-weather-small":
+            ClassicWeatherWidget(
+                snapshot: entry.classicWeather,
+                fontTheme: WidgetSharedStore.appFontTheme,
+                clipsToWidgetShape: false
+            )
+        case "sunevent-weather-small":
+            SunEventWeatherWidget(
+                snapshot: entry.sunEventWeather,
+                fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
         default:
@@ -458,7 +474,9 @@ private extension SmallSolidWidgetEntry {
                 date: Calendar.current.date(from: DateComponents(year: 2026, month: 6, day: 26, hour: 9, minute: 41)) ?? .widgetPreviewDate,
                 temperature: 16,
                 placeName: "Denpasar"
-            )
+            ),
+            classicWeather: .placeholder,
+            sunEventWeather: .placeholder
         )
     }
 }
