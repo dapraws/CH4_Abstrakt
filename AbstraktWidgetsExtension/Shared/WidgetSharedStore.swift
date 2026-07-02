@@ -1,7 +1,7 @@
 import Foundation
 
 enum WidgetSharedStore {
-    private static let suiteName = "group.msaf.abstrakt"
+    private static let suiteName = Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.default.abstrakt"
 
     private static let defaults = UserDefaults(suiteName: suiteName)
     private static let sharedWidgetPresetsKey = "shared.widget.presets"
@@ -26,7 +26,7 @@ enum WidgetSharedStore {
     }
 
     static var calendarDetail: String {
-        defaults?.string(forKey: "shared.calendar.detail") ?? "No connected events yet"
+        defaults?.string(forKey: "shared.calendar.detail") ?? "No events today"
     }
 
     static var batteryLevel: Int {
@@ -119,6 +119,22 @@ enum WidgetSharedStore {
         PortalIconClipStyle.from(id: defaults?.string(forKey: "portal.iconClipStyle"))
     }
 
+    static var classicWeather: ClassicWeatherSnapshot {
+        guard let data = defaults?.data(forKey: "shared.classic.weather"),
+              let snapshot = try? JSONDecoder().decode(ClassicWeatherSnapshot.self, from: data) else {
+            return .placeholder
+        }
+        return snapshot
+    }
+
+    static var sunEventWeather: SunEventWeatherSnapshot {
+        guard let data = defaults?.data(forKey: "shared.sunevent.weather"),
+              let snapshot = try? JSONDecoder().decode(SunEventWeatherSnapshot.self, from: data) else {
+            return .placeholder
+        }
+        return snapshot
+    }
+
     static func savedPresets(size: String) -> [SavedWidgetPreset] {
         allSavedPresets.filter { $0.size == size }
     }
@@ -194,6 +210,20 @@ enum WidgetSharedStore {
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0005") ?? UUID(),
             widgetID: "device-storage-small",
             name: "Device Storage | Utility",
+            size: "small",
+            appearanceMode: "system"
+        ),
+        SavedWidgetPreset(
+            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0006") ?? UUID(),
+            widgetID: "classic-weather-small",
+            name: "Classic Weather",
+            size: "small",
+            appearanceMode: "system"
+        ),
+        SavedWidgetPreset(
+            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0007") ?? UUID(),
+            widgetID: "sunevent-weather-small",
+            name: "Sun Event Weather",
             size: "small",
             appearanceMode: "system"
         ),

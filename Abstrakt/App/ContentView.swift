@@ -71,6 +71,7 @@ struct ContentView: View {
                 return
             }
             
+            await refreshWidgetData()
             await runActiveWidgetRefreshLoop()
         }
     }
@@ -170,23 +171,31 @@ struct ContentView: View {
     // MARK: - Widget Data Refresh
 
     private func refreshWidgetData() async {
+        print("[refreshWidgetData] Starting refresh...")
         SharedModelContainer.write(
             clock: ClockDataProvider.currentSnapshot(),
-            calendar: EventKitProvider.placeholderSnapshot()
+            calendar: await EventKitProvider.currentSnapshot()
         )
         SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
+        SharedModelContainer.write(storage: StorageProvider.currentSnapshot())
         SharedModelContainer.write(appFontThemeID: appFontThemeID)
         SharedModelContainer.write(widgetPresets: WidgetPreset.seededLibrary)
         
-        await refreshHealthWidgetData()
-        
+        print("[refreshWidgetData] Fetching weather data...")
         let dashboard = await WeatherDashboardProvider.shared.dashboardSnapshot()
         SharedModelContainer.write(dashboard: dashboard)
-        let portal = await WeatherDashboardProvider.shared.denpasarPortalSnapshot()
+        let portal = await WeatherDashboardProvider.shared.portalSnapshot()
         SharedModelContainer.write(portal: portal)
-        WidgetCenter.shared.reloadAllTimelines()
+        let classicWeather = await WeatherDashboardProvider.shared.classicWeatherSnapshot()
+        SharedModelContainer.write(classicWeather: classicWeather)
+        let sunEventWeather = await WeatherDashboardProvider.shared.sunEventWeatherSnapshot()
+        SharedModelContainer.write(sunEventWeather: sunEventWeather)
         
-        SharedModelContainer.write(storage: StorageProvider.currentSnapshot())
+        print("[refreshWidgetData] Fetching health data...")
+        await refreshHealthWidgetData()
+        
+        print("[refreshWidgetData] Reloading widget timelines...")
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     private func runActiveWidgetRefreshLoop() async {
@@ -202,7 +211,9 @@ struct ContentView: View {
     }
     
     private func refreshFastChangingWidgetData() async {
+        SharedModelContainer.write(clock: ClockDataProvider.currentSnapshot())
         SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
+        SharedModelContainer.write(storage: StorageProvider.currentSnapshot())
         await refreshHealthWidgetData()
         WidgetCenter.shared.reloadAllTimelines()
     }
@@ -212,6 +223,7 @@ struct ContentView: View {
         let health = await HealthSummaryProvider.shared.todaySnapshot()
         SharedModelContainer.write(health: health)
     }
+
 }
 
 #Preview {

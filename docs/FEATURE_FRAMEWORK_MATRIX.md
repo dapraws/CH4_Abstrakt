@@ -15,12 +15,13 @@ This file is the canonical mapping between widget features and Apple-native fram
 |---|---|---|---|---|
 | Clock | Glanceable time and date widgets | `Foundation` | `WidgetKit` | Supports typography, theme, style variants, and size-specific layouts. |
 | Calendar | Upcoming events and date context | `EventKit` | `Foundation`, `WidgetKit` | Requires explicit calendar permission and should render empty/denied states clearly. |
-| Health | Steps, activity, sleep, and other personal metrics | `HealthKit` | `WidgetKit`, `Foundation` | Reads today's step count and walking/running distance after Health authorization. Unsupported devices fall back to preview data; real zero-step days should render as zero. |
-| Weather | Current conditions and short forecasts | `WeatherKit` | `CoreLocation`, `Foundation`, `WidgetKit` | Uses when-in-use location authorization for current-place weather, then writes temperature, high/low, and condition symbol to shared widget storage. |
+| Health | Steps, activity, sleep, and other personal metrics | `HealthKit` | `WidgetKit`, `Foundation` | Requests steps, walking/running distance, and sleep-analysis read access. The current Step Health widget renders today's steps and distance; unavailable HealthKit data renders as zero/empty rather than sample activity. |
+| Weather | Current conditions, short forecasts, and sun event widgets | `WeatherKit` | `CoreLocation`, `Foundation`, `WidgetKit` | Uses when-in-use location authorization for current-place weather, then writes temperature, high/low, condition symbol, and weather snapshots to shared widget storage. Current gallery presets include `Classic Weather` and `Sun Event Weather`. |
 | Location | Place, commute, daylight, or contextual location widgets | `CoreLocation` | `MapKit`, `Foundation`, `WidgetKit` | Should minimize refresh frequency and clearly explain permission use. |
 | Portal App Launcher | App-icon launcher widgets with contextual date and place weather | `AppIntents` | `WeatherKit`, `CoreLocation`, `Foundation`, `WidgetKit` | Portal Widget uses App Intent buttons to open selected apps and host-app WeatherKit data for Denpasar temperature. |
 | Reminders | Task and completion widgets | `EventKit` | `Foundation`, `WidgetKit` | User-facing family stays separate from Calendar even though the API owner overlaps. |
 | Battery | Device battery status widgets | `UIKit` (`UIDevice`) | `WidgetKit`, `Foundation` | Uses `UIDevice` battery monitoring in the host app and writes level/charging state to shared widget storage. |
+| Storage | Device storage widgets | `Foundation` (`FileManager`) | `WidgetKit` | Reads file-system capacity and available bytes from the host app and writes them to shared widget storage. |
 | App Preferences | App font, temperature unit, temperature display, distance unit | `Foundation` | `SwiftUI`, `WidgetKit` | Stored through app/shared preferences. App font and unit preferences are shared with widget rendering. |
 
 ## Customization Expectations By Family
@@ -35,6 +36,7 @@ This file is the canonical mapping between widget features and Apple-native fram
 | Portal App Launcher | Selected MiniApps, icon clip style, launcher destinations, date/place header styling, weather location |
 | Reminders | Count style, completion focus, category filter, typography |
 | Battery | Style preset, threshold emphasis, accent color, compact/full presentation |
+| Storage | Compact/full storage presentation, actual used/available emphasis |
 | App Preferences | App font theme, temperature unit, temperature display mode, distance unit |
 
 ## Permission Expectations
@@ -49,18 +51,23 @@ This file is the canonical mapping between widget features and Apple-native fram
 | Portal App Launcher | No permission for the buttons; WeatherKit-powered place data depends on WeatherKit availability and cached host-app refreshes. |
 | Reminders | Reminders access via `EventKit` |
 | Battery | No explicit user permission for device battery state |
+| Storage | No explicit user permission for aggregate file-system capacity |
 | App Preferences | No permission required |
 
 ## Current Live Data Refresh
 
 The host app refreshes widget-facing data on launch and whenever the scene becomes active:
 
-- Health: requests `HealthKit` read access for step count and walking/running distance, then stores today's totals.
+- Health: requests `HealthKit` read access for step count, walking/running distance, and sleep analysis, then stores today's step and distance totals for the current Step Health widget.
 - Battery: enables `UIDevice` battery monitoring, stores percentage and charging state, and estimates remaining hours when discharging.
-- Weather: requests when-in-use location authorization, fetches local WeatherKit conditions, and stores current temperature plus today's high/low.
+- Calendar: requests EventKit calendar access, stores today's weekday plus the next remaining event or an empty/permission-needed state.
+- Storage: reads total and available file-system capacity, then stores aggregate byte counts.
+- Weather: requests when-in-use location authorization, fetches local WeatherKit conditions, and stores current temperature, today's high/low, condition symbols, and weather widget snapshots.
 - Portal Widget: fetches WeatherKit conditions for Denpasar coordinates in the host app and stores the current temperature/place name for the small widget renderer.
 
 The WidgetKit extension reads these values from the App Group. It should not request HealthKit, CoreLocation, or WeatherKit access directly.
+
+Runtime widget rendering should use provider/App Group values or explicit empty/permission-denied states. Static sample numbers belong only in Xcode previews.
 
 Shared unit preferences are also read from the App Group:
 
@@ -83,7 +90,8 @@ Core/Services/
 ├── Location/
 ├── Reminder/
 ├── Weather/
-└── Battery/
+├── Battery/
+└── Storage/
 ```
 
 These service folders are data-source-oriented. Widget folders do not need to mirror them one-to-one.

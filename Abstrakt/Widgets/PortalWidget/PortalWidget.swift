@@ -10,7 +10,7 @@ struct PortalWidgetSnapshot: Codable, Hashable {
     let placeName: String
     
     private var usesFahrenheit: Bool {
-        UserDefaults(suiteName: "group.msaf.abstrakt")?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
+        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.default.abstrakt")?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
     }
     
     var displayTemperature: Int {

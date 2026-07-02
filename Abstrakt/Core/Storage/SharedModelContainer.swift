@@ -11,6 +11,12 @@ enum SharedModelContainer {
         defaults?.synchronize()
     }
 
+    static func write(clock: ClockSnapshot) {
+        defaults?.set(clock.timeText, forKey: AppGroupConstants.sharedClockTimeKey)
+        defaults?.set(clock.dateText, forKey: AppGroupConstants.sharedClockDateKey)
+        defaults?.synchronize()
+    }
+
     static func write(battery: BatterySnapshot) {
         defaults?.set(battery.level, forKey: AppGroupConstants.sharedBatteryLevelKey)
         if let estimatedMinutesRemaining = battery.estimatedMinutesRemaining {
@@ -57,9 +63,22 @@ enum SharedModelContainer {
         defaults?.set(data, forKey: AppGroupConstants.sharedWidgetPresetsKey)
         defaults?.synchronize()
     }
+
     static func write(storage: StorageSnapshot) {
         defaults?.set(storage.totalBytes, forKey: AppGroupConstants.sharedStorageTotalBytesKey)
         defaults?.set(storage.availableBytes, forKey: AppGroupConstants.sharedStorageAvailableBytesKey)
+        defaults?.synchronize()
+    }
+
+    static func write(classicWeather: ClassicWeatherSnapshot) {
+        guard let data = try? JSONEncoder().encode(classicWeather) else { return }
+        defaults?.set(data, forKey: AppGroupConstants.sharedClassicWeatherKey)
+        defaults?.synchronize()
+    }
+
+    static func write(sunEventWeather: SunEventWeatherSnapshot) {
+        guard let data = try? JSONEncoder().encode(sunEventWeather) else { return }
+        defaults?.set(data, forKey: AppGroupConstants.sharedSunEventWeatherKey)
         defaults?.synchronize()
     }
 }

@@ -258,7 +258,7 @@ private struct LibraryWidgetRow: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let contentWidth = proxy.size.width - AppSpacing.screenHorizontal
+            let contentWidth = proxy.size.width - (AppSpacing.screenHorizontal * 2)
             let textWidth = min(contentWidth * textWidthRatio, maximumTextWidth)
             let previewColumnWidth = max(0, contentWidth - textWidth - contentGap)
             let previewSize = size.previewSize(fittingWidth: previewColumnWidth / previewScale)
@@ -290,7 +290,7 @@ private struct LibraryWidgetRow: View {
                 .frame(width: textWidth, height: rowHeight - textBottomPadding, alignment: .bottomLeading)
                 .padding(.bottom, textBottomPadding)
 
-                ZStack(alignment: .topLeading) {
+                ZStack(alignment: .topTrailing) {
                     if let item {
                         WidgetPreview(item: item)
                             .frame(width: previewSize.width, height: previewSize.height)
@@ -300,10 +300,10 @@ private struct LibraryWidgetRow: View {
                             .offset(x: previewXOffset, y: previewYOffset)
                     }
                 }
-                .frame(width: previewColumnWidth, height: rowHeight, alignment: .topLeading)
+                .frame(width: previewColumnWidth, height: rowHeight, alignment: .topTrailing)
                 .clipped()
             }
-            .padding(.leading, AppSpacing.screenHorizontal)
+            .padding(.horizontal, AppSpacing.screenHorizontal)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity)
@@ -388,9 +388,9 @@ private struct LibraryWidgetRow: View {
     private var previewXOffset: CGFloat {
         switch size {
         case .small:
-            20
+            0
         case .medium:
-            10
+            0
         case .large:
             0
         }

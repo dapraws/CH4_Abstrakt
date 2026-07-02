@@ -37,6 +37,20 @@ nonisolated enum WidgetCatalog {
             categories: [.utility, .classic],
             isPro: false
         ),
+        WidgetCatalogItem(
+            id: "classic-weather-small",
+            name: "Classic Weather",
+            size: .small,
+            categories: [.weather, .classic],
+            isPro: false
+        ),
+        WidgetCatalogItem(
+            id: "sunevent-weather-small",
+            name: "Sun Event Weather",
+            size: .small,
+            categories: [.weather, .minimalism],
+            isPro: false
+        ),
     ]
 
     static func galleryItems(for category: WidgetCategory) -> [WidgetCatalogItem] {
@@ -55,7 +69,8 @@ nonisolated enum WidgetCatalog {
             "portal-widget-small",
             "device-storage-small",
             "daily-dashboard-medium",
-            
+            "classic-weather-small",
+            "sunevent-weather-small",
         ],
         .classic: [
             "battery-bars-small",
@@ -71,6 +86,8 @@ nonisolated enum WidgetCatalog {
         .weather: [
             "portal-widget-small",
             "daily-dashboard-medium",
+            "classic-weather-small",
+            "sunevent-weather-small",
         ],
         .calendar: [
             "portal-widget-small",

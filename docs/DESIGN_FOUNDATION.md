@@ -105,6 +105,8 @@ Rules:
 - Widget layouts must remain responsive when preview width is constrained below the baseline width.
 - Small portal launcher widgets may use overlapping app-icon clusters when each tappable icon remains visually distinct and the header has a single-line fallback scale.
 - Portal launcher customization uses a compact MiniApps opener for the selected six apps and a menu-only icon clip control for `Default`, `Circle`, and `Bloom`.
+- Weather widgets may use custom condition assets when the asset name maps directly from the WeatherKit condition snapshot, while still rendering a legible fallback for unknown conditions.
+- Storage widgets should render used and available portions inside a subtly bordered rounded container. The available portion uses a neutral zinc/gray treatment in both light and dark appearances.
 - Lock Screen `Circular`, `Rectangular`, and `Inline` dimensions are documented here for future iOS widget expansion, but the shipping app flow remains Home Screen first.
 - Do not invent custom preview aspect ratios when one of these rows applies.
 
@@ -188,6 +190,8 @@ Every widget family should plan for:
 - Stale-data state
 
 These should be designed at the same level as the happy path, especially for framework-backed widgets.
+
+Runtime widget surfaces should not use static sample metrics as fallbacks. Use provider data, App Group cached values, or explicit empty/permission-denied copy; keep fixed sample values limited to Xcode canvas previews.
 
 ## Recommended Token Families
 

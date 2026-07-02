@@ -12,7 +12,7 @@ This repository is a native SwiftUI app, not a reusable library. The product goa
 ## Current State
 
 - The codebase is in early foundation stage.
-- Existing widget folders currently include `BatteryBars`, `StepHealth`, and `DailyDashboard`.
+- Existing widget folders currently include `BatteryBars`, `StepHealth`, `PortalWidget`, `DeviceStorage`, `DailyDashboard`, `ClassicWeatherWidget`, and `SunEventWeatherWidget`.
 - Shared theme, persistence, constants, service, and widget-size token files are being established.
 - Documentation should be treated as the source of intent until implementation catches up.
 
@@ -56,6 +56,8 @@ Use the feature matrix in `docs/FEATURE_FRAMEWORK_MATRIX.md` as the canonical ma
 - Use App Groups for extension-safe shared data.
 - Treat widgets and future Live Activities as consumers of shared feature data, not as independent business-logic silos.
 - Follow MVVM consistently across the app and extension-facing features.
+- Runtime widgets and in-app widget previews should use provider data, App Group cached values, or explicit empty/permission states. Keep static sample metrics limited to Xcode canvas previews.
+- Signing and App Group setup is config-driven. Keep `APP_GROUP_ID` in `Signing.xcconfig`/local overrides aligned with both app and widget extension entitlements.
 
 ## MVVM Rules
 

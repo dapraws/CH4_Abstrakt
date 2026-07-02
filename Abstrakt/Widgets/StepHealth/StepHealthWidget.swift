@@ -53,7 +53,7 @@ struct StepHealthWidget: View {
 
     #if !WIDGET_EXTENSION
     init(
-        snapshot: HealthSummarySnapshot = HealthSummaryProvider.placeholder,
+        snapshot: HealthSummarySnapshot = HealthSummaryProvider.empty,
         fontTheme: AbstraktWidgetFontTheme = .selectedAppTheme,
         clipsToWidgetShape: Bool = true
     ) {

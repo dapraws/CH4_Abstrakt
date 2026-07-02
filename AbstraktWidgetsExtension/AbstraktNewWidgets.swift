@@ -11,6 +11,8 @@ struct SmallSolidWidgetEntry: TimelineEntry {
     let health: StepWidgetEntry
     let portal: PortalSmallWidgetEntry
     let storage: StorageWidgetEntry
+    let classicWeather: ClassicWeatherSnapshot
+    let sunEventWeather: SunEventWeatherSnapshot
 }
 
 struct MediumSolidWidgetEntry: TimelineEntry {
@@ -202,7 +204,9 @@ private extension SmallSolidWidgetEntry {
                 date: .now,
                 totalBytes: WidgetSharedStore.storageTotalBytes,
                 availableBytes: WidgetSharedStore.storageAvailableBytes
-            )
+            ),
+            classicWeather: WidgetSharedStore.classicWeather,
+            sunEventWeather: WidgetSharedStore.sunEventWeather
         )
     }
 }
@@ -340,6 +344,18 @@ private struct SmallSolidWidgetView: View {
         case "device-storage-small":
             DeviceStorageWidget(
                 snapshot: entry.storage.renderSnapshot,
+                fontTheme: WidgetSharedStore.appFontTheme,
+                clipsToWidgetShape: false
+            )
+        case "classic-weather-small":
+            ClassicWeatherWidget(
+                snapshot: entry.classicWeather,
+                fontTheme: WidgetSharedStore.appFontTheme,
+                clipsToWidgetShape: false
+            )
+        case "sunevent-weather-small":
+            SunEventWeatherWidget(
+                snapshot: entry.sunEventWeather,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
@@ -498,7 +514,9 @@ private extension SmallSolidWidgetEntry {
                 date: .now,
                 totalBytes: WidgetSharedStore.storageTotalBytes,
                 availableBytes: WidgetSharedStore.storageAvailableBytes
-            )
+            ),
+            classicWeather: .placeholder,
+            sunEventWeather: .placeholder
         )
     }
 }

@@ -1,0 +1,8 @@
+// Make a copy of this file and rename it to 'Signing.local.xcconfig'
+// Do NOT commit your 'Signing.local.xcconfig' to Git.
+
+// Your personal Apple Developer Team ID (found in Developer Portal)
+DEVELOPMENT_TEAM = XXXXXXXXXX
+
+// Your unique App Group ID (must match what you check in Xcode's Signing & Capabilities)
+APP_GROUP_ID = group.yourname.abstrakt

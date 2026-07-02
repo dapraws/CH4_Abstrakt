@@ -31,7 +31,10 @@ Abstrakt/
 │   ├── BatteryBars/
 │   ├── StepHealth/
 │   ├── PortalWidget/
-│   └── DailyDashboard/
+│   ├── DeviceStorage/
+│   ├── DailyDashboard/
+│   ├── ClassicWeatherWidget/
+│   └── SunEventWeatherWidget/
 └── AbstraktWidgetsExtension/
     ├── AbstraktWidgetsBundle.swift
     ├── AbstraktNewWidgets.swift
@@ -61,9 +64,17 @@ The current app foundation includes:
 - Settings for app font selection, temperature unit, temperature display, distance unit, access/permissions, FAQ, change icon, and release notes.
 - Shared settings storage for widget-facing unit preferences and the selected widget font through the App Group.
 - Shared widget renderers under `Abstrakt/Widgets/` that are compiled into both the host app and the WidgetKit extension.
+- Runtime widget previews and WidgetKit timelines consume live provider data or App Group cached values for battery, Health, calendar/date, time, storage, and WeatherKit-backed weather. Sample numbers are reserved for Xcode canvas previews.
 - A small Portal Widget preset that combines calendar date context, Denpasar WeatherKit temperature, configurable MiniApp launchers, and App Intent buttons for launching selected system apps.
+- Small weather presets for current conditions and sun events, backed by host-app WeatherKit/CoreLocation refreshes and shared weather condition assets.
 
 The app font preference is written to shared storage so Home Screen widgets and in-app previews can render with matching typography. Widget views must stay extension-safe because the WidgetKit target also compiles the shared files under `Abstrakt/Widgets/`.
+
+## Signing And App Group Configuration
+
+Signing is driven by `Abstrakt/Config/Signing.xcconfig`, with optional local overrides in `Abstrakt/Config/Signing.local.xcconfig`. Copy `Signing.local.xcconfig.example` when a developer needs a personal `DEVELOPMENT_TEAM` or `APP_GROUP_ID`.
+
+The app and widget extension entitlements both read `$(APP_GROUP_ID)`, and the same value is injected into `Info.plist` as `AppGroupID` so host-app providers and WidgetKit read from one shared App Group suite.
 
 ## System Widget Flow
 

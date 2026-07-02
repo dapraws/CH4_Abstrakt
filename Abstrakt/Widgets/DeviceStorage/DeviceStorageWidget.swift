@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 // MARK: - Render Snapshot
 
@@ -19,31 +22,47 @@ struct DeviceStorageRenderSnapshot: Codable, Hashable {
         Double(availableBytes) / 1_073_741_824.0
     }
 
+    var usedGB: Double {
+        Double(max(0, usedBytes)) / 1_073_741_824.0
+    }
+
     var totalGB: Double {
         Double(totalBytes) / 1_073_741_824.0
     }
 
     var usedFraction: Double {
         guard totalBytes > 0 else { return 0 }
-        return Double(usedBytes) / Double(totalBytes)
+        return min(max(Double(usedBytes) / Double(totalBytes), 0), 1)
+    }
+
+    var availableFraction: Double {
+        guard totalBytes > 0 else { return 0 }
+        return min(max(Double(availableBytes) / Double(totalBytes), 0), 1)
     }
 
     var availableLabel: String {
-        String(
-            format: "%.0f,%02.0f",
-            floor(availableGB),
-            (availableGB - floor(availableGB)) * 100
-        )
+        Self.gigabyteLabel(availableGB)
     }
 
-    var categories: [StorageCategory] {
-        let used = usedFraction
-        return [
-            StorageCategory(name: "Apps", fraction: used * 0.45, color: .appsRed),
-            StorageCategory(name: "Photos", fraction: used * 0.20, color: .photosBlue),
-            StorageCategory(name: "Media", fraction: used * 0.20, color: .mediaPurple),
-            StorageCategory(name: "System", fraction: used * 0.15, color: .systemGray),
+    var usedLabel: String {
+        Self.gigabyteLabel(usedGB)
+    }
+
+    var totalLabel: String {
+        Self.gigabyteLabel(totalGB)
+    }
+
+    var segments: [StorageSegment] {
+        [
+            StorageSegment(name: "Used", fraction: usedFraction, color: .used),
+            StorageSegment(name: "Available", fraction: availableFraction, color: .available),
         ]
+    }
+
+    private static func gigabyteLabel(_ value: Double) -> String {
+        value >= 100
+            ? String(format: "%.0f", value)
+            : String(format: "%.1f", value)
     }
 }
 
@@ -58,29 +77,33 @@ extension DeviceStorageRenderSnapshot {
 }
 #endif
 
-// MARK: - Category Types
+// MARK: - Segment Types
 
-enum StorageCategoryColor: String, Codable, Hashable {
-    case appsRed, photosBlue, mediaPurple, systemGray
+enum StorageSegmentColor: String, Codable, Hashable {
+    case used, available
 
     var color: Color {
         switch self {
-        case .appsRed:
-            Color(red: 1.0, green: 0.27, blue: 0.23)
-        case .photosBlue:
-            Color(red: 0.35, green: 0.48, blue: 1.0)
-        case .mediaPurple:
-            Color(red: 0.58, green: 0.39, blue: 0.98)
-        case .systemGray:
-            Color(red: 0.56, green: 0.56, blue: 0.58)
+        case .used:
+            Color(red: 1.0, green: 0.34, blue: 0.27)
+        case .available:
+            #if canImport(UIKit)
+            Color(uiColor: UIColor { traits in
+                traits.userInterfaceStyle == .dark
+                    ? UIColor(red: 0.26, green: 0.26, blue: 0.27, alpha: 1)
+                : UIColor(red: 0.63, green: 0.63, blue: 0.67, alpha: 0.4)
+            })
+            #else
+            Color(red: 0.63, green: 0.63, blue: 0.67)
+            #endif
         }
     }
 }
 
-struct StorageCategory: Codable, Hashable {
+struct StorageSegment: Codable, Hashable {
     let name: String
     let fraction: Double
-    let color: StorageCategoryColor
+    let color: StorageSegmentColor
 }
 
 // MARK: - Widget
@@ -146,9 +169,9 @@ struct DeviceStorageWidget: View {
 
             Spacer().frame(height: 10)
 
-            legendGrid
+            storageLegend
             
-            Spacer().frame(height: 10)
+            Spacer()
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("Available")
@@ -166,56 +189,84 @@ struct DeviceStorageWidget: View {
                 }
             }
         }
-        .padding(15)
+        .padding(.horizontal, 15)
+        .padding(.top, 15)
+        .padding(.bottom, 10)
     }
 
     // MARK: Storage Bar
 
     private var storageBar: some View {
         GeometryReader { proxy in
-            HStack(spacing: 1) {
-                ForEach(snapshot.categories, id: \.name) { category in
-                    RoundedRectangle(cornerRadius: 1, style: .continuous)
-                        .fill(category.color.color)
-                        .frame(width: max(4, proxy.size.width * category.fraction))
-                        .padding(.vertical, 1)
-                }
-            }
-        }
-        .frame(height: 24)
-        .background(
-            RoundedRectangle(cornerRadius: 4, style: .continuous)
-                .fill(palette.subtleFill)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-    }
+            let containerPadding: CGFloat = 1.5
+            let segmentSpacing: CGFloat = 1.5
+            let availableWidth = max(0, proxy.size.width - (containerPadding * 2) - segmentSpacing)
 
-    // MARK: Legend Grid
+            ZStack {
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(Color.gray.opacity(0.2))
 
-    private var legendGrid: some View {
-        let rows = stride(from: 0, to: snapshot.categories.count, by: 2)
-            .map { Array(snapshot.categories[$0..<min($0 + 2, snapshot.categories.count)]) }
-
-        return VStack(alignment: .leading, spacing: 6) {
-            ForEach(rows, id: \.first?.name) { row in
-                HStack(spacing: 12) {
-                    ForEach(row, id: \.name) { category in
-                        legendItem(category)
+                HStack(spacing: segmentSpacing) {
+                    ForEach(snapshot.segments, id: \.name) { segment in
+                        storageSegmentFill(segment)
+                            .frame(width: segmentWidth(for: segment, availableWidth: availableWidth))
+                            .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
                     }
                 }
+                .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+                .padding(containerPadding)
             }
+            .overlay(
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .stroke(Color.clear, lineWidth: 1)
+            )
+        }
+        .frame(height: 24)
+    }
+
+    @ViewBuilder
+    private func storageSegmentFill(_ segment: StorageSegment) -> some View {
+        switch segment.color {
+        case .used:
+            Rectangle()
+                .fill(segment.color.color)
+        case .available:
+            Rectangle()
+                .fill(segment.color.color)
+                .overlay(alignment: .center) {
+                    DiagonalStripePattern(color: palette.storageBarStripe)
+                }
         }
     }
 
-    private func legendItem(_ category: StorageCategory) -> some View {
+    private func segmentWidth(for segment: StorageSegment, availableWidth: CGFloat) -> CGFloat {
+        guard segment.fraction > 0 else {
+            return 0
+        }
+
+        return max(4, availableWidth * segment.fraction)
+    }
+
+    // MARK: Legend
+
+    private var storageLegend: some View {
+        HStack(spacing: 12) {
+            legendItem(snapshot.segments[0])
+            legendItem(snapshot.segments[1])
+        }
+    }
+
+    private func legendItem(_ segment: StorageSegment) -> some View {
         HStack(spacing: 4) {
             Circle()
-                .fill(category.color.color)
+                .fill(segment.color.color)
                 .frame(width: 6, height: 6)
 
-            Text(category.name)
+            Text(segment.name)
                 .font(AbstraktWidgetFonts.font(.meta, theme: fontTheme))
                 .foregroundStyle(palette.secondaryForeground)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
         }
     }
 
@@ -223,6 +274,28 @@ struct DeviceStorageWidget: View {
 
     private var palette: AbstraktWidgetPalette {
         AbstraktWidgetPalette(colorScheme: colorScheme)
+    }
+}
+
+private struct DiagonalStripePattern: View {
+    let color: Color
+
+    var body: some View {
+        Canvas { context, size in
+            let spacing: CGFloat = 7
+            let lineWidth: CGFloat = 2
+            var path = Path()
+            var x = -size.height
+
+            while x < size.width {
+                path.move(to: CGPoint(x: x, y: size.height))
+                path.addLine(to: CGPoint(x: x + size.height, y: 0))
+                x += spacing
+            }
+
+            context.stroke(path, with: .color(color), lineWidth: lineWidth)
+        }
+        .allowsHitTesting(false)
     }
 }
 

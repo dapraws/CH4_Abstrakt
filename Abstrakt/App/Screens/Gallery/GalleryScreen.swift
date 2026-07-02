@@ -418,6 +418,7 @@ private struct WidgetPreviewSheet: View {
                             portalSelectedAppsOverride: item.id == "portal-widget-small" ? portalSelectedApps : nil,
                             portalIconClipStyleOverride: item.id == "portal-widget-small" ? portalIconClipStyle : nil
                         )
+                            .id(previewIdentity)
                             .frame(width: previewSize.width, height: previewSize.height)
                             .scaleEffect(previewScale)
                             .frame(
@@ -460,6 +461,14 @@ private struct WidgetPreviewSheet: View {
             AppsPickerSheet(selectedApps: portalSelectedAppsBinding)
                 .presentationDetents([.fraction(0.8)])
         }
+    }
+
+    private var previewIdentity: String {
+        guard item.id == "portal-widget-small" else {
+            return item.id
+        }
+
+        return "\(item.id)-\(portalSelectedAppsValue)-\(portalIconClipStyleID)"
     }
 }
 
