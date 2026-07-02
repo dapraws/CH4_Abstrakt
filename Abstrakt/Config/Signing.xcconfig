@@ -13,3 +13,6 @@ CODE_SIGN_IDENTITY = Apple Development
 
 // Configuration settings file format documentation can be found at:
 // https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+INFOPLIST_KEY_AppGroupID = $(APP_GROUP_ID)
+

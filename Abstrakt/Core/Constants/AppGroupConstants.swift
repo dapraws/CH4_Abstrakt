@@ -1,7 +1,7 @@
 import Foundation
 
 enum AppGroupConstants {
-    static let suiteName = "group.msaf.abstrakt"
+    static let suiteName = Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.default.abstrakt"
     static let sharedClockTimeKey = "shared.clock.time"
     static let sharedClockDateKey = "shared.clock.date"
     static let sharedCalendarHeadlineKey = "shared.calendar.headline"
@@ -19,6 +19,8 @@ enum AppGroupConstants {
     static let sharedPortalWeatherTemperatureKey = "shared.portal.weather.temperature"
     static let sharedPortalWeatherPlaceNameKey = "shared.portal.weather.placeName"
     static let sharedWidgetPresetsKey = "shared.widget.presets"
+    static let sharedClassicWeatherKey = "shared.classic.weather"
+    static let sharedSunEventWeatherKey = "shared.sunevent.weather"
     static let settingsAppFontThemeKey = "appFontTheme"
     static let settingsTemperatureUnitKey = "settings.temperatureUnit"
     static let settingsTemperatureDisplayKey = "settings.temperatureDisplay"
