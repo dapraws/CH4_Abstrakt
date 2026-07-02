@@ -111,6 +111,14 @@ enum WidgetSharedStore {
         defaults?.string(forKey: "shared.portal.weather.placeName") ?? "Denpasar"
     }
 
+    static var portalSelectedApps: [PortalApp] {
+        PortalApp.selection(from: defaults?.string(forKey: "portal.selectedApps"))
+    }
+
+    static var portalIconClipStyle: PortalIconClipStyle {
+        PortalIconClipStyle.from(id: defaults?.string(forKey: "portal.iconClipStyle"))
+    }
+
     static func savedPresets(size: String) -> [SavedWidgetPreset] {
         allSavedPresets.filter { $0.size == size }
     }

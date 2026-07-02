@@ -46,11 +46,23 @@ struct WidgetPreview: View {
 
     let item: WidgetCatalogItem
     var usesPlaceholderPreview = false
+    var portalSelectedAppsOverride: [PortalApp]?
+    var portalIconClipStyleOverride: PortalIconClipStyle?
     @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
     @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore) private var sharedAppFontThemeID = AppFonts.defaultTheme.id
+    @AppStorage(AppGroupConstants.portalSelectedAppsKey, store: settingsStore) private var portalSelectedAppsValue = PortalApp.storageValue(for: PortalApp.defaultSelection)
+    @AppStorage(AppGroupConstants.portalIconClipStyleKey, store: settingsStore) private var portalIconClipStyleID = PortalIconClipStyle.default.id
 
     private var widgetFontTheme: AbstraktWidgetFontTheme {
         AbstraktWidgetFontTheme.from(id: sharedAppFontThemeID.isEmpty ? appFontThemeID : sharedAppFontThemeID)
+    }
+
+    private var portalSelectedApps: [PortalApp] {
+        portalSelectedAppsOverride ?? PortalApp.selection(from: portalSelectedAppsValue)
+    }
+
+    private var portalIconClipStyle: PortalIconClipStyle {
+        portalIconClipStyleOverride ?? PortalIconClipStyle.from(id: portalIconClipStyleID)
     }
 
     @ViewBuilder
@@ -65,7 +77,11 @@ struct WidgetPreview: View {
                 case "step-health-small":
                     StepHealthWidget(fontTheme: widgetFontTheme)
                 case "portal-widget-small":
-                    PortalWidget(fontTheme: widgetFontTheme)
+                    PortalWidget(
+                        fontTheme: widgetFontTheme,
+                        selectedApps: portalSelectedApps,
+                        iconClipStyle: portalIconClipStyle
+                    )
                 case "daily-dashboard-medium":
                     DailyDashboardWidget(fontTheme: widgetFontTheme)
                 case "device-storage-small":

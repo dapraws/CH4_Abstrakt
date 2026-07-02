@@ -332,6 +332,8 @@ private struct SmallSolidWidgetView: View {
             PortalWidget(
                 snapshot: entry.portal.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
+                selectedApps: WidgetSharedStore.portalSelectedApps,
+                iconClipStyle: WidgetSharedStore.portalIconClipStyle,
                 usesInteractiveButtons: true,
                 clipsToWidgetShape: false
             )

@@ -32,7 +32,7 @@ This file is the canonical mapping between widget features and Apple-native fram
 | Health | Metric selection, step goal, ring style, gradient, unit display |
 | Weather | Icon style, temperature unit, background treatment, location mode |
 | Location | Label style, map/no-map variant, icon set, accent treatment |
-| Portal App Launcher | Icon set, launcher destinations, date/place header styling, weather location |
+| Portal App Launcher | Selected MiniApps, icon clip style, launcher destinations, date/place header styling, weather location |
 | Reminders | Count style, completion focus, category filter, typography |
 | Battery | Style preset, threshold emphasis, accent color, compact/full presentation |
 | App Preferences | App font theme, temperature unit, temperature display mode, distance unit |

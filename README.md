@@ -61,7 +61,7 @@ The current app foundation includes:
 - Settings for app font selection, temperature unit, temperature display, distance unit, access/permissions, FAQ, change icon, and release notes.
 - Shared settings storage for widget-facing unit preferences and the selected widget font through the App Group.
 - Shared widget renderers under `Abstrakt/Widgets/` that are compiled into both the host app and the WidgetKit extension.
-- A small Portal Widget preset that combines calendar date context, Denpasar WeatherKit temperature, and App Intent buttons for launching selected system apps.
+- A small Portal Widget preset that combines calendar date context, Denpasar WeatherKit temperature, configurable MiniApp launchers, and App Intent buttons for launching selected system apps.
 
 The app font preference is written to shared storage so Home Screen widgets and in-app previews can render with matching typography. Widget views must stay extension-safe because the WidgetKit target also compiles the shared files under `Abstrakt/Widgets/`.
 
@@ -95,6 +95,7 @@ Customization is intentionally flexible:
 - Some widgets open nested sheets such as font pickers.
 - Some widgets use inline segmented controls or checkbox-style rows.
 - Some widgets support metric-specific settings such as step goals or counters.
+- Portal launcher widgets support a six-app MiniApps picker and icon clip styles that are shared with WidgetKit through App Group storage.
 
 Because of that, customization belongs to `App/Configuration/` plus widget-specific configuration sheets inside each widget folder.
 
