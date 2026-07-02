@@ -1,7 +1,7 @@
 import Foundation
 
 enum WidgetSharedStore {
-    private static let suiteName = "group.msaf.abstrakt"
+    private static let suiteName = "group.dapraws.abstrakt"
 
     private static let defaults = UserDefaults(suiteName: suiteName)
     private static let sharedWidgetPresetsKey = "shared.widget.presets"
@@ -183,4 +183,12 @@ enum WidgetSharedStore {
             appearanceMode: "system"
         ),
     ]
+    
+    static var storageTotalBytes: Int64 {
+        defaults?.object(forKey: "shared.storage.totalBytes") as? Int64 ?? 0
+    }
+
+    static var storageAvailableBytes: Int64 {
+        defaults?.object(forKey: "shared.storage.availableBytes") as? Int64 ?? 0
+    }
 }

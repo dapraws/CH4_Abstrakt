@@ -1,7 +1,7 @@
 import Foundation
 
 enum AppGroupConstants {
-    static let suiteName = "group.msaf.abstrakt"
+    static let suiteName = "group.dapraws.abstrakt"
     static let sharedClockTimeKey = "shared.clock.time"
     static let sharedClockDateKey = "shared.clock.date"
     static let sharedCalendarHeadlineKey = "shared.calendar.headline"
@@ -23,4 +23,6 @@ enum AppGroupConstants {
     static let settingsTemperatureUnitKey = "settings.temperatureUnit"
     static let settingsTemperatureDisplayKey = "settings.temperatureDisplay"
     static let settingsDistanceUnitKey = "settings.distanceUnit"
+    static let sharedStorageTotalBytesKey = "shared.storage.totalBytes"
+    static let sharedStorageAvailableBytesKey = "shared.storage.availableBytes"
 }
