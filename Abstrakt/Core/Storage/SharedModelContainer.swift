@@ -57,4 +57,9 @@ enum SharedModelContainer {
         defaults?.set(data, forKey: AppGroupConstants.sharedWidgetPresetsKey)
         defaults?.synchronize()
     }
+    static func write(storage: StorageSnapshot) {
+        defaults?.set(storage.totalBytes, forKey: AppGroupConstants.sharedStorageTotalBytesKey)
+        defaults?.set(storage.availableBytes, forKey: AppGroupConstants.sharedStorageAvailableBytesKey)
+        defaults?.synchronize()
+    }
 }

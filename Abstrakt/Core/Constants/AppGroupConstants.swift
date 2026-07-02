@@ -25,4 +25,6 @@ enum AppGroupConstants {
     static let settingsTemperatureUnitKey = "settings.temperatureUnit"
     static let settingsTemperatureDisplayKey = "settings.temperatureDisplay"
     static let settingsDistanceUnitKey = "settings.distanceUnit"
+    static let sharedStorageTotalBytesKey = "shared.storage.totalBytes"
+    static let sharedStorageAvailableBytesKey = "shared.storage.availableBytes"
 }

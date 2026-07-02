@@ -10,6 +10,7 @@ struct SmallSolidWidgetEntry: TimelineEntry {
     let battery: BatteryWidgetEntry
     let health: StepWidgetEntry
     let portal: PortalSmallWidgetEntry
+    let storage: StorageWidgetEntry
 }
 
 struct MediumSolidWidgetEntry: TimelineEntry {
@@ -24,6 +25,7 @@ struct LargeSolidWidgetEntry: TimelineEntry {
     let battery: BatteryWidgetEntry
     let health: StepWidgetEntry
     let dashboard: DashboardWidgetEntry
+    let storage: StorageWidgetEntry
 }
 
 struct BatteryWidgetEntry: TimelineEntry {
@@ -52,6 +54,12 @@ struct PortalSmallWidgetEntry: TimelineEntry {
     let date: Date
     let temperature: Int
     let placeName: String
+}
+
+struct StorageWidgetEntry: TimelineEntry {
+    let date: Date
+    let totalBytes: Int64
+    let availableBytes: Int64
 }
 
 private let widgetTimelineRefreshInterval: TimeInterval = 1
@@ -189,6 +197,11 @@ private extension SmallSolidWidgetEntry {
                 date: .now,
                 temperature: WidgetSharedStore.portalWeatherTemperatureCelsius,
                 placeName: WidgetSharedStore.portalWeatherPlaceName
+            ),
+            storage: StorageWidgetEntry(
+                date: .now,
+                totalBytes: WidgetSharedStore.storageTotalBytes,
+                availableBytes: WidgetSharedStore.storageAvailableBytes
             )
         )
     }
@@ -233,6 +246,11 @@ private extension LargeSolidWidgetEntry {
                 high: WidgetSharedStore.weatherHighCelsius,
                 low: WidgetSharedStore.weatherLowCelsius,
                 weatherSymbol: WidgetSharedStore.weatherSymbol
+            ),
+            storage: StorageWidgetEntry(
+                date: .now,
+                totalBytes: WidgetSharedStore.storageTotalBytes,
+                availableBytes: WidgetSharedStore.storageAvailableBytes
             )
         )
     }
@@ -282,6 +300,15 @@ private extension PortalSmallWidgetEntry {
     }
 }
 
+private extension StorageWidgetEntry {
+    var renderSnapshot: DeviceStorageRenderSnapshot {
+        DeviceStorageRenderSnapshot(
+            totalBytes: totalBytes,
+            availableBytes: availableBytes
+        )
+    }
+}
+
 // MARK: - Widget Views
 
 private struct SmallSolidWidgetView: View {
@@ -308,6 +335,12 @@ private struct SmallSolidWidgetView: View {
                 selectedApps: WidgetSharedStore.portalSelectedApps,
                 iconClipStyle: WidgetSharedStore.portalIconClipStyle,
                 usesInteractiveButtons: true,
+                clipsToWidgetShape: false
+            )
+        case "device-storage-small":
+            DeviceStorageWidget(
+                snapshot: entry.storage.renderSnapshot,
+                fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
         default:
@@ -460,6 +493,11 @@ private extension SmallSolidWidgetEntry {
                 date: Calendar.current.date(from: DateComponents(year: 2026, month: 6, day: 26, hour: 9, minute: 41)) ?? .widgetPreviewDate,
                 temperature: 16,
                 placeName: "Denpasar"
+            ),
+            storage: StorageWidgetEntry(
+                date: .now,
+                totalBytes: WidgetSharedStore.storageTotalBytes,
+                availableBytes: WidgetSharedStore.storageAvailableBytes
             )
         )
     }
@@ -504,6 +542,11 @@ private extension LargeSolidWidgetEntry {
                 high: 30,
                 low: 24,
                 weatherSymbol: "🌥️"
+            ),
+            storage: StorageWidgetEntry(
+                date: .now,
+                totalBytes: WidgetSharedStore.storageTotalBytes,
+                availableBytes: WidgetSharedStore.storageAvailableBytes
             )
         )
     }

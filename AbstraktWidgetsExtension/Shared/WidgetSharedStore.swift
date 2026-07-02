@@ -191,4 +191,12 @@ enum WidgetSharedStore {
             appearanceMode: "system"
         ),
     ]
+    
+    static var storageTotalBytes: Int64 {
+        defaults?.object(forKey: "shared.storage.totalBytes") as? Int64 ?? 0
+    }
+
+    static var storageAvailableBytes: Int64 {
+        defaults?.object(forKey: "shared.storage.availableBytes") as? Int64 ?? 0
+    }
 }

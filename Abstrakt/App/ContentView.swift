@@ -185,6 +185,8 @@ struct ContentView: View {
         let portal = await WeatherDashboardProvider.shared.denpasarPortalSnapshot()
         SharedModelContainer.write(portal: portal)
         WidgetCenter.shared.reloadAllTimelines()
+        
+        SharedModelContainer.write(storage: StorageProvider.currentSnapshot())
     }
 
     private func runActiveWidgetRefreshLoop() async {
