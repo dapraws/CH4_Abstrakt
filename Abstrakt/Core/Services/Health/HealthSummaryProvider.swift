@@ -33,25 +33,47 @@ struct HeartRateSnapshot: Codable, Hashable {
 final class HealthSummaryProvider {
     static let shared = HealthSummaryProvider()
 
+    private static let authorizationRequestedKey = "health.authorization.requested"
+
     private let store = HKHealthStore()
     private var observerQueries: [HKObserverQuery] = []
     private var hasRequestedAuthorization = false
 
     private init() {}
 
-    func requestAuthorization() async {
+    func authorizationState() -> HealthPermissionState {
         guard HKHealthStore.isHealthDataAvailable() else {
-            return
+            return .unavailable
+        }
+
+        let requested = UserDefaults(suiteName: AppGroupConstants.suiteName)?
+            .bool(forKey: Self.authorizationRequestedKey) ?? false
+        return requested ? .requested : .notDetermined
+    }
+
+    @discardableResult
+    func requestAuthorization() async -> Bool {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            return false
         }
 
         let readTypes: Set<HKObjectType> = Set([
             HKQuantityType(.stepCount),
             HKQuantityType(.distanceWalkingRunning),
+            HKQuantityType(.appleExerciseTime),
+            HKQuantityType(.activeEnergyBurned),
             HKCategoryType(.sleepAnalysis),
             HKQuantityType(.heartRate),
         ])
 
-        try? await store.requestAuthorization(toShare: Set<HKSampleType>(), read: readTypes)
+        do {
+            try await store.requestAuthorization(toShare: Set<HKSampleType>(), read: readTypes)
+            UserDefaults(suiteName: AppGroupConstants.suiteName)?
+                .set(true, forKey: Self.authorizationRequestedKey)
+            return true
+        } catch {
+            return false
+        }
     }
 
     func todaySnapshot() async -> HealthSummarySnapshot {
@@ -68,6 +90,23 @@ final class HealthSummaryProvider {
         return HealthSummarySnapshot(steps: stepCount, distanceKilometers: kilometers)
     }
 
+    func activitySnapshots() async -> [ActivityMode: ActivitySnapshot] {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            return [
+                .today: Self.emptyActivity(mode: .today),
+                .weekly: Self.emptyActivity(mode: .weekly),
+            ]
+        }
+
+        async let today = activitySnapshot(mode: .today)
+        async let weekly = activitySnapshot(mode: .weekly)
+
+        return [
+            .today: await today,
+            .weekly: await weekly,
+        ]
+    }
+
     func startObservingTodayMetrics(onChange: @escaping @Sendable () -> Void) {
         guard HKHealthStore.isHealthDataAvailable(), observerQueries.isEmpty else {
             return
@@ -76,6 +115,9 @@ final class HealthSummaryProvider {
         let sampleTypes = [
             HKQuantityType(.stepCount),
             HKQuantityType(.distanceWalkingRunning),
+            HKQuantityType(.appleExerciseTime),
+            HKQuantityType(.activeEnergyBurned),
+            HKCategoryType(.sleepAnalysis),
         ]
 
         observerQueries = sampleTypes.map { sampleType in
@@ -151,5 +193,130 @@ final class HealthSummaryProvider {
         }
     }
 
+    private func activitySnapshot(mode: ActivityMode) async -> ActivitySnapshot {
+        let interval = dateInterval(for: mode)
+
+        async let exerciseMinutes = quantitySum(
+            for: HKQuantityType(.appleExerciseTime),
+            unit: .minute(),
+            interval: interval
+        )
+        async let activeEnergy = quantitySum(
+            for: HKQuantityType(.activeEnergyBurned),
+            unit: .kilocalorie(),
+            interval: interval
+        )
+        async let sleepMinutes = sleepMinutes(interval: interval)
+
+        return ActivitySnapshot(
+            mode: mode,
+            exerciseMinutes: Int(await exerciseMinutes.rounded()),
+            activeEnergyCalories: Int(await activeEnergy.rounded()),
+            sleepMinutes: await sleepMinutes
+        )
+    }
+
+    private func dateInterval(for mode: ActivityMode) -> DateInterval {
+        let calendar = Calendar.current
+        let end = Date.now
+
+        switch mode {
+        case .today:
+            return DateInterval(start: calendar.startOfDay(for: end), end: end)
+        case .weekly:
+            let todayStart = calendar.startOfDay(for: end)
+            let start = calendar.date(byAdding: .day, value: -6, to: todayStart) ?? todayStart
+            return DateInterval(start: start, end: end)
+        }
+    }
+
+    private func quantitySum(for quantityType: HKQuantityType, unit: HKUnit, interval: DateInterval) async -> Double {
+        await withCheckedContinuation { continuation in
+            let predicate = HKQuery.predicateForSamples(
+                withStart: interval.start,
+                end: interval.end,
+                options: .strictStartDate
+            )
+
+            let query = HKStatisticsQuery(
+                quantityType: quantityType,
+                quantitySamplePredicate: predicate,
+                options: .cumulativeSum
+            ) { _, statistics, _ in
+                continuation.resume(returning: statistics?.sumQuantity()?.doubleValue(for: unit) ?? 0)
+            }
+
+            store.execute(query)
+        }
+    }
+
+    private func averageQuantity(for quantityType: HKQuantityType, unit: HKUnit, interval: DateInterval) async -> Double {
+        await withCheckedContinuation { continuation in
+            let predicate = HKQuery.predicateForSamples(
+                withStart: interval.start,
+                end: interval.end,
+                options: .strictStartDate
+            )
+
+            let query = HKStatisticsQuery(
+                quantityType: quantityType,
+                quantitySamplePredicate: predicate,
+                options: .discreteAverage
+            ) { _, statistics, _ in
+                continuation.resume(returning: statistics?.averageQuantity()?.doubleValue(for: unit) ?? 0)
+            }
+
+            store.execute(query)
+        }
+    }
+
+    private func sleepMinutes(interval: DateInterval) async -> Int {
+        await withCheckedContinuation { continuation in
+            let sampleType = HKCategoryType(.sleepAnalysis)
+            let predicate = HKQuery.predicateForSamples(
+                withStart: interval.start,
+                end: interval.end,
+                options: []
+            )
+
+            let query = HKSampleQuery(
+                sampleType: sampleType,
+                predicate: predicate,
+                limit: HKObjectQueryNoLimit,
+                sortDescriptors: nil
+            ) { _, samples, _ in
+                let total = samples?
+                    .compactMap { $0 as? HKCategorySample }
+                    .filter { Self.isAsleepValue($0.value) }
+                    .reduce(0.0) { partial, sample in
+                        let overlapStart = max(sample.startDate, interval.start)
+                        let overlapEnd = min(sample.endDate, interval.end)
+                        return partial + max(0, overlapEnd.timeIntervalSince(overlapStart))
+                    } ?? 0
+
+                continuation.resume(returning: Int((total / 60).rounded()))
+            }
+
+            store.execute(query)
+        }
+    }
+
+    private static func isAsleepValue(_ value: Int) -> Bool {
+        value == HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue ||
+            value == HKCategoryValueSleepAnalysis.asleepCore.rawValue ||
+            value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue ||
+            value == HKCategoryValueSleepAnalysis.asleepREM.rawValue
+    }
+
     static let empty = HealthSummarySnapshot(steps: 0, distanceKilometers: 0)
+
+    static func emptyActivity(mode: ActivityMode) -> ActivitySnapshot {
+        ActivitySnapshot(mode: mode, exerciseMinutes: 0, activeEnergyCalories: 0, sleepMinutes: 0)
+    }
+}
+
+enum HealthPermissionState {
+    case requested
+    case notDetermined
+    case unavailable
 }

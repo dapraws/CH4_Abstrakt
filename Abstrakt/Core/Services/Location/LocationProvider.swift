@@ -15,6 +15,7 @@ protocol LocationProviding {
     func currentLocation() async throws -> CLLocation
     func currentCoordinates() async throws -> CLLocationCoordinate2D
     func cityName(for location: CLLocation) async throws -> String
+    func requestAuthorizationStatus() async -> CLAuthorizationStatus
 }
 
 // MARK: - Provider
@@ -60,6 +61,15 @@ final class LocationProvider: NSObject, LocationProviding {
     }
 
     // MARK: - LocationProviding
+
+    func requestAuthorizationStatus() async -> CLAuthorizationStatus {
+        switch manager.authorizationStatus {
+        case .notDetermined:
+            return await requestAuthorization()
+        default:
+            return manager.authorizationStatus
+        }
+    }
 
     func currentLocation() async throws -> CLLocation {
         // Join an in-flight request if one is already running.
