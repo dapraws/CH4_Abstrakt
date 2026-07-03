@@ -8,6 +8,9 @@ enum SharedModelContainer {
         defaults?.set(clock.dateText, forKey: AppGroupConstants.sharedClockDateKey)
         defaults?.set(calendar.headline, forKey: AppGroupConstants.sharedCalendarHeadlineKey)
         defaults?.set(calendar.detail, forKey: AppGroupConstants.sharedCalendarDetailKey)
+        if let data = try? JSONEncoder().encode(calendar.eventSnapshot) {
+            defaults?.set(data, forKey: AppGroupConstants.sharedEventsKey)
+        }
         defaults?.synchronize()
     }
 
@@ -36,16 +39,22 @@ enum SharedModelContainer {
         defaults?.synchronize()
     }
 
-    static func write(dashboard: DailyDashboardSnapshot) {
-        defaults?.set(dashboard.temperature, forKey: AppGroupConstants.sharedWeatherTemperatureKey)
-        defaults?.set(dashboard.high, forKey: AppGroupConstants.sharedWeatherHighKey)
-        defaults?.set(dashboard.low, forKey: AppGroupConstants.sharedWeatherLowKey)
-        defaults?.set(dashboard.weatherSymbol, forKey: AppGroupConstants.sharedWeatherSymbolKey)
-        defaults?.set(dashboard.conditionLabel, forKey: AppGroupConstants.sharedWeatherConditionLabelKey)
+    static func write(activity snapshots: [ActivityMode: ActivitySnapshot]) {
+        writeActivity(snapshots[.today], prefix: "today")
+        writeActivity(snapshots[.weekly], prefix: "weekly")
         defaults?.synchronize()
     }
 
-    static func write(portal: PortalWidgetSnapshot) {
+    static func write(today: TodaySnapshot) {
+        defaults?.set(today.temperature, forKey: AppGroupConstants.sharedWeatherTemperatureKey)
+        defaults?.set(today.high, forKey: AppGroupConstants.sharedWeatherHighKey)
+        defaults?.set(today.low, forKey: AppGroupConstants.sharedWeatherLowKey)
+        defaults?.set(today.weatherSymbol, forKey: AppGroupConstants.sharedWeatherSymbolKey)
+        defaults?.set(today.conditionLabel, forKey: AppGroupConstants.sharedWeatherConditionLabelKey)
+        defaults?.synchronize()
+    }
+
+    static func write(portal: PortalSnapshot) {
         defaults?.set(portal.temperature, forKey: AppGroupConstants.sharedPortalWeatherTemperatureKey)
         defaults?.set(portal.placeName, forKey: AppGroupConstants.sharedPortalWeatherPlaceNameKey)
         defaults?.synchronize()
@@ -71,15 +80,15 @@ enum SharedModelContainer {
         defaults?.synchronize()
     }
     
-    static func write(classicWeather: ClassicWeatherSnapshot) {
-        guard let data = try? JSONEncoder().encode(classicWeather) else { return }
-        defaults?.set(data, forKey: AppGroupConstants.sharedClassicWeatherKey)
+    static func write(weather: WeatherSnapshot) {
+        guard let data = try? JSONEncoder().encode(weather) else { return }
+        defaults?.set(data, forKey: AppGroupConstants.sharedWeatherKey)
         defaults?.synchronize()
     }
 
-    static func write(sunEventWeather: SunEventWeatherSnapshot) {
-        guard let data = try? JSONEncoder().encode(sunEventWeather) else { return }
-        defaults?.set(data, forKey: AppGroupConstants.sharedSunEventWeatherKey)
+    static func write(daylight: DaylightSnapshot) {
+        guard let data = try? JSONEncoder().encode(daylight) else { return }
+        defaults?.set(data, forKey: AppGroupConstants.sharedDaylightKey)
         defaults?.synchronize()
     }
     
@@ -87,5 +96,22 @@ enum SharedModelContainer {
         defaults?.set(heartRate.bpm, forKey: AppGroupConstants.sharedHeartRateBPMKey)
         defaults?.set(heartRate.timestamp.timeIntervalSince1970, forKey: AppGroupConstants.sharedHeartRateTimestampKey)
         defaults?.synchronize()
+    }
+
+    private static func writeActivity(_ snapshot: ActivitySnapshot?, prefix: String) {
+        guard let snapshot else { return }
+
+        switch prefix {
+        case "today":
+            defaults?.set(snapshot.exerciseMinutes, forKey: AppGroupConstants.sharedActivityTodayExerciseMinutesKey)
+            defaults?.set(snapshot.activeEnergyCalories, forKey: AppGroupConstants.sharedActivityTodayActiveEnergyKey)
+            defaults?.set(snapshot.sleepMinutes, forKey: AppGroupConstants.sharedActivityTodaySleepMinutesKey)
+        case "weekly":
+            defaults?.set(snapshot.exerciseMinutes, forKey: AppGroupConstants.sharedActivityWeeklyExerciseMinutesKey)
+            defaults?.set(snapshot.activeEnergyCalories, forKey: AppGroupConstants.sharedActivityWeeklyActiveEnergyKey)
+            defaults?.set(snapshot.sleepMinutes, forKey: AppGroupConstants.sharedActivityWeeklySleepMinutesKey)
+        default:
+            break
+        }
     }
 }

@@ -6,8 +6,8 @@ import WeatherKit
 // MARK: - Provider
 
 @MainActor
-final class WeatherDashboardProvider {
-    static let shared = WeatherDashboardProvider()
+final class WeatherProvider {
+    static let shared = WeatherProvider()
 
     private let weatherService = WeatherService.shared
     private let locationProvider: any LocationProviding
@@ -22,8 +22,8 @@ final class WeatherDashboardProvider {
 
     // MARK: - Snapshots
 
-    func dashboardSnapshot() async -> DailyDashboardSnapshot {
-        guard let bundle = await fetchWeatherBundle(context: "dashboardSnapshot") else {
+    func todaySnapshot() async -> TodaySnapshot {
+        guard let bundle = await fetchWeatherBundle(context: "todaySnapshot") else {
             return .placeholder
         }
 
@@ -31,7 +31,7 @@ final class WeatherDashboardProvider {
         let today = bundle.weather.dailyForecast.forecast.first
         let condition = conditionInfo(for: current.condition, isDaytime: current.isDaylight)
 
-        return DailyDashboardSnapshot(
+        return TodaySnapshot(
             date: .now,
             temperature: Int(current.temperature.converted(to: .celsius).value.rounded()),
             high: Int((today?.highTemperature ?? current.temperature).converted(to: .celsius).value.rounded()),
@@ -41,22 +41,22 @@ final class WeatherDashboardProvider {
         )
     }
 
-    func portalSnapshot() async -> PortalWidgetSnapshot {
+    func portalSnapshot() async -> PortalSnapshot {
         guard let bundle = await fetchWeatherBundle(context: "portalSnapshot") else {
             return .placeholder
         }
 
         let placeName = (try? await locationProvider.cityName(for: bundle.location)) ?? "Kuta"
 
-        return PortalWidgetSnapshot(
+        return PortalSnapshot(
             date: .now,
             temperature: Int(bundle.weather.currentWeather.temperature.converted(to: .celsius).value.rounded()),
             placeName: placeName
         )
     }
 
-    func sunEventWeatherSnapshot() async -> SunEventWeatherSnapshot {
-        guard let bundle = await fetchWeatherBundle(context: "sunEventWeatherSnapshot") else {
+    func daylightSnapshot() async -> DaylightSnapshot {
+        guard let bundle = await fetchWeatherBundle(context: "daylightSnapshot") else {
             return .placeholder
         }
 
@@ -86,7 +86,7 @@ final class WeatherDashboardProvider {
             sunEventTime = "--:--"
         }
 
-        return SunEventWeatherSnapshot(
+        return DaylightSnapshot(
             temperature: Int(current.temperature.converted(to: .celsius).value.rounded()),
             high: Int((today?.highTemperature ?? current.temperature).converted(to: .celsius).value.rounded()),
             low: Int((today?.lowTemperature ?? current.temperature).converted(to: .celsius).value.rounded()),
@@ -96,8 +96,8 @@ final class WeatherDashboardProvider {
         )
     }
 
-    func classicWeatherSnapshot() async -> ClassicWeatherSnapshot {
-        guard let bundle = await fetchWeatherBundle(context: "classicWeatherSnapshot") else {
+    func weatherSnapshot() async -> WeatherSnapshot {
+        guard let bundle = await fetchWeatherBundle(context: "weatherSnapshot") else {
             return .placeholder
         }
 
@@ -106,7 +106,7 @@ final class WeatherDashboardProvider {
         let today = bundle.weather.dailyForecast.forecast.first
         let info = conditionInfo(for: current.condition, isDaytime: current.isDaylight)
 
-        return ClassicWeatherSnapshot(
+        return WeatherSnapshot(
             temperature: Int(current.temperature.converted(to: .celsius).value.rounded()),
             high: Int((today?.highTemperature ?? current.temperature).converted(to: .celsius).value.rounded()),
             low: Int((today?.lowTemperature ?? current.temperature).converted(to: .celsius).value.rounded()),

@@ -1,5 +1,5 @@
 //
-//  ClassicWeatherWidget.swift
+//  WeatherWidget.swift
 //  Abstrakt
 //
 //  Created by Daffa Yuranizar Arrifi on 01/07/26.
@@ -10,7 +10,7 @@ import WidgetKit
 
 // MARK: - Render Snapshot
 
-struct ClassicWeatherSnapshot: Codable, Hashable {
+struct WeatherSnapshot: Codable, Hashable {
     let temperature: Int
     let high: Int
     let low: Int
@@ -19,7 +19,7 @@ struct ClassicWeatherSnapshot: Codable, Hashable {
     let locationName: String    // city / kabupaten from reverse geocoding
 
     private var usesFahrenheit: Bool {
-        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.default.abstrakt")?
+        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.daffa.abstrakt")?
             .string(forKey: "settings.temperatureUnit") == "fahrenheit"
     }
 
@@ -36,8 +36,8 @@ struct ClassicWeatherSnapshot: Codable, Hashable {
 
 // MARK: - Placeholder
 
-extension ClassicWeatherSnapshot {
-    static let placeholder = ClassicWeatherSnapshot(
+extension WeatherSnapshot {
+    static let placeholder = WeatherSnapshot(
         temperature: 25,
         high: 30,
         low: 20,
@@ -49,8 +49,8 @@ extension ClassicWeatherSnapshot {
 
 // MARK: - Widget
 
-struct ClassicWeatherWidget: View {
-    let snapshot: ClassicWeatherSnapshot
+struct WeatherWidget: View {
+    let snapshot: WeatherSnapshot
     let fontTheme: AbstraktWidgetFontTheme
     var clipsToWidgetShape = true
 
@@ -63,7 +63,7 @@ struct ClassicWeatherWidget: View {
     @Environment(\.colorScheme) private var colorScheme
 
     init(
-        snapshot: ClassicWeatherSnapshot = .placeholder,
+        snapshot: WeatherSnapshot = .placeholder,
         fontTheme: AbstraktWidgetFontTheme = .selectedAppTheme,
         clipsToWidgetShape: Bool = true,
         iconTrim: CGFloat = 1.5
@@ -153,11 +153,11 @@ struct ClassicWeatherWidget: View {
 
 // MARK: - Preview
 
-#Preview("ClassicWeatherWidget — Light") {
+#Preview("Weather — Light") {
     ZStack {
         Color.black.ignoresSafeArea()
-        ClassicWeatherWidget(
-            snapshot: ClassicWeatherSnapshot(
+        WeatherWidget(
+            snapshot: WeatherSnapshot(
                 temperature: 27,
                 high: 31,
                 low: 21,
@@ -170,11 +170,11 @@ struct ClassicWeatherWidget: View {
     }
 }
 
-#Preview("ClassicWeatherWidget — Dark") {
+#Preview("Weather — Dark") {
     ZStack {
         Color.white.ignoresSafeArea()
-        ClassicWeatherWidget(
-            snapshot: ClassicWeatherSnapshot(
+        WeatherWidget(
+            snapshot: WeatherSnapshot(
                 temperature: 18,
                 high: 22,
                 low: 14,
@@ -189,12 +189,12 @@ struct ClassicWeatherWidget: View {
 }
 
 
-#Preview("ClassicWeatherWidget — Fusion Pixel") {
+#Preview("Weather — Fusion Pixel") {
     ZStack {
         Color.black.ignoresSafeArea()
 
-        ClassicWeatherWidget(
-            snapshot: ClassicWeatherSnapshot(
+        WeatherWidget(
+            snapshot: WeatherSnapshot(
                 temperature: 23,
                 high: 31,
                 low: 21,

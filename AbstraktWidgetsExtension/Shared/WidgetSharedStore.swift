@@ -20,6 +20,8 @@ enum WidgetSharedStore {
     private static let distanceUnitKey = "settings.distanceUnit"
     private static let weatherConditionLabelKey =
         "shared.weather.conditionLabel"
+    private static let activityModeKey = "health.metrics.mode"
+    private static let eventModeKey = "calendar.event.mode"
 
     static var appFontTheme: AbstraktWidgetFontTheme {
         AbstraktWidgetFontTheme.from(
@@ -47,6 +49,19 @@ enum WidgetSharedStore {
 
     static var calendarDetail: String {
         defaults?.string(forKey: "shared.calendar.detail") ?? "No events today"
+    }
+
+    static var eventMode: EventDisplayMode {
+        EventDisplayMode.from(id: defaults?.string(forKey: eventModeKey))
+    }
+
+    static var eventSnapshot: EventsSnapshot {
+        guard let data = defaults?.data(forKey: "shared.calendar.events"),
+              let snapshot = try? JSONDecoder().decode(EventsSnapshot.self, from: data) else {
+            return EventsSnapshot(date: .now, accessState: .empty)
+        }
+
+        return snapshot
     }
 
     static var batteryLevel: Int {
@@ -96,6 +111,11 @@ enum WidgetSharedStore {
         default:
             "kilometers"
         }
+    }
+
+    static var activity: ActivitySnapshot {
+        let mode = ActivityMode.from(id: defaults?.string(forKey: activityModeKey))
+        return activity(mode: mode)
     }
 
     static var weatherTemperature: Int {
@@ -157,10 +177,10 @@ enum WidgetSharedStore {
         )
     }
 
-    static var classicWeather: ClassicWeatherSnapshot {
-        guard let data = defaults?.data(forKey: "shared.classic.weather"),
+    static var weather: WeatherSnapshot {
+        guard let data = defaults?.data(forKey: "shared.weather"),
             let snapshot = try? JSONDecoder().decode(
-                ClassicWeatherSnapshot.self,
+                WeatherSnapshot.self,
                 from: data
             )
         else {
@@ -169,10 +189,10 @@ enum WidgetSharedStore {
         return snapshot
     }
 
-    static var sunEventWeather: SunEventWeatherSnapshot {
-        guard let data = defaults?.data(forKey: "shared.sunevent.weather"),
+    static var daylight: DaylightSnapshot {
+        guard let data = defaults?.data(forKey: "shared.daylight"),
             let snapshot = try? JSONDecoder().decode(
-                SunEventWeatherSnapshot.self,
+                DaylightSnapshot.self,
                 from: data
             )
         else {
@@ -229,68 +249,111 @@ enum WidgetSharedStore {
         }
     }
 
+    private static func activity(mode: ActivityMode) -> ActivitySnapshot {
+        switch mode {
+        case .today:
+            ActivitySnapshot(
+                mode: .today,
+                exerciseMinutes: intValue(forKey: "shared.activity.today.exerciseMinutes"),
+                activeEnergyCalories: intValue(forKey: "shared.activity.today.activeEnergy"),
+                sleepMinutes: intValue(forKey: "shared.activity.today.sleepMinutes")
+            )
+        case .weekly:
+            ActivitySnapshot(
+                mode: .weekly,
+                exerciseMinutes: intValue(forKey: "shared.activity.weekly.exerciseMinutes"),
+                activeEnergyCalories: intValue(forKey: "shared.activity.weekly.activeEnergy"),
+                sleepMinutes: intValue(forKey: "shared.activity.weekly.sleepMinutes")
+            )
+        }
+    }
+
+    private static func intValue(forKey key: String, fallback: Int = 0) -> Int {
+        switch defaults?.object(forKey: key) {
+        case let value as Int:
+            value
+        case let value as NSNumber:
+            value.intValue
+        default:
+            fallback
+        }
+    }
+
     private static let fallbackSavedPresets = [
         SavedWidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0001")
                 ?? UUID(),
-            widgetID: "battery-bars-small",
-            name: "Battery Bars | Classic",
+            widgetID: "battery",
+            name: "Battery",
             size: "small",
             appearanceMode: "system"
         ),
         SavedWidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0002")
                 ?? UUID(),
-            widgetID: "step-health-small",
-            name: "Step Health | Minimalism",
+            widgetID: "steps",
+            name: "Steps",
             size: "small",
             appearanceMode: "system"
         ),
         SavedWidgetPreset(
-            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0004")
-                ?? UUID(),
-            widgetID: "portal-widget-small",
-            name: "Portal Widget | Apps",
+            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0009") ?? UUID(),
+            widgetID: "activity",
+            name: "Activity",
+            size: "small",
+            appearanceMode: "system"
+        ),
+        SavedWidgetPreset(
+            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0010") ?? UUID(),
+            widgetID: "events",
+            name: "Events",
+            size: "small",
+            appearanceMode: "system"
+        ),
+        SavedWidgetPreset(
+            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0004") ?? UUID(),
+            widgetID: "portal",
+            name: "Portal",
             size: "small",
             appearanceMode: "system"
         ),
         SavedWidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0003")
                 ?? UUID(),
-            widgetID: "daily-dashboard-medium",
-            name: "Daily Dashboard | Portal",
+            widgetID: "today",
+            name: "Today",
             size: "medium",
             appearanceMode: "system"
         ),
         SavedWidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0005")
                 ?? UUID(),
-            widgetID: "device-storage-small",
-            name: "Device Storage | Utility",
+            widgetID: "storage",
+            name: "Storage",
             size: "small",
             appearanceMode: "system"
         ),
         SavedWidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0006")
                 ?? UUID(),
-            widgetID: "classic-weather-small",
-            name: "Classic Weather | Classic",
+            widgetID: "weather",
+            name: "Weather",
             size: "small",
             appearanceMode: "system"
         ),
         SavedWidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0007")
                 ?? UUID(),
-            widgetID: "sun-event-weather-small",
-            name: "Sun Event Weather | Minimalism",
+            widgetID: "daylight",
+            name: "Daylight",
             size: "small",
             appearanceMode: "system"
         ),
         SavedWidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0008")
                 ?? UUID(),
-            widgetID: "heart-beat-small",
-            name: "Heart Beat | Health",
+            widgetID: "heart-rate",
+            name: "Heart Rate",
             size: "small",
             appearanceMode: "system"
         ),

@@ -351,6 +351,8 @@ private struct WidgetPreviewSheet: View {
     let item: WidgetCatalogItem
     @AppStorage(AppGroupConstants.portalSelectedAppsKey, store: settingsStore) private var portalSelectedAppsValue = PortalApp.storageValue(for: PortalApp.defaultSelection)
     @AppStorage(AppGroupConstants.portalIconClipStyleKey, store: settingsStore) private var portalIconClipStyleID = PortalIconClipStyle.default.id
+    @AppStorage(AppGroupConstants.activityModeKey, store: settingsStore) private var activityModeID = ActivityMode.today.id
+    @AppStorage(AppGroupConstants.eventModeKey, store: settingsStore) private var eventModeID = EventDisplayMode.upcoming.id
     @State private var showsAppsPicker = false
 
     private var portalSelectedApps: [PortalApp] {
@@ -373,6 +375,26 @@ private struct WidgetPreviewSheet: View {
         }
     }
 
+    private var activityMode: ActivityMode {
+        get {
+            ActivityMode.from(id: activityModeID)
+        }
+        nonmutating set {
+            activityModeID = newValue.id
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+    }
+
+    private var eventMode: EventDisplayMode {
+        get {
+            EventDisplayMode.from(id: eventModeID)
+        }
+        nonmutating set {
+            eventModeID = newValue.id
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+    }
+
     private var portalSelectedAppsBinding: Binding<[PortalApp]> {
         Binding {
             portalSelectedApps
@@ -386,6 +408,22 @@ private struct WidgetPreviewSheet: View {
             portalIconClipStyle
         } set: { newValue in
             portalIconClipStyle = newValue
+        }
+    }
+
+    private var activityModeBinding: Binding<ActivityMode> {
+        Binding {
+            activityMode
+        } set: { newValue in
+            activityMode = newValue
+        }
+    }
+
+    private var eventModeBinding: Binding<EventDisplayMode> {
+        Binding {
+            eventMode
+        } set: { newValue in
+            eventMode = newValue
         }
     }
 
@@ -415,8 +453,10 @@ private struct WidgetPreviewSheet: View {
                     VStack(spacing: 20) {
                         WidgetPreview(
                             item: item,
-                            portalSelectedAppsOverride: item.id == "portal-widget-small" ? portalSelectedApps : nil,
-                            portalIconClipStyleOverride: item.id == "portal-widget-small" ? portalIconClipStyle : nil
+                            portalSelectedAppsOverride: item.id == "portal" ? portalSelectedApps : nil,
+                            portalIconClipStyleOverride: item.id == "portal" ? portalIconClipStyle : nil,
+                            activityModeOverride: item.id == "activity" ? activityMode : nil,
+                            eventModeOverride: item.id == "events" ? eventMode : nil
                         )
                             .id(previewIdentity)
                             .frame(width: previewSize.width, height: previewSize.height)
@@ -434,12 +474,28 @@ private struct WidgetPreviewSheet: View {
                             .minimumScaleFactor(0.72)
                             .frame(maxWidth: .infinity, alignment: .center)
 
-                        if item.id == "portal-widget-small" {
-                            PortalWidgetCustomizationControls(
-                                selectedApps: portalSelectedAppsBinding,
-                                clipStyle: portalIconClipStyleBinding
-                            ) {
-                                showsAppsPicker = true
+                        if item.id == "portal" {
+                            WidgetCustomizationSection(title: "Application") {
+                                PortalCustomizationControls(
+                                    selectedApps: portalSelectedAppsBinding,
+                                    clipStyle: portalIconClipStyleBinding
+                                ) {
+                                    showsAppsPicker = true
+                                }
+                            }
+                            .padding(.top, 10)
+                        }
+
+                        if item.id == "activity" {
+                            WidgetCustomizationSection(title: "Data Range") {
+                                ActivityCustomizationControls(mode: activityModeBinding)
+                            }
+                                .padding(.top, 10)
+                        }
+
+                        if item.id == "events" {
+                            WidgetCustomizationSection(title: "Event Priority") {
+                                EventsCustomizationControls(mode: eventModeBinding)
                             }
                             .padding(.top, 10)
                         }
@@ -464,17 +520,44 @@ private struct WidgetPreviewSheet: View {
     }
 
     private var previewIdentity: String {
-        guard item.id == "portal-widget-small" else {
+        if item.id == "portal" {
+            return "\(item.id)-\(portalSelectedAppsValue)-\(portalIconClipStyleID)"
+        }
+
+        guard item.id == "activity" else {
+            if item.id == "events" {
+                return "\(item.id)-\(eventModeID)"
+            }
+
             return item.id
         }
 
-        return "\(item.id)-\(portalSelectedAppsValue)-\(portalIconClipStyleID)"
+        return "\(item.id)-\(activityModeID)"
+    }
+}
+
+// MARK: - Widget Customization Section
+
+private struct WidgetCustomizationSection<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            Text(title)
+                .font(AppFonts.font(.heading4))
+                .foregroundStyle(AppColors.primaryText)
+                .padding(.horizontal, 4)
+
+            content
+        }
+        .frame(maxWidth: 340, alignment: .leading)
     }
 }
 
 // MARK: - Portal Customization
 
-private struct PortalWidgetCustomizationControls: View {
+private struct PortalCustomizationControls: View {
     @Binding var selectedApps: [PortalApp]
     @Binding var clipStyle: PortalIconClipStyle
     let openAppsPicker: () -> Void
@@ -531,6 +614,96 @@ private struct PortalClipStyleMenu: View {
                 .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Activity Customization
+
+private struct ActivityCustomizationControls: View {
+    @Binding var mode: ActivityMode
+
+    var body: some View {
+        GeometryReader { proxy in
+            let options = ActivityMode.allCases
+            let selectedIndex = options.firstIndex(of: mode) ?? 0
+            let innerPadding: CGFloat = 5
+            let segmentWidth = max(0, (proxy.size.width - (innerPadding * 2)) / CGFloat(options.count))
+
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(AppColors.card)
+                    .frame(width: segmentWidth, height: 48)
+                    .offset(x: innerPadding + (CGFloat(selectedIndex) * segmentWidth))
+                    .animation(.snappy(duration: 0.24, extraBounce: 0), value: mode)
+
+                HStack(spacing: 0) {
+                    ForEach(options) { option in
+                        Button {
+                            mode = option
+                        } label: {
+                            Label(option.title, systemImage: option == .today ? "sun.max.fill" : "calendar.badge.clock")
+                                .font(AppFonts.font(.heading3))
+                                .foregroundStyle(AppColors.primaryText)
+                                .labelStyle(.titleAndIcon)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 48)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(innerPadding)
+            }
+            .background(AppColors.cardSoft)
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        }
+        .frame(maxWidth: 340)
+        .frame(height: 58)
+    }
+}
+
+// MARK: - Events Customization
+
+private struct EventsCustomizationControls: View {
+    @Binding var mode: EventDisplayMode
+
+    var body: some View {
+        GeometryReader { proxy in
+            let options = EventDisplayMode.allCases
+            let selectedIndex = options.firstIndex(of: mode) ?? 0
+            let innerPadding: CGFloat = 5
+            let segmentWidth = max(0, (proxy.size.width - (innerPadding * 2)) / CGFloat(options.count))
+
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(AppColors.card)
+                    .frame(width: segmentWidth, height: 48)
+                    .offset(x: innerPadding + (CGFloat(selectedIndex) * segmentWidth))
+                    .animation(.snappy(duration: 0.24, extraBounce: 0), value: mode)
+
+                HStack(spacing: 0) {
+                    ForEach(options) { option in
+                        Button {
+                            mode = option
+                        } label: {
+                            Label(option.title, systemImage: option == .upcoming ? "calendar.badge.clock" : "calendar.badge.exclamationmark")
+                                .font(AppFonts.font(.heading3))
+                                .foregroundStyle(AppColors.primaryText)
+                                .labelStyle(.titleAndIcon)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 48)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(innerPadding)
+            }
+            .background(AppColors.cardSoft)
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        }
+        .frame(maxWidth: 340)
+        .frame(height: 58)
     }
 }
 

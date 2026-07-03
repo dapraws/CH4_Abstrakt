@@ -3,7 +3,7 @@ import WidgetKit
 
 // MARK: - Render Snapshot
 
-struct DailyDashboardSnapshot: Codable, Hashable {
+struct TodaySnapshot: Codable, Hashable {
     let date: Date
     let temperature: Int
     let high: Int
@@ -12,7 +12,7 @@ struct DailyDashboardSnapshot: Codable, Hashable {
     let conditionLabel: String
 
     private var usesFahrenheit: Bool {
-        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.msaf.abstrakt")?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
+        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.daffa.abstrakt")?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
     }
 
     var displayTemperature: Int {
@@ -82,17 +82,17 @@ struct DailyDashboardSnapshot: Codable, Hashable {
 
 // MARK: - Widget
 
-struct DailyDashboardWidget: View {
+struct TodayWidget: View {
     private static let widgetCornerRadius: CGFloat = 30
 
-    let snapshot: DailyDashboardSnapshot
+    let snapshot: TodaySnapshot
     let fontTheme: AbstraktWidgetFontTheme
     var clipsToWidgetShape = true
 
     @Environment(\.colorScheme) private var colorScheme
 
     init(
-        snapshot: DailyDashboardSnapshot = .placeholder,
+        snapshot: TodaySnapshot = .placeholder,
         fontTheme: AbstraktWidgetFontTheme = .selectedAppTheme,
         clipsToWidgetShape: Bool = true
     ) {
@@ -106,7 +106,7 @@ struct DailyDashboardWidget: View {
     var body: some View {
         #if WIDGET_EXTENSION
         GeometryReader { proxy in
-            let metrics = DailyDashboardMetrics(size: proxy.size)
+            let metrics = TodayMetrics(size: proxy.size)
             widgetContent(metrics: metrics)
         }
         .containerBackground(palette.background, for: .widget)
@@ -114,7 +114,7 @@ struct DailyDashboardWidget: View {
         ZStack {
             palette.background
             GeometryReader { proxy in
-                let metrics = DailyDashboardMetrics(size: proxy.size)
+                let metrics = TodayMetrics(size: proxy.size)
                 widgetContent(metrics: metrics)
             }
         }
@@ -130,7 +130,7 @@ struct DailyDashboardWidget: View {
 
     // MARK: Content
 
-    private func widgetContent(metrics: DailyDashboardMetrics) -> some View {
+    private func widgetContent(metrics: TodayMetrics) -> some View {
         HStack(spacing: metrics.spacing) {
             VStack(spacing: metrics.spacing) {
                 timeCard(metrics: metrics)
@@ -147,7 +147,7 @@ struct DailyDashboardWidget: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private func timeCard(metrics: DailyDashboardMetrics) -> some View {
+    private func timeCard(metrics: TodayMetrics) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: metrics.cardCornerRadius, style: .continuous)
                 .fill(palette.cardBackground)
@@ -172,10 +172,11 @@ struct DailyDashboardWidget: View {
         }
     }
 
-    private func conditionHeader(metrics: DailyDashboardMetrics) -> some View {
+    private func conditionHeader(metrics: TodayMetrics) -> some View {
         HStack(spacing: 5) {
             Image(systemName: snapshot.conditionSystemImageName)
                 .font(.system(size: metrics.conditionIconSize, weight: .semibold))
+                .foregroundStyle(palette.foreground.opacity(0.32))
                 .symbolRenderingMode(.hierarchical)
                 .frame(width: metrics.conditionIconSize, height: metrics.conditionIconSize)
 
@@ -189,7 +190,7 @@ struct DailyDashboardWidget: View {
         .frame(height: metrics.conditionHeaderHeight)
     }
 
-    private func weatherCard(metrics: DailyDashboardMetrics) -> some View {
+    private func weatherCard(metrics: TodayMetrics) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: metrics.cardCornerRadius, style: .continuous)
                 .fill(palette.cardBackground)
@@ -222,7 +223,7 @@ struct DailyDashboardWidget: View {
         .frame(height: metrics.weatherHeight)
     }
 
-    private func calendarCard(metrics: DailyDashboardMetrics) -> some View {
+    private func calendarCard(metrics: TodayMetrics) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: metrics.cardCornerRadius, style: .continuous)
                 .fill(palette.cardBackground)
@@ -294,7 +295,7 @@ struct DailyDashboardWidget: View {
 
 // MARK: - Layout Metrics
 
-private struct DailyDashboardMetrics {
+private struct TodayMetrics {
     let size: CGSize
 
     var outerPadding: CGFloat {
@@ -384,8 +385,8 @@ private struct DailyDashboardMetrics {
 
 // MARK: - Preview Data
 
-extension DailyDashboardSnapshot {
-    static let placeholder = DailyDashboardSnapshot(
+extension TodaySnapshot {
+    static let placeholder = TodaySnapshot(
         date: .now,
         temperature: 25,
         high: 30,
@@ -395,10 +396,10 @@ extension DailyDashboardSnapshot {
     )
 }
 
-#Preview("Daily Dashboard") {
-    DailyDashboardWidget(
-        snapshot: DailyDashboardSnapshot(
-            date: .dailyDashboardPreviewDate,
+#Preview("Today") {
+    TodayWidget(
+        snapshot: TodaySnapshot(
+            date: .todayPreviewDate,
             temperature: 25,
             high: 30,
             low: 24,
@@ -410,7 +411,7 @@ extension DailyDashboardSnapshot {
 }
 
 private extension Date {
-    static let dailyDashboardPreviewDate = Calendar.current.date(
+    static let todayPreviewDate = Calendar.current.date(
         from: DateComponents(year: 2026, month: 6, day: 29, hour: 9, minute: 41)
     ) ?? .now
 }

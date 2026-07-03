@@ -2,83 +2,97 @@ import Foundation
 
 nonisolated enum WidgetCatalog {
     private static let allItemOrder: [String] = [
-        "battery-bars-small",
-        "step-health-small",
-        "portal-widget-small",
-        "device-storage-small",
-        "daily-dashboard-medium",
-        "classic-weather-small",
-        "sun-event-weather-small",
-        "heart-beat-small"
+        "battery",
+        "steps",
+        "activity",
+        "events",
+        "portal",
+        "storage",
+        "today",
+        "weather",
+        "daylight",
+        "heart-rate"
     ]
 
     private static let chipOrder: [WidgetCategory] = [
         .all,
-        .classic,
-        .minimalism,
         .portal,
-        .health,
-        .weather,
-        .calendar,
-        .clock,
-        .utility,
+        .healthKit,
+        .weatherKit,
+        .eventKit,
+        .foundation,
+        .uiKit,
     ]
 
     static let items: [WidgetCatalogItem] = [
         WidgetCatalogItem(
-            id: "battery-bars-small",
-            name: "Battery Bars",
+            id: "battery",
+            name: "Battery",
             size: .small,
-            categories: [.utility, .classic],
+            categories: [.uiKit],
             isPro: false
         ),
         WidgetCatalogItem(
-            id: "step-health-small",
-            name: "Step Health",
+            id: "steps",
+            name: "Steps",
             size: .small,
-            categories: [.health, .minimalism],
+            categories: [.healthKit],
             isPro: false
         ),
         WidgetCatalogItem(
-            id: "portal-widget-small",
-            name: "Portal Widget",
+            id: "activity",
+            name: "Activity",
             size: .small,
-            categories: [.portal, .weather, .calendar, .utility],
+            categories: [.healthKit],
             isPro: false
         ),
         WidgetCatalogItem(
-            id: "daily-dashboard-medium",
-            name: "Daily Dashboard",
+            id: "events",
+            name: "Events",
+            size: .small,
+            categories: [.eventKit],
+            isPro: false
+        ),
+        WidgetCatalogItem(
+            id: "portal",
+            name: "Portal",
+            size: .small,
+            categories: [.portal],
+            isPro: false
+        ),
+        WidgetCatalogItem(
+            id: "today",
+            name: "Today",
             size: .medium,
-            categories: [.portal, .weather, .calendar, .clock],
+            categories: [.weatherKit, .eventKit, .foundation],
             isPro: false
         ),
         WidgetCatalogItem(
-            id: "device-storage-small",
-            name: "Device Storage",
+            id: "storage",
+            name: "Storage",
             size: .small,
-            categories: [.utility, .classic],
+            categories: [.foundation],
             isPro: false
         ),
         WidgetCatalogItem(
-            id: "sun-event-weather-small",
-            name: "Sun Event",
+            id: "daylight",
+            name: "Daylight",
             size: .small,
-            categories: [.weather, .minimalism],
+            categories: [.weatherKit],
             isPro: false
         ),
         WidgetCatalogItem(
-            id: "classic-weather-small",
-            name: "Classic Weather",
+            id: "weather",
+            name: "Weather",
             size: .small,
-            categories: [.weather, .classic],
+            categories: [.weatherKit],
             isPro: false
         ),
         WidgetCatalogItem(
-            id: "heart-beat-small",
-            name: "Heart Beat",
+            id: "heart-rate",
+            name: "Heart Rate",
             size: .small,
-            categories: [.health, .minimalism],
+            categories: [.healthKit],
             isPro: false
         ),
     ]
@@ -104,41 +118,40 @@ nonisolated enum WidgetCatalog {
 
     private static let galleryOrder: [WidgetCategory: [String]] = [
         .all: [
-            "battery-bars-small",
-            "step-health-small",
-            "portal-widget-small",
-            "device-storage-small",
-            "daily-dashboard-medium",
-            "sun-event-weather-small",
-            "classic-weather-small",
-            "heart-beat-small",
-            
-        ],
-        .classic: [
-            "battery-bars-small",
-            "device-storage-small",
-            "classic-weather-small"
+            "battery",
+            "steps",
+            "activity",
+            "events",
+            "portal",
+            "storage",
+            "today",
+            "daylight",
+            "weather",
+            "heart-rate",
         ],
         .portal: [
-            "portal-widget-small",
-            "daily-dashboard-medium",
+            "portal",
         ],
-        .health: [
-            "step-health-small",
-            "heart-beat-small"
+        .healthKit: [
+            "steps",
+            "activity",
+            "heart-rate"
         ],
-        .weather: [
-            "portal-widget-small",
-            "daily-dashboard-medium",
-            "sun-event-weather-small",
-            "classic-weather-small",
+        .weatherKit: [
+            "today",
+            "daylight",
+            "weather",
         ],
-        .calendar: [
-            "portal-widget-small",
-            "daily-dashboard-medium",
+        .eventKit: [
+            "events",
+            "today",
         ],
-        .clock: [
-            "daily-dashboard-medium",
+        .foundation: [
+            "today",
+            "storage",
+        ],
+        .uiKit: [
+            "battery",
         ],
     ]
 }

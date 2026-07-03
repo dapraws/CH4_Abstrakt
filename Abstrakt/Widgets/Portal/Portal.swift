@@ -7,13 +7,13 @@ import AppIntents
 
 // MARK: - Render Snapshot
 
-struct PortalWidgetSnapshot: Codable, Hashable {
+struct PortalSnapshot: Codable, Hashable {
     let date: Date
     let temperature: Int
     let placeName: String
     
     private var usesFahrenheit: Bool {
-        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.default.abstrakt")?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
+        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.daffa.abstrakt")?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
     }
     
     var displayTemperature: Int {
@@ -248,7 +248,7 @@ private extension Array where Element: Hashable {
 #if WIDGET_EXTENSION
 struct OpenPortalCalendarIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Calendar"
-    static var description = IntentDescription("Open Calendar from the Portal widget.")
+    static var description = IntentDescription("Open Calendar from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.calendar.launchURL))
@@ -257,7 +257,7 @@ struct OpenPortalCalendarIntent: AppIntent {
 
 struct OpenPortalCallsIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Phone"
-    static var description = IntentDescription("Open Phone from the Portal widget.")
+    static var description = IntentDescription("Open Phone from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.calls.launchURL))
@@ -266,7 +266,7 @@ struct OpenPortalCallsIntent: AppIntent {
 
 struct OpenPortalActivityIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Activity"
-    static var description = IntentDescription("Open Activity from the Portal widget.")
+    static var description = IntentDescription("Open Activity from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.activity.launchURL))
@@ -275,7 +275,7 @@ struct OpenPortalActivityIntent: AppIntent {
 
 struct OpenPortalBooksIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Books"
-    static var description = IntentDescription("Open Books from the Portal widget.")
+    static var description = IntentDescription("Open Books from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.books.launchURL))
@@ -284,7 +284,7 @@ struct OpenPortalBooksIntent: AppIntent {
 
 struct OpenPortalFaceTimeIntent: AppIntent {
     static var title: LocalizedStringResource = "Open FaceTime"
-    static var description = IntentDescription("Open FaceTime from the Portal widget.")
+    static var description = IntentDescription("Open FaceTime from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.faceTime.launchURL))
@@ -293,7 +293,7 @@ struct OpenPortalFaceTimeIntent: AppIntent {
 
 struct OpenPortalFindMyIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Find My"
-    static var description = IntentDescription("Open Find My from the Portal widget.")
+    static var description = IntentDescription("Open Find My from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.findMy.launchURL))
@@ -302,7 +302,7 @@ struct OpenPortalFindMyIntent: AppIntent {
 
 struct OpenPortalMailIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Mail"
-    static var description = IntentDescription("Open Mail from the Portal widget.")
+    static var description = IntentDescription("Open Mail from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.mail.launchURL))
@@ -311,7 +311,7 @@ struct OpenPortalMailIntent: AppIntent {
 
 struct OpenPortalMessagesIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Messages"
-    static var description = IntentDescription("Open Messages from the Portal widget.")
+    static var description = IntentDescription("Open Messages from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.messages.launchURL))
@@ -320,7 +320,7 @@ struct OpenPortalMessagesIntent: AppIntent {
 
 struct OpenPortalMusicIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Music"
-    static var description = IntentDescription("Open Music from the Portal widget.")
+    static var description = IntentDescription("Open Music from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.music.launchURL))
@@ -329,7 +329,7 @@ struct OpenPortalMusicIntent: AppIntent {
 
 struct OpenPortalMapsIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Maps"
-    static var description = IntentDescription("Open Maps from the Portal widget.")
+    static var description = IntentDescription("Open Maps from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.maps.launchURL))
@@ -338,7 +338,7 @@ struct OpenPortalMapsIntent: AppIntent {
 
 struct OpenPortalPhotosIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Photos"
-    static var description = IntentDescription("Open Photos from the Portal widget.")
+    static var description = IntentDescription("Open Photos from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.photos.launchURL))
@@ -347,7 +347,7 @@ struct OpenPortalPhotosIntent: AppIntent {
 
 struct OpenPortalSafariIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Safari"
-    static var description = IntentDescription("Open Safari from the Portal widget.")
+    static var description = IntentDescription("Open Safari from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.safari.launchURL))
@@ -356,7 +356,7 @@ struct OpenPortalSafariIntent: AppIntent {
 
 struct OpenPortalShortcutsIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Shortcuts"
-    static var description = IntentDescription("Open Shortcuts from the Portal widget.")
+    static var description = IntentDescription("Open Shortcuts from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.shortcuts.launchURL))
@@ -365,7 +365,7 @@ struct OpenPortalShortcutsIntent: AppIntent {
 
 struct OpenPortalStoreIntent: AppIntent {
     static var title: LocalizedStringResource = "Open App Store"
-    static var description = IntentDescription("Open App Store from the Portal widget.")
+    static var description = IntentDescription("Open App Store from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.store.launchURL))
@@ -374,7 +374,7 @@ struct OpenPortalStoreIntent: AppIntent {
 
 struct OpenPortalTranslateIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Translate"
-    static var description = IntentDescription("Open Translate from the Portal widget.")
+    static var description = IntentDescription("Open Translate from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.translate.launchURL))
@@ -383,7 +383,7 @@ struct OpenPortalTranslateIntent: AppIntent {
 
 struct OpenPortalSettingsIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Settings"
-    static var description = IntentDescription("Open Settings from the Portal widget.")
+    static var description = IntentDescription("Open Settings from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.settings.launchURL))
@@ -393,10 +393,10 @@ struct OpenPortalSettingsIntent: AppIntent {
 
 // MARK: - Widget
 
-struct PortalWidget: View {
+struct Portal: View {
     private static let widgetCornerRadius: CGFloat = 30
     
-    let snapshot: PortalWidgetSnapshot
+    let snapshot: PortalSnapshot
     let fontTheme: AbstraktWidgetFontTheme
     let selectedApps: [PortalApp]
     let iconClipStyle: PortalIconClipStyle
@@ -406,7 +406,7 @@ struct PortalWidget: View {
     @Environment(\.colorScheme) private var colorScheme
     
     init(
-        snapshot: PortalWidgetSnapshot = .placeholder,
+        snapshot: PortalSnapshot = .placeholder,
         fontTheme: AbstraktWidgetFontTheme = .selectedAppTheme,
         selectedApps: [PortalApp] = PortalApp.defaultSelection,
         iconClipStyle: PortalIconClipStyle = .default,
@@ -424,7 +424,7 @@ struct PortalWidget: View {
     var body: some View {
         #if WIDGET_EXTENSION
         GeometryReader { proxy in
-            let metrics = PortalWidgetMetrics(size: proxy.size)
+            let metrics = PortalMetrics(size: proxy.size)
 
             VStack(alignment: .leading, spacing: metrics.verticalSpacing) {
                 header(metrics: metrics)
@@ -442,7 +442,7 @@ struct PortalWidget: View {
             palette.background
             
             GeometryReader { proxy in
-                let metrics = PortalWidgetMetrics(size: proxy.size)
+                let metrics = PortalMetrics(size: proxy.size)
                 
                 VStack(alignment: .leading, spacing: metrics.verticalSpacing) {
                     header(metrics: metrics)
@@ -465,7 +465,7 @@ struct PortalWidget: View {
         #endif
     }
     
-    private func header(metrics: PortalWidgetMetrics) -> some View {
+    private func header(metrics: PortalMetrics) -> some View {
         VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 5) {
                 Text("It's \(weekdayText),")
@@ -486,7 +486,7 @@ struct PortalWidget: View {
         .minimumScaleFactor(metrics.headerMinimumScale)
     }
     
-    private func appCluster(metrics: PortalWidgetMetrics) -> some View {
+    private func appCluster(metrics: PortalMetrics) -> some View {
         ZStack {
             ForEach(Array(displayApps.enumerated()), id: \.element.rawValue) { index, app in
                 portalIcon(app, metrics: metrics)
@@ -507,7 +507,7 @@ struct PortalWidget: View {
         return apps
     }
 
-    private func iconOffset(index: Int, metrics: PortalWidgetMetrics) -> CGSize {
+    private func iconOffset(index: Int, metrics: PortalMetrics) -> CGSize {
         let column = index % 3
         let row = index / 3
         let x: CGFloat
@@ -533,13 +533,13 @@ struct PortalWidget: View {
         return rotations[min(index, rotations.count - 1)]
     }
 
-    private func visualYAxisCorrection(index: Int, metrics: PortalWidgetMetrics) -> CGFloat {
+    private func visualYAxisCorrection(index: Int, metrics: PortalMetrics) -> CGFloat {
         let corrections: [CGFloat] = [0.105, 0, -0.055, -0.045, 0, 0.08]
         return metrics.iconSize * corrections[min(index, corrections.count - 1)]
     }
     
     @ViewBuilder
-    private func portalIcon(_ app: PortalApp, metrics: PortalWidgetMetrics) -> some View {
+    private func portalIcon(_ app: PortalApp, metrics: PortalMetrics) -> some View {
         let icon = Image(app.assetName)
             .resizable()
             .interpolation(.high)
@@ -654,7 +654,7 @@ struct PortalWidget: View {
 
 // MARK: - Layout Metrics
 
-private struct PortalWidgetMetrics {
+private struct PortalMetrics {
     let size: CGSize
     
     var horizontalPadding: CGFloat {
@@ -761,14 +761,14 @@ private func finite(_ value: CGFloat) -> CGFloat {
 
 // MARK: - Preview Data
 
-extension PortalWidgetSnapshot {
-    static let placeholder = PortalWidgetSnapshot(
+extension PortalSnapshot {
+    static let placeholder = PortalSnapshot(
         date: Calendar.current.date(from: DateComponents(year: 2026, month: 6, day: 26, hour: 9, minute: 41)) ?? .now,
         temperature: 16,
         placeName: "Kuta"
     )
 }
 
-#Preview("Portal Widget", traits: .fixedLayout(width: 170, height: 170)) {
-    PortalWidget()
+#Preview("Portal", traits: .fixedLayout(width: 170, height: 170)) {
+    Portal()
 }

@@ -13,7 +13,7 @@ struct WidgetCatalogItem: Identifiable, Codable, Hashable {
     }
 
     var primaryCategory: WidgetCategory {
-        categories.first(where: { $0.kind == .style }) ?? categories.first ?? .all
+        categories.first ?? .all
     }
 
     var featuredHeight: CGFloat {

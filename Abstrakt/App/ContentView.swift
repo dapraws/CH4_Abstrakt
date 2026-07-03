@@ -196,14 +196,14 @@ struct ContentView: View {
         SharedModelContainer.write(widgetPresets: WidgetPreset.seededLibrary)
         
         print("[refreshWidgetData] Fetching weather data...")
-        let dashboard = await WeatherDashboardProvider.shared.dashboardSnapshot()
-        SharedModelContainer.write(dashboard: dashboard)
-        let portal = await WeatherDashboardProvider.shared.portalSnapshot()
+        let today = await WeatherProvider.shared.todaySnapshot()
+        SharedModelContainer.write(today: today)
+        let portal = await WeatherProvider.shared.portalSnapshot()
         SharedModelContainer.write(portal: portal)
-        let classicWeather = await WeatherDashboardProvider.shared.classicWeatherSnapshot()
-        SharedModelContainer.write(classicWeather: classicWeather)
-        let sunEventWeather = await WeatherDashboardProvider.shared.sunEventWeatherSnapshot()
-        SharedModelContainer.write(sunEventWeather: sunEventWeather)
+        let weather = await WeatherProvider.shared.weatherSnapshot()
+        SharedModelContainer.write(weather: weather)
+        let daylight = await WeatherProvider.shared.daylightSnapshot()
+        SharedModelContainer.write(daylight: daylight)
         let heartRate = await HealthSummaryProvider.shared.latestHeartRate()
         SharedModelContainer.write(heartRate: heartRate)
         
@@ -236,7 +236,9 @@ struct ContentView: View {
     
     private func refreshHealthWidgetData() async {
         let health = await HealthSummaryProvider.shared.todaySnapshot()
+        let activity = await HealthSummaryProvider.shared.activitySnapshots()
         SharedModelContainer.write(health: health)
+        SharedModelContainer.write(activity: activity)
     }
 
 }

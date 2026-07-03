@@ -1,5 +1,5 @@
 //
-//  DeviceStorageWidget.swift
+//  StorageWidget.swift
 //  Abstrakt
 //
 //  Created by Muhammad Darrel Prawira on 30/06/26.
@@ -13,7 +13,7 @@ import UIKit
 
 // MARK: - Render Snapshot
 
-struct DeviceStorageRenderSnapshot: Codable, Hashable {
+struct StorageUsageSnapshot: Codable, Hashable {
     let totalBytes: Int64
     let availableBytes: Int64
 
@@ -68,7 +68,7 @@ struct DeviceStorageRenderSnapshot: Codable, Hashable {
 }
 
 #if !WIDGET_EXTENSION
-extension DeviceStorageRenderSnapshot {
+extension StorageUsageSnapshot {
     init(snapshot: StorageSnapshot) {
         self.init(
             totalBytes: snapshot.totalBytes,
@@ -109,15 +109,15 @@ struct StorageSegment: Codable, Hashable {
 
 // MARK: - Widget
 
-struct DeviceStorageWidget: View {
-    let snapshot: DeviceStorageRenderSnapshot
+struct StorageWidget: View {
+    let snapshot: StorageUsageSnapshot
     let fontTheme: AbstraktWidgetFontTheme
     var clipsToWidgetShape: Bool
 
     @Environment(\.colorScheme) private var colorScheme
 
     init(
-        snapshot: DeviceStorageRenderSnapshot,
+        snapshot: StorageUsageSnapshot,
         fontTheme: AbstraktWidgetFontTheme = .selectedAppTheme,
         clipsToWidgetShape: Bool = true
     ) {
@@ -133,7 +133,7 @@ struct DeviceStorageWidget: View {
         clipsToWidgetShape: Bool = true
     ) {
         self.init(
-            snapshot: DeviceStorageRenderSnapshot(snapshot: snapshot),
+            snapshot: StorageUsageSnapshot(snapshot: snapshot),
             fontTheme: fontTheme,
             clipsToWidgetShape: clipsToWidgetShape
         )
@@ -307,11 +307,11 @@ private struct DiagonalStripePattern: View {
 
 // MARK: - Preview
 
-#Preview("Device Storage") {
+#Preview("Storage") {
     ZStack{
         Rectangle().fill(Color.blue)
-        DeviceStorageWidget(
-            snapshot: DeviceStorageRenderSnapshot(
+        StorageWidget(
+            snapshot: StorageUsageSnapshot(
                 totalBytes: 256_060_514_304,
                 availableBytes: 233_390_000_000
             )

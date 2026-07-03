@@ -27,6 +27,6 @@ struct CategoryChip: View {
 #Preview {
     ZStack {
         AppColors.appBackground.ignoresSafeArea()
-        CategoryChip(category: .classic, isSelected: true)
+        CategoryChip(category: .healthKit, isSelected: true)
     }
 }

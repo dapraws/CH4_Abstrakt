@@ -18,12 +18,21 @@ enum AppGroupConstants {
     static let sharedClockDateKey = "shared.clock.date"
     static let sharedCalendarHeadlineKey = "shared.calendar.headline"
     static let sharedCalendarDetailKey = "shared.calendar.detail"
+    static let sharedEventsKey = "shared.calendar.events"
+    static let eventModeKey = "calendar.event.mode"
     static let sharedBatteryLevelKey = "shared.battery.level"
     static let sharedBatteryEstimatedHoursKey = "shared.battery.estimatedHours"
     static let sharedBatteryEstimatedMinutesKey = "shared.battery.estimatedMinutes"
     static let sharedBatteryIsChargingKey = "shared.battery.isCharging"
     static let sharedHealthStepsKey = "shared.health.steps"
     static let sharedHealthDistanceKilometersKey = "shared.health.distanceKilometers"
+    static let activityModeKey = "health.metrics.mode"
+    static let sharedActivityTodayExerciseMinutesKey = "shared.activity.today.exerciseMinutes"
+    static let sharedActivityTodayActiveEnergyKey = "shared.activity.today.activeEnergy"
+    static let sharedActivityTodaySleepMinutesKey = "shared.activity.today.sleepMinutes"
+    static let sharedActivityWeeklyExerciseMinutesKey = "shared.activity.weekly.exerciseMinutes"
+    static let sharedActivityWeeklyActiveEnergyKey = "shared.activity.weekly.activeEnergy"
+    static let sharedActivityWeeklySleepMinutesKey = "shared.activity.weekly.sleepMinutes"
     static let sharedWeatherTemperatureKey = "shared.weather.temperature"
     static let sharedWeatherHighKey = "shared.weather.high"
     static let sharedWeatherLowKey = "shared.weather.low"
@@ -34,8 +43,8 @@ enum AppGroupConstants {
     static let portalSelectedAppsKey = "portal.selectedApps"
     static let portalIconClipStyleKey = "portal.iconClipStyle"
     static let sharedWidgetPresetsKey = "shared.widget.presets"
-    static let sharedClassicWeatherKey = "shared.classic.weather"
-    static let sharedSunEventWeatherKey = "shared.sunevent.weather"
+    static let sharedWeatherKey = "shared.weather"
+    static let sharedDaylightKey = "shared.daylight"
     static let settingsAppFontThemeKey = "appFontTheme"
     static let settingsTemperatureUnitKey = "settings.temperatureUnit"
     static let settingsTemperatureDisplayKey = "settings.temperatureDisplay"
@@ -66,12 +75,21 @@ enum AppGroupConstants {
         sharedClockDateKey,
         sharedCalendarHeadlineKey,
         sharedCalendarDetailKey,
+        sharedEventsKey,
+        eventModeKey,
         sharedBatteryLevelKey,
         sharedBatteryEstimatedHoursKey,
         sharedBatteryEstimatedMinutesKey,
         sharedBatteryIsChargingKey,
         sharedHealthStepsKey,
         sharedHealthDistanceKilometersKey,
+        activityModeKey,
+        sharedActivityTodayExerciseMinutesKey,
+        sharedActivityTodayActiveEnergyKey,
+        sharedActivityTodaySleepMinutesKey,
+        sharedActivityWeeklyExerciseMinutesKey,
+        sharedActivityWeeklyActiveEnergyKey,
+        sharedActivityWeeklySleepMinutesKey,
         sharedWeatherTemperatureKey,
         sharedWeatherHighKey,
         sharedWeatherLowKey,
@@ -82,16 +100,14 @@ enum AppGroupConstants {
         portalSelectedAppsKey,
         portalIconClipStyleKey,
         sharedWidgetPresetsKey,
-        sharedClassicWeatherKey,
-        sharedSunEventWeatherKey,
+        sharedWeatherKey,
+        sharedDaylightKey,
         settingsAppFontThemeKey,
         settingsTemperatureUnitKey,
         settingsTemperatureDisplayKey,
         settingsDistanceUnitKey,
         sharedStorageTotalBytesKey,
         sharedStorageAvailableBytesKey,
-        sharedSunEventWeatherKey,
-        sharedClassicWeatherKey,
         sharedHeartRateBPMKey,
         sharedHeartRateTimestampKey
     ]

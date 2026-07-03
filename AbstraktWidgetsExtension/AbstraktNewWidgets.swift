@@ -9,17 +9,19 @@ struct SmallSolidWidgetEntry: TimelineEntry {
     let selectedWidgetID: String?
     let battery: BatteryWidgetEntry
     let health: StepWidgetEntry
-    let portal: PortalSmallWidgetEntry
+    let activity: ActivitySnapshot
+    let event: EventsSnapshot
+    let portal: PortalEntry
     let storage: StorageWidgetEntry
-    let classicWeather: ClassicWeatherSnapshot
-    let sunEventWeather: SunEventWeatherSnapshot
+    let weather: WeatherSnapshot
+    let daylight: DaylightSnapshot
     let heartRate: HeartRateWidgetEntry
 }
 
 struct MediumSolidWidgetEntry: TimelineEntry {
     let date: Date
     let selectedWidgetID: String?
-    let dashboard: DashboardWidgetEntry
+    let today: TodayWidgetEntry
 }
 
 struct LargeSolidWidgetEntry: TimelineEntry {
@@ -27,7 +29,7 @@ struct LargeSolidWidgetEntry: TimelineEntry {
     let selectedWidgetID: String?
     let battery: BatteryWidgetEntry
     let health: StepWidgetEntry
-    let dashboard: DashboardWidgetEntry
+    let today: TodayWidgetEntry
     let storage: StorageWidgetEntry
 }
 
@@ -45,7 +47,7 @@ struct StepWidgetEntry: TimelineEntry {
     let distanceUnitName: String
 }
 
-struct DashboardWidgetEntry: TimelineEntry {
+struct TodayWidgetEntry: TimelineEntry {
     let date: Date
     let temperature: Int
     let high: Int
@@ -54,7 +56,7 @@ struct DashboardWidgetEntry: TimelineEntry {
     let conditionLabel: String
 }
 
-struct PortalSmallWidgetEntry: TimelineEntry {
+struct PortalEntry: TimelineEntry {
     let date: Date
     let temperature: Int
     let placeName: String
@@ -203,7 +205,9 @@ private extension SmallSolidWidgetEntry {
                 distanceValue: WidgetSharedStore.healthDistanceValue,
                 distanceUnitName: WidgetSharedStore.healthDistanceUnitName
             ),
-            portal: PortalSmallWidgetEntry(
+            activity: WidgetSharedStore.activity,
+            event: WidgetSharedStore.eventSnapshot,
+            portal: PortalEntry(
                 date: .now,
                 temperature: WidgetSharedStore.portalWeatherTemperatureCelsius,
                 placeName: WidgetSharedStore.portalWeatherPlaceName
@@ -213,8 +217,8 @@ private extension SmallSolidWidgetEntry {
                 totalBytes: WidgetSharedStore.storageTotalBytes,
                 availableBytes: WidgetSharedStore.storageAvailableBytes
             ),
-            classicWeather: WidgetSharedStore.classicWeather,
-            sunEventWeather: WidgetSharedStore.sunEventWeather,
+            weather: WidgetSharedStore.weather,
+            daylight: WidgetSharedStore.daylight,
             heartRate: HeartRateWidgetEntry(
                 date: .now,
                 bpm: WidgetSharedStore.heartRateBPM,
@@ -230,7 +234,7 @@ private extension MediumSolidWidgetEntry {
         MediumSolidWidgetEntry(
             date: .now,
             selectedWidgetID: SolidWidgetSelection.widgetID(for: selectedWidgetName, size: "medium"),
-            dashboard: DashboardWidgetEntry(
+            today: TodayWidgetEntry(
                 date: .now,
                 temperature: WidgetSharedStore.weatherTemperatureCelsius,
                 high: WidgetSharedStore.weatherHighCelsius,
@@ -259,7 +263,7 @@ private extension LargeSolidWidgetEntry {
                 distanceValue: WidgetSharedStore.healthDistanceValue,
                 distanceUnitName: WidgetSharedStore.healthDistanceUnitName
             ),
-            dashboard: DashboardWidgetEntry(
+            today: TodayWidgetEntry(
                 date: .now,
                 temperature: WidgetSharedStore.weatherTemperatureCelsius,
                 high: WidgetSharedStore.weatherHighCelsius,
@@ -279,8 +283,8 @@ private extension LargeSolidWidgetEntry {
 // MARK: - Render Snapshot Mapping
 
 private extension BatteryWidgetEntry {
-    var renderSnapshot: BatteryBarsRenderSnapshot {
-        BatteryBarsRenderSnapshot(
+    var renderSnapshot: BatterySnapshotViewData {
+        BatterySnapshotViewData(
             level: level,
             estimatedMinutesRemaining: estimatedMinutesRemaining,
             isCharging: isCharging
@@ -289,8 +293,8 @@ private extension BatteryWidgetEntry {
 }
 
 private extension StepWidgetEntry {
-    var renderSnapshot: StepHealthRenderSnapshot {
-        StepHealthRenderSnapshot(
+    var renderSnapshot: StepsSnapshot {
+        StepsSnapshot(
             steps: steps,
             distanceValue: distanceValue,
             distanceUnitName: distanceUnitName
@@ -298,9 +302,9 @@ private extension StepWidgetEntry {
     }
 }
 
-private extension DashboardWidgetEntry {
-    var renderSnapshot: DailyDashboardSnapshot {
-        DailyDashboardSnapshot(
+private extension TodayWidgetEntry {
+    var renderSnapshot: TodaySnapshot {
+        TodaySnapshot(
             date: date,
             temperature: temperature,
             high: high,
@@ -311,9 +315,9 @@ private extension DashboardWidgetEntry {
     }
 }
 
-private extension PortalSmallWidgetEntry {
-    var renderSnapshot: PortalWidgetSnapshot {
-        PortalWidgetSnapshot(
+private extension PortalEntry {
+    var renderSnapshot: PortalSnapshot {
+        PortalSnapshot(
             date: date,
             temperature: temperature,
             placeName: placeName
@@ -322,8 +326,8 @@ private extension PortalSmallWidgetEntry {
 }
 
 private extension StorageWidgetEntry {
-    var renderSnapshot: DeviceStorageRenderSnapshot {
-        DeviceStorageRenderSnapshot(
+    var renderSnapshot: StorageUsageSnapshot {
+        StorageUsageSnapshot(
             totalBytes: totalBytes,
             availableBytes: availableBytes
         )
@@ -331,8 +335,8 @@ private extension StorageWidgetEntry {
 }
 
 private extension HeartRateWidgetEntry {
-    var renderSnapshot: HeartBeatRenderSnapshot {
-        HeartBeatRenderSnapshot(
+    var renderSnapshot: HeartRateRenderSnapshot {
+        HeartRateRenderSnapshot(
             bpm: bpm,
             timestamp: timestamp
         )
@@ -346,20 +350,33 @@ private struct SmallSolidWidgetView: View {
 
     var body: some View {
         switch entry.selectedWidgetID {
-        case "battery-bars-small":
-            BatteryBarsWidget(
+        case "battery":
+            BatteryWidget(
                 snapshot: entry.battery.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
-        case "step-health-small":
-            StepHealthWidget(
+        case "steps":
+            StepsWidget(
                 snapshot: entry.health.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
-        case "portal-widget-small":
-            PortalWidget(
+        case "activity":
+            ActivityWidget(
+                snapshot: entry.activity,
+                fontTheme: WidgetSharedStore.appFontTheme,
+                clipsToWidgetShape: false
+            )
+        case "events":
+            EventsWidget(
+                snapshot: entry.event,
+                mode: WidgetSharedStore.eventMode,
+                fontTheme: WidgetSharedStore.appFontTheme,
+                clipsToWidgetShape: false
+            )
+        case "portal":
+            Portal(
                 snapshot: entry.portal.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 selectedApps: WidgetSharedStore.portalSelectedApps,
@@ -367,26 +384,26 @@ private struct SmallSolidWidgetView: View {
                 usesInteractiveButtons: true,
                 clipsToWidgetShape: false
             )
-        case "device-storage-small":
-            DeviceStorageWidget(
+        case "storage":
+            StorageWidget(
                 snapshot: entry.storage.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
-        case "classic-weather-small":
-            ClassicWeatherWidget(
-                snapshot: entry.classicWeather,
+        case "weather":
+            WeatherWidget(
+                snapshot: entry.weather,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
-        case "sun-event-weather-small", "sunevent-weather-small":
-            SunEventWeatherWidget(
-                snapshot: entry.sunEventWeather,
+        case "daylight":
+            DaylightWidget(
+                snapshot: entry.daylight,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
-        case "heart-beat-small":
-            HeartBeatWidget(
+        case "heart-rate":
+            HeartRateWidget(
                 snapshot: entry.heartRate.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
@@ -402,9 +419,9 @@ private struct MediumSolidWidgetView: View {
 
     var body: some View {
         switch entry.selectedWidgetID {
-        case "daily-dashboard-medium":
-            DailyDashboardWidget(
-                snapshot: entry.dashboard.renderSnapshot,
+        case "today":
+            TodayWidget(
+                snapshot: entry.today.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
@@ -537,7 +554,9 @@ private extension SmallSolidWidgetEntry {
                 distanceValue: 5.72,
                 distanceUnitName: "kilometers"
             ),
-            portal: PortalSmallWidgetEntry(
+            activity: .previewWeekly,
+            event: .previewUpcoming,
+            portal: PortalEntry(
                 date: Calendar.current.date(from: DateComponents(year: 2026, month: 6, day: 26, hour: 9, minute: 41)) ?? .widgetPreviewDate,
                 temperature: 16,
                 placeName: "Kuta"
@@ -547,8 +566,8 @@ private extension SmallSolidWidgetEntry {
                 totalBytes: WidgetSharedStore.storageTotalBytes,
                 availableBytes: WidgetSharedStore.storageAvailableBytes
             ),
-            classicWeather: .placeholder,
-            sunEventWeather: .placeholder,
+            weather: .placeholder,
+            daylight: .placeholder,
             heartRate: HeartRateWidgetEntry(
                 date: .now,
                 bpm: WidgetSharedStore.heartRateBPM,
@@ -563,7 +582,7 @@ private extension MediumSolidWidgetEntry {
         MediumSolidWidgetEntry(
             date: .widgetPreviewDate,
             selectedWidgetID: selectedWidgetID,
-            dashboard: DashboardWidgetEntry(
+            today: TodayWidgetEntry(
                 date: .widgetPreviewDate,
                 temperature: 25,
                 high: 30,
@@ -592,7 +611,7 @@ private extension LargeSolidWidgetEntry {
                 distanceValue: 5.72,
                 distanceUnitName: "kilometers"
             ),
-            dashboard: DashboardWidgetEntry(
+            today: TodayWidgetEntry(
                 date: .widgetPreviewDate,
                 temperature: 25,
                 high: 30,
@@ -615,34 +634,46 @@ private extension Date {
     ) ?? .now
 }
 
-#Preview("Small - Battery Bars", as: .systemSmall) {
+#Preview("Small - Battery", as: .systemSmall) {
     SmallSolidWidget()
 } timeline: {
-    SmallSolidWidgetEntry.preview(selectedWidgetID: "battery-bars-small")
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "battery")
 }
 
-#Preview("Small - Step Health", as: .systemSmall) {
+#Preview("Small - Steps", as: .systemSmall) {
     SmallSolidWidget()
 } timeline: {
-    SmallSolidWidgetEntry.preview(selectedWidgetID: "step-health-small")
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "steps")
 }
 
-#Preview("Small - Portal Widget", as: .systemSmall) {
+#Preview("Small - Activity", as: .systemSmall) {
     SmallSolidWidget()
 } timeline: {
-    SmallSolidWidgetEntry.preview(selectedWidgetID: "portal-widget-small")
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "activity")
 }
 
-#Preview("Small - Device Storage", as: .systemSmall) {
+#Preview("Small - Events", as: .systemSmall) {
     SmallSolidWidget()
 } timeline: {
-    SmallSolidWidgetEntry.preview(selectedWidgetID: "device-storage-small")
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "events")
 }
 
-#Preview("Medium - Daily Dashboard", as: .systemMedium) {
+#Preview("Small - Portal", as: .systemSmall) {
+    SmallSolidWidget()
+} timeline: {
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "portal")
+}
+
+#Preview("Small - Storage", as: .systemSmall) {
+    SmallSolidWidget()
+} timeline: {
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "storage")
+}
+
+#Preview("Medium - Today", as: .systemMedium) {
     MediumSolidWidget()
 } timeline: {
-    MediumSolidWidgetEntry.preview(selectedWidgetID: "daily-dashboard-medium")
+    MediumSolidWidgetEntry.preview(selectedWidgetID: "today")
 }
 
 #Preview("Large - Choose Widget", as: .systemLarge) {

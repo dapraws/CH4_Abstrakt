@@ -10,7 +10,7 @@ import WidgetKit
 
 // MARK: - Render Snapshot
 
-struct SunEventWeatherSnapshot: Codable, Hashable {
+struct DaylightSnapshot: Codable, Hashable {
     let temperature: Int
     let high: Int
     let low: Int
@@ -19,7 +19,7 @@ struct SunEventWeatherSnapshot: Codable, Hashable {
     let sunEventIcon: String    // asset name: "sunrise" or "sunset"
 
     private var usesFahrenheit: Bool {
-        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.default.abstrakt")?
+        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.daffa.abstrakt")?
             .string(forKey: "settings.temperatureUnit") == "fahrenheit"
     }
 
@@ -35,8 +35,8 @@ struct SunEventWeatherSnapshot: Codable, Hashable {
 
 // MARK: - Placeholder
 
-extension SunEventWeatherSnapshot {
-    static let placeholder = SunEventWeatherSnapshot(
+extension DaylightSnapshot {
+    static let placeholder = DaylightSnapshot(
         temperature: 25,
         high: 30,
         low: 20,
@@ -48,18 +48,18 @@ extension SunEventWeatherSnapshot {
 
 // MARK: - Widget
 
-struct SunEventWeatherWidget: View {
-    let snapshot: SunEventWeatherSnapshot
+struct DaylightWidget: View {
+    let snapshot: DaylightSnapshot
     let fontTheme: AbstraktWidgetFontTheme
     var clipsToWidgetShape = true
 
-    /// Same transparent-padding trim as ClassicWeatherWidget.
+    /// Same transparent-padding trim as WeatherWidget.
     var iconTrim: CGFloat = 1.5
 
     @Environment(\.colorScheme) private var colorScheme
 
     init(
-        snapshot: SunEventWeatherSnapshot = .placeholder,
+        snapshot: DaylightSnapshot = .placeholder,
         fontTheme: AbstraktWidgetFontTheme = .selectedAppTheme,
         clipsToWidgetShape: Bool = true,
         iconTrim: CGFloat = 1.5
@@ -95,7 +95,7 @@ struct SunEventWeatherWidget: View {
 
     private var widgetContent: some View {
         VStack(alignment: .leading) {
-            // Top row: icon left, sun event text right
+            // Top row: icon left, daylight text right
             HStack(alignment: .center) {
                 Image(snapshot.sunEventIcon)
                     .resizable()
@@ -166,11 +166,11 @@ struct SunEventWeatherWidget: View {
 
 // MARK: - Preview
 
-#Preview("SunEventWeatherWidget — Light") {
+#Preview("Daylight — Light") {
     ZStack {
         Color.black.ignoresSafeArea()
-        SunEventWeatherWidget(
-            snapshot: SunEventWeatherSnapshot(
+        DaylightWidget(
+            snapshot: DaylightSnapshot(
                 temperature: 27,
                 high: 31,
                 low: 21,
@@ -183,11 +183,11 @@ struct SunEventWeatherWidget: View {
     }
 }
 
-#Preview("SunEventWeatherWidget — Dark") {
+#Preview("Daylight — Dark") {
     ZStack {
         Color.white.ignoresSafeArea()
-        SunEventWeatherWidget(
-            snapshot: SunEventWeatherSnapshot(
+        DaylightWidget(
+            snapshot: DaylightSnapshot(
                 temperature: 18,
                 high: 22,
                 low: 14,
@@ -201,11 +201,11 @@ struct SunEventWeatherWidget: View {
     .preferredColorScheme(.dark)
 }
 
-#Preview("SunEventWeatherWidget — Fusion Pixel") {
+#Preview("Daylight — Fusion Pixel") {
     ZStack {
         Color.black.ignoresSafeArea()
-        SunEventWeatherWidget(
-            snapshot: SunEventWeatherSnapshot(
+        DaylightWidget(
+            snapshot: DaylightSnapshot(
                 temperature: 27,
                 high: 31,
                 low: 21,

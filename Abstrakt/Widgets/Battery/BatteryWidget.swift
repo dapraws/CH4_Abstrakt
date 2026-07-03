@@ -3,7 +3,7 @@ import WidgetKit
 
 // MARK: - Render Snapshot
 
-struct BatteryBarsRenderSnapshot: Codable, Hashable {
+struct BatterySnapshotViewData: Codable, Hashable {
     let level: Int
     let estimatedMinutesRemaining: Int?
     let isCharging: Bool
@@ -47,7 +47,7 @@ struct BatteryBarsRenderSnapshot: Codable, Hashable {
 }
 
 #if !WIDGET_EXTENSION
-extension BatteryBarsRenderSnapshot {
+extension BatterySnapshotViewData {
     init(snapshot: BatterySnapshot) {
         self.init(
             level: snapshot.level,
@@ -60,15 +60,15 @@ extension BatteryBarsRenderSnapshot {
 
 // MARK: - Widget
 
-struct BatteryBarsWidget: View {
-    let snapshot: BatteryBarsRenderSnapshot
+struct BatteryWidget: View {
+    let snapshot: BatterySnapshotViewData
     let fontTheme: AbstraktWidgetFontTheme
     var clipsToWidgetShape = true
 
     @Environment(\.colorScheme) private var colorScheme
 
     init(
-        snapshot: BatteryBarsRenderSnapshot,
+        snapshot: BatterySnapshotViewData,
         fontTheme: AbstraktWidgetFontTheme = .selectedAppTheme,
         clipsToWidgetShape: Bool = true
     ) {
@@ -84,7 +84,7 @@ struct BatteryBarsWidget: View {
         clipsToWidgetShape: Bool = true
     ) {
         self.init(
-            snapshot: BatteryBarsRenderSnapshot(snapshot: snapshot),
+            snapshot: BatterySnapshotViewData(snapshot: snapshot),
             fontTheme: fontTheme,
             clipsToWidgetShape: clipsToWidgetShape
         )
@@ -115,7 +115,7 @@ struct BatteryBarsWidget: View {
     // MARK: Content
 
     private var widgetContent: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 25) {
             HStack(spacing: 5) {
                 Image(systemName: "bolt.fill")
                     .font(AbstraktWidgetFonts.font(.caption, theme: fontTheme))
@@ -140,7 +140,7 @@ struct BatteryBarsWidget: View {
                 .font(AbstraktWidgetFonts.font(.caption, theme: fontTheme))
                 .foregroundStyle(palette.tertiaryForeground)
         }
-        .padding(14)
+        .padding(10)
     }
 
     private var palette: AbstraktWidgetPalette {
@@ -170,9 +170,9 @@ private struct BatteryLevelBar: View {
     }
 }
 
-#Preview("Battery Bars") {
-    BatteryBarsWidget(
-        snapshot: BatteryBarsRenderSnapshot(
+#Preview("Battery") {
+    BatteryWidget(
+        snapshot: BatterySnapshotViewData(
             level: 76,
             estimatedMinutesRemaining: 456,
             isCharging: false

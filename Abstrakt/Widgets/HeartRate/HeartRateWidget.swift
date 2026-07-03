@@ -1,5 +1,5 @@
 //
-//  HeartBeatWidget.swift
+//  HeartRateWidget.swift
 //  Abstrakt
 //
 //  Created by Muhammad Darrel Prawira on 02/07/26.
@@ -10,7 +10,7 @@ import WidgetKit
 
 // MARK: - Render Snapshot
 
-struct HeartBeatRenderSnapshot: Codable, Hashable {
+struct HeartRateRenderSnapshot: Codable, Hashable {
     let bpm: Int
     let timestamp: Date
 
@@ -24,7 +24,7 @@ struct HeartBeatRenderSnapshot: Codable, Hashable {
 }
 
 #if !WIDGET_EXTENSION
-    extension HeartBeatRenderSnapshot {
+    extension HeartRateRenderSnapshot {
         init(snapshot: HeartRateSnapshot) {
             self.init(
                 bpm: snapshot.bpm,
@@ -36,8 +36,8 @@ struct HeartBeatRenderSnapshot: Codable, Hashable {
 
 // MARK: - Widget
 
-struct HeartBeatWidget: View {
-    let snapshot: HeartBeatRenderSnapshot
+struct HeartRateWidget: View {
+    let snapshot: HeartRateRenderSnapshot
     let fontTheme: AbstraktWidgetFontTheme
     var clipsToWidgetShape: Bool
 
@@ -46,7 +46,7 @@ struct HeartBeatWidget: View {
     private let heartColor = Color(red: 1.0, green: 0.23, blue: 0.35)
 
     init(
-        snapshot: HeartBeatRenderSnapshot,
+        snapshot: HeartRateRenderSnapshot,
         fontTheme: AbstraktWidgetFontTheme = .selectedAppTheme,
         clipsToWidgetShape: Bool = true
     ) {
@@ -61,7 +61,7 @@ struct HeartBeatWidget: View {
             clipsToWidgetShape: Bool = true
         ) {
             self.init(
-                snapshot: HeartBeatRenderSnapshot(
+                snapshot: HeartRateRenderSnapshot(
                     bpm: 93,
                     timestamp: Date.now.addingTimeInterval(-47)
                 ),
@@ -99,7 +99,7 @@ struct HeartBeatWidget: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Spacer()
-                Image(.heartBeat)
+                Image("heart-color")
                     .resizable()
                     .frame(width: 42, height: 42)
             }
@@ -142,11 +142,11 @@ struct HeartBeatWidget: View {
 
 // MARK: - Preview
 
-#Preview("Heart Beat") {
+#Preview("Heart Rate") {
     ZStack {
         Rectangle().fill(Color.blue)
-        HeartBeatWidget(
-            snapshot: HeartBeatRenderSnapshot(
+        HeartRateWidget(
+            snapshot: HeartRateRenderSnapshot(
                 bpm: 93,
                 timestamp: Date.now.addingTimeInterval(-47)
             )

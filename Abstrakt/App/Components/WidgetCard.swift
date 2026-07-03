@@ -10,6 +10,8 @@ struct WidgetCard: View {
     var maximumPreviewScale: CGFloat = 1
     @AppStorage(AppGroupConstants.portalSelectedAppsKey, store: settingsStore) private var portalSelectedAppsValue = PortalApp.storageValue(for: PortalApp.defaultSelection)
     @AppStorage(AppGroupConstants.portalIconClipStyleKey, store: settingsStore) private var portalIconClipStyleID = PortalIconClipStyle.default.id
+    @AppStorage(AppGroupConstants.activityModeKey, store: settingsStore) private var activityModeID = ActivityMode.today.id
+    @AppStorage(AppGroupConstants.eventModeKey, store: settingsStore) private var eventModeID = EventDisplayMode.upcoming.id
 
     private var previewSize: CGSize {
         item.size.previewSize(
@@ -46,11 +48,19 @@ struct WidgetCard: View {
     }
 
     private var previewIdentity: String {
-        guard item.id == "portal-widget-small" else {
+        if item.id == "portal" {
+            return "\(item.id)-\(portalSelectedAppsValue)-\(portalIconClipStyleID)"
+        }
+
+        guard item.id == "activity" else {
+            if item.id == "events" {
+                return "\(item.id)-\(eventModeID)"
+            }
+
             return item.id
         }
 
-        return "\(item.id)-\(portalSelectedAppsValue)-\(portalIconClipStyleID)"
+        return "\(item.id)-\(activityModeID)"
     }
 }
 
@@ -61,12 +71,23 @@ struct WidgetPreview: View {
     var usesPlaceholderPreview = false
     var portalSelectedAppsOverride: [PortalApp]?
     var portalIconClipStyleOverride: PortalIconClipStyle?
+    var activityModeOverride: ActivityMode?
+    var eventModeOverride: EventDisplayMode?
     @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
     @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore) private var sharedAppFontThemeID = AppFonts.defaultTheme.id
     @AppStorage(AppGroupConstants.portalSelectedAppsKey, store: settingsStore) private var portalSelectedAppsValue = PortalApp.storageValue(for: PortalApp.defaultSelection)
     @AppStorage(AppGroupConstants.portalIconClipStyleKey, store: settingsStore) private var portalIconClipStyleID = PortalIconClipStyle.default.id
     @AppStorage(AppGroupConstants.sharedHealthStepsKey, store: settingsStore) private var healthSteps = 0
     @AppStorage(AppGroupConstants.sharedHealthDistanceKilometersKey, store: settingsStore) private var healthDistanceKilometers = 0.0
+    @AppStorage(AppGroupConstants.activityModeKey, store: settingsStore) private var activityModeID = ActivityMode.today.id
+    @AppStorage(AppGroupConstants.eventModeKey, store: settingsStore) private var eventModeID = EventDisplayMode.upcoming.id
+    @AppStorage(AppGroupConstants.sharedEventsKey, store: settingsStore) private var eventSnapshotData = Data()
+    @AppStorage(AppGroupConstants.sharedActivityTodayExerciseMinutesKey, store: settingsStore) private var activityTodayExerciseMinutes = 0
+    @AppStorage(AppGroupConstants.sharedActivityTodayActiveEnergyKey, store: settingsStore) private var activityTodayActiveEnergy = 0
+    @AppStorage(AppGroupConstants.sharedActivityTodaySleepMinutesKey, store: settingsStore) private var activityTodaySleepMinutes = 0
+    @AppStorage(AppGroupConstants.sharedActivityWeeklyExerciseMinutesKey, store: settingsStore) private var activityWeeklyExerciseMinutes = 0
+    @AppStorage(AppGroupConstants.sharedActivityWeeklyActiveEnergyKey, store: settingsStore) private var activityWeeklyActiveEnergy = 0
+    @AppStorage(AppGroupConstants.sharedActivityWeeklySleepMinutesKey, store: settingsStore) private var activityWeeklySleepMinutes = 0
     @AppStorage(AppGroupConstants.sharedWeatherTemperatureKey, store: settingsStore) private var weatherTemperature = 25
     @AppStorage(AppGroupConstants.sharedWeatherHighKey, store: settingsStore) private var weatherHigh = 30
     @AppStorage(AppGroupConstants.sharedWeatherLowKey, store: settingsStore) private var weatherLow = 24
@@ -95,19 +116,30 @@ struct WidgetPreview: View {
                 widgetBackground
             } else {
                 switch item.id {
-                case "battery-bars-small":
-                    BatteryBarsWidget(
-                        snapshot: BatteryBarsRenderSnapshot(snapshot: BatteryStatusProvider.currentSnapshot()),
+                case "battery":
+                    BatteryWidget(
+                        snapshot: BatterySnapshotViewData(snapshot: BatteryStatusProvider.currentSnapshot()),
                         fontTheme: widgetFontTheme
                     )
-                case "step-health-small":
-                    StepHealthWidget(
-                        snapshot: stepHealthSnapshot,
+                case "steps":
+                    StepsWidget(
+                        snapshot: stepsSnapshot,
                         fontTheme: widgetFontTheme
                     )
-                case "portal-widget-small":
-                    PortalWidget(
-                        snapshot: PortalWidgetSnapshot(
+                case "activity":
+                    ActivityWidget(
+                        snapshot: activitySnapshot,
+                        fontTheme: widgetFontTheme
+                    )
+                case "events":
+                    EventsWidget(
+                        snapshot: eventSnapshot,
+                        mode: eventMode,
+                        fontTheme: widgetFontTheme
+                    )
+                case "portal":
+                    Portal(
+                        snapshot: PortalSnapshot(
                             date: timeline.date,
                             temperature: portalWeatherTemperature,
                             placeName: portalWeatherPlaceName
@@ -116,9 +148,9 @@ struct WidgetPreview: View {
                         selectedApps: portalSelectedApps,
                         iconClipStyle: portalIconClipStyle
                     )
-                case "daily-dashboard-medium":
-                    DailyDashboardWidget(
-                        snapshot: DailyDashboardSnapshot(
+                case "today":
+                    TodayWidget(
+                        snapshot: TodaySnapshot(
                             date: timeline.date,
                             temperature: weatherTemperature,
                             high: weatherHigh,
@@ -128,17 +160,17 @@ struct WidgetPreview: View {
                         ),
                         fontTheme: widgetFontTheme
                     )
-                case "device-storage-small":
-                    DeviceStorageWidget(
-                        snapshot: DeviceStorageRenderSnapshot(snapshot: StorageProvider.currentSnapshot()),
+                case "storage":
+                    StorageWidget(
+                        snapshot: StorageUsageSnapshot(snapshot: StorageProvider.currentSnapshot()),
                         fontTheme: widgetFontTheme
                     )
-                case "classic-weather-small":
-                    ClassicWeatherWidget(fontTheme: widgetFontTheme)
-                case "sun-event-weather-small", "sunevent-weather-small":
-                    SunEventWeatherWidget(fontTheme: widgetFontTheme)
-                case "heart-beat-small":
-                    HeartBeatWidget(fontTheme: widgetFontTheme)
+                case "weather":
+                    WeatherWidget(fontTheme: widgetFontTheme)
+                case "daylight":
+                    DaylightWidget(fontTheme: widgetFontTheme)
+                case "heart-rate":
+                    HeartRateWidget(fontTheme: widgetFontTheme)
                 default:
                     widgetBackground
                         .overlay(alignment: .topLeading) {
@@ -157,13 +189,47 @@ struct WidgetPreview: View {
         }
     }
 
-    private var stepHealthSnapshot: StepHealthRenderSnapshot {
+    private var stepsSnapshot: StepsSnapshot {
         let unit = DistanceUnitPreference.from(id: distanceUnitID)
-        return StepHealthRenderSnapshot(
+        return StepsSnapshot(
             steps: healthSteps,
             distanceValue: unit.convertFromKilometers(healthDistanceKilometers),
             distanceUnitName: unit.noun
         )
+    }
+
+    private var activitySnapshot: ActivitySnapshot {
+        let mode = activityModeOverride ?? ActivityMode.from(id: activityModeID)
+
+        switch mode {
+        case .today:
+            return ActivitySnapshot(
+                mode: .today,
+                exerciseMinutes: activityTodayExerciseMinutes,
+                activeEnergyCalories: activityTodayActiveEnergy,
+                sleepMinutes: activityTodaySleepMinutes
+            )
+        case .weekly:
+            return ActivitySnapshot(
+                mode: .weekly,
+                exerciseMinutes: activityWeeklyExerciseMinutes,
+                activeEnergyCalories: activityWeeklyActiveEnergy,
+                sleepMinutes: activityWeeklySleepMinutes
+            )
+        }
+    }
+
+    private var eventMode: EventDisplayMode {
+        eventModeOverride ?? EventDisplayMode.from(id: eventModeID)
+    }
+
+    private var eventSnapshot: EventsSnapshot {
+        guard !eventSnapshotData.isEmpty,
+              let snapshot = try? JSONDecoder().decode(EventsSnapshot.self, from: eventSnapshotData) else {
+            return EventsSnapshot(date: .now, accessState: .empty)
+        }
+
+        return snapshot
     }
 
     private var widgetBackground: some View {

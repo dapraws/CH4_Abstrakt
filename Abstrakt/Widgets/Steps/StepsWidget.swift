@@ -3,7 +3,7 @@ import WidgetKit
 
 // MARK: - Render Snapshot
 
-struct StepHealthRenderSnapshot: Codable, Hashable {
+struct StepsSnapshot: Codable, Hashable {
     let stepsLabel: String
     let distanceLabel: String
     let distanceUnitName: String
@@ -22,7 +22,7 @@ struct StepHealthRenderSnapshot: Codable, Hashable {
 }
 
 #if !WIDGET_EXTENSION
-extension StepHealthRenderSnapshot {
+extension StepsSnapshot {
     init(snapshot: HealthSummarySnapshot) {
         self.init(
             stepsLabel: snapshot.stepsLabel,
@@ -35,15 +35,15 @@ extension StepHealthRenderSnapshot {
 
 // MARK: - Widget
 
-struct StepHealthWidget: View {
-    let snapshot: StepHealthRenderSnapshot
+struct StepsWidget: View {
+    let snapshot: StepsSnapshot
     let fontTheme: AbstraktWidgetFontTheme
     var clipsToWidgetShape = true
 
     @Environment(\.colorScheme) private var colorScheme
 
     init(
-        snapshot: StepHealthRenderSnapshot,
+        snapshot: StepsSnapshot,
         fontTheme: AbstraktWidgetFontTheme = .selectedAppTheme,
         clipsToWidgetShape: Bool = true
     ) {
@@ -59,7 +59,7 @@ struct StepHealthWidget: View {
         clipsToWidgetShape: Bool = true
     ) {
         self.init(
-            snapshot: StepHealthRenderSnapshot(snapshot: snapshot),
+            snapshot: StepsSnapshot(snapshot: snapshot),
             fontTheme: fontTheme,
             clipsToWidgetShape: clipsToWidgetShape
         )
@@ -136,9 +136,9 @@ struct StepHealthWidget: View {
     }
 }
 
-#Preview("Step Health") {
-    StepHealthWidget(
-        snapshot: StepHealthRenderSnapshot(
+#Preview("Steps") {
+    StepsWidget(
+        snapshot: StepsSnapshot(
             steps: 8_436,
             distanceValue: 5.72,
             distanceUnitName: "kilometers"
