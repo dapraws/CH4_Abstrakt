@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WidgetKit
 
 // MARK: - Render Snapshot
 
@@ -73,6 +74,10 @@ struct HeartBeatWidget: View {
     // MARK: Body
 
     var body: some View {
+        #if WIDGET_EXTENSION
+        widgetContent
+            .containerBackground(palette.background, for: .widget)
+        #else
         ZStack {
             palette.background
             widgetContent
@@ -84,11 +89,13 @@ struct HeartBeatWidget: View {
                 style: .continuous
             )
         )
+        #endif
     }
 
     // MARK: Content
 
     private var widgetContent: some View {
+        
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Spacer()

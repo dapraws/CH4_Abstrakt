@@ -63,7 +63,6 @@ struct ContentView: View {
                 return
             }
             
-            await refreshWidgetData()
             HealthSummaryProvider.shared.startObservingTodayMetrics {
                 Task { @MainActor in
                     await refreshFastChangingWidgetData()

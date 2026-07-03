@@ -7,7 +7,7 @@ enum WidgetSharedStore {
                 as? String,
             !value.isEmpty
         else {
-            return "group.msaf.abstrakt"
+            return "group.daffa.abstrakt"
         }
 
         return value
