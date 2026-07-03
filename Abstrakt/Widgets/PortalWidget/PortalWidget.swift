@@ -422,6 +422,22 @@ struct PortalWidget: View {
     }
     
     var body: some View {
+        #if WIDGET_EXTENSION
+        GeometryReader { proxy in
+            let metrics = PortalWidgetMetrics(size: proxy.size)
+
+            VStack(alignment: .leading, spacing: metrics.verticalSpacing) {
+                header(metrics: metrics)
+                appCluster(metrics: metrics)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            }
+            .padding(.horizontal, metrics.horizontalPadding)
+            .padding(.top, metrics.topPadding)
+            .padding(.bottom, metrics.bottomPadding)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+        .containerBackground(palette.background, for: .widget)
+        #else
         ZStack {
             palette.background
             
@@ -446,6 +462,7 @@ struct PortalWidget: View {
                 style: .continuous
             )
         )
+        #endif
     }
     
     private func header(metrics: PortalWidgetMetrics) -> some View {

@@ -24,10 +24,25 @@ enum StorageProvider {
             return StorageSnapshot(totalBytes: 0, availableBytes: 0)
         }
 
+        let marketedTotal = marketingSize(for: max(0, total))
         return StorageSnapshot(
-            totalBytes: max(0, total),
-            availableBytes: min(max(0, free), max(0, total))
+            totalBytes: marketedTotal,
+            availableBytes: min(max(0, free), marketedTotal)
         )
+    }
+
+    private static func marketingSize(for rawBytes: Int64) -> Int64 {
+        let base10GB = Double(rawBytes) / 1_000_000_000.0
+        let standardSizes: [Double] = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096]
+        
+        for size in standardSizes {
+            // Give a 5% margin for APFS formatting overhead differences
+            if base10GB <= size * 1.05 {
+                return Int64(size * 1_000_000_000.0)
+            }
+        }
+        
+        return rawBytes
     }
 
     private static func int64Value(_ value: Any?) -> Int64? {

@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 // MARK: - Render Snapshot
 
@@ -103,6 +104,13 @@ struct DailyDashboardWidget: View {
     // MARK: Body
 
     var body: some View {
+        #if WIDGET_EXTENSION
+        GeometryReader { proxy in
+            let metrics = DailyDashboardMetrics(size: proxy.size)
+            widgetContent(metrics: metrics)
+        }
+        .containerBackground(palette.background, for: .widget)
+        #else
         ZStack {
             palette.background
             GeometryReader { proxy in
@@ -117,6 +125,7 @@ struct DailyDashboardWidget: View {
                 style: .continuous
             )
         )
+        #endif
     }
 
     // MARK: Content

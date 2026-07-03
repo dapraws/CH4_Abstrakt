@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 // MARK: - Render Snapshot
 
@@ -93,6 +94,10 @@ struct BatteryBarsWidget: View {
     // MARK: Body
 
     var body: some View {
+        #if WIDGET_EXTENSION
+        widgetContent
+            .containerBackground(palette.background, for: .widget)
+        #else
         ZStack {
             palette.background
             widgetContent
@@ -104,6 +109,7 @@ struct BatteryBarsWidget: View {
                 style: .continuous
             )
         )
+        #endif
     }
 
     // MARK: Content
