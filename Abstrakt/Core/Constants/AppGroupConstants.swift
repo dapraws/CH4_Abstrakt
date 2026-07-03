@@ -1,7 +1,7 @@
 import Foundation
 
 enum AppGroupConstants {
-    static let defaultSuiteName = "group.msaf.abstrakt"
+    static let defaultSuiteName = "group.daffa.abstrakt"
     static let legacyFallbackSuiteName = "group.default.abstrakt"
 
     static let suiteName: String = {

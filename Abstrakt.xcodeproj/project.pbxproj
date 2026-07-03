@@ -188,9 +188,11 @@
 				TargetAttributes = {
 					1F65024C2FE959D7004BC514 = {
 						CreatedOnToolsVersion = 26.5;
+						DevelopmentTeam = MGF2PFTBQT;
 					};
 					2A4000023FE959D7004BC514 = {
 						CreatedOnToolsVersion = 26.5;
+						DevelopmentTeam = MGF2PFTBQT;
 					};
 				};
 			};
@@ -294,7 +296,6 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 44HUKD28FZ;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -326,6 +327,8 @@
 		};
 		1F6502572FE959D7004BC514 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 1F65024F2FE959D7004BC514 /* Abstrakt */;
+			baseConfigurationReferenceRelativePath = Config/Signing.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -359,7 +362,6 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 44HUKD28FZ;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -384,15 +386,16 @@
 		};
 		1F6502592FE959D7004BC514 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 1F65024F2FE959D7004BC514 /* Abstrakt */;
+			baseConfigurationReferenceRelativePath = Config/Signing.xcconfig;
 			buildSettings = {
-				APP_GROUP_ID = group.msaf.abstrakt;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Abstrakt/Abstrakt.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 26C3R3K269;
+				DEVELOPMENT_TEAM = MGF2PFTBQT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_AppGroupID = "$(APP_GROUP_ID)";
@@ -411,7 +414,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.msaf.abstrakt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daffa.abstrakt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -425,15 +428,16 @@
 		};
 		1F65025A2FE959D7004BC514 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 1F65024F2FE959D7004BC514 /* Abstrakt */;
+			baseConfigurationReferenceRelativePath = Config/Signing.xcconfig;
 			buildSettings = {
-				APP_GROUP_ID = group.msaf.abstrakt;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Abstrakt/Abstrakt.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 26C3R3K269;
+				DEVELOPMENT_TEAM = MGF2PFTBQT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_AppGroupID = "$(APP_GROUP_ID)";
@@ -452,7 +456,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.msaf.abstrakt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daffa.abstrakt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -466,14 +470,15 @@
 		};
 		2A4000043FE959D7004BC514 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 1F65024F2FE959D7004BC514 /* Abstrakt */;
+			baseConfigurationReferenceRelativePath = Config/Signing.xcconfig;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
-				APP_GROUP_ID = group.msaf.abstrakt;
 				CODE_SIGN_ENTITLEMENTS = AbstraktWidgetsExtension/AbstraktWidgetsExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 26C3R3K269;
+				DEVELOPMENT_TEAM = MGF2PFTBQT;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = AbstraktWidgetsExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
@@ -483,7 +488,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.msaf.abstrakt.widget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daffa.abstrakt.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -496,14 +501,15 @@
 		};
 		2A4000053FE959D7004BC514 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 1F65024F2FE959D7004BC514 /* Abstrakt */;
+			baseConfigurationReferenceRelativePath = Config/Signing.xcconfig;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
-				APP_GROUP_ID = group.msaf.abstrakt;
 				CODE_SIGN_ENTITLEMENTS = AbstraktWidgetsExtension/AbstraktWidgetsExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 26C3R3K269;
+				DEVELOPMENT_TEAM = MGF2PFTBQT;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = AbstraktWidgetsExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
@@ -513,7 +519,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.msaf.abstrakt.widget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daffa.abstrakt.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
