@@ -57,9 +57,16 @@ enum SharedModelContainer {
         defaults?.set(data, forKey: AppGroupConstants.sharedWidgetPresetsKey)
         defaults?.synchronize()
     }
+    
     static func write(storage: StorageSnapshot) {
         defaults?.set(storage.totalBytes, forKey: AppGroupConstants.sharedStorageTotalBytesKey)
         defaults?.set(storage.availableBytes, forKey: AppGroupConstants.sharedStorageAvailableBytesKey)
+        defaults?.synchronize()
+    }
+    
+    static func write(heartRate: HeartRateSnapshot) {
+        defaults?.set(heartRate.bpm, forKey: AppGroupConstants.sharedHeartRateBPMKey)
+        defaults?.set(heartRate.timestamp.timeIntervalSince1970, forKey: AppGroupConstants.sharedHeartRateTimestampKey)
         defaults?.synchronize()
     }
 }

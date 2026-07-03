@@ -199,4 +199,15 @@ enum WidgetSharedStore {
     static var storageAvailableBytes: Int64 {
         defaults?.object(forKey: "shared.storage.availableBytes") as? Int64 ?? 0
     }
+    
+    static var heartRateBPM: Int {
+        defaults?.object(forKey: "shared.heartRate.bpm") as? Int ?? 0
+    }
+
+    static var heartRateTimestamp: Date {
+        guard let interval = defaults?.object(forKey: "shared.heartRate.timestamp") as? TimeInterval else {
+            return .now
+        }
+        return Date(timeIntervalSince1970: interval)
+    }
 }

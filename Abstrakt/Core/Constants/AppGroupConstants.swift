@@ -27,4 +27,6 @@ enum AppGroupConstants {
     static let settingsDistanceUnitKey = "settings.distanceUnit"
     static let sharedStorageTotalBytesKey = "shared.storage.totalBytes"
     static let sharedStorageAvailableBytesKey = "shared.storage.availableBytes"
+    static let sharedHeartRateBPMKey = "shared.heartRate.bpm"
+    static let sharedHeartRateTimestampKey = "shared.heartRate.timestamp"
 }
