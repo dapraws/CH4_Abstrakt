@@ -90,5 +90,9 @@ enum AppGroupConstants {
         settingsDistanceUnitKey,
         sharedStorageTotalBytesKey,
         sharedStorageAvailableBytesKey,
+        sharedSunEventWeatherKey,
+        sharedClassicWeatherKey,
+        sharedHeartRateBPMKey,
+        sharedHeartRateTimestampKey
     ]
 }

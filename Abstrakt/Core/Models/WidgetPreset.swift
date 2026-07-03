@@ -60,7 +60,7 @@ extension WidgetPreset {
             appearanceMode: .system
         ),
         WidgetPreset(
-            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0007") ?? UUID(),
+            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0008") ?? UUID(),
             widgetID: "heart-beat-small",
             name: "Heart Beat | Health",
             size: .small,

@@ -9,6 +9,7 @@ nonisolated enum WidgetCatalog {
         "daily-dashboard-medium",
         "classic-weather-small",
         "sun-event-weather-small",
+        "heart-beat-small"
     ]
 
     private static let chipOrder: [WidgetCategory] = [
@@ -60,6 +61,20 @@ nonisolated enum WidgetCatalog {
             isPro: false
         ),
         WidgetCatalogItem(
+            id: "sun-event-weather-small",
+            name: "Sun Event",
+            size: .small,
+            categories: [.weather, .minimalism],
+            isPro: false
+        ),
+        WidgetCatalogItem(
+            id: "classic-weather-small",
+            name: "Classic Weather",
+            size: .small,
+            categories: [.weather, .classic],
+            isPro: false
+        ),
+        WidgetCatalogItem(
             id: "heart-beat-small",
             name: "Heart Beat",
             size: .small,
@@ -94,12 +109,15 @@ nonisolated enum WidgetCatalog {
             "portal-widget-small",
             "device-storage-small",
             "daily-dashboard-medium",
-            "heart-beat-small"
+            "sun-event-weather-small",
+            "classic-weather-small",
+            "heart-beat-small",
             
         ],
         .classic: [
             "battery-bars-small",
             "device-storage-small",
+            "classic-weather-small"
         ],
         .portal: [
             "portal-widget-small",
@@ -112,6 +130,8 @@ nonisolated enum WidgetCatalog {
         .weather: [
             "portal-widget-small",
             "daily-dashboard-medium",
+            "sun-event-weather-small",
+            "classic-weather-small",
         ],
         .calendar: [
             "portal-widget-small",

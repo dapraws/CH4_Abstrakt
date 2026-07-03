@@ -388,10 +388,6 @@ private struct SmallSolidWidgetView: View {
         case "heart-beat-small":
             HeartBeatWidget(
                 snapshot: entry.heartRate.renderSnapshot,
-            )
-        case "heart-beat-small":
-            HeartBeatWidget(
-                snapshot: entry.heartRate.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
