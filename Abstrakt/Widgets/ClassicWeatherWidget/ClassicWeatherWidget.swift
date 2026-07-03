@@ -14,7 +14,7 @@ struct ClassicWeatherSnapshot: Codable, Hashable {
     let temperature: Int
     let high: Int
     let low: Int
-    let conditionIcon: String   // asset name in weather_condition_icon/
+    let conditionIcon: String   // asset name in WeatherIcons/
     let conditionLabel: String  // e.g. "Partly Cloudy"
     let locationName: String    // city / kabupaten from reverse geocoding
 
