@@ -86,6 +86,8 @@ struct WidgetPreview: View {
                     DailyDashboardWidget(fontTheme: widgetFontTheme)
                 case "device-storage-small":
                     DeviceStorageWidget(fontTheme: widgetFontTheme)
+                case "heart-beat-small":
+                    HeartBeatWidget(fontTheme: widgetFontTheme)
                 default:
                     widgetBackground
                         .overlay(alignment: .topLeading) {

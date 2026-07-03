@@ -184,6 +184,8 @@ struct ContentView: View {
         SharedModelContainer.write(dashboard: dashboard)
         let portal = await WeatherDashboardProvider.shared.denpasarPortalSnapshot()
         SharedModelContainer.write(portal: portal)
+        let heartRate = await HealthSummaryProvider.shared.latestHeartRate()
+        SharedModelContainer.write(heartRate: heartRate)
         WidgetCenter.shared.reloadAllTimelines()
         
         SharedModelContainer.write(storage: StorageProvider.currentSnapshot())

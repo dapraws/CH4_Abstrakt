@@ -11,6 +11,7 @@ struct SmallSolidWidgetEntry: TimelineEntry {
     let health: StepWidgetEntry
     let portal: PortalSmallWidgetEntry
     let storage: StorageWidgetEntry
+    let heartRate: HeartRateWidgetEntry
 }
 
 struct MediumSolidWidgetEntry: TimelineEntry {
@@ -60,6 +61,12 @@ struct StorageWidgetEntry: TimelineEntry {
     let date: Date
     let totalBytes: Int64
     let availableBytes: Int64
+}
+
+struct HeartRateWidgetEntry: TimelineEntry {
+    let date: Date
+    let bpm: Int
+    let timestamp: Date
 }
 
 private let widgetTimelineRefreshInterval: TimeInterval = 1
@@ -202,7 +209,13 @@ private extension SmallSolidWidgetEntry {
                 date: .now,
                 totalBytes: WidgetSharedStore.storageTotalBytes,
                 availableBytes: WidgetSharedStore.storageAvailableBytes
+            ),
+            heartRate: HeartRateWidgetEntry(
+                date: .now,
+                bpm: WidgetSharedStore.heartRateBPM,
+                timestamp: WidgetSharedStore.heartRateTimestamp
             )
+            
         )
     }
 }
@@ -309,6 +322,15 @@ private extension StorageWidgetEntry {
     }
 }
 
+private extension HeartRateWidgetEntry {
+    var renderSnapshot: HeartBeatRenderSnapshot {
+        HeartBeatRenderSnapshot(
+            bpm: bpm,
+            timestamp: timestamp
+        )
+    }
+}
+
 // MARK: - Widget Views
 
 private struct SmallSolidWidgetView: View {
@@ -340,6 +362,12 @@ private struct SmallSolidWidgetView: View {
         case "device-storage-small":
             DeviceStorageWidget(
                 snapshot: entry.storage.renderSnapshot,
+                fontTheme: WidgetSharedStore.appFontTheme,
+                clipsToWidgetShape: false
+            )
+        case "heart-beat-small":
+            HeartBeatWidget(
+                snapshot: entry.heartRate.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
@@ -498,6 +526,11 @@ private extension SmallSolidWidgetEntry {
                 date: .now,
                 totalBytes: WidgetSharedStore.storageTotalBytes,
                 availableBytes: WidgetSharedStore.storageAvailableBytes
+            ),
+            heartRate: HeartRateWidgetEntry(
+                date: .now,
+                bpm: WidgetSharedStore.heartRateBPM,
+                timestamp: WidgetSharedStore.heartRateTimestamp
             )
         )
     }

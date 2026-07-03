@@ -37,6 +37,13 @@ nonisolated enum WidgetCatalog {
             categories: [.utility, .classic],
             isPro: false
         ),
+        WidgetCatalogItem(
+            id: "heart-beat-small",
+            name: "Heart Beat",
+            size: .small,
+            categories: [.health, .minimalism],
+            isPro: false
+        ),
     ]
 
     static func galleryItems(for category: WidgetCategory) -> [WidgetCatalogItem] {
@@ -55,6 +62,7 @@ nonisolated enum WidgetCatalog {
             "portal-widget-small",
             "device-storage-small",
             "daily-dashboard-medium",
+            "heart-beat-small"
             
         ],
         .classic: [
@@ -67,6 +75,7 @@ nonisolated enum WidgetCatalog {
         ],
         .health: [
             "step-health-small",
+            "heart-beat-small"
         ],
         .weather: [
             "portal-widget-small",
