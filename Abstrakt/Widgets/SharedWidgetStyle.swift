@@ -46,7 +46,7 @@ enum AbstraktWidgetFontTheme: String, CaseIterable, Identifiable {
         return Self(rawValue: id) ?? .sfProRounded
     }
 
-    private static let appGroupSuiteName = "group.msaf.abstrakt"
+    private static let appGroupSuiteName = "group.daffa.abstrakt"
     private static let storageKey = "appFontTheme"
 }
 

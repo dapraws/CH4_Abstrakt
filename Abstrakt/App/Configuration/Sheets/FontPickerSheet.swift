@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 struct FontPickerSheet: View {
     private static let settingsStore = AppGroupConstants.sharedDefaults
@@ -48,7 +49,7 @@ struct FontPickerSheet: View {
             Spacer(minLength: 0)
         }
         .padding(.horizontal, AppSpacing.screenHorizontal)
-        .padding(.top, 24)
+        .padding(.top, 20)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(AppColors.appBackground)
         .sensoryFeedback(.selection, trigger: appFontThemeID)
@@ -62,6 +63,7 @@ struct FontPickerSheet: View {
                 appFontThemeID = theme.id
                 sharedAppFontThemeID = theme.id
             }
+            WidgetCenter.shared.reloadAllTimelines()
         } label: {
             ZStack {
                 Text(tileTitle(for: theme))

@@ -7,6 +7,7 @@ enum AppFontRole {
     case heading1
     case heading2
     case heading3
+    case heading4
     case body
     case subBody
     case subHeading
@@ -199,6 +200,10 @@ private struct BaseFontToken {
             size = 17
             weight = .bold
             lineSpacing = 0
+        case .heading4:
+            size = 15
+            weight = .bold
+            lineSpacing = 0
         case .body:
             size = 15
             weight = .medium
@@ -270,7 +275,7 @@ private extension AppFontTheme {
             switch role {
             case .display, .title, .heading1, .widgetDisplay, .widgetTitle:
                 return 0.74
-            case .heading2, .heading3, .body, .subBody, .subHeading, .widgetHeading, .widgetBody:
+            case .heading2, .heading3, .heading4, .body, .subBody, .subHeading, .widgetHeading, .widgetBody:
                 return 0.78
             case .caption, .meta, .chip, .tab, .iconBadge, .widgetCaption, .widgetMeta:
                 return 0.82
@@ -288,7 +293,7 @@ private extension AppFontTheme {
             switch role {
             case .display, .title, .heading1, .widgetDisplay, .widgetTitle:
                 return -6
-            case .heading2, .heading3, .body, .subBody, .subHeading, .widgetHeading, .widgetBody:
+            case .heading2, .heading3, .heading4, .body, .subBody, .subHeading, .widgetHeading, .widgetBody:
                 return -5
             case .caption, .meta, .chip, .tab, .iconBadge, .widgetCaption, .widgetMeta:
                 return -3
