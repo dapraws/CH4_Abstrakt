@@ -5,7 +5,7 @@ This document captures the intended user flow for widget selection, customizatio
 ## Primary Flow
 
 1. The user opens the gallery and browses available widgets.
-2. The user can filter by category chips based on style or content.
+2. The user can filter by category chips based on the primary framework or feature surface.
 3. The user taps a widget card.
 4. A full-width preview/customization sheet opens with a live preview of the chosen widget.
 5. The user chooses the target Home Screen size: `Small`, `Medium`, or `Large`.
@@ -21,7 +21,7 @@ This document captures the intended user flow for widget selection, customizatio
 - A widget may support only appearance mode and size.
 - Another widget may support font family, font weight, icon set, and gradient styles.
 - Health widgets may additionally support a goal, counter, metric, or progress style.
-- Gallery categories should support both content-based discovery such as `Health` and `Weather`, and style-based discovery such as `Classic`, `Portal`, or `Minimalism`.
+- Gallery categories should support framework-backed discovery such as `HealthKit`, `WeatherKit`, `EventKit`, `Foundation`, `UIKit`, and `Portal`.
 - Gallery category chips should be generated from catalog categories that have at least one widget, and filtering should use the same catalog metadata that drives widget cards.
 - The preview sheet should show the rendered widget and its display title before any future form controls.
 - The save action stays pinned in its own bottom layer, separate from both the rendered widget and future form content.

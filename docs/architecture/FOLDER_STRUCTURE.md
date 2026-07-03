@@ -38,9 +38,16 @@ Abstrakt/
 │   └── WidgetSizeTokens.swift
 ├── Widgets/
 │   ├── SharedWidgetStyle.swift
-│   ├── BatteryBars/
-│   ├── StepHealth/
-│   └── DailyDashboard/
+│   ├── Battery/
+│   ├── Steps/
+│   ├── Activity/
+│   ├── Events/
+│   ├── Portal/
+│   ├── Storage/
+│   ├── Today/
+│   ├── Weather/
+│   ├── Daylight/
+│   └── HeartRate/
 └── AbstraktWidgetsExtension/
     ├── AbstraktWidgetsBundle.swift
     ├── AbstraktNewWidgets.swift
@@ -65,7 +72,8 @@ Abstrakt/
 ## Naming Rules
 
 - Put app screens in `App/Screens/`, not in a top-level `Features/` bucket.
-- Name widget folders after user-facing widget entries such as `ClassicClock` or `TodayMinimal`, not raw data sources like `Clock` or `Calendar`.
+- Name widget folders after concise user-facing widget entries such as `Battery`, `Steps`, `Activity`, `Events`, `Portal`, `Storage`, `Today`, `Weather`, `Daylight`, and `HeartRate`.
+- Avoid style-only names, and avoid baking Home Screen size labels into feature names.
 - Keep per-widget files flat inside each widget folder until a widget becomes large enough to need subfolders.
 - Put shared domain/config/catalog types in `Core/Models/`, not in every widget folder.
 - Put shared app/widget preference types in `Core/Settings/`, not in screen files.

@@ -28,13 +28,15 @@ Abstrakt/
 ├── DesignSystem/
 ├── Widgets/
 │   ├── SharedWidgetStyle.swift
-│   ├── BatteryBars/
-│   ├── StepHealth/
-│   ├── PortalWidget/
-│   ├── DeviceStorage/
-│   ├── DailyDashboard/
-│   ├── ClassicWeatherWidget/
-│   └── SunEventWeatherWidget/
+│   ├── Battery/
+│   ├── Steps/
+│   ├── Activity/
+│   ├── Events/
+│   ├── Portal/
+│   ├── Storage/
+│   ├── Today/
+│   ├── Weather/
+│   └── Daylight/
 └── AbstraktWidgetsExtension/
     ├── AbstraktWidgetsBundle.swift
     ├── AbstraktNewWidgets.swift
@@ -65,8 +67,10 @@ The current app foundation includes:
 - Shared settings storage for widget-facing unit preferences and the selected widget font through the App Group.
 - Shared widget renderers under `Abstrakt/Widgets/` that are compiled into both the host app and the WidgetKit extension.
 - Runtime widget previews and WidgetKit timelines consume live provider data or App Group cached values for battery, Health, calendar/date, time, storage, and WeatherKit-backed weather. Sample numbers are reserved for Xcode canvas previews.
-- A small Portal Widget preset that combines calendar date context, current-location WeatherKit temperature, configurable MiniApp launchers, and App Intent buttons for launching selected system apps.
-- Small weather presets for current conditions and sun events, backed by host-app WeatherKit/CoreLocation refreshes and shared weather condition assets.
+- Activity shows either today or weekly exercise minutes, active energy, and sleep totals, with the mode shared to WidgetKit through App Group storage.
+- Events can prioritize upcoming events or currently running events, backed by EventKit refreshes cached into App Group storage.
+- Portal combines calendar date context, current-location WeatherKit temperature, configurable MiniApp launchers, and App Intent buttons for launching selected system apps.
+- Weather and Daylight are backed by host-app WeatherKit/CoreLocation refreshes and shared weather condition assets.
 - Robust background data fetching featuring in-flight coalescing for WeatherKit (preventing rate limits) and safe active-scene authorization for HealthKit on iOS 18.
 - Device storage widgets using base-10 calculation math to perfectly match the iPhone's Settings > General > iPhone Storage metrics.
 - Seamless rendering on iOS 17+ StandBy and iPad Lock Screens via the `containerBackground` API.
@@ -111,6 +115,8 @@ Customization is intentionally flexible:
 - Some widgets use inline segmented controls or checkbox-style rows.
 - Some widgets support metric-specific settings such as step goals or counters.
 - Portal launcher widgets support a six-app MiniApps picker and icon clip styles that are shared with WidgetKit through App Group storage.
+- Activity widgets support a Today/Weekly display mode that is shared with WidgetKit through App Group storage.
+- Events widgets support an Upcoming/Current priority mode that is shared with WidgetKit through App Group storage.
 
 Because of that, customization belongs to `App/Configuration/` plus widget-specific configuration sheets inside each widget folder.
 
@@ -119,8 +125,8 @@ Global settings such as temperature unit, temperature display, and distance unit
 ## Widget Naming Direction
 
 - Widget folders should be named after the actual widget entry users browse in the gallery.
-- Good names: `ClassicClock`, `TodayMinimal`, `BentoGridOne`, `GradientClock`
-- Avoid naming widget folders after raw framework/data sources such as `Clock` or `Calendar`
+- Use concise feature names such as `Battery`, `Steps`, `Activity`, `Events`, `Portal`, `Storage`, `Today`, `Weather`, `Daylight`, and `HeartRate`.
+- Avoid style-only names or names that only describe the Home Screen size.
 
 The underlying data source still belongs in `Core/Services/`, but the widget itself should be named by the user-facing design/preset identity.
 

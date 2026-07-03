@@ -105,6 +105,8 @@ Rules:
 - Widget layouts must remain responsive when preview width is constrained below the baseline width.
 - Small portal launcher widgets may use overlapping app-icon clusters when each tappable icon remains visually distinct and the header has a single-line fallback scale.
 - Portal launcher customization uses a compact MiniApps opener for the selected six apps and a menu-only icon clip control for `Default`, `Circle`, and `Bloom`.
+- Activity widgets may use a minimal title, one SF Symbol status mark, and stacked metric rows with lighter unit labels. The Today/Weekly choice belongs in the preview sheet and must stay shared with WidgetKit.
+- Events widgets use compact date context, a status badge such as `Starts soon` or `Now`, and stacked event text. The Upcoming/Current priority choice belongs in the preview sheet and must stay shared with WidgetKit.
 - Weather widgets may use custom condition assets when the asset name maps directly from the WeatherKit condition snapshot, while still rendering a legible fallback for unknown conditions.
 - Storage widgets should render used and available portions inside a subtly bordered rounded container. The available portion uses a neutral zinc/gray treatment in both light and dark appearances.
 - Lock Screen `Circular`, `Rectangular`, and `Inline` dimensions are documented here for future iOS widget expansion, but the shipping app flow remains Home Screen first.

@@ -20,7 +20,7 @@ Abstrakt is a SwiftUI iOS app that helps users build a personal library of saved
 - Build service boundaries around Apple-native frameworks
 - Keep static fixture values out of runtime widget rendering; use provider data, cached App Group values, or explicit empty/permission states instead
 - Keep portal-style app launchers configurable through the host app, backed by App Intents, with framework data still fetched by host-app providers and cached for WidgetKit.
-- Keep Classic Weather and Sun Event Weather backed by WeatherKit/CoreLocation in the host app, with widget-safe snapshots cached into the shared App Group.
+- Keep Weather and Daylight backed by WeatherKit/CoreLocation in the host app, with widget-safe snapshots cached into the shared App Group.
 - Keep light, dark, and system appearance modes first-class in both previews and saved configuration
 - Keep global app preferences, such as units and app font, separate from widget-specific saved preset styling
 
@@ -50,7 +50,7 @@ Important UX constraints:
 - Some settings should push or open a second sheet, such as font selection.
 - The saved Library should group presets by widget size so users understand what is ready to place.
 - Library tabs should be swipeable as well as tappable, with size counts kept visible in the tab chips.
-- Gallery category chips should come from active `WidgetCatalog` categories, so new widget styles such as Classic, Minimalism, or Weather are discoverable without maintaining a separate chip list.
+- Gallery category chips should come from active `WidgetCatalog` categories, so framework-backed groups such as `HealthKit`, `WeatherKit`, `EventKit`, `Foundation`, `UIKit`, and `Portal` are discoverable without maintaining a separate chip list.
 - Library rows should crop the widget preview under the row divider instead of shrinking the design into a tiny thumbnail.
 - Preview sheets should use a full-width bottom sheet treatment with a drag indicator, title metadata below the rendered widget, and a bottom save action separated from the widget preview layer.
 - Unit preferences should use compact picker/menu controls from Settings and persist through shared storage for widget rendering.
