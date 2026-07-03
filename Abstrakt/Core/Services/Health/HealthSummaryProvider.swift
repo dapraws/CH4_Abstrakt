@@ -23,6 +23,13 @@ struct HealthSummarySnapshot: Codable, Hashable {
     }
 }
 
+struct HeartRateSnapshot: Codable, Hashable {
+    let bpm: Int
+    let timestamp: Date
+
+    static let placeholder = HeartRateSnapshot(bpm: 0, timestamp: .now)
+}
+
 final class HealthSummaryProvider {
     static let shared = HealthSummaryProvider()
 
@@ -41,6 +48,7 @@ final class HealthSummaryProvider {
             HKQuantityType(.stepCount),
             HKQuantityType(.distanceWalkingRunning),
             HKCategoryType(.sleepAnalysis),
+            HKQuantityType(.heartRate),
         ])
 
         try? await store.requestAuthorization(toShare: Set<HKSampleType>(), read: readTypes)
@@ -82,6 +90,43 @@ final class HealthSummaryProvider {
             store.execute(query)
             store.enableBackgroundDelivery(for: sampleType, frequency: .immediate) { _, _ in }
             return query
+        }
+    }
+    
+    func latestHeartRate() async -> HeartRateSnapshot {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            return .placeholder
+        }
+
+        return await withCheckedContinuation { continuation in
+            let heartRateType = HKQuantityType(.heartRate)
+            let sortDescriptor = NSSortDescriptor(
+                key: HKSampleSortIdentifierEndDate,
+                ascending: false
+            )
+
+            let query = HKSampleQuery(
+                sampleType: heartRateType,
+                predicate: nil,
+                limit: 1,
+                sortDescriptors: [sortDescriptor]
+            ) { _, samples, _ in
+                guard let sample = samples?.first as? HKQuantitySample else {
+                    continuation.resume(returning: .placeholder)
+                    return
+                }
+
+                let bpm = Int(sample.quantity.doubleValue(
+                    for: HKUnit.count().unitDivided(by: .minute())
+                ).rounded())
+
+                continuation.resume(returning: HeartRateSnapshot(
+                    bpm: bpm,
+                    timestamp: sample.endDate
+                ))
+            }
+
+            store.execute(query)
         }
     }
 

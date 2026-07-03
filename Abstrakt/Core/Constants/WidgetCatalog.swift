@@ -9,6 +9,7 @@ nonisolated enum WidgetCatalog {
         "daily-dashboard-medium",
         "classic-weather-small",
         "sun-event-weather-small",
+        "heart-beat-small"
     ]
 
     private static let chipOrder: [WidgetCategory] = [
@@ -60,6 +61,13 @@ nonisolated enum WidgetCatalog {
             isPro: false
         ),
         WidgetCatalogItem(
+            id: "sun-event-weather-small",
+            name: "Sun Event",
+            size: .small,
+            categories: [.weather, .minimalism],
+            isPro: false
+        ),
+        WidgetCatalogItem(
             id: "classic-weather-small",
             name: "Classic Weather",
             size: .small,
@@ -67,10 +75,10 @@ nonisolated enum WidgetCatalog {
             isPro: false
         ),
         WidgetCatalogItem(
-            id: "sun-event-weather-small",
-            name: "Sun Event Weather",
+            id: "heart-beat-small",
+            name: "Heart Beat",
             size: .small,
-            categories: [.weather, .minimalism],
+            categories: [.health, .minimalism],
             isPro: false
         ),
     ]
@@ -93,4 +101,44 @@ nonisolated enum WidgetCatalog {
     static func item(withID id: String) -> WidgetCatalogItem? {
         items.first { $0.id == id }
     }
+
+    private static let galleryOrder: [WidgetCategory: [String]] = [
+        .all: [
+            "battery-bars-small",
+            "step-health-small",
+            "portal-widget-small",
+            "device-storage-small",
+            "daily-dashboard-medium",
+            "sun-event-weather-small",
+            "classic-weather-small",
+            "heart-beat-small",
+            
+        ],
+        .classic: [
+            "battery-bars-small",
+            "device-storage-small",
+            "classic-weather-small"
+        ],
+        .portal: [
+            "portal-widget-small",
+            "daily-dashboard-medium",
+        ],
+        .health: [
+            "step-health-small",
+            "heart-beat-small"
+        ],
+        .weather: [
+            "portal-widget-small",
+            "daily-dashboard-medium",
+            "sun-event-weather-small",
+            "classic-weather-small",
+        ],
+        .calendar: [
+            "portal-widget-small",
+            "daily-dashboard-medium",
+        ],
+        .clock: [
+            "daily-dashboard-medium",
+        ],
+    ]
 }

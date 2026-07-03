@@ -64,13 +64,13 @@ enum SharedModelContainer {
         defaults?.set(data, forKey: AppGroupConstants.sharedWidgetPresetsKey)
         defaults?.synchronize()
     }
-
+    
     static func write(storage: StorageSnapshot) {
         defaults?.set(storage.totalBytes, forKey: AppGroupConstants.sharedStorageTotalBytesKey)
         defaults?.set(storage.availableBytes, forKey: AppGroupConstants.sharedStorageAvailableBytesKey)
         defaults?.synchronize()
     }
-
+    
     static func write(classicWeather: ClassicWeatherSnapshot) {
         guard let data = try? JSONEncoder().encode(classicWeather) else { return }
         defaults?.set(data, forKey: AppGroupConstants.sharedClassicWeatherKey)
@@ -80,6 +80,12 @@ enum SharedModelContainer {
     static func write(sunEventWeather: SunEventWeatherSnapshot) {
         guard let data = try? JSONEncoder().encode(sunEventWeather) else { return }
         defaults?.set(data, forKey: AppGroupConstants.sharedSunEventWeatherKey)
+        defaults?.synchronize()
+    }
+    
+    static func write(heartRate: HeartRateSnapshot) {
+        defaults?.set(heartRate.bpm, forKey: AppGroupConstants.sharedHeartRateBPMKey)
+        defaults?.set(heartRate.timestamp.timeIntervalSince1970, forKey: AppGroupConstants.sharedHeartRateTimestampKey)
         defaults?.synchronize()
     }
 }

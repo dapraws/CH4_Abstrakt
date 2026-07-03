@@ -205,6 +205,8 @@ struct ContentView: View {
         SharedModelContainer.write(classicWeather: classicWeather)
         let sunEventWeather = await WeatherDashboardProvider.shared.sunEventWeatherSnapshot()
         SharedModelContainer.write(sunEventWeather: sunEventWeather)
+        let heartRate = await HealthSummaryProvider.shared.latestHeartRate()
+        SharedModelContainer.write(heartRate: heartRate)
         
         print("[refreshWidgetData] Fetching health data...")
         await refreshHealthWidgetData()

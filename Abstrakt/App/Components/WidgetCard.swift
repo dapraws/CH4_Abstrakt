@@ -137,6 +137,8 @@ struct WidgetPreview: View {
                     ClassicWeatherWidget(fontTheme: widgetFontTheme)
                 case "sun-event-weather-small", "sunevent-weather-small":
                     SunEventWeatherWidget(fontTheme: widgetFontTheme)
+                case "heart-beat-small":
+                    HeartBeatWidget(fontTheme: widgetFontTheme)
                 default:
                     widgetBackground
                         .overlay(alignment: .topLeading) {
