@@ -7,9 +7,12 @@
 
 CODE_SIGN_STYLE = Automatic
 CODE_SIGN_IDENTITY = Apple Development
+APP_GROUP_ID = group.msaf.abstrakt
 
 // Include a local configuration file that won't be tracked by Git
 #include? "Signing.local.xcconfig"
 
 // Configuration settings file format documentation can be found at:
 // https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+INFOPLIST_KEY_AppGroupID = $(APP_GROUP_ID)

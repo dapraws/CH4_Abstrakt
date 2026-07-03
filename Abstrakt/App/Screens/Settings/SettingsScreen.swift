@@ -4,7 +4,7 @@ import WidgetKit
 struct SettingsScreen: View {
     // MARK: - Storage
 
-    private static let settingsStore = UserDefaults(suiteName: AppGroupConstants.suiteName)
+    private static let settingsStore = AppGroupConstants.sharedDefaults
 
     // MARK: - State
 

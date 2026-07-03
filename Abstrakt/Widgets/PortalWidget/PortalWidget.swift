@@ -1,6 +1,9 @@
-import AppIntents
 import SwiftUI
 import WidgetKit
+
+#if WIDGET_EXTENSION
+import AppIntents
+#endif
 
 // MARK: - Render Snapshot
 
@@ -10,7 +13,7 @@ struct PortalWidgetSnapshot: Codable, Hashable {
     let placeName: String
     
     private var usesFahrenheit: Bool {
-        UserDefaults(suiteName: "group.msaf.abstrakt")?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
+        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.default.abstrakt")?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
     }
     
     var displayTemperature: Int {
@@ -24,7 +27,7 @@ struct PortalWidgetSnapshot: Codable, Hashable {
 
 // MARK: - App Shortcuts
 
-enum PortalApp: String, AppEnum, Codable, Identifiable {
+enum PortalApp: String, Codable, Identifiable {
     case calls
     case calendar
     case activity
@@ -44,27 +47,6 @@ enum PortalApp: String, AppEnum, Codable, Identifiable {
 
     var id: String { rawValue }
     
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Portal App"
-    
-    static var caseDisplayRepresentations: [PortalApp: DisplayRepresentation] = [
-        .calls: "Phone",
-        .calendar: "Calendar",
-        .activity: "Activity",
-        .books: "Books",
-        .faceTime: "FaceTime",
-        .findMy: "Find My",
-        .mail: "Mail",
-        .messages: "Messages",
-        .music: "Music",
-        .maps: "Maps",
-        .photos: "Photos",
-        .safari: "Safari",
-        .shortcuts: "Shortcuts",
-        .settings: "Settings",
-        .store: "App Store",
-        .translate: "Translate",
-    ]
-
     static let availableApps: [PortalApp] = [
         .calls,
         .messages,
@@ -263,6 +245,7 @@ private extension Array where Element: Hashable {
     }
 }
 
+#if WIDGET_EXTENSION
 struct OpenPortalCalendarIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Calendar"
     static var description = IntentDescription("Open Calendar from the Portal widget.")
@@ -406,6 +389,7 @@ struct OpenPortalSettingsIntent: AppIntent {
         .result(opensIntent: OpenURLIntent(PortalApp.settings.launchURL))
     }
 }
+#endif
 
 // MARK: - Widget
 
@@ -559,6 +543,7 @@ struct PortalWidget: View {
 
     @ViewBuilder
     private func portalButton<Label: View>(for app: PortalApp, @ViewBuilder label: () -> Label) -> some View {
+        #if WIDGET_EXTENSION
         switch app {
         case .calls:
             Button(role: nil, intent: OpenPortalCallsIntent(), label: label)
@@ -609,6 +594,9 @@ struct PortalWidget: View {
             Button(role: nil, intent: OpenPortalTranslateIntent(), label: label)
                 .buttonStyle(.plain)
         }
+        #else
+        label()
+        #endif
     }
     
     private var palette: AbstraktWidgetPalette {
@@ -681,7 +669,8 @@ private struct PortalWidgetMetrics {
     }
     
     var clusterWidth: CGFloat {
-        min(size.width - horizontalPadding * 2, iconSize * 2.5)
+        let availableWidth = max(0, finite(size.width) - horizontalPadding * 2)
+        return min(availableWidth, iconSize * 2.5)
     }
     
     var clusterHeight: CGFloat {
@@ -746,7 +735,11 @@ struct PortalIconShape: Shape {
 }
 
 private func clamped(_ value: CGFloat, minimum: CGFloat, maximum: CGFloat) -> CGFloat {
-    min(max(value, minimum), maximum)
+    min(max(finite(value), minimum), maximum)
+}
+
+private func finite(_ value: CGFloat) -> CGFloat {
+    value.isFinite ? value : 0
 }
 
 // MARK: - Preview Data
@@ -755,7 +748,7 @@ extension PortalWidgetSnapshot {
     static let placeholder = PortalWidgetSnapshot(
         date: Calendar.current.date(from: DateComponents(year: 2026, month: 6, day: 26, hour: 9, minute: 41)) ?? .now,
         temperature: 16,
-        placeName: "Denpasar"
+        placeName: "Kuta"
     )
 }
 

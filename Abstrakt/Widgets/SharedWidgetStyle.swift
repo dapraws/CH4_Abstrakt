@@ -129,6 +129,18 @@ struct AbstraktWidgetPalette {
         foreground.opacity(isDark ? 0.08 : 0.1)
     }
 
+    var storageBarBorder: Color {
+        foreground.opacity(isDark ? 0.12 : 0.14)
+    }
+
+    var storageBarContainerFill: Color {
+        isDark ? Color(red: 0.18, green: 0.18, blue: 0.19) : Color(red: 0.78, green: 0.78, blue: 0.80)
+    }
+
+    var storageBarStripe: Color {
+        isDark ? Color.white.opacity(0.08) : Color.black.opacity(0.08)
+    }
+
     var badgeFill: Color {
         foreground.opacity(isDark ? 0.18 : 0.12)
     }

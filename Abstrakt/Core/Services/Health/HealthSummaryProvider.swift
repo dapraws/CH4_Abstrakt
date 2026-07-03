@@ -46,6 +46,7 @@ final class HealthSummaryProvider {
         let readTypes: Set<HKObjectType> = Set([
             HKQuantityType(.stepCount),
             HKQuantityType(.distanceWalkingRunning),
+            HKCategoryType(.sleepAnalysis),
             HKQuantityType(.heartRate),
         ])
 
@@ -54,7 +55,7 @@ final class HealthSummaryProvider {
 
     func todaySnapshot() async -> HealthSummarySnapshot {
         guard HKHealthStore.isHealthDataAvailable() else {
-            return Self.placeholder
+            return Self.empty
         }
 
         async let steps = quantitySum(for: HKQuantityType(.stepCount), unit: .count())
@@ -149,5 +150,5 @@ final class HealthSummaryProvider {
         }
     }
 
-    static let placeholder = HealthSummarySnapshot(steps: 3_192, distanceKilometers: 2.14)
+    static let empty = HealthSummarySnapshot(steps: 0, distanceKilometers: 0)
 }

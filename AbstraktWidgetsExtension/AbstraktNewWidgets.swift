@@ -11,6 +11,8 @@ struct SmallSolidWidgetEntry: TimelineEntry {
     let health: StepWidgetEntry
     let portal: PortalSmallWidgetEntry
     let storage: StorageWidgetEntry
+    let classicWeather: ClassicWeatherSnapshot
+    let sunEventWeather: SunEventWeatherSnapshot
     let heartRate: HeartRateWidgetEntry
 }
 
@@ -49,6 +51,7 @@ struct DashboardWidgetEntry: TimelineEntry {
     let high: Int
     let low: Int
     let weatherSymbol: String
+    let conditionLabel: String
 }
 
 struct PortalSmallWidgetEntry: TimelineEntry {
@@ -210,6 +213,8 @@ private extension SmallSolidWidgetEntry {
                 totalBytes: WidgetSharedStore.storageTotalBytes,
                 availableBytes: WidgetSharedStore.storageAvailableBytes
             ),
+            classicWeather: WidgetSharedStore.classicWeather,
+            sunEventWeather: WidgetSharedStore.sunEventWeather,
             heartRate: HeartRateWidgetEntry(
                 date: .now,
                 bpm: WidgetSharedStore.heartRateBPM,
@@ -230,7 +235,8 @@ private extension MediumSolidWidgetEntry {
                 temperature: WidgetSharedStore.weatherTemperatureCelsius,
                 high: WidgetSharedStore.weatherHighCelsius,
                 low: WidgetSharedStore.weatherLowCelsius,
-                weatherSymbol: WidgetSharedStore.weatherSymbol
+                weatherSymbol: WidgetSharedStore.weatherSymbol,
+                conditionLabel: WidgetSharedStore.weatherConditionLabel
             )
         )
     }
@@ -258,7 +264,8 @@ private extension LargeSolidWidgetEntry {
                 temperature: WidgetSharedStore.weatherTemperatureCelsius,
                 high: WidgetSharedStore.weatherHighCelsius,
                 low: WidgetSharedStore.weatherLowCelsius,
-                weatherSymbol: WidgetSharedStore.weatherSymbol
+                weatherSymbol: WidgetSharedStore.weatherSymbol,
+                conditionLabel: WidgetSharedStore.weatherConditionLabel
             ),
             storage: StorageWidgetEntry(
                 date: .now,
@@ -298,7 +305,8 @@ private extension DashboardWidgetEntry {
             temperature: temperature,
             high: high,
             low: low,
-            weatherSymbol: weatherSymbol
+            weatherSymbol: weatherSymbol,
+            conditionLabel: conditionLabel
         )
     }
 }
@@ -364,6 +372,22 @@ private struct SmallSolidWidgetView: View {
                 snapshot: entry.storage.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
+            )
+        case "classic-weather-small":
+            ClassicWeatherWidget(
+                snapshot: entry.classicWeather,
+                fontTheme: WidgetSharedStore.appFontTheme,
+                clipsToWidgetShape: false
+            )
+        case "sun-event-weather-small", "sunevent-weather-small":
+            SunEventWeatherWidget(
+                snapshot: entry.sunEventWeather,
+                fontTheme: WidgetSharedStore.appFontTheme,
+                clipsToWidgetShape: false
+            )
+        case "heart-beat-small":
+            HeartBeatWidget(
+                snapshot: entry.heartRate.renderSnapshot,
             )
         case "heart-beat-small":
             HeartBeatWidget(
@@ -520,13 +544,15 @@ private extension SmallSolidWidgetEntry {
             portal: PortalSmallWidgetEntry(
                 date: Calendar.current.date(from: DateComponents(year: 2026, month: 6, day: 26, hour: 9, minute: 41)) ?? .widgetPreviewDate,
                 temperature: 16,
-                placeName: "Denpasar"
+                placeName: "Kuta"
             ),
             storage: StorageWidgetEntry(
                 date: .now,
                 totalBytes: WidgetSharedStore.storageTotalBytes,
                 availableBytes: WidgetSharedStore.storageAvailableBytes
             ),
+            classicWeather: .placeholder,
+            sunEventWeather: .placeholder,
             heartRate: HeartRateWidgetEntry(
                 date: .now,
                 bpm: WidgetSharedStore.heartRateBPM,
@@ -546,7 +572,8 @@ private extension MediumSolidWidgetEntry {
                 temperature: 25,
                 high: 30,
                 low: 24,
-                weatherSymbol: "🌥️"
+                weatherSymbol: "🌥️",
+                conditionLabel: "Partly Cloudy"
             )
         )
     }
@@ -574,7 +601,8 @@ private extension LargeSolidWidgetEntry {
                 temperature: 25,
                 high: 30,
                 low: 24,
-                weatherSymbol: "🌥️"
+                weatherSymbol: "🌥️",
+                conditionLabel: "Partly Cloudy"
             ),
             storage: StorageWidgetEntry(
                 date: .now,
@@ -607,6 +635,12 @@ private extension Date {
     SmallSolidWidget()
 } timeline: {
     SmallSolidWidgetEntry.preview(selectedWidgetID: "portal-widget-small")
+}
+
+#Preview("Small - Device Storage", as: .systemSmall) {
+    SmallSolidWidget()
+} timeline: {
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "device-storage-small")
 }
 
 #Preview("Medium - Daily Dashboard", as: .systemMedium) {

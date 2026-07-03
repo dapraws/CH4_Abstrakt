@@ -1,6 +1,28 @@
 import Foundation
 
 nonisolated enum WidgetCatalog {
+    private static let allItemOrder: [String] = [
+        "battery-bars-small",
+        "step-health-small",
+        "portal-widget-small",
+        "device-storage-small",
+        "daily-dashboard-medium",
+        "classic-weather-small",
+        "sun-event-weather-small",
+    ]
+
+    private static let chipOrder: [WidgetCategory] = [
+        .all,
+        .classic,
+        .minimalism,
+        .portal,
+        .health,
+        .weather,
+        .calendar,
+        .clock,
+        .utility,
+    ]
+
     static let items: [WidgetCatalogItem] = [
         WidgetCatalogItem(
             id: "battery-bars-small",
@@ -46,9 +68,19 @@ nonisolated enum WidgetCatalog {
         ),
     ]
 
+    static var featuredCategories: [WidgetCategory] {
+        chipOrder.filter { category in
+            category == .all || items.contains { $0.categories.contains(category) }
+        }
+    }
+
     static func galleryItems(for category: WidgetCategory) -> [WidgetCatalogItem] {
-        let ids = galleryOrder[category] ?? galleryOrder[.all] ?? items.map(\.id)
-        return ids.compactMap { item(withID: $0) }
+        let orderedItems = allItemOrder.compactMap { item(withID: $0) }
+        guard category != .all else {
+            return orderedItems
+        }
+
+        return orderedItems.filter { $0.categories.contains(category) }
     }
 
     static func item(withID id: String) -> WidgetCatalogItem? {

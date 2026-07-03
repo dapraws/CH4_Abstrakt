@@ -22,6 +22,7 @@ This document captures the intended user flow for widget selection, customizatio
 - Another widget may support font family, font weight, icon set, and gradient styles.
 - Health widgets may additionally support a goal, counter, metric, or progress style.
 - Gallery categories should support both content-based discovery such as `Health` and `Weather`, and style-based discovery such as `Classic`, `Portal`, or `Minimalism`.
+- Gallery category chips should be generated from catalog categories that have at least one widget, and filtering should use the same catalog metadata that drives widget cards.
 - The preview sheet should show the rendered widget and its display title before any future form controls.
 - The save action stays pinned in its own bottom layer, separate from both the rendered widget and future form content.
 - App-wide settings such as temperature unit, temperature display, and distance unit should live in Settings rather than inside every widget customization sheet unless a widget explicitly supports an override.

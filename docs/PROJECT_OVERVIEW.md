@@ -9,6 +9,7 @@ Abstrakt is a SwiftUI iOS app that helps users build a personal library of saved
 - Host app: discovery, previews, configuration sheets, saved library, permissions, and settings
 - Widget extension: exposes three size-based `Solid Widget` renderers and renders saved presets on the Home Screen
 - Shared render layer: widget visuals live under `Abstrakt/Widgets/` and are compiled into both the host app and WidgetKit extension
+- Runtime data flow: host-app providers refresh battery, Health, calendar/date, time, storage, and WeatherKit data into App Group storage for WidgetKit; in-app previews use provider/cache values instead of sample numbers
 - Future surfaces: Lock Screen widgets, StandBy, Live Activities, and Dynamic Island
 
 ## Near-Term Priorities
@@ -17,7 +18,9 @@ Abstrakt is a SwiftUI iOS app that helps users build a personal library of saved
 - Keep widget entries cleanly separated under `Widgets/`
 - Keep app-owned core models for saved widget presets and per-widget configuration
 - Build service boundaries around Apple-native frameworks
+- Keep static fixture values out of runtime widget rendering; use provider data, cached App Group values, or explicit empty/permission states instead
 - Keep portal-style app launchers configurable through the host app, backed by App Intents, with framework data still fetched by host-app providers and cached for WidgetKit.
+- Keep Classic Weather and Sun Event Weather backed by WeatherKit/CoreLocation in the host app, with widget-safe snapshots cached into the shared App Group.
 - Keep light, dark, and system appearance modes first-class in both previews and saved configuration
 - Keep global app preferences, such as units and app font, separate from widget-specific saved preset styling
 
@@ -47,11 +50,13 @@ Important UX constraints:
 - Some settings should push or open a second sheet, such as font selection.
 - The saved Library should group presets by widget size so users understand what is ready to place.
 - Library tabs should be swipeable as well as tappable, with size counts kept visible in the tab chips.
+- Gallery category chips should come from active `WidgetCatalog` categories, so new widget styles such as Classic, Minimalism, or Weather are discoverable without maintaining a separate chip list.
 - Library rows should crop the widget preview under the row divider instead of shrinking the design into a tiny thumbnail.
 - Preview sheets should use a full-width bottom sheet treatment with a drag indicator, title metadata below the rendered widget, and a bottom save action separated from the widget preview layer.
 - Unit preferences should use compact picker/menu controls from Settings and persist through shared storage for widget rendering.
 - App font changes should persist to shared storage and reload WidgetKit timelines so in-app previews and Home Screen widgets use the same selected typography.
 - Portal launcher MiniApp selection and icon clip style should persist to shared storage and reload WidgetKit timelines so the Home Screen renderer matches the in-app preview.
+- Signing and App Group setup should remain config-driven through `Signing.xcconfig` plus optional local overrides, with app and extension entitlements sharing the same `APP_GROUP_ID`.
 
 ## Recommended Module Direction
 
