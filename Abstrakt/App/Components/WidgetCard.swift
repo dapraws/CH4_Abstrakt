@@ -96,6 +96,10 @@ struct WidgetPreview: View {
     @AppStorage(AppGroupConstants.sharedPortalWeatherTemperatureKey, store: settingsStore) private var portalWeatherTemperature = 16
     @AppStorage(AppGroupConstants.sharedPortalWeatherPlaceNameKey, store: settingsStore) private var portalWeatherPlaceName = "Here"
     @AppStorage(AppGroupConstants.settingsDistanceUnitKey, store: settingsStore) private var distanceUnitID = DistanceUnitPreference.kilometers.id
+    @AppStorage(AppGroupConstants.sharedWeatherKey, store: settingsStore) private var weatherSnapshotData = Data()
+    @AppStorage(AppGroupConstants.sharedDaylightKey, store: settingsStore) private var daylightSnapshotData = Data()
+    @AppStorage(AppGroupConstants.sharedHeartRateBPMKey, store: settingsStore) private var heartRateBPM = 0
+    @AppStorage(AppGroupConstants.sharedHeartRateTimestampKey, store: settingsStore) private var heartRateTimestamp = 0.0
 
     private var widgetFontTheme: AbstraktWidgetFontTheme {
         AbstraktWidgetFontTheme.from(id: sharedAppFontThemeID.isEmpty ? appFontThemeID : sharedAppFontThemeID)
@@ -166,11 +170,20 @@ struct WidgetPreview: View {
                         fontTheme: widgetFontTheme
                     )
                 case "weather":
-                    WeatherWidget(fontTheme: widgetFontTheme)
+                    WeatherWidget(
+                        snapshot: weatherSnapshot,
+                        fontTheme: widgetFontTheme
+                    )
                 case "daylight":
-                    DaylightWidget(fontTheme: widgetFontTheme)
+                    DaylightWidget(
+                        snapshot: daylightSnapshot,
+                        fontTheme: widgetFontTheme
+                    )
                 case "heart-rate":
-                    HeartRateWidget(fontTheme: widgetFontTheme)
+                    HeartRateWidget(
+                        snapshot: heartRateSnapshot,
+                        fontTheme: widgetFontTheme
+                    )
                 default:
                     widgetBackground
                         .overlay(alignment: .topLeading) {
@@ -230,6 +243,30 @@ struct WidgetPreview: View {
         }
 
         return snapshot
+    }
+
+    private var weatherSnapshot: WeatherSnapshot {
+        guard !weatherSnapshotData.isEmpty,
+              let snapshot = try? JSONDecoder().decode(WeatherSnapshot.self, from: weatherSnapshotData) else {
+            return .placeholder
+        }
+        return snapshot
+    }
+
+    private var daylightSnapshot: DaylightSnapshot {
+        guard !daylightSnapshotData.isEmpty,
+              let snapshot = try? JSONDecoder().decode(DaylightSnapshot.self, from: daylightSnapshotData) else {
+            return .placeholder
+        }
+        return snapshot
+    }
+
+    private var heartRateSnapshot: HeartRateRenderSnapshot {
+        guard heartRateBPM > 0 else { return HeartRateRenderSnapshot(bpm: 0, timestamp: .now) }
+        return HeartRateRenderSnapshot(
+            bpm: heartRateBPM,
+            timestamp: Date(timeIntervalSince1970: heartRateTimestamp)
+        )
     }
 
     private var widgetBackground: some View {

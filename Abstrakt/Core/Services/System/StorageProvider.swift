@@ -15,19 +15,32 @@ struct StorageSnapshot: Codable, Hashable {
 
 enum StorageProvider {
     static func currentSnapshot() -> StorageSnapshot {
-        guard let attrs = try? FileManager.default.attributesOfFileSystem(
-            forPath: NSHomeDirectory()
-        ),
-            let total = int64Value(attrs[.systemSize]),
-            let free = int64Value(attrs[.systemFreeSize])
+        let url = URL(fileURLWithPath: NSHomeDirectory())
+        let keys: Set<URLResourceKey> = [.volumeTotalCapacityKey, .volumeAvailableCapacityForImportantUsageKey]
+        
+        if let values = try? url.resourceValues(forKeys: keys),
+           let total = values.volumeTotalCapacity,
+           let free = values.volumeAvailableCapacityForImportantUsage {
+            
+            let marketedTotal = marketingSize(for: max(0, Int64(total)))
+            return StorageSnapshot(
+                totalBytes: marketedTotal,
+                availableBytes: min(max(0, Int64(free)), marketedTotal)
+            )
+        }
+
+        // Fallback to legacy filesystem attributes if volume API fails
+        guard let attrs = try? FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory()),
+              let totalAttr = int64Value(attrs[.systemSize]),
+              let freeAttr = int64Value(attrs[.systemFreeSize])
         else {
             return StorageSnapshot(totalBytes: 0, availableBytes: 0)
         }
 
-        let marketedTotal = marketingSize(for: max(0, total))
+        let marketedTotalAttr = marketingSize(for: max(0, totalAttr))
         return StorageSnapshot(
-            totalBytes: marketedTotal,
-            availableBytes: min(max(0, free), marketedTotal)
+            totalBytes: marketedTotalAttr,
+            availableBytes: min(max(0, freeAttr), marketedTotalAttr)
         )
     }
 

@@ -12,7 +12,7 @@ This repository is a native SwiftUI app, not a reusable library. The product goa
 ## Current State
 
 - The codebase is in early foundation stage.
-- Existing widget folders currently include `BatteryBars`, `StepHealth`, `HeartBeat`, `PortalWidget`, `DeviceStorage`, `DailyDashboard`, `ClassicWeatherWidget`, and `SunEventWeatherWidget`.
+- Existing widget folders currently include `Battery`, `Steps`, `Activity`, `Events`, `Portal`, `Storage`, `Today`, `Weather`, `Daylight`, and `HeartRate`.
 - Shared theme, persistence, constants, service, and widget-size token files are being established.
 - Documentation should be treated as the source of intent until implementation catches up.
 
