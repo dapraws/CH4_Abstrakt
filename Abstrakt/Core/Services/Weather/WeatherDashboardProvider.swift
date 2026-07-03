@@ -161,7 +161,7 @@ final class WeatherDashboardProvider {
         case .haze:                     return ("haze-\(dn)",                       "Haze")
         case .heavyRain:                return ("heavyRain",                        "Heavy Rain")
         case .heavySnow:                return ("heavySnow",                        "Heavy Snow")
-        case .hot:                      return ("clear-day",                        "Hot")
+        case .hot:                      return ("clear-\(dn)",                        "Hot")
         case .hurricane:                return ("hurricane",                        "Hurricane")
         case .isolatedThunderstorms:    return ("isolatedThunderstorms-\(dn)",      "Isolated Thunderstorms")
         case .mostlyClear:              return ("mostlyClear-\(dn)",                "Mostly Clear")
