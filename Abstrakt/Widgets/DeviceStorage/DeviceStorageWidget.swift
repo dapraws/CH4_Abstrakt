@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WidgetKit
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -19,15 +20,15 @@ struct DeviceStorageRenderSnapshot: Codable, Hashable {
     var usedBytes: Int64 { totalBytes - availableBytes }
 
     var availableGB: Double {
-        Double(availableBytes) / 1_073_741_824.0
+        Double(availableBytes) / 1_000_000_000.0
     }
 
     var usedGB: Double {
-        Double(max(0, usedBytes)) / 1_073_741_824.0
+        Double(max(0, usedBytes)) / 1_000_000_000.0
     }
 
     var totalGB: Double {
-        Double(totalBytes) / 1_073_741_824.0
+        Double(totalBytes) / 1_000_000_000.0
     }
 
     var usedFraction: Double {
@@ -142,6 +143,10 @@ struct DeviceStorageWidget: View {
     // MARK: Body
 
     var body: some View {
+        #if WIDGET_EXTENSION
+        widgetContent
+            .containerBackground(palette.background, for: .widget)
+        #else
         ZStack {
             palette.background
             widgetContent
@@ -153,6 +158,7 @@ struct DeviceStorageWidget: View {
                 style: .continuous
             )
         )
+        #endif
     }
 
     // MARK: Content

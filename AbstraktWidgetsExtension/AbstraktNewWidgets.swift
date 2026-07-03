@@ -13,6 +13,7 @@ struct SmallSolidWidgetEntry: TimelineEntry {
     let storage: StorageWidgetEntry
     let classicWeather: ClassicWeatherSnapshot
     let sunEventWeather: SunEventWeatherSnapshot
+    let heartRate: HeartRateWidgetEntry
 }
 
 struct MediumSolidWidgetEntry: TimelineEntry {
@@ -63,6 +64,12 @@ struct StorageWidgetEntry: TimelineEntry {
     let date: Date
     let totalBytes: Int64
     let availableBytes: Int64
+}
+
+struct HeartRateWidgetEntry: TimelineEntry {
+    let date: Date
+    let bpm: Int
+    let timestamp: Date
 }
 
 private let widgetTimelineRefreshInterval: TimeInterval = 1
@@ -207,7 +214,13 @@ private extension SmallSolidWidgetEntry {
                 availableBytes: WidgetSharedStore.storageAvailableBytes
             ),
             classicWeather: WidgetSharedStore.classicWeather,
-            sunEventWeather: WidgetSharedStore.sunEventWeather
+            sunEventWeather: WidgetSharedStore.sunEventWeather,
+            heartRate: HeartRateWidgetEntry(
+                date: .now,
+                bpm: WidgetSharedStore.heartRateBPM,
+                timestamp: WidgetSharedStore.heartRateTimestamp
+            )
+            
         )
     }
 }
@@ -317,6 +330,15 @@ private extension StorageWidgetEntry {
     }
 }
 
+private extension HeartRateWidgetEntry {
+    var renderSnapshot: HeartBeatRenderSnapshot {
+        HeartBeatRenderSnapshot(
+            bpm: bpm,
+            timestamp: timestamp
+        )
+    }
+}
+
 // MARK: - Widget Views
 
 private struct SmallSolidWidgetView: View {
@@ -360,6 +382,12 @@ private struct SmallSolidWidgetView: View {
         case "sun-event-weather-small", "sunevent-weather-small":
             SunEventWeatherWidget(
                 snapshot: entry.sunEventWeather,
+                fontTheme: WidgetSharedStore.appFontTheme,
+                clipsToWidgetShape: false
+            )
+        case "heart-beat-small":
+            HeartBeatWidget(
+                snapshot: entry.heartRate.renderSnapshot,
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
@@ -520,7 +548,12 @@ private extension SmallSolidWidgetEntry {
                 availableBytes: WidgetSharedStore.storageAvailableBytes
             ),
             classicWeather: .placeholder,
-            sunEventWeather: .placeholder
+            sunEventWeather: .placeholder,
+            heartRate: HeartRateWidgetEntry(
+                date: .now,
+                bpm: WidgetSharedStore.heartRateBPM,
+                timestamp: WidgetSharedStore.heartRateTimestamp
+            )
         )
     }
 }

@@ -1,7 +1,7 @@
 import Foundation
 
 enum AppGroupConstants {
-    static let defaultSuiteName = "group.msaf.abstrakt"
+    static let defaultSuiteName = "group.daffa.abstrakt"
     static let legacyFallbackSuiteName = "group.default.abstrakt"
 
     static let suiteName: String = {
@@ -42,7 +42,9 @@ enum AppGroupConstants {
     static let settingsDistanceUnitKey = "settings.distanceUnit"
     static let sharedStorageTotalBytesKey = "shared.storage.totalBytes"
     static let sharedStorageAvailableBytesKey = "shared.storage.availableBytes"
-
+    static let sharedHeartRateBPMKey = "shared.heartRate.bpm"
+    static let sharedHeartRateTimestampKey = "shared.heartRate.timestamp"
+    
     static func migrateLegacyFallbackDefaultsIfNeeded() {
         guard suiteName != legacyFallbackSuiteName,
               let legacyDefaults = UserDefaults(suiteName: legacyFallbackSuiteName),
@@ -88,5 +90,9 @@ enum AppGroupConstants {
         settingsDistanceUnitKey,
         sharedStorageTotalBytesKey,
         sharedStorageAvailableBytesKey,
+        sharedSunEventWeatherKey,
+        sharedClassicWeatherKey,
+        sharedHeartRateBPMKey,
+        sharedHeartRateTimestampKey
     ]
 }

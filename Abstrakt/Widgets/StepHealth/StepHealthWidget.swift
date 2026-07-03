@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 // MARK: - Render Snapshot
 
@@ -68,6 +69,10 @@ struct StepHealthWidget: View {
     // MARK: Body
 
     var body: some View {
+        #if WIDGET_EXTENSION
+        widgetContent
+            .containerBackground(palette.background, for: .widget)
+        #else
         ZStack {
             palette.background
             widgetContent
@@ -79,6 +84,7 @@ struct StepHealthWidget: View {
                 style: .continuous
             )
         )
+        #endif
     }
 
     // MARK: Content

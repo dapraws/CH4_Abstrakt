@@ -67,6 +67,10 @@ The current app foundation includes:
 - Runtime widget previews and WidgetKit timelines consume live provider data or App Group cached values for battery, Health, calendar/date, time, storage, and WeatherKit-backed weather. Sample numbers are reserved for Xcode canvas previews.
 - A small Portal Widget preset that combines calendar date context, current-location WeatherKit temperature, configurable MiniApp launchers, and App Intent buttons for launching selected system apps.
 - Small weather presets for current conditions and sun events, backed by host-app WeatherKit/CoreLocation refreshes and shared weather condition assets.
+- Robust background data fetching featuring in-flight coalescing for WeatherKit (preventing rate limits) and safe active-scene authorization for HealthKit on iOS 18.
+- Device storage widgets using base-10 calculation math to perfectly match the iPhone's Settings > General > iPhone Storage metrics.
+- Seamless rendering on iOS 17+ StandBy and iPad Lock Screens via the `containerBackground` API.
+- A new Heart Rate widget that reads live background BPM data from the user's HealthKit datastore.
 
 The app font preference is written to shared storage so Home Screen widgets and in-app previews can render with matching typography. Widget views must stay extension-safe because the WidgetKit target also compiles the shared files under `Abstrakt/Widgets/`.
 

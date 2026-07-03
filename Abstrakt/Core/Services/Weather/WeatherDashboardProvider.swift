@@ -118,25 +118,57 @@ final class WeatherDashboardProvider {
 
     // MARK: - Private
 
-    /// Single shared fetch used by every snapshot builder so we only hit
-    /// CoreLocation + WeatherKit once per call, and log failures instead of
-    /// silently swallowing them.
+    /// Shared result type for a single location + weather fetch.
     private struct WeatherBundle {
         let location: CLLocation
         let weather: Weather
     }
 
+    /// Cache TTL — reuse a bundle fetched within this window.
+    private let cacheTTL: TimeInterval = 30
+    private var cachedBundle: WeatherBundle?
+    private var cacheDate: Date?
+
+    /// In-flight fetch task — concurrent callers await the same task instead
+    /// of each spawning their own WeatherKit request (which causes JWT Code=2).
+    private var inFlightFetch: Task<WeatherBundle?, Never>?
+
+    /// Returns a weather bundle, coalescing concurrent requests into one fetch
+    /// and reusing a cached result if it is still fresh.
     private func fetchWeatherBundle(context: String) async -> WeatherBundle? {
-        do {
-            let location = try await locationProvider.currentLocation()
-            print("[\(context)] location acquired: \(location.coordinate.latitude), \(location.coordinate.longitude)")
-            let weather = try await weatherService.weather(for: location)
-            print("[\(context)] weather fetched OK")
-            return WeatherBundle(location: location, weather: weather)
-        } catch {
-            print("[\(context)] fetch failed: \(error)")
-            return nil
+        // Return cached result if still fresh.
+        if let bundle = cachedBundle, let date = cacheDate,
+           Date().timeIntervalSince(date) < cacheTTL {
+            print("[\(context)] using cached weather bundle")
+            return bundle
         }
+
+        // Join an already-running fetch rather than starting a duplicate.
+        if let existing = inFlightFetch {
+            print("[\(context)] joining in-flight fetch")
+            return await existing.value
+        }
+
+        // Start a new fetch and store the task so late arrivals can join it.
+        let task = Task<WeatherBundle?, Never> { [weak self] in
+            guard let self else { return nil }
+            defer { self.inFlightFetch = nil }
+            do {
+                let location = try await self.locationProvider.currentLocation()
+                print("[\(context)] location acquired: \(location.coordinate.latitude), \(location.coordinate.longitude)")
+                let weather = try await self.weatherService.weather(for: location)
+                print("[\(context)] weather fetched OK")
+                let bundle = WeatherBundle(location: location, weather: weather)
+                self.cachedBundle = bundle
+                self.cacheDate = Date()
+                return bundle
+            } catch {
+                print("[\(context)] fetch failed: \(error)")
+                return nil
+            }
+        }
+        inFlightFetch = task
+        return await task.value
     }
 
     private func conditionInfo(

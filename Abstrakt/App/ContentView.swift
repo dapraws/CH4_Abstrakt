@@ -25,6 +25,10 @@ struct ContentView: View {
     @State private var selectedTab: BottomBarTab = .gallery
     @State private var showsLibrary = false
     @State private var selectedGalleryItem: WidgetCatalogItem?
+    /// Guards the one-time HealthKit authorization prompt so it is never
+    /// requested more than once per session (prevents the iOS 18+ sandbox error
+    /// caused by presenting the privacy dialog while the app is still settling).
+    @State private var hasRequestedHealthAuth = false
 
     // MARK: - Properties
 
@@ -59,7 +63,6 @@ struct ContentView: View {
                 return
             }
             
-            await refreshWidgetData()
             HealthSummaryProvider.shared.startObservingTodayMetrics {
                 Task { @MainActor in
                     await refreshFastChangingWidgetData()
@@ -70,7 +73,18 @@ struct ContentView: View {
             guard runsLiveWidgetTasks, scenePhase == .active else {
                 return
             }
-            
+
+            // Request HealthKit authorization exactly once per session.
+            // The guard uses @State (MainActor) so there is no concurrent-
+            // write race between multiple task restarts.
+            // The delay lets the window settle into the foreground before
+            // HealthKit tries to present its privacy dialog (iOS 18+ fix).
+            if !hasRequestedHealthAuth {
+                hasRequestedHealthAuth = true
+                try? await Task.sleep(for: .milliseconds(800))
+                await HealthSummaryProvider.shared.requestAuthorization()
+            }
+
             await refreshWidgetData()
             await runActiveWidgetRefreshLoop()
         }
@@ -190,6 +204,8 @@ struct ContentView: View {
         SharedModelContainer.write(classicWeather: classicWeather)
         let sunEventWeather = await WeatherDashboardProvider.shared.sunEventWeatherSnapshot()
         SharedModelContainer.write(sunEventWeather: sunEventWeather)
+        let heartRate = await HealthSummaryProvider.shared.latestHeartRate()
+        SharedModelContainer.write(heartRate: heartRate)
         
         print("[refreshWidgetData] Fetching health data...")
         await refreshHealthWidgetData()
@@ -219,7 +235,6 @@ struct ContentView: View {
     }
     
     private func refreshHealthWidgetData() async {
-        await HealthSummaryProvider.shared.requestAuthorization()
         let health = await HealthSummaryProvider.shared.todaySnapshot()
         SharedModelContainer.write(health: health)
     }

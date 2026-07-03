@@ -47,6 +47,10 @@ final class LocationProvider: NSObject, LocationProviding {
     private var authorizationContinuation: CheckedContinuation<CLAuthorizationStatus, Never>?
     private var locationContinuation: CheckedContinuation<CLLocation, Error>?
 
+    /// Coalesces concurrent `currentLocation()` callers into one CLLocationManager
+    /// request so we never overwrite a pending continuation.
+    private var inFlightLocation: Task<CLLocation, Error>?
+
     // MARK: - Init
 
     override init() {
@@ -58,6 +62,11 @@ final class LocationProvider: NSObject, LocationProviding {
     // MARK: - LocationProviding
 
     func currentLocation() async throws -> CLLocation {
+        // Join an in-flight request if one is already running.
+        if let existing = inFlightLocation {
+            return try await existing.value
+        }
+
         switch manager.authorizationStatus {
         case .notDetermined:
             let status = await requestAuthorization()
@@ -72,10 +81,16 @@ final class LocationProvider: NSObject, LocationProviding {
             throw LocationError.authorizationDenied
         }
 
-        return try await withCheckedThrowingContinuation { continuation in
-            locationContinuation = continuation
-            manager.startUpdatingLocation()
+        let task = Task<CLLocation, Error> { [weak self] in
+            guard let self else { throw LocationError.locationUnavailable }
+            defer { self.inFlightLocation = nil }
+            return try await withCheckedThrowingContinuation { continuation in
+                self.locationContinuation = continuation
+                self.manager.startUpdatingLocation()
+            }
         }
+        inFlightLocation = task
+        return try await task.value
     }
 
     func currentCoordinates() async throws -> CLLocationCoordinate2D {
