@@ -29,13 +29,15 @@ final class WeatherDashboardProvider {
 
         let current = bundle.weather.currentWeather
         let today = bundle.weather.dailyForecast.forecast.first
+        let condition = conditionInfo(for: current.condition, isDaytime: current.isDaylight)
 
         return DailyDashboardSnapshot(
             date: .now,
             temperature: Int(current.temperature.converted(to: .celsius).value.rounded()),
             high: Int((today?.highTemperature ?? current.temperature).converted(to: .celsius).value.rounded()),
             low: Int((today?.lowTemperature ?? current.temperature).converted(to: .celsius).value.rounded()),
-            weatherSymbol: conditionInfo(for: current.condition, isDaytime: current.isDaylight).icon
+            weatherSymbol: condition.icon,
+            conditionLabel: condition.label
         )
     }
 
@@ -44,7 +46,7 @@ final class WeatherDashboardProvider {
             return .placeholder
         }
 
-        let placeName = (try? await locationProvider.cityName(for: bundle.location)) ?? "Here"
+        let placeName = (try? await locationProvider.cityName(for: bundle.location)) ?? "Kuta"
 
         return PortalWidgetSnapshot(
             date: .now,
@@ -182,4 +184,3 @@ final class WeatherDashboardProvider {
     }
 
 }
-

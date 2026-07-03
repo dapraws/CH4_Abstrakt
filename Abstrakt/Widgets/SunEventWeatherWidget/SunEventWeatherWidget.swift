@@ -153,7 +153,9 @@ struct SunEventWeatherWidget: View {
                 .font(AbstraktWidgetFonts.font(.meta, theme: fontTheme))
             }
         }
-        .padding(16)
+        .padding(.horizontal, 15)
+        .padding(.top, 15)
+        .padding(.bottom, 10)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 

@@ -118,7 +118,7 @@ struct ClassicWeatherWidget: View {
             
             Spacer()
 
-            VStack(alignment: .leading, spacing: -5) {
+            VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 0) {
                     Text("\(snapshot.displayTemperature)")
                         .font(AbstraktWidgetFonts.font(.title, theme: fontTheme))
@@ -127,10 +127,10 @@ struct ClassicWeatherWidget: View {
                     Text("°")
                         .font(AbstraktWidgetFonts.font(.title, theme: fontTheme))
                         .foregroundStyle(palette.foreground)
-                        .offset(x: -1, y: -1)
+                        .offset(x: 0, y: -1)
                 }
 
-                HStack(spacing: 16) {
+                HStack(spacing: 15) {
                     Text("L: \(snapshot.displayLow)")
                         .foregroundStyle(palette.tertiaryForeground)
 
@@ -140,7 +140,9 @@ struct ClassicWeatherWidget: View {
                 .font(AbstraktWidgetFonts.font(.meta, theme: fontTheme))
             }
         }
-        .padding(16)
+        .padding(.horizontal, 15)
+        .padding(.top, 15)
+        .padding(.bottom, 10)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 

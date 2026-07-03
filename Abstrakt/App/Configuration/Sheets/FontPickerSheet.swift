@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct FontPickerSheet: View {
-    private static let settingsStore = UserDefaults(suiteName: AppGroupConstants.suiteName)
+    private static let settingsStore = AppGroupConstants.sharedDefaults
 
     @Environment(\.dismiss) private var dismiss
     @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id

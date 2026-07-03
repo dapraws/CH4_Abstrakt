@@ -48,7 +48,7 @@ struct GalleryScreen: View {
 
     // MARK: Properties
 
-    private let featuredCategories: [WidgetCategory] = [.all, .classic, .portal, .health, .weather, .clock]
+    private let featuredCategories = WidgetCatalog.featuredCategories
     private let onSelectItem: (WidgetCatalogItem) -> Void
 
     private typealias GalleryEntry = WidgetCatalogItem
@@ -346,7 +346,7 @@ struct WidgetPreviewSheetCover: View {
 // MARK: - Preview Sheet
 
 private struct WidgetPreviewSheet: View {
-    private static let settingsStore = UserDefaults(suiteName: AppGroupConstants.suiteName)
+    private static let settingsStore = AppGroupConstants.sharedDefaults
 
     let item: WidgetCatalogItem
     @AppStorage(AppGroupConstants.portalSelectedAppsKey, store: settingsStore) private var portalSelectedAppsValue = PortalApp.storageValue(for: PortalApp.defaultSelection)

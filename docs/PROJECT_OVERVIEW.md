@@ -50,6 +50,7 @@ Important UX constraints:
 - Some settings should push or open a second sheet, such as font selection.
 - The saved Library should group presets by widget size so users understand what is ready to place.
 - Library tabs should be swipeable as well as tappable, with size counts kept visible in the tab chips.
+- Gallery category chips should come from active `WidgetCatalog` categories, so new widget styles such as Classic, Minimalism, or Weather are discoverable without maintaining a separate chip list.
 - Library rows should crop the widget preview under the row divider instead of shrinking the design into a tiny thumbnail.
 - Preview sheets should use a full-width bottom sheet treatment with a drag indicator, title metadata below the rendered widget, and a bottom save action separated from the widget preview layer.
 - Unit preferences should use compact picker/menu controls from Settings and persist through shared storage for widget rendering.

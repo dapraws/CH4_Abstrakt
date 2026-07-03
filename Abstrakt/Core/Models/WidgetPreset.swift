@@ -48,14 +48,14 @@ extension WidgetPreset {
         WidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0006") ?? UUID(),
             widgetID: "classic-weather-small",
-            name: "Classic Weather",
+            name: "Classic Weather | Classic",
             size: .small,
             appearanceMode: .system
         ),
         WidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0007") ?? UUID(),
-            widgetID: "sunevent-weather-small",
-            name: "Sun Event Weather",
+            widgetID: "sun-event-weather-small",
+            name: "Sun Event Weather | Minimalism",
             size: .small,
             appearanceMode: .system
         ),

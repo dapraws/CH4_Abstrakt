@@ -1,13 +1,21 @@
 import Foundation
 
 enum WidgetSharedStore {
-    private static let suiteName = Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.default.abstrakt"
+    private static let suiteName: String = {
+        guard let value = Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String,
+              !value.isEmpty else {
+            return "group.msaf.abstrakt"
+        }
+
+        return value
+    }()
 
     private static let defaults = UserDefaults(suiteName: suiteName)
     private static let sharedWidgetPresetsKey = "shared.widget.presets"
     private static let appFontThemeKey = "appFontTheme"
     private static let temperatureUnitKey = "settings.temperatureUnit"
     private static let distanceUnitKey = "settings.distanceUnit"
+    private static let weatherConditionLabelKey = "shared.weather.conditionLabel"
 
     static var appFontTheme: AbstraktWidgetFontTheme {
         AbstraktWidgetFontTheme.from(id: defaults?.string(forKey: appFontThemeKey) ?? AbstraktWidgetFontTheme.sfProRounded.id)
@@ -103,12 +111,16 @@ enum WidgetSharedStore {
         defaults?.string(forKey: "shared.weather.symbol") ?? "🌥️"
     }
 
+    static var weatherConditionLabel: String {
+        defaults?.string(forKey: weatherConditionLabelKey) ?? "Partly Cloudy"
+    }
+
     static var portalWeatherTemperatureCelsius: Int {
         defaults?.object(forKey: "shared.portal.weather.temperature") as? Int ?? 16
     }
 
     static var portalWeatherPlaceName: String {
-        defaults?.string(forKey: "shared.portal.weather.placeName") ?? "Denpasar"
+        defaults?.string(forKey: "shared.portal.weather.placeName") ?? "Kuta"
     }
 
     static var portalSelectedApps: [PortalApp] {
@@ -157,7 +169,7 @@ enum WidgetSharedStore {
             return fallbackSavedPresets
         }
 
-        return presets
+        return presets.isEmpty ? fallbackSavedPresets : presets
     }
 
     private static var temperatureUnitID: String {
@@ -216,24 +228,69 @@ enum WidgetSharedStore {
         SavedWidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0006") ?? UUID(),
             widgetID: "classic-weather-small",
-            name: "Classic Weather",
+            name: "Classic Weather | Classic",
             size: "small",
             appearanceMode: "system"
         ),
         SavedWidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0007") ?? UUID(),
-            widgetID: "sunevent-weather-small",
-            name: "Sun Event Weather",
+            widgetID: "sun-event-weather-small",
+            name: "Sun Event Weather | Minimalism",
             size: "small",
             appearanceMode: "system"
         ),
     ]
     
     static var storageTotalBytes: Int64 {
-        defaults?.object(forKey: "shared.storage.totalBytes") as? Int64 ?? 0
+        int64Value(forKey: "shared.storage.totalBytes", fallback: fallbackStorageSnapshot.totalBytes)
     }
 
     static var storageAvailableBytes: Int64 {
-        defaults?.object(forKey: "shared.storage.availableBytes") as? Int64 ?? 0
+        int64Value(forKey: "shared.storage.availableBytes", fallback: fallbackStorageSnapshot.availableBytes)
+    }
+
+    private static func int64Value(forKey key: String, fallback: Int64) -> Int64 {
+        switch defaults?.object(forKey: key) {
+        case let value as Int64:
+            value
+        case let value as Int:
+            Int64(value)
+        case let value as UInt64:
+            value > UInt64(Int64.max) ? Int64.max : Int64(value)
+        case let value as UInt:
+            value > UInt(Int64.max) ? Int64.max : Int64(value)
+        case let value as NSNumber:
+            value.int64Value
+        default:
+            fallback
+        }
+    }
+
+    private static var fallbackStorageSnapshot: (totalBytes: Int64, availableBytes: Int64) {
+        guard let attrs = try? FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory()),
+              let total = int64Value(attrs[.systemSize]),
+              let free = int64Value(attrs[.systemFreeSize]) else {
+            return (0, 0)
+        }
+
+        let safeTotal = max(0, total)
+        return (safeTotal, min(max(0, free), safeTotal))
+    }
+
+    private static func int64Value(_ value: Any?) -> Int64? {
+        switch value {
+        case let value as Int64:
+            value
+        case let value as Int:
+            Int64(value)
+        case let value as UInt64:
+            value > UInt64(Int64.max) ? Int64.max : Int64(value)
+        case let value as UInt:
+            value > UInt(Int64.max) ? Int64.max : Int64(value)
+        case let value as NSNumber:
+            value.int64Value
+        default:
+            nil
+        }
     }
 }

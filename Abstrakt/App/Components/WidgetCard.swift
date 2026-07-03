@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct WidgetCard: View {
-    private static let settingsStore = UserDefaults(suiteName: AppGroupConstants.suiteName)
+    private static let settingsStore = AppGroupConstants.sharedDefaults
 
     let item: WidgetCatalogItem
     var usesPlaceholderPreview = false
@@ -41,7 +41,7 @@ struct WidgetCard: View {
         case .small:
             10
         case .medium, .large:
-            18
+            15
         }
     }
 
@@ -55,7 +55,7 @@ struct WidgetCard: View {
 }
 
 struct WidgetPreview: View {
-    private static let settingsStore = UserDefaults(suiteName: AppGroupConstants.suiteName)
+    private static let settingsStore = AppGroupConstants.sharedDefaults
 
     let item: WidgetCatalogItem
     var usesPlaceholderPreview = false
@@ -71,8 +71,9 @@ struct WidgetPreview: View {
     @AppStorage(AppGroupConstants.sharedWeatherHighKey, store: settingsStore) private var weatherHigh = 30
     @AppStorage(AppGroupConstants.sharedWeatherLowKey, store: settingsStore) private var weatherLow = 24
     @AppStorage(AppGroupConstants.sharedWeatherSymbolKey, store: settingsStore) private var weatherSymbol = "🌥️"
+    @AppStorage(AppGroupConstants.sharedWeatherConditionLabelKey, store: settingsStore) private var weatherConditionLabel = "Partly Cloudy"
     @AppStorage(AppGroupConstants.sharedPortalWeatherTemperatureKey, store: settingsStore) private var portalWeatherTemperature = 16
-    @AppStorage(AppGroupConstants.sharedPortalWeatherPlaceNameKey, store: settingsStore) private var portalWeatherPlaceName = "Denpasar"
+    @AppStorage(AppGroupConstants.sharedPortalWeatherPlaceNameKey, store: settingsStore) private var portalWeatherPlaceName = "Here"
     @AppStorage(AppGroupConstants.settingsDistanceUnitKey, store: settingsStore) private var distanceUnitID = DistanceUnitPreference.kilometers.id
 
     private var widgetFontTheme: AbstraktWidgetFontTheme {
@@ -122,7 +123,8 @@ struct WidgetPreview: View {
                             temperature: weatherTemperature,
                             high: weatherHigh,
                             low: weatherLow,
-                            weatherSymbol: weatherSymbol
+                            weatherSymbol: weatherSymbol,
+                            conditionLabel: weatherConditionLabel
                         ),
                         fontTheme: widgetFontTheme
                     )
@@ -133,7 +135,7 @@ struct WidgetPreview: View {
                     )
                 case "classic-weather-small":
                     ClassicWeatherWidget(fontTheme: widgetFontTheme)
-                case "sunevent-weather-small":
+                case "sun-event-weather-small", "sunevent-weather-small":
                     SunEventWeatherWidget(fontTheme: widgetFontTheme)
                 default:
                     widgetBackground

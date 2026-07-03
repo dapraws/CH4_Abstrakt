@@ -58,14 +58,14 @@ This means the app library is the source of truth for saved widget presets, whil
 
 The current app foundation includes:
 
-- Gallery widget cards with category chips and a preview sheet for the selected widget.
+- Gallery widget cards with catalog-backed category chips and a preview sheet for the selected widget.
 - Preview sheets that render the selected widget, show its display title, and keep the bottom save action in a separate control layer.
 - A Library screen grouped by `Small`, `Medium`, and `Large`, with swipeable size tabs, empty states, and cropped/scaled preview rows that hint at the saved widget surface.
 - Settings for app font selection, temperature unit, temperature display, distance unit, access/permissions, FAQ, change icon, and release notes.
 - Shared settings storage for widget-facing unit preferences and the selected widget font through the App Group.
 - Shared widget renderers under `Abstrakt/Widgets/` that are compiled into both the host app and the WidgetKit extension.
 - Runtime widget previews and WidgetKit timelines consume live provider data or App Group cached values for battery, Health, calendar/date, time, storage, and WeatherKit-backed weather. Sample numbers are reserved for Xcode canvas previews.
-- A small Portal Widget preset that combines calendar date context, Denpasar WeatherKit temperature, configurable MiniApp launchers, and App Intent buttons for launching selected system apps.
+- A small Portal Widget preset that combines calendar date context, current-location WeatherKit temperature, configurable MiniApp launchers, and App Intent buttons for launching selected system apps.
 - Small weather presets for current conditions and sun events, backed by host-app WeatherKit/CoreLocation refreshes and shared weather condition assets.
 
 The app font preference is written to shared storage so Home Screen widgets and in-app previews can render with matching typography. Widget views must stay extension-safe because the WidgetKit target also compiles the shared files under `Abstrakt/Widgets/`.

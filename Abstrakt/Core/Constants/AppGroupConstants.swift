@@ -1,7 +1,19 @@
 import Foundation
 
 enum AppGroupConstants {
-    static let suiteName = Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.default.abstrakt"
+    static let defaultSuiteName = "group.msaf.abstrakt"
+    static let legacyFallbackSuiteName = "group.default.abstrakt"
+
+    static let suiteName: String = {
+        guard let value = Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String,
+              !value.isEmpty else {
+            return defaultSuiteName
+        }
+
+        return value
+    }()
+
+    static let sharedDefaults = UserDefaults(suiteName: suiteName)
     static let sharedClockTimeKey = "shared.clock.time"
     static let sharedClockDateKey = "shared.clock.date"
     static let sharedCalendarHeadlineKey = "shared.calendar.headline"
@@ -16,6 +28,7 @@ enum AppGroupConstants {
     static let sharedWeatherHighKey = "shared.weather.high"
     static let sharedWeatherLowKey = "shared.weather.low"
     static let sharedWeatherSymbolKey = "shared.weather.symbol"
+    static let sharedWeatherConditionLabelKey = "shared.weather.conditionLabel"
     static let sharedPortalWeatherTemperatureKey = "shared.portal.weather.temperature"
     static let sharedPortalWeatherPlaceNameKey = "shared.portal.weather.placeName"
     static let portalSelectedAppsKey = "portal.selectedApps"
@@ -29,4 +42,51 @@ enum AppGroupConstants {
     static let settingsDistanceUnitKey = "settings.distanceUnit"
     static let sharedStorageTotalBytesKey = "shared.storage.totalBytes"
     static let sharedStorageAvailableBytesKey = "shared.storage.availableBytes"
+
+    static func migrateLegacyFallbackDefaultsIfNeeded() {
+        guard suiteName != legacyFallbackSuiteName,
+              let legacyDefaults = UserDefaults(suiteName: legacyFallbackSuiteName),
+              let currentDefaults = sharedDefaults else {
+            return
+        }
+
+        for key in sharedKeys where currentDefaults.object(forKey: key) == nil {
+            if let value = legacyDefaults.object(forKey: key) {
+                currentDefaults.set(value, forKey: key)
+            }
+        }
+
+        currentDefaults.synchronize()
+    }
+
+    private static let sharedKeys = [
+        sharedClockTimeKey,
+        sharedClockDateKey,
+        sharedCalendarHeadlineKey,
+        sharedCalendarDetailKey,
+        sharedBatteryLevelKey,
+        sharedBatteryEstimatedHoursKey,
+        sharedBatteryEstimatedMinutesKey,
+        sharedBatteryIsChargingKey,
+        sharedHealthStepsKey,
+        sharedHealthDistanceKilometersKey,
+        sharedWeatherTemperatureKey,
+        sharedWeatherHighKey,
+        sharedWeatherLowKey,
+        sharedWeatherSymbolKey,
+        sharedWeatherConditionLabelKey,
+        sharedPortalWeatherTemperatureKey,
+        sharedPortalWeatherPlaceNameKey,
+        portalSelectedAppsKey,
+        portalIconClipStyleKey,
+        sharedWidgetPresetsKey,
+        sharedClassicWeatherKey,
+        sharedSunEventWeatherKey,
+        settingsAppFontThemeKey,
+        settingsTemperatureUnitKey,
+        settingsTemperatureDisplayKey,
+        settingsDistanceUnitKey,
+        sharedStorageTotalBytesKey,
+        sharedStorageAvailableBytesKey,
+    ]
 }

@@ -50,6 +50,7 @@ struct DashboardWidgetEntry: TimelineEntry {
     let high: Int
     let low: Int
     let weatherSymbol: String
+    let conditionLabel: String
 }
 
 struct PortalSmallWidgetEntry: TimelineEntry {
@@ -221,7 +222,8 @@ private extension MediumSolidWidgetEntry {
                 temperature: WidgetSharedStore.weatherTemperatureCelsius,
                 high: WidgetSharedStore.weatherHighCelsius,
                 low: WidgetSharedStore.weatherLowCelsius,
-                weatherSymbol: WidgetSharedStore.weatherSymbol
+                weatherSymbol: WidgetSharedStore.weatherSymbol,
+                conditionLabel: WidgetSharedStore.weatherConditionLabel
             )
         )
     }
@@ -249,7 +251,8 @@ private extension LargeSolidWidgetEntry {
                 temperature: WidgetSharedStore.weatherTemperatureCelsius,
                 high: WidgetSharedStore.weatherHighCelsius,
                 low: WidgetSharedStore.weatherLowCelsius,
-                weatherSymbol: WidgetSharedStore.weatherSymbol
+                weatherSymbol: WidgetSharedStore.weatherSymbol,
+                conditionLabel: WidgetSharedStore.weatherConditionLabel
             ),
             storage: StorageWidgetEntry(
                 date: .now,
@@ -289,7 +292,8 @@ private extension DashboardWidgetEntry {
             temperature: temperature,
             high: high,
             low: low,
-            weatherSymbol: weatherSymbol
+            weatherSymbol: weatherSymbol,
+            conditionLabel: conditionLabel
         )
     }
 }
@@ -353,7 +357,7 @@ private struct SmallSolidWidgetView: View {
                 fontTheme: WidgetSharedStore.appFontTheme,
                 clipsToWidgetShape: false
             )
-        case "sunevent-weather-small":
+        case "sun-event-weather-small", "sunevent-weather-small":
             SunEventWeatherWidget(
                 snapshot: entry.sunEventWeather,
                 fontTheme: WidgetSharedStore.appFontTheme,
@@ -508,7 +512,7 @@ private extension SmallSolidWidgetEntry {
             portal: PortalSmallWidgetEntry(
                 date: Calendar.current.date(from: DateComponents(year: 2026, month: 6, day: 26, hour: 9, minute: 41)) ?? .widgetPreviewDate,
                 temperature: 16,
-                placeName: "Denpasar"
+                placeName: "Kuta"
             ),
             storage: StorageWidgetEntry(
                 date: .now,
@@ -531,7 +535,8 @@ private extension MediumSolidWidgetEntry {
                 temperature: 25,
                 high: 30,
                 low: 24,
-                weatherSymbol: "🌥️"
+                weatherSymbol: "🌥️",
+                conditionLabel: "Partly Cloudy"
             )
         )
     }
@@ -559,7 +564,8 @@ private extension LargeSolidWidgetEntry {
                 temperature: 25,
                 high: 30,
                 low: 24,
-                weatherSymbol: "🌥️"
+                weatherSymbol: "🌥️",
+                conditionLabel: "Partly Cloudy"
             ),
             storage: StorageWidgetEntry(
                 date: .now,

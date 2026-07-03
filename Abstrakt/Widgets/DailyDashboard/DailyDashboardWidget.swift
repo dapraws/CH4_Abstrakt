@@ -8,9 +8,10 @@ struct DailyDashboardSnapshot: Codable, Hashable {
     let high: Int
     let low: Int
     let weatherSymbol: String
+    let conditionLabel: String
 
     private var usesFahrenheit: Bool {
-        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.default.abstrakt")?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
+        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.msaf.abstrakt")?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
     }
 
     var displayTemperature: Int {
@@ -23,6 +24,50 @@ struct DailyDashboardSnapshot: Codable, Hashable {
 
     var displayLow: Int {
         convertedFromCelsius(low)
+    }
+
+    var shortConditionLabel: String {
+        let words = conditionLabel
+            .split(separator: " ")
+            .prefix(2)
+            .map(String.init)
+        return words.isEmpty ? "Weather" : words.joined(separator: " ")
+    }
+
+    var conditionSystemImageName: String {
+        if weatherSymbol.hasPrefix("clear") {
+            return weatherSymbol.contains("night") ? "moon.stars.fill" : "sun.max.fill"
+        }
+
+        if weatherSymbol.contains("partlyCloudy") || weatherSymbol.contains("mostlyClear") {
+            return weatherSymbol.contains("night") ? "cloud.moon.fill" : "cloud.sun.fill"
+        }
+
+        if weatherSymbol.contains("mostlyCloudy") || weatherSymbol == "cloudy" {
+            return "cloud.fill"
+        }
+
+        if weatherSymbol.contains("thunderstorms") || weatherSymbol.contains("strongStorms") {
+            return "cloud.bolt.rain.fill"
+        }
+
+        if weatherSymbol.contains("rain") || weatherSymbol.contains("drizzle") || weatherSymbol.contains("sunShowers") {
+            return "cloud.rain.fill"
+        }
+
+        if weatherSymbol.contains("snow") || weatherSymbol.contains("flurries") || weatherSymbol.contains("sleet") || weatherSymbol.contains("rainAndSnow") {
+            return "cloud.snow.fill"
+        }
+
+        if weatherSymbol.contains("foggy") || weatherSymbol.contains("haze") || weatherSymbol.contains("smoky") || weatherSymbol.contains("blowingDust") {
+            return "cloud.fog.fill"
+        }
+
+        if weatherSymbol.contains("windy") {
+            return "wind"
+        }
+
+        return "cloud.sun.fill"
     }
 
     private func convertedFromCelsius(_ celsius: Int) -> Int {
@@ -100,17 +145,8 @@ struct DailyDashboardWidget: View {
 
             VStack(alignment: .leading, spacing: metrics.timeStackSpacing) {
                 HStack {
-                    Spacer()
-                    HStack(spacing: 3) {
-                        Text("\(snapshot.displayTemperature)°")
-                        Text(snapshot.weatherSymbol)
-                    }
-                    .font(AbstraktWidgetFonts.font(.meta, theme: fontTheme))
-                    .foregroundStyle(palette.foreground)
-                    .padding(.horizontal, 7)
-                    .frame(height: metrics.badgeHeight)
-                    .background(palette.badgeFill)
-                    .clipShape(Capsule())
+                    conditionHeader(metrics: metrics)
+                    Spacer(minLength: 0)
                 }
 
                 HStack(alignment: .firstTextBaseline, spacing: 0) {
@@ -125,6 +161,23 @@ struct DailyDashboardWidget: View {
             }
             .padding(metrics.cardPadding)
         }
+    }
+
+    private func conditionHeader(metrics: DailyDashboardMetrics) -> some View {
+        HStack(spacing: 5) {
+            Image(systemName: snapshot.conditionSystemImageName)
+                .font(.system(size: metrics.conditionIconSize, weight: .semibold))
+                .symbolRenderingMode(.hierarchical)
+                .frame(width: metrics.conditionIconSize, height: metrics.conditionIconSize)
+
+            Text(snapshot.shortConditionLabel)
+                .font(AbstraktWidgetFonts.font(.meta, theme: fontTheme).weight(.medium))
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+        }
+        .padding(.horizontal, 5)
+        .foregroundStyle(palette.foreground)
+        .frame(height: metrics.conditionHeaderHeight)
     }
 
     private func weatherCard(metrics: DailyDashboardMetrics) -> some View {
@@ -259,8 +312,12 @@ private struct DailyDashboardMetrics {
         clamped(size.height * 0.052, minimum: 8, maximum: 10)
     }
 
-    var badgeHeight: CGFloat {
-        clamped(size.height * 0.106, minimum: 17, maximum: 19)
+    var conditionHeaderHeight: CGFloat {
+        clamped(size.height * 0.16, minimum: 24, maximum: 27)
+    }
+
+    var conditionIconSize: CGFloat {
+        conditionHeaderHeight * 0.32
     }
 
     var timeStackSpacing: CGFloat {
@@ -324,7 +381,8 @@ extension DailyDashboardSnapshot {
         temperature: 25,
         high: 30,
         low: 24,
-        weatherSymbol: "🌥️"
+        weatherSymbol: "partlyCloudy-day",
+        conditionLabel: "Partly Cloudy"
     )
 }
 
@@ -335,7 +393,8 @@ extension DailyDashboardSnapshot {
             temperature: 25,
             high: 30,
             low: 24,
-            weatherSymbol: "🌥️"
+            weatherSymbol: "partlyCloudy-day",
+            conditionLabel: "Partly Cloudy"
         )
     )
     .frame(width: 364, height: 170)

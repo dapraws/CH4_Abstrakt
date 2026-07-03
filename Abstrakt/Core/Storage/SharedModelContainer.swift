@@ -41,6 +41,7 @@ enum SharedModelContainer {
         defaults?.set(dashboard.high, forKey: AppGroupConstants.sharedWeatherHighKey)
         defaults?.set(dashboard.low, forKey: AppGroupConstants.sharedWeatherLowKey)
         defaults?.set(dashboard.weatherSymbol, forKey: AppGroupConstants.sharedWeatherSymbolKey)
+        defaults?.set(dashboard.conditionLabel, forKey: AppGroupConstants.sharedWeatherConditionLabelKey)
         defaults?.synchronize()
     }
 

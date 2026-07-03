@@ -6,6 +6,7 @@
 //
 
 import CoreLocation
+import MapKit
 
 // MARK: - Protocol
 
@@ -82,11 +83,18 @@ final class LocationProvider: NSObject, LocationProviding {
     }
 
     func cityName(for location: CLLocation) async throws -> String {
-        let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
-        let placemark = placemarks.first
-        return placemark?.locality
-            ?? placemark?.subAdministrativeArea
-            ?? placemark?.administrativeArea
+        guard let request = MKReverseGeocodingRequest(location: location) else {
+            throw LocationError.locationUnavailable
+        }
+
+        let mapItems = try await request.mapItems
+        let mapItem = mapItems.first
+
+        return mapItem?.addressRepresentations?.cityName
+            ?? mapItem?.addressRepresentations?.cityWithContext(.short)
+            ?? mapItem?.addressRepresentations?.regionName
+            ?? mapItem?.address?.shortAddress
+            ?? mapItem?.name
             ?? "Unknown"
     }
 
@@ -150,4 +158,3 @@ extension LocationProvider: CLLocationManagerDelegate {
         }
     }
 }
-
