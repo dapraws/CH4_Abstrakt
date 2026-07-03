@@ -28,6 +28,7 @@ final class HealthSummaryProvider {
 
     private let store = HKHealthStore()
     private var observerQueries: [HKObserverQuery] = []
+    private var hasRequestedAuthorization = false
 
     private init() {}
 
