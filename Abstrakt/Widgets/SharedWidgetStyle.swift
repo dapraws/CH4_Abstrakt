@@ -6,10 +6,12 @@ import SwiftUI
 enum AbstraktWidgetFontRole {
     case display
     case displayCompact
+    case subDisplay
     case title
     case heading
     case body
     case caption
+    case bodyBold
     case meta
     case iconBadge
 }
@@ -189,6 +191,10 @@ private struct BaseAbstraktWidgetFontToken {
             size = 32
             weight = .bold
             lineSpacing = -2
+        case .subDisplay:
+            size = 12
+            weight = .semibold
+            lineSpacing = -2
         case .title:
             size = 30
             weight = .bold
@@ -213,6 +219,10 @@ private struct BaseAbstraktWidgetFontToken {
             size = 7
             weight = .black
             lineSpacing = 0
+        case .bodyBold:
+            size = 12
+            weight = .semibold
+            lineSpacing = 2
         }
     }
 }
@@ -224,9 +234,9 @@ private extension AbstraktWidgetFontTheme {
             return 1
         case .fusionPixel:
             switch role {
-            case .display, .displayCompact, .title:
+            case .display, .displayCompact, .title, .subDisplay:
                 return 0.74
-            case .heading, .body:
+            case .heading, .body, .bodyBold:
                 return 0.78
             case .caption, .meta, .iconBadge:
                 return 0.82
@@ -242,9 +252,9 @@ private extension AbstraktWidgetFontTheme {
             return 1
         case .fusionPixel:
             switch role {
-            case .display, .displayCompact, .title:
+            case .display, .displayCompact, .title, .subDisplay:
                 return -6
-            case .heading, .body:
+            case .heading, .body, .bodyBold:
                 return -5
             case .caption, .meta, .iconBadge:
                 return -3
