@@ -85,6 +85,12 @@ Use the feature matrix in `docs/FEATURE_FRAMEWORK_MATRIX.md` as the canonical ma
 - Providers are not a replacement for MVVM; they support the ViewModel layer by isolating framework access.
 - Permission requests, data fetches, and entitlement-sensitive code should stay behind provider abstractions.
 
+## Permission Handling
+
+- Saving a widget in the app's Gallery requires checking its associated permissions (HealthKit, CoreLocation, EventKit) first.
+- If a widget requires a permission that has not been explicitly granted by the user, saving is blocked and the user is prompted to open Settings to grant access.
+- **HealthKit Privacy Exception**: Due to Apple's privacy guidelines for HealthKit, apps cannot programmatically verify if a user granted or denied read access (it always appears as `.notDetermined` unless explicitly requested). Therefore, Health-dependent widgets treat `.requested` as the highest verifiable permission level, and allow saving if the status is `.requested`. Blocking `.requested` would permanently prevent users from ever saving a Health widget.
+
 ## Folder Intent
 
 ```text

@@ -41,6 +41,9 @@ This file is the canonical mapping between widget features and Apple-native fram
 
 ## Permission Expectations
 
+- **Gallery Enforcement**: The host app prevents saving widgets to the Library if their required framework permissions are missing. For most frameworks (like CoreLocation or EventKit), the app explicitly requires an "Authorized" state.
+- **HealthKit Privacy Exception**: Due to Apple privacy rules, the system never exposes whether a user granted or denied read access to Health data. HealthKit read queries only return `.notDetermined`. Because of this, Health widgets treat `.requested` as the highest verifiable permission state and allow saving if the prompt was requested. Blocking `.requested` would permanently prevent all users from saving Health widgets.
+
 | Widget Family | Permission |
 |---|---|
 | Clock | No permission required |

@@ -75,6 +75,7 @@ The current app foundation includes:
 - Device storage widgets using base-10 calculation math to perfectly match the iPhone's Settings > General > iPhone Storage metrics.
 - Seamless rendering on iOS 17+ StandBy and iPad Lock Screens via the `containerBackground` API.
 - A new Heart Rate widget that reads live background BPM data from the user's HealthKit datastore.
+- Strict Gallery enforcement that prevents saving widgets to the Library unless their required framework permissions (Location, Calendar, Health) are granted. (Note: Due to Apple privacy limits, HealthKit permissions are considered valid if they have been `.requested` since read access cannot be explicitly verified).
 
 The app font preference is written to shared storage so Home Screen widgets and in-app previews can render with matching typography. Widget views must stay extension-safe because the WidgetKit target also compiles the shared files under `Abstrakt/Widgets/`.
 
