@@ -74,7 +74,7 @@ struct HeartRateWidgetEntry: TimelineEntry {
     let timestamp: Date
 }
 
-private let widgetTimelineRefreshInterval: TimeInterval = 1
+private let widgetTimelineRefreshInterval: TimeInterval = 60
 
 // MARK: - Timeline Providers
 
@@ -83,16 +83,16 @@ struct SmallSolidWidgetProvider: AppIntentTimelineProvider {
     typealias Intent = SmallSolidWidgetIntent
 
     func placeholder(in context: Context) -> SmallSolidWidgetEntry {
-        SmallSolidWidgetEntry.current(selectedWidgetName: SolidWidgetSelection.choose)
+        SmallSolidWidgetEntry.current(selectedWidget: nil)
     }
 
     func snapshot(for configuration: SmallSolidWidgetIntent, in context: Context) async -> SmallSolidWidgetEntry {
-        SmallSolidWidgetEntry.current(selectedWidgetName: configuration.currentWidget ?? SolidWidgetSelection.choose)
+        SmallSolidWidgetEntry.current(selectedWidget: configuration.preset)
     }
 
     func timeline(for configuration: SmallSolidWidgetIntent, in context: Context) async -> Timeline<SmallSolidWidgetEntry> {
         Timeline(
-            entries: [SmallSolidWidgetEntry.current(selectedWidgetName: configuration.currentWidget ?? SolidWidgetSelection.choose)],
+            entries: [SmallSolidWidgetEntry.current(selectedWidget: configuration.preset)],
             policy: .after(nextWidgetRefreshDate())
         )
     }
@@ -103,16 +103,16 @@ struct MediumSolidWidgetProvider: AppIntentTimelineProvider {
     typealias Intent = MediumSolidWidgetIntent
 
     func placeholder(in context: Context) -> MediumSolidWidgetEntry {
-        MediumSolidWidgetEntry.current(selectedWidgetName: SolidWidgetSelection.choose)
+        MediumSolidWidgetEntry.current(selectedWidget: nil)
     }
 
     func snapshot(for configuration: MediumSolidWidgetIntent, in context: Context) async -> MediumSolidWidgetEntry {
-        MediumSolidWidgetEntry.current(selectedWidgetName: configuration.currentWidget ?? SolidWidgetSelection.choose)
+        MediumSolidWidgetEntry.current(selectedWidget: configuration.preset)
     }
 
     func timeline(for configuration: MediumSolidWidgetIntent, in context: Context) async -> Timeline<MediumSolidWidgetEntry> {
         Timeline(
-            entries: [MediumSolidWidgetEntry.current(selectedWidgetName: configuration.currentWidget ?? SolidWidgetSelection.choose)],
+            entries: [MediumSolidWidgetEntry.current(selectedWidget: configuration.preset)],
             policy: .after(nextWidgetRefreshDate())
         )
     }
@@ -123,16 +123,16 @@ struct LargeSolidWidgetProvider: AppIntentTimelineProvider {
     typealias Intent = LargeSolidWidgetIntent
 
     func placeholder(in context: Context) -> LargeSolidWidgetEntry {
-        LargeSolidWidgetEntry.current(selectedWidgetName: SolidWidgetSelection.choose)
+        LargeSolidWidgetEntry.current(selectedWidget: nil)
     }
 
     func snapshot(for configuration: LargeSolidWidgetIntent, in context: Context) async -> LargeSolidWidgetEntry {
-        LargeSolidWidgetEntry.current(selectedWidgetName: configuration.currentWidget ?? SolidWidgetSelection.choose)
+        LargeSolidWidgetEntry.current(selectedWidget: configuration.preset)
     }
 
     func timeline(for configuration: LargeSolidWidgetIntent, in context: Context) async -> Timeline<LargeSolidWidgetEntry> {
         Timeline(
-            entries: [LargeSolidWidgetEntry.current(selectedWidgetName: configuration.currentWidget ?? SolidWidgetSelection.choose)],
+            entries: [LargeSolidWidgetEntry.current(selectedWidget: configuration.preset)],
             policy: .after(nextWidgetRefreshDate())
         )
     }
@@ -189,10 +189,10 @@ struct LargeSolidWidget: Widget {
 // MARK: - Current Entry Factories
 
 private extension SmallSolidWidgetEntry {
-    static func current(selectedWidgetName: String) -> SmallSolidWidgetEntry {
+    static func current(selectedWidget: SavedWidgetEntity?) -> SmallSolidWidgetEntry {
         SmallSolidWidgetEntry(
             date: .now,
-            selectedWidgetID: SolidWidgetSelection.widgetID(for: selectedWidgetName, size: "small"),
+            selectedWidgetID: selectedWidget?.widgetID,
             battery: BatteryWidgetEntry(
                 date: .now,
                 level: WidgetSharedStore.batteryLevel,
@@ -230,10 +230,10 @@ private extension SmallSolidWidgetEntry {
 }
 
 private extension MediumSolidWidgetEntry {
-    static func current(selectedWidgetName: String) -> MediumSolidWidgetEntry {
+    static func current(selectedWidget: SavedWidgetEntity?) -> MediumSolidWidgetEntry {
         MediumSolidWidgetEntry(
             date: .now,
-            selectedWidgetID: SolidWidgetSelection.widgetID(for: selectedWidgetName, size: "medium"),
+            selectedWidgetID: selectedWidget?.widgetID,
             today: TodayWidgetEntry(
                 date: .now,
                 temperature: WidgetSharedStore.weatherTemperatureCelsius,
@@ -247,10 +247,10 @@ private extension MediumSolidWidgetEntry {
 }
 
 private extension LargeSolidWidgetEntry {
-    static func current(selectedWidgetName: String) -> LargeSolidWidgetEntry {
+    static func current(selectedWidget: SavedWidgetEntity?) -> LargeSolidWidgetEntry {
         LargeSolidWidgetEntry(
             date: .now,
-            selectedWidgetID: SolidWidgetSelection.widgetID(for: selectedWidgetName, size: "large"),
+            selectedWidgetID: selectedWidget?.widgetID,
             battery: BatteryWidgetEntry(
                 date: .now,
                 level: WidgetSharedStore.batteryLevel,
