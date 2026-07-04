@@ -68,6 +68,7 @@ struct WidgetPreview: View {
     private static let settingsStore = AppGroupConstants.sharedDefaults
 
     let item: WidgetCatalogItem
+    var isThumbnail = false
     var usesPlaceholderPreview = false
     var portalSelectedAppsOverride: [PortalApp]?
     var portalIconClipStyleOverride: PortalIconClipStyle?
@@ -100,6 +101,29 @@ struct WidgetPreview: View {
     @AppStorage(AppGroupConstants.sharedDaylightKey, store: settingsStore) private var daylightSnapshotData = Data()
     @AppStorage(AppGroupConstants.sharedHeartRateBPMKey, store: settingsStore) private var heartRateBPM = 0
     @AppStorage(AppGroupConstants.sharedHeartRateTimestampKey, store: settingsStore) private var heartRateTimestamp = 0.0
+    @AppStorage(AppGroupConstants.sharedBatteryLevelKey, store: settingsStore) private var batteryLevel = 0
+    @AppStorage(AppGroupConstants.sharedBatteryIsChargingKey, store: settingsStore) private var batteryIsCharging = false
+
+    private var batteryEstimatedMinutes: Int? {
+        AppGroupConstants.sharedDefaults?.object(forKey: AppGroupConstants.sharedBatteryEstimatedMinutesKey) as? Int
+    }
+
+    private var storageTotalBytes: Int64 {
+        int64Value(forKey: AppGroupConstants.sharedStorageTotalBytesKey) ?? 0
+    }
+
+    private var storageAvailableBytes: Int64 {
+        int64Value(forKey: AppGroupConstants.sharedStorageAvailableBytesKey) ?? 0
+    }
+
+    private func int64Value(forKey key: String) -> Int64? {
+        switch AppGroupConstants.sharedDefaults?.object(forKey: key) {
+        case let value as Int64: return value
+        case let value as Int: return Int64(value)
+        case let value as NSNumber: return value.int64Value
+        default: return nil
+        }
+    }
 
     private var widgetFontTheme: AbstraktWidgetFontTheme {
         AbstraktWidgetFontTheme.from(id: sharedAppFontThemeID.isEmpty ? appFontThemeID : sharedAppFontThemeID)
@@ -115,14 +139,28 @@ struct WidgetPreview: View {
 
     @ViewBuilder
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 1)) { timeline in
-            if usesPlaceholderPreview {
-                widgetBackground
-            } else {
+        if isThumbnail {
+            widgetContent(date: Date())
+        } else {
+            TimelineView(.everyMinute) { timeline in
+                widgetContent(date: timeline.date)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func widgetContent(date: Date) -> some View {
+        if usesPlaceholderPreview {
+            widgetBackground
+        } else {
                 switch item.id {
                 case "battery":
                     BatteryWidget(
-                        snapshot: BatterySnapshotViewData(snapshot: BatteryStatusProvider.currentSnapshot()),
+                        snapshot: BatterySnapshotViewData(
+                            level: batteryLevel,
+                            estimatedMinutesRemaining: batteryEstimatedMinutes,
+                            isCharging: batteryIsCharging
+                        ),
                         fontTheme: widgetFontTheme
                     )
                 case "steps":
@@ -144,7 +182,7 @@ struct WidgetPreview: View {
                 case "portal":
                     Portal(
                         snapshot: PortalSnapshot(
-                            date: timeline.date,
+                            date: date,
                             temperature: portalWeatherTemperature,
                             placeName: portalWeatherPlaceName
                         ),
@@ -155,7 +193,7 @@ struct WidgetPreview: View {
                 case "today":
                     TodayWidget(
                         snapshot: TodaySnapshot(
-                            date: timeline.date,
+                            date: date,
                             temperature: weatherTemperature,
                             high: weatherHigh,
                             low: weatherLow,
@@ -166,7 +204,10 @@ struct WidgetPreview: View {
                     )
                 case "storage":
                     StorageWidget(
-                        snapshot: StorageUsageSnapshot(snapshot: StorageProvider.currentSnapshot()),
+                        snapshot: StorageUsageSnapshot(
+                            totalBytes: storageTotalBytes,
+                            availableBytes: storageAvailableBytes
+                        ),
                         fontTheme: widgetFontTheme
                     )
                 case "weather":
@@ -200,13 +241,12 @@ struct WidgetPreview: View {
                 }
             }
         }
-    }
 
     private var stepsSnapshot: StepsSnapshot {
         let unit = DistanceUnitPreference.from(id: distanceUnitID)
         return StepsSnapshot(
-            steps: healthSteps,
-            distanceValue: unit.convertFromKilometers(healthDistanceKilometers),
+            steps: healthSteps > 0 ? healthSteps : 2350,
+            distanceValue: healthDistanceKilometers > 0 ? unit.convertFromKilometers(healthDistanceKilometers) : 1.25,
             distanceUnitName: unit.noun
         )
     }
@@ -218,16 +258,16 @@ struct WidgetPreview: View {
         case .today:
             return ActivitySnapshot(
                 mode: .today,
-                exerciseMinutes: activityTodayExerciseMinutes,
-                activeEnergyCalories: activityTodayActiveEnergy,
-                sleepMinutes: activityTodaySleepMinutes
+                exerciseMinutes: activityTodayExerciseMinutes > 0 ? activityTodayExerciseMinutes : 30,
+                activeEnergyCalories: activityTodayActiveEnergy > 0 ? activityTodayActiveEnergy : 450,
+                sleepMinutes: activityTodaySleepMinutes > 0 ? activityTodaySleepMinutes : 435
             )
         case .weekly:
             return ActivitySnapshot(
                 mode: .weekly,
-                exerciseMinutes: activityWeeklyExerciseMinutes,
-                activeEnergyCalories: activityWeeklyActiveEnergy,
-                sleepMinutes: activityWeeklySleepMinutes
+                exerciseMinutes: activityWeeklyExerciseMinutes > 0 ? activityWeeklyExerciseMinutes : 180,
+                activeEnergyCalories: activityWeeklyActiveEnergy > 0 ? activityWeeklyActiveEnergy : 2850,
+                sleepMinutes: activityWeeklySleepMinutes > 0 ? activityWeeklySleepMinutes : 3100
             )
         }
     }
@@ -262,10 +302,9 @@ struct WidgetPreview: View {
     }
 
     private var heartRateSnapshot: HeartRateRenderSnapshot {
-        guard heartRateBPM > 0 else { return HeartRateRenderSnapshot(bpm: 0, timestamp: .now) }
-        return HeartRateRenderSnapshot(
-            bpm: heartRateBPM,
-            timestamp: Date(timeIntervalSince1970: heartRateTimestamp)
+        HeartRateRenderSnapshot(
+            bpm: heartRateBPM > 0 ? heartRateBPM : 72,
+            timestamp: heartRateTimestamp > 0 ? Date(timeIntervalSince1970: heartRateTimestamp) : Date.now.addingTimeInterval(-47)
         )
     }
 

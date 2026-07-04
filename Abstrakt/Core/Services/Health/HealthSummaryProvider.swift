@@ -81,8 +81,12 @@ final class HealthSummaryProvider {
             return Self.empty
         }
 
+        guard !Task.isCancelled else { return Self.empty }
+
         async let steps = quantitySum(for: HKQuantityType(.stepCount), unit: .count())
         async let distance = quantitySum(for: HKQuantityType(.distanceWalkingRunning), unit: .meter())
+
+        guard !Task.isCancelled else { return Self.empty }
 
         let stepCount = Int(await steps.rounded())
         let kilometers = await distance / 1_000
@@ -92,6 +96,13 @@ final class HealthSummaryProvider {
 
     func activitySnapshots() async -> [ActivityMode: ActivitySnapshot] {
         guard HKHealthStore.isHealthDataAvailable() else {
+            return [
+                .today: Self.emptyActivity(mode: .today),
+                .weekly: Self.emptyActivity(mode: .weekly),
+            ]
+        }
+
+        guard !Task.isCancelled else {
             return [
                 .today: Self.emptyActivity(mode: .today),
                 .weekly: Self.emptyActivity(mode: .weekly),
@@ -139,6 +150,8 @@ final class HealthSummaryProvider {
         guard HKHealthStore.isHealthDataAvailable() else {
             return .placeholder
         }
+
+        guard !Task.isCancelled else { return .placeholder }
 
         return await withCheckedContinuation { continuation in
             let heartRateType = HKQuantityType(.heartRate)

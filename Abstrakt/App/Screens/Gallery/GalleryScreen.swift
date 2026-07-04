@@ -1,3 +1,4 @@
+import CoreLocation
 import SwiftUI
 import WidgetKit
 
@@ -243,7 +244,9 @@ struct WidgetPreviewSheetCover: View {
                         close()
                     }
 
-                WidgetPreviewSheet(item: item)
+                WidgetPreviewSheet(item: item) {
+                    close()
+                }
                     .frame(width: proxy.size.width, height: sheetHeight)
                     .clipShape(UnevenRoundedRectangle(
                         topLeadingRadius: 42,
@@ -349,11 +352,14 @@ private struct WidgetPreviewSheet: View {
     private static let settingsStore = AppGroupConstants.sharedDefaults
 
     let item: WidgetCatalogItem
+    var onDismiss: (() -> Void)? = nil
     @AppStorage(AppGroupConstants.portalSelectedAppsKey, store: settingsStore) private var portalSelectedAppsValue = PortalApp.storageValue(for: PortalApp.defaultSelection)
     @AppStorage(AppGroupConstants.portalIconClipStyleKey, store: settingsStore) private var portalIconClipStyleID = PortalIconClipStyle.default.id
     @AppStorage(AppGroupConstants.activityModeKey, store: settingsStore) private var activityModeID = ActivityMode.today.id
     @AppStorage(AppGroupConstants.eventModeKey, store: settingsStore) private var eventModeID = EventDisplayMode.upcoming.id
+    @Environment(\.displayScale) private var displayScale
     @State private var showsAppsPicker = false
+    @State private var showingPermissionAlert = false
 
     private var portalSelectedApps: [PortalApp] {
         get {
@@ -505,17 +511,102 @@ private struct WidgetPreviewSheet: View {
                     .padding(.bottom, 132 + AppSpacing.bottomBarInset)
                 }
 
-                SaveWidgetButton()
-                    .padding(.horizontal, AppSpacing.screenHorizontal)
-                    .padding(.bottom, AppSpacing.bottomBarInset)
+                SaveWidgetButton(item: item, isSaved: isSaved) {
+                    if missingPermissionWarning != nil {
+                        showingPermissionAlert = true
+                    } else {
+                        toggleSave()
+                        onDismiss?()
+                    }
+                }
+                .padding(.horizontal, AppSpacing.screenHorizontal)
+                .padding(.bottom, AppSpacing.bottomBarInset)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(AppColors.appBackground)
             .ignoresSafeArea(.container, edges: [.horizontal, .bottom])
+            .alert("Permission Required", isPresented: $showingPermissionAlert) {
+                Button("Cancel", role: .cancel) { }
+                Button("Open Settings") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+            } message: {
+                Text(missingPermissionWarning ?? "This widget requires additional permissions.")
+            }
         }
         .sheet(isPresented: $showsAppsPicker) {
             AppsPickerSheet(selectedApps: portalSelectedAppsBinding)
                 .presentationDetents([.fraction(0.8)])
+        }
+    }
+    
+    private var isSaved: Bool {
+        SharedModelContainer.readWidgetPresets().contains(where: { $0.widgetID == item.id && $0.size == item.size })
+    }
+    
+    private var missingPermissionWarning: String? {
+        if item.categories.contains(.healthKit) {
+            let state = HealthSummaryProvider.shared.authorizationState()
+            if state == .notDetermined || state == .unavailable {
+                return "Requires Health access in Settings"
+            }
+        }
+        if item.categories.contains(.weatherKit) {
+            let status = CLLocationManager().authorizationStatus
+            if status != .authorizedWhenInUse && status != .authorizedAlways {
+                return "Requires Location access in Settings"
+            }
+        }
+        if item.categories.contains(.eventKit) {
+            let state = EventKitProvider.authorizationState()
+            if state != .authorized {
+                return "Requires Calendar access in Settings"
+            }
+        }
+        return nil
+    }
+    
+    @MainActor
+    private func toggleSave() {
+        var presets = SharedModelContainer.readWidgetPresets()
+        
+        if let existingIndex = presets.firstIndex(where: { $0.widgetID == item.id && $0.size == item.size }) {
+            let idToRemove = presets[existingIndex].id.uuidString
+            presets.remove(at: existingIndex)
+            SharedModelContainer.write(widgetPresets: presets)
+            SharedModelContainer.removeThumbnail(for: idToRemove)
+        } else {
+            let newPreset = WidgetPreset(
+                id: UUID(),
+                widgetID: item.id,
+                name: item.displayName,
+                size: item.size,
+                appearanceMode: .system
+            )
+            
+            // Generate Thumbnail
+            let preview = WidgetPreview(
+                item: item,
+                isThumbnail: true,
+                portalSelectedAppsOverride: item.id == "portal" ? portalSelectedApps : nil,
+                portalIconClipStyleOverride: item.id == "portal" ? portalIconClipStyle : nil,
+                activityModeOverride: item.id == "activity" ? activityMode : nil,
+                eventModeOverride: item.id == "events" ? eventMode : nil
+            )
+            .frame(width: 160, height: 160) // Standard square size for picker thumbnails
+            .environment(\.colorScheme, .dark)
+            
+            let renderer = ImageRenderer(content: preview)
+            renderer.scale = displayScale
+            
+            if let image = renderer.uiImage, let data = image.pngData() {
+                SharedModelContainer.saveThumbnail(data, for: newPreset.id.uuidString)
+            }
+            
+            presets.append(newPreset)
+            SharedModelContainer.write(widgetPresets: presets)
         }
     }
 
@@ -710,9 +801,15 @@ private struct EventsCustomizationControls: View {
 // MARK: - Save Button
 
 private struct SaveWidgetButton: View {
+    let item: WidgetCatalogItem
+    let isSaved: Bool
+    let action: () -> Void
+
     var body: some View {
-        Button {} label: {
-            SaveWidgetButtonContent()
+        Button {
+            action()
+        } label: {
+            SaveWidgetButtonContent(isSaved: isSaved)
                 .frame(maxWidth: 256)
                 .frame(height: 64)
         }
@@ -724,22 +821,23 @@ private struct SaveWidgetButton: View {
 }
 
 private struct SaveWidgetButtonContent: View {
+    let isSaved: Bool
     @State private var shimmerPhase: CGFloat = -1
 
     var body: some View {
         buttonLabel
-            .foregroundStyle(Color.green.opacity(0.64))
+            .foregroundStyle(isSaved ? Color.red.opacity(0.8) : Color.green.opacity(0.64))
             .overlay {
                 GeometryReader { proxy in
                     buttonLabel
                         .foregroundStyle(
                             LinearGradient(
                                 stops: [
-                                    .init(color: Color.green.opacity(0), location: 0),
-                                    .init(color: Color.green.opacity(0.12), location: 0.32),
-                                    .init(color: Color.green.opacity(0.54), location: 0.5),
-                                    .init(color: Color.green.opacity(0.12), location: 0.68),
-                                    .init(color: Color.green.opacity(0), location: 1),
+                                    .init(color: (isSaved ? Color.red : Color.green).opacity(0), location: 0),
+                                    .init(color: (isSaved ? Color.red : Color.green).opacity(0.12), location: 0.32),
+                                    .init(color: (isSaved ? Color.red : Color.green).opacity(0.54), location: 0.5),
+                                    .init(color: (isSaved ? Color.red : Color.green).opacity(0.12), location: 0.68),
+                                    .init(color: (isSaved ? Color.red : Color.green).opacity(0), location: 1),
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -767,10 +865,10 @@ private struct SaveWidgetButtonContent: View {
 
     private var buttonLabel: some View {
         HStack(spacing: 10) {
-            Image(systemName: "checkmark.seal.fill")
+            Image(systemName: isSaved ? "trash.fill" : "checkmark.seal.fill")
                 .font(AppFonts.font(.heading2))
             
-            Text("Save widget")
+            Text(isSaved ? "Remove widget" : "Save widget")
                 .font(AppFonts.font(.heading2))
         }
     }
