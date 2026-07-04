@@ -11,7 +11,8 @@ import WidgetKit
 struct ContentView: View {
     // MARK: - Constants
 
-    private static let activeWidgetRefreshInterval: Duration = .seconds(1)
+    private static let clockRefreshInterval: Duration = .seconds(1)
+    private static let slowDataRefreshInterval: Duration = .seconds(60)
     private static let libraryTransitionAnimation = Animation.smooth(duration: 0.2)
 
     // MARK: - Environment
@@ -25,9 +26,6 @@ struct ContentView: View {
     @State private var selectedTab: BottomBarTab = .gallery
     @State private var showsLibrary = false
     @State private var selectedGalleryItem: WidgetCatalogItem?
-    /// Guards the one-time HealthKit authorization prompt so it is never
-    /// requested more than once per session (prevents the iOS 18+ sandbox error
-    /// caused by presenting the privacy dialog while the app is still settling).
     @State private var hasRequestedHealthAuth = false
 
     // MARK: - Properties
@@ -39,7 +37,7 @@ struct ContentView: View {
     }
 
     private var libraryCount: Int {
-        WidgetPreset.seededLibrary.count
+        SharedModelContainer.readWidgetPresets().count
     }
 
     // MARK: - Body
@@ -62,10 +60,10 @@ struct ContentView: View {
             guard runsLiveWidgetTasks else {
                 return
             }
-            
+
             HealthSummaryProvider.shared.startObservingTodayMetrics {
                 Task { @MainActor in
-                    await refreshFastChangingWidgetData()
+                    await refreshHealthWidgetData()
                 }
             }
         }
@@ -74,11 +72,6 @@ struct ContentView: View {
                 return
             }
 
-            // Request HealthKit authorization exactly once per session.
-            // The guard uses @State (MainActor) so there is no concurrent-
-            // write race between multiple task restarts.
-            // The delay lets the window settle into the foreground before
-            // HealthKit tries to present its privacy dialog (iOS 18+ fix).
             if !hasRequestedHealthAuth {
                 hasRequestedHealthAuth = true
                 try? await Task.sleep(for: .milliseconds(800))
@@ -86,7 +79,7 @@ struct ContentView: View {
             }
 
             await refreshWidgetData()
-            await runActiveWidgetRefreshLoop()
+            await runRefreshLoops()
         }
     }
 
@@ -99,11 +92,11 @@ struct ContentView: View {
                 .background(AppColors.appBackground)
                 .blur(radius: showsLibrary ? 18 : 0)
                 .animation(Self.libraryTransitionAnimation, value: showsLibrary)
-            
+
             bottomBarEffect
                 .opacity(showsLibrary ? 0 : 1)
                 .animation(Self.libraryTransitionAnimation, value: showsLibrary)
-            
+
             BottomBar(
                 selectedTab: bottomBarSelection,
                 libraryCount: libraryCount,
@@ -115,7 +108,7 @@ struct ContentView: View {
             }
             .animation(Self.libraryTransitionAnimation, value: showsLibrary)
             .zIndex(3)
-            
+
             if showsLibrary {
                 LibraryScreen()
                     .transition(.opacity)
@@ -185,7 +178,6 @@ struct ContentView: View {
     // MARK: - Widget Data Refresh
 
     private func refreshWidgetData() async {
-        print("[refreshWidgetData] Starting refresh...")
         SharedModelContainer.write(
             clock: ClockDataProvider.currentSnapshot(),
             calendar: await EventKitProvider.currentSnapshot()
@@ -193,9 +185,7 @@ struct ContentView: View {
         SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
         SharedModelContainer.write(storage: StorageProvider.currentSnapshot())
         SharedModelContainer.write(appFontThemeID: appFontThemeID)
-        SharedModelContainer.write(widgetPresets: WidgetPreset.seededLibrary)
-        
-        print("[refreshWidgetData] Fetching weather data...")
+
         let today = await WeatherProvider.shared.todaySnapshot()
         SharedModelContainer.write(today: today)
         let portal = await WeatherProvider.shared.portalSnapshot()
@@ -206,34 +196,41 @@ struct ContentView: View {
         SharedModelContainer.write(daylight: daylight)
         let heartRate = await HealthSummaryProvider.shared.latestHeartRate()
         SharedModelContainer.write(heartRate: heartRate)
-        
-        print("[refreshWidgetData] Fetching health data...")
+
         await refreshHealthWidgetData()
-        
-        print("[refreshWidgetData] Reloading widget timelines...")
+
         WidgetCenter.shared.reloadAllTimelines()
     }
 
-    private func runActiveWidgetRefreshLoop() async {
-        while !Task.isCancelled {
-            await refreshFastChangingWidgetData()
+    private func runRefreshLoops() async {
+        async let clockLoop: Void = runClockRefreshLoop()
+        async let slowLoop: Void = runSlowDataRefreshLoop()
+        _ = await (clockLoop, slowLoop)
+    }
 
+    private func runClockRefreshLoop() async {
+        while !Task.isCancelled {
+            SharedModelContainer.write(clock: ClockDataProvider.currentSnapshot())
             do {
-                try await Task.sleep(for: Self.activeWidgetRefreshInterval)
+                try await Task.sleep(for: Self.clockRefreshInterval)
             } catch {
                 return
             }
         }
     }
-    
-    private func refreshFastChangingWidgetData() async {
-        SharedModelContainer.write(clock: ClockDataProvider.currentSnapshot())
-        SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
-        SharedModelContainer.write(storage: StorageProvider.currentSnapshot())
-        await refreshHealthWidgetData()
-        WidgetCenter.shared.reloadAllTimelines()
+
+    private func runSlowDataRefreshLoop() async {
+        while !Task.isCancelled {
+            SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
+            SharedModelContainer.write(storage: StorageProvider.currentSnapshot())
+            do {
+                try await Task.sleep(for: Self.slowDataRefreshInterval)
+            } catch {
+                return
+            }
+        }
     }
-    
+
     private func refreshHealthWidgetData() async {
         let health = await HealthSummaryProvider.shared.todaySnapshot()
         let activity = await HealthSummaryProvider.shared.activitySnapshots()

@@ -14,11 +14,11 @@ struct LibraryScreen: View {
     // MARK: Data
 
     private var sizeCounts: [WidgetSize: Int] {
-        Dictionary(grouping: WidgetPreset.seededLibrary, by: \.size).mapValues(\.count)
+        Dictionary(grouping: SharedModelContainer.readWidgetPresets(), by: \.size).mapValues(\.count)
     }
 
     private func presets(for size: WidgetSize) -> [WidgetPreset] {
-        WidgetPreset.seededLibrary.filter { $0.size == size }
+        SharedModelContainer.readWidgetPresets().filter { $0.size == size }
     }
 
     // MARK: Body

@@ -53,14 +53,22 @@ enum AbstraktWidgetFontTheme: String, CaseIterable, Identifiable {
 // MARK: - Font Factory
 
 enum AbstraktWidgetFonts {
+    private static let fontsRegisteredKey = "widget.fonts.registration.completed"
+
     static func registerCustomFonts(in bundle: Bundle = .main) {
-        AbstraktWidgetFontFile.allCases.forEach { fontFile in
+        guard !UserDefaults.standard.bool(forKey: fontsRegisteredKey) else {
+            return
+        }
+
+        for fontFile in AbstraktWidgetFontFile.allCases {
             guard let url = fontFile.url(in: bundle) else {
-                return
+                continue
             }
 
             CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
         }
+
+        UserDefaults.standard.set(true, forKey: fontsRegisteredKey)
     }
 
     static func font(_ role: AbstraktWidgetFontRole, theme: AbstraktWidgetFontTheme) -> Font {

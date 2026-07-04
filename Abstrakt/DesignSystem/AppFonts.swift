@@ -75,15 +75,23 @@ enum AppFonts {
         AppFontTheme.from(id: UserDefaults.standard.string(forKey: appFontStorageKey) ?? defaultTheme.id)
     }
 
+    private static let fontsRegisteredKey = "fonts.registration.completed"
+
     static func registerCustomFonts(in bundle: Bundle = .main) {
-        CustomFontFile.allCases.forEach { fontFile in
+        guard !UserDefaults.standard.bool(forKey: fontsRegisteredKey) else {
+            return
+        }
+
+        for fontFile in CustomFontFile.allCases {
             guard let url = fontFile.url(in: bundle) else {
                 assertionFailure("Missing bundled font: \(fontFile.resourceName).ttf")
-                return
+                continue
             }
 
             CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
         }
+
+        UserDefaults.standard.set(true, forKey: fontsRegisteredKey)
     }
 
     static func font(_ role: AppFontRole, theme: AppFontTheme? = nil) -> Font {

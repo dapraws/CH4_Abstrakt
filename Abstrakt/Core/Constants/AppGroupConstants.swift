@@ -67,7 +67,6 @@ enum AppGroupConstants {
             }
         }
 
-        currentDefaults.synchronize()
     }
 
     private static let sharedKeys = [
