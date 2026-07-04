@@ -14,6 +14,14 @@ enum WidgetSharedStore {
     }()
 
     private static let defaults = UserDefaults(suiteName: suiteName)
+    
+    static var sharedContainerURL: URL? {
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: suiteName)
+    }
+
+    static func thumbnailURL(for presetID: String) -> URL? {
+        sharedContainerURL?.appendingPathComponent("\(presetID).png")
+    }
     private static let sharedWidgetPresetsKey = "shared.widget.presets"
     private static let appFontThemeKey = "appFontTheme"
     private static let temperatureUnitKey = "settings.temperatureUnit"
@@ -22,6 +30,17 @@ enum WidgetSharedStore {
         "shared.weather.conditionLabel"
     private static let activityModeKey = "health.metrics.mode"
     private static let eventModeKey = "calendar.event.mode"
+
+    // MARK: - JSON Decode Caches
+
+    private static let jsonCacheTTL: TimeInterval = 5
+    private static var cachedEventSnapshot: (snapshot: EventsSnapshot, timestamp: Date)?
+    private static var cachedWeather: (snapshot: WeatherSnapshot, timestamp: Date)?
+    private static var cachedDaylight: (snapshot: DaylightSnapshot, timestamp: Date)?
+    private static var cachedPresets: (presets: [SavedWidgetPreset], timestamp: Date)?
+    private static var cachedFallbackStorage: (totalBytes: Int64, availableBytes: Int64, timestamp: Date)?
+
+    private static var now: TimeInterval { Date().timeIntervalSince1970 }
 
     static var appFontTheme: AbstraktWidgetFontTheme {
         AbstraktWidgetFontTheme.from(
@@ -56,11 +75,20 @@ enum WidgetSharedStore {
     }
 
     static var eventSnapshot: EventsSnapshot {
-        guard let data = defaults?.data(forKey: "shared.calendar.events"),
-              let snapshot = try? JSONDecoder().decode(EventsSnapshot.self, from: data) else {
-            return EventsSnapshot(date: .now, accessState: .empty)
+        if let cached = cachedEventSnapshot,
+           now - cached.timestamp.timeIntervalSince1970 < jsonCacheTTL {
+            return cached.snapshot
         }
 
+        let snapshot: EventsSnapshot
+        if let data = defaults?.data(forKey: "shared.calendar.events"),
+           let decoded = try? JSONDecoder().decode(EventsSnapshot.self, from: data) {
+            snapshot = decoded
+        } else {
+            snapshot = EventsSnapshot(date: .now, accessState: .empty)
+        }
+
+        cachedEventSnapshot = (snapshot, Date())
         return snapshot
     }
 
@@ -178,26 +206,38 @@ enum WidgetSharedStore {
     }
 
     static var weather: WeatherSnapshot {
-        guard let data = defaults?.data(forKey: "shared.weather"),
-            let snapshot = try? JSONDecoder().decode(
-                WeatherSnapshot.self,
-                from: data
-            )
-        else {
-            return .placeholder
+        if let cached = cachedWeather,
+           now - cached.timestamp.timeIntervalSince1970 < jsonCacheTTL {
+            return cached.snapshot
         }
+
+        let snapshot: WeatherSnapshot
+        if let data = defaults?.data(forKey: "shared.weather"),
+           let decoded = try? JSONDecoder().decode(WeatherSnapshot.self, from: data) {
+            snapshot = decoded
+        } else {
+            snapshot = .placeholder
+        }
+
+        cachedWeather = (snapshot, Date())
         return snapshot
     }
 
     static var daylight: DaylightSnapshot {
-        guard let data = defaults?.data(forKey: "shared.daylight"),
-            let snapshot = try? JSONDecoder().decode(
-                DaylightSnapshot.self,
-                from: data
-            )
-        else {
-            return .placeholder
+        if let cached = cachedDaylight,
+           now - cached.timestamp.timeIntervalSince1970 < jsonCacheTTL {
+            return cached.snapshot
         }
+
+        let snapshot: DaylightSnapshot
+        if let data = defaults?.data(forKey: "shared.daylight"),
+           let decoded = try? JSONDecoder().decode(DaylightSnapshot.self, from: data) {
+            snapshot = decoded
+        } else {
+            snapshot = .placeholder
+        }
+
+        cachedDaylight = (snapshot, Date())
         return snapshot
     }
 
@@ -219,17 +259,23 @@ enum WidgetSharedStore {
         savedPresets(size: size).first
     }
 
-    private static var allSavedPresets: [SavedWidgetPreset] {
-        guard let data = defaults?.data(forKey: sharedWidgetPresetsKey),
-            let presets = try? JSONDecoder().decode(
-                [SavedWidgetPreset].self,
-                from: data
-            )
-        else {
-            return fallbackSavedPresets
+    static var allSavedPresets: [SavedWidgetPreset] {
+        if let cached = cachedPresets,
+           now - cached.timestamp.timeIntervalSince1970 < jsonCacheTTL {
+            return cached.presets
         }
 
-        return presets.isEmpty ? fallbackSavedPresets : presets
+        let presets: [SavedWidgetPreset]
+        if let data = defaults?.data(forKey: sharedWidgetPresetsKey),
+           let decoded = try? JSONDecoder().decode([SavedWidgetPreset].self, from: data),
+           !decoded.isEmpty {
+            presets = decoded
+        } else {
+            presets = []
+        }
+
+        cachedPresets = (presets, Date())
+        return presets
     }
 
     private static var temperatureUnitID: String {
@@ -394,18 +440,25 @@ enum WidgetSharedStore {
     private static var fallbackStorageSnapshot:
         (totalBytes: Int64, availableBytes: Int64)
     {
-        guard
-            let attrs = try? FileManager.default.attributesOfFileSystem(
+        if let cached = cachedFallbackStorage,
+           now - cached.timestamp.timeIntervalSince1970 < jsonCacheTTL {
+            return (cached.totalBytes, cached.availableBytes)
+        }
+
+        let result: (totalBytes: Int64, availableBytes: Int64)
+        if let attrs = try? FileManager.default.attributesOfFileSystem(
                 forPath: NSHomeDirectory()
             ),
             let total = int64Value(attrs[.systemSize]),
-            let free = int64Value(attrs[.systemFreeSize])
-        else {
-            return (0, 0)
+            let free = int64Value(attrs[.systemFreeSize]) {
+            let safeTotal = max(0, total)
+            result = (safeTotal, min(max(0, free), safeTotal))
+        } else {
+            result = (0, 0)
         }
 
-        let safeTotal = max(0, total)
-        return (safeTotal, min(max(0, free), safeTotal))
+        cachedFallbackStorage = (result.totalBytes, result.availableBytes, Date())
+        return result
     }
 
     private static func int64Value(_ value: Any?) -> Int64? {
