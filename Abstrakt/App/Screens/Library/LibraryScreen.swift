@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 // MARK: - Library Screen
 
@@ -29,11 +30,25 @@ struct LibraryScreen: View {
 
             TabView(selection: $selectedSize) {
                 ForEach(WidgetSize.allCases) { size in
+                    #if targetEnvironment(simulator)
+                    let renderAction: (WidgetPreset) -> Void = { preset in
+                        setActiveSimulatorPreset(preset)
+                    }
+                    let activeCheck: (WidgetPreset) -> Bool = { preset in
+                        SharedModelContainer.simulatorActivePresetID(for: size) == preset.id
+                    }
+                    #else
+                    let renderAction: (WidgetPreset) -> Void = { _ in }
+                    let activeCheck: (WidgetPreset) -> Bool = { _ in false }
+                    #endif
+
                     LibrarySizePage(
                         size: size,
                         presets: presets(for: size),
                         palette: palette,
-                        headerHeight: headerHeight
+                        headerHeight: headerHeight,
+                        onRenderToHomeScreen: renderAction,
+                        isActiveRenderTarget: activeCheck
                     )
                     .tag(size)
                 }
@@ -109,6 +124,13 @@ struct LibraryScreen: View {
         .ignoresSafeArea()
     }
 
+    #if targetEnvironment(simulator)
+    private func setActiveSimulatorPreset(_ preset: WidgetPreset) {
+        SharedModelContainer.setSimulatorActivePreset(id: preset.id, size: preset.size)
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+    #endif
+
 }
 
 // MARK: - Palette
@@ -168,6 +190,8 @@ private struct LibrarySizePage: View {
     let presets: [WidgetPreset]
     let palette: LibraryPalette
     let headerHeight: CGFloat
+    let onRenderToHomeScreen: (WidgetPreset) -> Void
+    let isActiveRenderTarget: (WidgetPreset) -> Bool
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -176,7 +200,12 @@ private struct LibrarySizePage: View {
                     LibraryEmptyState(size: size, palette: palette)
                 } else {
                     ForEach(presets) { preset in
-                        LibraryWidgetRow(preset: preset, palette: palette)
+                        LibraryWidgetRow(
+                            preset: preset,
+                            palette: palette,
+                            onRenderToHomeScreen: onRenderToHomeScreen,
+                            isActiveRenderTarget: isActiveRenderTarget(preset)
+                        )
                     }
                 }
             }
@@ -235,6 +264,8 @@ private struct LibraryEmptyState: View {
 private struct LibraryWidgetRow: View {
     let preset: WidgetPreset
     let palette: LibraryPalette
+    let onRenderToHomeScreen: (WidgetPreset) -> Void
+    let isActiveRenderTarget: Bool
 
     // MARK: Data
 
@@ -291,6 +322,11 @@ private struct LibraryWidgetRow: View {
                 .padding(.bottom, textBottomPadding)
 
                 ZStack(alignment: .topTrailing) {
+                    #if targetEnvironment(simulator)
+                    if isActiveRenderTarget {
+                        simulatorActiveBadge
+                    }
+                    #endif
                     if let item {
                         WidgetPreview(item: item)
                             .frame(width: previewSize.width, height: previewSize.height)
@@ -315,7 +351,29 @@ private struct LibraryWidgetRow: View {
                 .frame(height: 1)
                 .padding(.leading, AppSpacing.screenHorizontal)
         }
+        #if targetEnvironment(simulator)
+        .contextMenu {
+            Button {
+                onRenderToHomeScreen(preset)
+            } label: {
+                Label("Render on Home Screen", systemImage: "wand.and.stars")
+            }
+        }
+        #endif
     }
+
+    #if targetEnvironment(simulator)
+    private var simulatorActiveBadge: some View {
+        Image(systemName: "checkmark.circle.fill")
+            .font(AppFonts.font(.caption))
+            .foregroundStyle(.white)
+            .frame(width: 24, height: 24)
+            .background(Color.green)
+            .clipShape(Circle())
+            .padding(.top, 8)
+            .padding(.trailing, 8)
+    }
+    #endif
 
     // MARK: Layout Metrics
 

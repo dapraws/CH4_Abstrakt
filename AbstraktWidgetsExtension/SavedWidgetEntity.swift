@@ -12,7 +12,6 @@ import UIKit
 struct SavedWidgetEntity: AppEntity {
     static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Saved Widget")
     
-    @Property(title: "ID")
     var id: String
     
     @Property(title: "Name")
@@ -32,6 +31,7 @@ struct SavedWidgetEntity: AppEntity {
     }
     
     init() {
+        self.id = ""
     }
     
     var displayRepresentation: DisplayRepresentation {
@@ -134,5 +134,11 @@ struct LargeSavedWidgetQuery: EntityStringQuery {
     func suggestedEntities() async throws -> [SavedWidgetEntity] {
         let presets = try await SavedWidgetQuery().suggestedEntities()
         return presets.filter { $0.sizeID == "large" }
+    }
+}
+
+extension SavedWidgetEntity: CustomStringConvertible {
+    var description: String {
+        "SavedWidgetEntity(id: \(id), name: \(name), size: \(sizeID))"
     }
 }

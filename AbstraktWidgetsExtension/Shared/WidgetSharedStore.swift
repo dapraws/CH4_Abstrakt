@@ -31,6 +31,25 @@ enum WidgetSharedStore {
     private static let activityModeKey = "health.metrics.mode"
     private static let eventModeKey = "calendar.event.mode"
 
+    #if targetEnvironment(simulator)
+    private static let simulatorActivePresetKeySmall = "shared.widget.simulatorActivePreset.small"
+    private static let simulatorActivePresetKeyMedium = "shared.widget.simulatorActivePreset.medium"
+    private static let simulatorActivePresetKeyLarge = "shared.widget.simulatorActivePreset.large"
+
+    /// Simulator-only: reads the preset UUID that the host app marked as the
+    /// active render target for this widget size. Returns nil on real devices.
+    static func simulatorActivePresetID(forSize size: String) -> UUID? {
+        let key: String
+        switch size {
+        case "small":  key = simulatorActivePresetKeySmall
+        case "medium": key = simulatorActivePresetKeyMedium
+        default:       key = simulatorActivePresetKeyLarge
+        }
+        guard let raw = defaults?.string(forKey: key) else { return nil }
+        return UUID(uuidString: raw)
+    }
+    #endif
+
     // MARK: - JSON Decode Caches
 
     private static let jsonCacheTTL: TimeInterval = 5
