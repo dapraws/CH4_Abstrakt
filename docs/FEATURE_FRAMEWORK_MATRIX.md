@@ -81,7 +81,7 @@ Shared unit preferences are also read from the App Group:
 
 These preferences affect widget typography and formatted widget values. They should not be modeled as per-widget visual style unless a specific widget later needs an override.
 
-For active development, the app also runs a one-second host-app refresh loop while the scene is active and registers HealthKit observer queries for step/distance changes. The WidgetKit extension requests a one-second timeline reload, but iOS may throttle normal Home Screen widget reloads. True per-second background behavior should move to Live Activities or another system surface designed for live updates.
+For active development, the app keeps a one-second clock refresh loop while the scene is active, refreshes slower-changing battery and storage data about once per minute, and registers HealthKit observer queries for step/distance changes. The WidgetKit extension currently requests timeline refreshes about once per minute, but iOS may still throttle normal Home Screen widget reloads. True per-second background behavior should move to Live Activities or another system surface designed for live updates.
 
 ## Suggested Service Layout
 
@@ -124,6 +124,6 @@ Shared Widget Renderer
 App Library + WidgetExtension Slots
 ```
 
-The host app should be where preset composition happens. WidgetKit should mostly route timeline data and saved configuration into shared renderers under `Abstrakt/Widgets/`.
+The host app should be where preset composition happens. Saving from the gallery writes App Group preset data and a thumbnail image for the system picker. WidgetKit should mostly route timeline data and saved configuration into shared renderers under `Abstrakt/Widgets/`.
 
-For the current iOS Home Screen scope, WidgetKit exposes only three system-visible `Solid Widget` slots: `Small Widget`, `Medium Widget`, and `Large Widget`. Individual feature presets such as Battery, Health, or Dashboard should appear in the app library and in the WidgetKit `Current Widget` picker only when their saved size matches the selected slot.
+For the current iOS Home Screen scope, WidgetKit exposes only three system-visible `Solid Widget` slots: `Small Widget`, `Medium Widget`, and `Large Widget`. Individual feature presets such as Battery, Health, or Dashboard should appear in the app library and in the WidgetKit saved-widget picker only when their saved size matches the selected slot.

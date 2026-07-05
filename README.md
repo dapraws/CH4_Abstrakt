@@ -93,7 +93,7 @@ The iOS widget gallery should expose only the generic `Solid Widget` renderer fo
 - `Medium Widget`
 - `Large Widget`
 
-After a user adds one of these widgets to the Home Screen, the system `Edit Widget` sheet exposes a `Current Widget` parameter. That picker must show only saved library presets matching the selected widget size.
+After a user adds one of these widgets to the Home Screen, the system `Edit Widget` sheet exposes a saved widget picker backed by App Intents. That picker must show only saved library presets matching the selected widget size, with thumbnails when the app has generated them.
 
 ## Widget Size Direction
 

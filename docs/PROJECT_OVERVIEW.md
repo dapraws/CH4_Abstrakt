@@ -44,7 +44,7 @@ Important UX constraints:
 
 - Users choose between `Small`, `Medium`, and `Large` for Home Screen placement.
 - The iOS widget gallery exposes `Solid Widget` with `Small Widget`, `Medium Widget`, and `Large Widget` slots.
-- The system `Current Widget` picker must filter saved presets by the selected slot's size.
+- The system saved-widget picker must filter saved presets by the selected slot's size.
 - Not every widget needs the same settings.
 - Some settings should be inline in the first sheet.
 - Some settings should push or open a second sheet, such as font selection.

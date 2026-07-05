@@ -1,0 +1,94 @@
+direction: down
+
+vars: {
+  d2-config: {
+    sketch: true
+  }
+}
+
+user: "User opens\nAbstrakt" {
+  shape: oval
+}
+
+onboarding: "Finished\nonboarding?" {
+  shape: diamond
+  style.fill: "#ffffff"
+}
+
+onboard: "Show onboarding\nthen save state"
+
+app: "Main app shell\nGallery / Library / Settings"
+
+gallery: "Gallery shows\nwidget cards"
+
+preview: "Preview sheet\ncustomize widget"
+
+settings: "Settings\nfont, units, permissions"
+
+presets: "Save / remove\nwidget preset" {
+  shape: document
+}
+
+app_refresh: "App becomes active\nrefresh data"
+
+frameworks: "Read native data\nHealthKit: steps, activity, heart rate\nWeatherKit + Location: weather, daylight\nEventKit: events\nUIKit: battery\nFoundation: storage"
+
+snapshots: "Create simple\nwidget snapshots" {
+  shape: document
+}
+
+app_group: "App Group Storage\nshared data box" {
+  shape: cylinder
+}
+
+add_widget: "User adds\nAbstrakt Solid Widget"
+
+choose_size: "Choose widget size\nSmall / Medium / Large"
+
+edit_widget: "Edit Widget\nchoose saved preset"
+
+timeline: "WidgetKit asks\nfor timeline"
+
+timeline_entry: "Timeline entry\nselected preset + latest data" {
+  shape: document
+}
+
+render: "Render widget\non Home Screen"
+
+ios_refresh: "iOS allows\nrefresh now?" {
+  shape: diamond
+  style.fill: "#ffffff"
+}
+
+delayed: "Keep old snapshot\nuntil iOS updates"
+
+user -> onboarding
+onboarding -> onboard: "no"
+onboard -> app
+onboarding -> app: "yes"
+
+app -> gallery
+gallery -> preview
+preview -> presets: "save toggle"
+app -> settings
+settings -> app_group: "font + units"
+presets -> app_group: "preset + thumbnail"
+
+app -> app_refresh
+app_refresh -> frameworks
+frameworks -> snapshots
+snapshots -> app_group: "latest values"
+
+app_group -> edit_widget: "saved presets"
+app_group -> timeline_entry: "latest snapshots"
+
+add_widget -> choose_size
+choose_size -> edit_widget
+edit_widget -> timeline
+timeline -> timeline_entry
+timeline_entry -> render
+
+app_refresh -> ios_refresh: "reload timelines"
+ios_refresh -> timeline: "yes"
+ios_refresh -> delayed: "not yet"
+delayed -> render

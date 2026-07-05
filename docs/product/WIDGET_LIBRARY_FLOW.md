@@ -8,12 +8,12 @@ This document captures the intended user flow for widget selection, customizatio
 2. The user can filter by category chips based on the primary framework or feature surface.
 3. The user taps a widget card.
 4. A full-width preview/customization sheet opens with a live preview of the chosen widget.
-5. The user chooses the target Home Screen size: `Small`, `Medium`, or `Large`.
+5. The widget's catalog size determines whether it saves as `Small`, `Medium`, or `Large`.
 6. The user adjusts any supported options for that widget.
 7. Some options stay inline in the first sheet.
-8. Some options open a secondary sheet, such as font selection.
-9. The user saves the configured widget preset.
-10. The saved preset appears in the Library page under its widget size tab.
+8. Some options open a secondary sheet, such as Portal app selection.
+9. The user saves or removes the configured widget preset.
+10. Saved presets appear in the Library page under their widget size tab.
 
 ## Customization Rules
 
@@ -26,6 +26,7 @@ This document captures the intended user flow for widget selection, customizatio
 - The preview sheet should show the rendered widget and its display title before any future form controls.
 - The save action stays pinned in its own bottom layer, separate from both the rendered widget and future form content.
 - App-wide settings such as temperature unit, temperature display, and distance unit should live in Settings rather than inside every widget customization sheet unless a widget explicitly supports an override.
+- Saving should be blocked when a widget's required permission is unavailable, with HealthKit treated specially because iOS does not expose read-authorization status after the prompt.
 
 ## Library Rules
 
@@ -33,6 +34,8 @@ This document captures the intended user flow for widget selection, customizatio
 - The count shown in each tab should reflect saved presets in that size.
 - A library card should show a realistic preview and enough metadata to distinguish one preset from another.
 - The app library should represent saved presets, not the system-installed widget instances themselves.
+- Saved presets should be written to the App Group so the WidgetKit extension and AppEntity picker can read them.
+- Saved widget thumbnails should be written beside shared preset data when available, so the system picker can display visual choices.
 - Size tabs should support both direct chip taps and horizontal swiping.
 - Empty states should communicate when a size has no saved presets.
 - Library row previews should preserve widget aspect ratio, scale down to fit the row, and may crop the bottom under the divider to keep the list dense and preview-like.
@@ -43,8 +46,8 @@ The Home Screen still uses the native iOS widget placement flow:
 
 1. User adds `Solid Widget` from the system widget gallery.
 2. User chooses one of the three WidgetKit slots: `Small Widget`, `Medium Widget`, or `Large Widget`.
-3. User touches and holds the placed widget, taps `Edit Widget`, then opens `Current Widget`.
-4. `Current Widget` shows only saved presets from Abstrakt that match that slot's size.
+3. User touches and holds the placed widget, taps `Edit Widget`, then opens the saved widget picker.
+4. The picker shows only saved presets from Abstrakt that match that slot's size.
 5. User selects a saved preset and taps `Done`.
 
 Abstrakt therefore needs to manage saved preset identity and extension-readable configuration cleanly.
