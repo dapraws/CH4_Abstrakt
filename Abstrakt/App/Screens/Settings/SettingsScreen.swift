@@ -17,6 +17,10 @@ struct SettingsScreen: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var permissionSnapshot = PermissionAccessSnapshot.loading
     @State private var showsFontPicker = false
+    @State private var showsShareSheet = false
+    @State private var currentAppIcon = AppIconOption.from(
+        alternateIconName: UIApplication.shared.alternateIconName
+    )
     @State private var path: [SettingsRoute] = []
 
     // MARK: - Derived Settings
@@ -62,8 +66,15 @@ struct SettingsScreen: View {
             }
             .background(AppColors.appBackground.ignoresSafeArea())
             .navigationDestination(for: SettingsRoute.self) { route in
-                SettingsDetailScreen(route: route, permissionSnapshot: $permissionSnapshot) {
-                    path.removeLast()
+                switch route {
+                case .changeIcon:
+                    AppIconPickerScreen {
+                        path.removeLast()
+                    }
+                default:
+                    SettingsDetailScreen(route: route, permissionSnapshot: $permissionSnapshot) {
+                        path.removeLast()
+                    }
                 }
             }
             .toolbarVisibility(.hidden, for: .navigationBar)
@@ -73,13 +84,24 @@ struct SettingsScreen: View {
         }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
+            refreshCurrentAppIcon()
             Task {
                 await refreshPermissionSnapshot()
+            }
+        }
+        .onChange(of: path) { _, newPath in
+            // Returning from the icon picker: reflect any new selection.
+            if newPath.isEmpty {
+                refreshCurrentAppIcon()
             }
         }
         .sheet(isPresented: $showsFontPicker) {
             FontPickerSheet()
                 .presentationDetents([.fraction(0.36)])
+        }
+        .sheet(isPresented: $showsShareSheet) {
+            ShareAppSheet()
+                .presentationDetents([.fraction(0.5)])
         }
         .sensoryFeedback(.selection, trigger: temperatureUnitID)
         .sensoryFeedback(.selection, trigger: temperatureDisplayID)
@@ -105,7 +127,7 @@ struct SettingsScreen: View {
                 iconColor: .white,
                 iconBackground: Color(red: 0.08, green: 0.82, blue: 0.56),
                 title: "Change Icon",
-                value: "Default",
+                value: currentAppIcon.displayName,
                 route: .changeIcon
             )
         }
@@ -204,11 +226,17 @@ struct SettingsScreen: View {
 
     private var headerActions: some View {
         HStack(spacing: 0) {
-            footerAction(icon: "arrowshape.turn.up.right.fill", title: "Share App", color: Color(red: 0.08, green: 0.79, blue: 0.55))
+            footerAction(icon: "arrowshape.turn.up.right.fill", title: "Share App", color: Color(red: 0.08, green: 0.79, blue: 0.55)) {
+                showsShareSheet = true
+            }
             footerDivider
-            footerAction(icon: "star.fill", title: "Rate Us", color: Color(red: 1, green: 0.75, blue: 0.28))
+            footerAction(icon: "star.fill", title: "Rate Us", color: Color(red: 1, green: 0.75, blue: 0.28)) {
+                rateApp()
+            }
             footerDivider
-            footerAction(icon: "at", title: "Feedback", color: Color(red: 0.43, green: 0.46, blue: 1))
+            footerAction(icon: "at", title: "Feedback", color: Color(red: 0.43, green: 0.46, blue: 1)) {
+                sendFeedback()
+            }
         }
         .padding(.vertical, 18)
         .background(AppColors.card)
@@ -221,8 +249,8 @@ struct SettingsScreen: View {
             .frame(width: 1, height: 48)
     }
 
-    private func footerAction(icon: String, title: String, color: Color) -> some View {
-        Button { } label: {
+    private func footerAction(icon: String, title: String, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
             VStack(spacing: 8) {
                 Image(systemName: icon)
                     .font(AppFonts.font(.heading2))
@@ -372,6 +400,28 @@ struct SettingsScreen: View {
 
     private func reloadWidgetTimelines() {
         WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    // MARK: - Header Action Handlers
+
+    private func rateApp() {
+        // On App Store builds the native in-app review prompt is preferred.
+        // It's silent on TestFlight and rate-limited by iOS, so for a testable
+        // result now we open the App Store review page directly. Swap to the
+        // `requestReview()` path once the listing is live if you want the
+        // native prompt to take priority.
+        UIApplication.shared.open(AppShareContent.appStoreReviewURL)
+    }
+
+    private func sendFeedback() {
+        guard let url = AppShareContent.feedbackMailtoURL() else { return }
+        UIApplication.shared.open(url)
+    }
+
+    private func refreshCurrentAppIcon() {
+        currentAppIcon = AppIconOption.from(
+            alternateIconName: UIApplication.shared.alternateIconName
+        )
     }
 
     @MainActor
@@ -755,14 +805,9 @@ private struct SettingsDetailScreen: View {
                 detail: "Answers for widgets, permissions, refresh timing, and customization will live here."
             )
         case .changeIcon:
-            detailCard(
-                icon: "app.badge",
-                iconBackground: Color(red: 0.08, green: 0.82, blue: 0.56),
-                title: "Change Icon",
-                status: "Default",
-                statusColor: AppColors.accentBlue,
-                detail: "Alternate app icons will be selectable here once the icon set is finalized."
-            )
+            // Handled by AppIconPickerScreen via navigationDestination; never
+            // rendered here. Kept for switch exhaustiveness.
+            EmptyView()
         case .whatsNew:
             detailCard(
                 icon: "arrow.up",
