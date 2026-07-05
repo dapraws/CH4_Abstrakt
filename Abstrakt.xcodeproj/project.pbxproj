@@ -59,6 +59,7 @@
 			membershipExceptions = (
 				Config/Signing.local.xcconfig,
 				Config/Signing.xcconfig,
+				Info.plist,
 			);
 			target = 1F65024C2FE959D7004BC514 /* Abstrakt */;
 		};
@@ -399,7 +400,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = MGF2PFTBQT;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Abstrakt/Info.plist;
 				INFOPLIST_KEY_AppGroupID = "$(APP_GROUP_ID)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Abstrakt reads upcoming events to render calendar-aware widgets.";
@@ -441,7 +443,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = MGF2PFTBQT;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Abstrakt/Info.plist;
 				INFOPLIST_KEY_AppGroupID = "$(APP_GROUP_ID)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Abstrakt reads upcoming events to render calendar-aware widgets.";
