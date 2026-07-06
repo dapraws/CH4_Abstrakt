@@ -720,8 +720,6 @@ private struct WidgetFontPickerSheet: View {
             }
 
             LazyVGrid(columns: columns, spacing: 14) {
-                fontTile(title: tileTitle(for: activeAppFontTheme), themeID: nil, fontTheme: activeAppFontTheme)
-
                 ForEach(AppFontTheme.allCases) { theme in
                     fontTile(title: tileTitle(for: theme), themeID: theme.id, fontTheme: theme)
                 }
@@ -738,10 +736,11 @@ private struct WidgetFontPickerSheet: View {
 
     private func fontTile(
         title: String,
-        themeID: String?,
+        themeID: String,
         fontTheme: AppFontTheme
     ) -> some View {
         let isSelected = selectedThemeID == themeID
+            || (selectedThemeID == nil && themeID == activeAppFontTheme.id)
 
         return Button {
             withAnimation(.smooth(duration: 0.18)) {
@@ -762,7 +761,7 @@ private struct WidgetFontPickerSheet: View {
             .clipShape(RoundedRectangle(cornerRadius: tileCornerRadius, style: .continuous))
             .overlay {
                 if isSelected {
-                    RoundedRectangle(cornerRadius: tileCornerRadius, style: .continuous)
+                    RoundedRectangle(cornerRadius: tileCornerRadius - 6, style: .continuous)
                         .stroke(
                             AppColors.primaryText.opacity(0.28),
                             style: StrokeStyle(lineWidth: 2, dash: [7, 5], dashPhase: 0)

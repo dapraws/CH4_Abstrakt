@@ -74,7 +74,7 @@ struct FontPickerSheet: View {
             .clipShape(RoundedRectangle(cornerRadius: tileCornerRadius, style: .continuous))
             .overlay {
                 if isSelected {
-                    RoundedRectangle(cornerRadius: tileCornerRadius, style: .continuous)
+                    RoundedRectangle(cornerRadius: tileCornerRadius - 6, style: .continuous)
                         .stroke(
                             AppColors.primaryText.opacity(0.28),
                             style: StrokeStyle(lineWidth: 2, dash: [7, 5], dashPhase: 0)
