@@ -295,6 +295,14 @@ private struct LibraryWidgetRow: View {
         preset.size
     }
 
+    private var fontThemeOverride: AbstraktWidgetFontTheme? {
+        guard let fontThemeID = preset.fontThemeID else {
+            return nil
+        }
+
+        return AbstraktWidgetFontTheme(rawValue: fontThemeID) ?? .sfProRounded
+    }
+
     // MARK: Body
 
     var body: some View {
@@ -340,7 +348,7 @@ private struct LibraryWidgetRow: View {
                     if let item {
                         WidgetPreview(
                             item: item,
-                            fontThemeOverride: preset.fontThemeOverride
+                            fontThemeOverride: fontThemeOverride
                         )
                             .frame(width: previewSize.width, height: previewSize.height)
                             .environment(\.colorScheme, preset.appearanceMode.colorScheme ?? palette.colorScheme)

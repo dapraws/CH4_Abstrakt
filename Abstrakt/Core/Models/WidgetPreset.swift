@@ -26,10 +26,6 @@ struct WidgetPreset: Identifiable, Codable, Hashable {
 }
 
 extension WidgetPreset {
-    var fontThemeOverride: AbstraktWidgetFontTheme? {
-        fontThemeID.map(AbstraktWidgetFontTheme.from)
-    }
-
     static let seededLibrary: [WidgetPreset] = [
         WidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0001") ?? UUID(),

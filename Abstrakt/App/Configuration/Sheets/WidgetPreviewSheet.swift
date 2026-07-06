@@ -483,7 +483,11 @@ private struct WidgetPreviewSheetContent: View {
     }
 
     private var selectedWidgetFontTheme: AbstraktWidgetFontTheme? {
-        fontThemeID.map(AbstraktWidgetFontTheme.from)
+        guard let fontThemeID else {
+            return nil
+        }
+
+        return AbstraktWidgetFontTheme(rawValue: fontThemeID) ?? .sfProRounded
     }
 
     private var selectedFontDisplayName: String {
