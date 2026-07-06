@@ -109,13 +109,26 @@ struct BottomBar: View {
         Button {
             selectedTab = tab
         } label: {
-            Image(systemName: tab.systemImage)
-                .font(tabIconFont)
+            tabIcon(for: tab)
                 .foregroundStyle(selectedTab == tab ? AppColors.tabBarIconSelected : AppColors.tabBarIcon)
                 .frame(maxWidth: .infinity)
                 .frame(height: 22)
         }
         .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func tabIcon(for tab: BottomBarTab) -> some View {
+        if let assetName = tab.tabBarIconAssetName {
+            Image(assetName)
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 22, height: 22)
+        } else {
+            Image(systemName: tab.systemImage)
+                .font(tabIconFont)
+        }
     }
 
     private func staggeredItem<Content: View>(_ index: Int, @ViewBuilder content: () -> Content) -> some View {

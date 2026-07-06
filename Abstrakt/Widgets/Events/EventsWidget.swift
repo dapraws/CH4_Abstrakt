@@ -244,9 +244,10 @@ struct EventsWidget: View {
         HStack(spacing: 3) {
             RoundedRectangle(cornerRadius: 2, style: .continuous)
                 .fill(Color(red: 1, green: 0.64, blue: 0.29))
-                .frame(width: 4)
+                .frame(width: 3)
 
         }
+        .padding(.top, 2)
         .frame(height: 50)
     }
 

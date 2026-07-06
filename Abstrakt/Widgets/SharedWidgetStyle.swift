@@ -12,7 +12,12 @@ enum AbstraktAppGroup {
     }
 
     static var defaults: UserDefaults? {
-        suiteName.flatMap(UserDefaults.init(suiteName:))
+        guard let suiteName,
+              FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: suiteName) != nil else {
+            return nil
+        }
+
+        return UserDefaults(suiteName: suiteName)
     }
 }
 

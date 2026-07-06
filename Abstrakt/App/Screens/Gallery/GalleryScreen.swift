@@ -206,7 +206,3 @@ private struct GalleryRowView: View {
         availableWidth = width
     }
 }
-
-#Preview {
-    GalleryScreen()
-}

@@ -11,14 +11,14 @@ struct HealthSummarySnapshot: Codable, Hashable {
 
     var distanceLabel: String {
         let unit = DistanceUnitPreference.from(
-            id: UserDefaults(suiteName: AppGroupConstants.suiteName)?.string(forKey: AppSettingsPreference.distanceUnitKey) ?? DistanceUnitPreference.kilometers.id
+            id: AppGroupConstants.sharedDefaults?.string(forKey: AppSettingsPreference.distanceUnitKey) ?? DistanceUnitPreference.kilometers.id
         )
         return unit.convertFromKilometers(distanceKilometers).formatted(.number.precision(.fractionLength(2)))
     }
 
     var distanceUnitName: String {
         DistanceUnitPreference.from(
-            id: UserDefaults(suiteName: AppGroupConstants.suiteName)?.string(forKey: AppSettingsPreference.distanceUnitKey) ?? DistanceUnitPreference.kilometers.id
+            id: AppGroupConstants.sharedDefaults?.string(forKey: AppSettingsPreference.distanceUnitKey) ?? DistanceUnitPreference.kilometers.id
         ).noun
     }
 }
@@ -46,7 +46,7 @@ final class HealthSummaryProvider {
             return .unavailable
         }
 
-        let requested = UserDefaults(suiteName: AppGroupConstants.suiteName)?
+        let requested = AppGroupConstants.sharedDefaults?
             .bool(forKey: Self.authorizationRequestedKey) ?? false
         return requested ? .requested : .notDetermined
     }
@@ -68,7 +68,7 @@ final class HealthSummaryProvider {
 
         do {
             try await store.requestAuthorization(toShare: Set<HKSampleType>(), read: readTypes)
-            UserDefaults(suiteName: AppGroupConstants.suiteName)?
+            AppGroupConstants.sharedDefaults?
                 .set(true, forKey: Self.authorizationRequestedKey)
             return true
         } catch {

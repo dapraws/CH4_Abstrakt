@@ -237,7 +237,7 @@ private struct LibraryEmptyState: View {
             Image("not-found-color")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 72, height: 72)
+                .frame(width: 64, height: 64)
 
             VStack(spacing: 6) {
                 Text("No \(size.title.lowercased()) widgets")
@@ -510,8 +510,4 @@ private struct LibraryWidgetRow: View {
         let angles = [-1.8, 1.2, -1.1, 1.6, -0.7]
         return angles[seed % angles.count]
     }
-}
-
-#Preview {
-    LibraryScreen()
 }

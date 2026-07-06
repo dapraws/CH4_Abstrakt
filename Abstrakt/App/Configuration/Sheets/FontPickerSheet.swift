@@ -14,10 +14,7 @@ struct FontPickerSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 12) {
-                Image("font-color")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
+                SheetHeaderSymbol(systemName: "textformat")
 
                 Text("Choose Font")
                     .font(AppFonts.font(.heading2))
@@ -101,6 +98,19 @@ struct FontPickerSheet: View {
         case .fusionPixel:
             "Fusion\nPixel"
         }
+    }
+}
+
+struct SheetHeaderSymbol: View {
+    let systemName: String
+
+    var body: some View {
+        Image(systemName: systemName)
+            .font(.system(size: 14, weight: .bold, design: .rounded))
+            .foregroundStyle(AppColors.primaryText)
+            .frame(width: 30, height: 30)
+            .background(AppColors.cardSoft)
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
 

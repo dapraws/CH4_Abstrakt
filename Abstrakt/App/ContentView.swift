@@ -32,9 +32,16 @@ struct ContentView: View {
     // MARK: - Properties
 
     private let runsLiveWidgetTasks: Bool
+    private let previewHasCompletedOnboarding: Bool?
 
-    init(runsLiveWidgetTasks: Bool = true) {
+    init(
+        runsLiveWidgetTasks: Bool = true,
+        initialTab: BottomBarTab = .gallery,
+        previewHasCompletedOnboarding: Bool? = nil
+    ) {
         self.runsLiveWidgetTasks = runsLiveWidgetTasks
+        self.previewHasCompletedOnboarding = previewHasCompletedOnboarding
+        _selectedTab = State(initialValue: initialTab)
     }
 
     private var libraryCount: Int {
@@ -45,7 +52,7 @@ struct ContentView: View {
 
     var body: some View {
         Group {
-            if hasCompletedOnboarding {
+            if previewHasCompletedOnboarding ?? hasCompletedOnboarding {
                 appShell
             } else {
                 OnboardingScreen {
@@ -120,7 +127,7 @@ struct ContentView: View {
             }
 
             if let selectedGalleryItem {
-                WidgetPreviewSheetCover(item: selectedGalleryItem, actionStyle: .saveToLibrary) {
+                WidgetPreviewSheetPresentation(item: selectedGalleryItem, actionStyle: .saveToLibrary) {
                     self.selectedGalleryItem = nil
                 }
                 .zIndex(4)
@@ -128,7 +135,7 @@ struct ContentView: View {
 
             if let selectedLibraryPreset,
                let selectedLibraryItem = WidgetCatalog.item(withID: selectedLibraryPreset.widgetID) {
-                WidgetPreviewSheetCover(
+                WidgetPreviewSheetPresentation(
                     item: selectedLibraryItem,
                     actionStyle: .removeFromLibrary(selectedLibraryPreset)
                 ) {
@@ -256,6 +263,10 @@ struct ContentView: View {
 
 }
 
-#Preview {
-    ContentView(runsLiveWidgetTasks: false)
+#Preview("ContentView") {
+    ContentView(
+        runsLiveWidgetTasks: false,
+        initialTab: .home,
+        previewHasCompletedOnboarding: true
+    )
 }

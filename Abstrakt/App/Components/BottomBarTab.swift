@@ -38,4 +38,19 @@ enum BottomBarTab: String, CaseIterable, Identifiable {
             "circle.fill"
         }
     }
+
+    var tabBarIconAssetName: String? {
+        switch self {
+        case .home:
+            "home"
+        case .gallery:
+            "layout"
+        case .widgets:
+            "pill"
+        case .settings:
+            "gear"
+        case .library:
+            nil
+        }
+    }
 }

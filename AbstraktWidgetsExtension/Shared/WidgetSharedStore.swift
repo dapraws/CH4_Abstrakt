@@ -14,7 +14,14 @@ enum WidgetSharedStore {
         return value
     }()
 
-    private static let defaults = UserDefaults(suiteName: suiteName)
+    private static var defaults: UserDefaults? {
+        guard !suiteName.isEmpty,
+              FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: suiteName) != nil else {
+            return nil
+        }
+
+        return UserDefaults(suiteName: suiteName)
+    }
     
     static var sharedContainerURL: URL? {
         FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: suiteName)

@@ -47,10 +47,7 @@ struct ShareAppSheet: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            Image("share-color")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 24, height: 24)
+            SheetHeaderSymbol(systemName: "arrowshape.turn.up.right.fill")
 
             Text("Share Abstrakt")
                 .font(AppFonts.font(.heading2))
@@ -131,18 +128,18 @@ private struct ShareAppButtonContent: View {
 
     var body: some View {
         buttonLabel
-            .foregroundStyle(Color.green.opacity(0.64))
+            .foregroundStyle(Color.blue.opacity(0.64))
             .overlay {
                 GeometryReader { proxy in
                     buttonLabel
                         .foregroundStyle(
                             LinearGradient(
                                 stops: [
-                                    .init(color: Color.green.opacity(0), location: 0),
-                                    .init(color: Color.green.opacity(0.12), location: 0.32),
-                                    .init(color: Color.green.opacity(0.54), location: 0.5),
-                                    .init(color: Color.green.opacity(0.12), location: 0.68),
-                                    .init(color: Color.green.opacity(0), location: 1),
+                                    .init(color: Color.blue.opacity(0), location: 0),
+                                    .init(color: Color.blue.opacity(0.12), location: 0.32),
+                                    .init(color: Color.blue.opacity(0.54), location: 0.5),
+                                    .init(color: Color.blue.opacity(0.12), location: 0.68),
+                                    .init(color: Color.blue.opacity(0), location: 1),
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -170,7 +167,7 @@ private struct ShareAppButtonContent: View {
 
     private var buttonLabel: some View {
         HStack(spacing: 10) {
-            Image(systemName: "square.and.arrow.up")
+            Image(systemName: "arrowshape.turn.up.right.fill")
                 .font(AppFonts.font(.heading2))
 
             Text("Share App")
@@ -216,7 +213,8 @@ private struct ShareCardView: View {
             Text(AppShareContent.landingURL.host ?? AppShareContent.landingURL.absoluteString)
                 .font(AppFonts.font(.caption))
                 .foregroundStyle(AppColors.secondaryText)
-                .frame(height: 34)
+                .padding(.horizontal, 16)
+                .frame(height: 32)
                 .background(AppColors.appBackground.opacity(0.55))
                 .clipShape(Capsule())
         }

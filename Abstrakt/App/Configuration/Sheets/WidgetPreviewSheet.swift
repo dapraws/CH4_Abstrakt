@@ -7,7 +7,7 @@ enum WidgetPreviewSheetActionStyle: Equatable {
     case removeFromLibrary(WidgetPreset)
 }
 
-struct WidgetPreviewSheetCover: View {
+struct WidgetPreviewSheetPresentation: View {
     let item: WidgetCatalogItem
     var actionStyle: WidgetPreviewSheetActionStyle = .saveToLibrary
     let onDismiss: () -> Void
@@ -30,7 +30,7 @@ struct WidgetPreviewSheetCover: View {
                     .ignoresSafeArea()
                     .onTapGesture(perform: close)
 
-                WidgetPreviewSheet(item: item, actionStyle: actionStyle) {
+                WidgetPreviewSheetContent(item: item, actionStyle: actionStyle) {
                     close()
                 }
                 .frame(width: proxy.size.width, height: sheetHeight)
@@ -130,7 +130,7 @@ struct WidgetPreviewSheetCover: View {
     }
 }
 
-private struct WidgetPreviewSheet: View {
+private struct WidgetPreviewSheetContent: View {
     private static let settingsStore = AppGroupConstants.sharedDefaults
 
     let item: WidgetCatalogItem
@@ -341,7 +341,7 @@ private struct WidgetPreviewSheet: View {
         case .removeFromLibrary:
             return WidgetPreviewPrimaryButtonConfiguration(
                 title: "Remove widget",
-                systemImage: "trash.fill",
+                systemImage: "xmark.seal.fill",
                 tint: .red
             )
         }

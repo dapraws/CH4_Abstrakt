@@ -1,7 +1,9 @@
 import Foundation
 
 enum SharedModelContainer {
-    private static let defaults = UserDefaults(suiteName: AppGroupConstants.suiteName)
+    private static var defaults: UserDefaults? {
+        AppGroupConstants.sharedDefaults
+    }
 
     static func write(clock: ClockSnapshot, calendar: CalendarSnapshot) {
         defaults?.set(clock.timeText, forKey: AppGroupConstants.sharedClockTimeKey)
