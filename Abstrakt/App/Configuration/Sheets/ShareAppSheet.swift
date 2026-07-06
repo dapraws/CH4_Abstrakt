@@ -16,6 +16,7 @@ import SwiftUI
 /// image, the broadcast message, and the landing URL.
 struct ShareAppSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.displayScale) private var displayScale
 
     /// Chosen once when the sheet appears so the preview and the shared image
     /// use the same line.
@@ -28,8 +29,10 @@ struct ShareAppSheet: View {
         VStack(alignment: .leading, spacing: 18) {
             header
             shareCard
+            
+            Spacer()
+            
             shareButton
-            Spacer(minLength: 0)
         }
         .padding(.horizontal, AppSpacing.screenHorizontal)
         .padding(.top, 20)
@@ -44,12 +47,10 @@ struct ShareAppSheet: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            Image(systemName: "arrowshape.turn.up.right.fill")
-                .font(AppFonts.font(.heading3))
-                .foregroundStyle(AppColors.appBackground)
-                .frame(width: 32, height: 32)
-                .background(AppColors.primaryText)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            Image("share-color")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
 
             Text("Share Abstrakt")
                 .font(AppFonts.font(.heading2))
@@ -86,18 +87,15 @@ struct ShareAppSheet: View {
         Button {
             isPresentingActivitySheet = true
         } label: {
-            HStack(spacing: 10) {
-                Image(systemName: "square.and.arrow.up")
-                Text("Share")
-            }
-            .font(AppFonts.font(.subHeading))
-            .foregroundStyle(AppColors.appBackground)
-            .frame(maxWidth: .infinity)
-            .frame(height: 54)
-            .background(AppColors.primaryText)
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            ShareAppButtonContent()
+                .frame(maxWidth: 256)
+                .frame(height: 64)
         }
         .buttonStyle(.plain)
+        .background(Color.white)
+        .clipShape(Capsule())
+        .shadow(color: Color.black.opacity(0.08), radius: 2, x: 0, y: 1)
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 
     // MARK: - Share Items
@@ -121,8 +119,63 @@ struct ShareAppSheet: View {
             content: ShareCardView(broadcastLine: broadcastLine)
                 .frame(width: 320)
         )
-        renderer.scale = UIScreen.main.scale
+        renderer.scale = displayScale
         return renderer.uiImage
+    }
+}
+
+// MARK: - Share Button Content
+
+private struct ShareAppButtonContent: View {
+    @State private var shimmerPhase: CGFloat = -1
+
+    var body: some View {
+        buttonLabel
+            .foregroundStyle(Color.green.opacity(0.64))
+            .overlay {
+                GeometryReader { proxy in
+                    buttonLabel
+                        .foregroundStyle(
+                            LinearGradient(
+                                stops: [
+                                    .init(color: Color.green.opacity(0), location: 0),
+                                    .init(color: Color.green.opacity(0.12), location: 0.32),
+                                    .init(color: Color.green.opacity(0.54), location: 0.5),
+                                    .init(color: Color.green.opacity(0.12), location: 0.68),
+                                    .init(color: Color.green.opacity(0), location: 1),
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .mask(
+                            Capsule()
+                                .frame(width: proxy.size.width * 0.42, height: proxy.size.height * 1.35)
+                                .blur(radius: 6)
+                                .rotationEffect(.degrees(8))
+                                .offset(x: proxy.size.width * shimmerPhase)
+                        )
+                        .opacity(0.9)
+                }
+                .allowsHitTesting(false)
+            }
+            .symbolEffect(.pulse.wholeSymbol, options: .repeating.speed(0.35), value: shimmerPhase > 0)
+            .onAppear {
+                shimmerPhase = -0.9
+                withAnimation(.easeInOut(duration: 4.4).repeatForever(autoreverses: false)) {
+                    shimmerPhase = 1.45
+                }
+            }
+    }
+
+    private var buttonLabel: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "square.and.arrow.up")
+                .font(AppFonts.font(.heading2))
+
+            Text("Share App")
+                .font(AppFonts.font(.heading2))
+        }
     }
 }
 
@@ -135,12 +188,12 @@ private struct ShareCardView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack(spacing: 12) {
+            HStack(spacing: 24) {
                 Image(uiImage: appIconImage)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 52, height: 52)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .frame(width: 48, height: 48)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Abstrakt")
@@ -163,7 +216,6 @@ private struct ShareCardView: View {
             Text(AppShareContent.landingURL.host ?? AppShareContent.landingURL.absoluteString)
                 .font(AppFonts.font(.caption))
                 .foregroundStyle(AppColors.secondaryText)
-                .padding(.horizontal, 14)
                 .frame(height: 34)
                 .background(AppColors.appBackground.opacity(0.55))
                 .clipShape(Capsule())

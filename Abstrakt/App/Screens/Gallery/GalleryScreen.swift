@@ -577,6 +577,7 @@ private struct WidgetPreviewSheet: View {
             presets.remove(at: existingIndex)
             SharedModelContainer.write(widgetPresets: presets)
             SharedModelContainer.removeThumbnail(for: idToRemove)
+            WidgetCenter.shared.reloadAllTimelines()
         } else {
             let newPreset = WidgetPreset(
                 id: UUID(),
@@ -607,6 +608,7 @@ private struct WidgetPreviewSheet: View {
             
             presets.append(newPreset)
             SharedModelContainer.write(widgetPresets: presets)
+            WidgetCenter.shared.reloadAllTimelines()
         }
     }
 

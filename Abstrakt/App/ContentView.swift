@@ -64,6 +64,7 @@ struct ContentView: View {
             HealthSummaryProvider.shared.startObservingTodayMetrics {
                 Task { @MainActor in
                     await refreshHealthWidgetData()
+                    WidgetCenter.shared.reloadAllTimelines()
                 }
             }
         }
@@ -223,6 +224,7 @@ struct ContentView: View {
         while !Task.isCancelled {
             SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
             SharedModelContainer.write(storage: StorageProvider.currentSnapshot())
+            WidgetCenter.shared.reloadAllTimelines()
             do {
                 try await Task.sleep(for: Self.slowDataRefreshInterval)
             } catch {

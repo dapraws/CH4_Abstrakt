@@ -11,9 +11,10 @@ import Foundation
 ///
 /// - `alternateIconName` is the key registered under `CFBundleAlternateIcons`
 ///   in the app's `Info.plist`, or `nil` for the primary icon.
-/// - `previewAssetName` is an image in `Assets.xcassets/AppIcons/` used only as
-///   a thumbnail in the picker. Preview thumbnails live in the asset catalog;
-///   the real alternate icons are loose PNGs referenced by the plist.
+/// - `previewAssetName` is an image in `Assets.xcassets/AppIcons/` used as a
+///   thumbnail in the picker.
+/// - Alternate icon PNGs are copied as loose app resources and referenced by
+///   `Info.plist`.
 struct AppIconOption: Identifiable, Hashable {
     let id: String
     let displayName: String
@@ -27,16 +28,10 @@ extension AppIconOption {
     /// All options in the order shown in the picker. First entry is the
     /// primary icon (uses the existing `AppIcon` asset as its thumbnail).
     static let all: [AppIconOption] = [
-        AppIconOption(id: "default", displayName: "Default", alternateIconName: nil, previewAssetName: "AppIconPreviewDefault"),
-        AppIconOption(id: "noir", displayName: "Noir", alternateIconName: "AbstraktNoir", previewAssetName: "AppIconPreviewNoir"),
-        AppIconOption(id: "frost", displayName: "Frost", alternateIconName: "AbstraktFrost", previewAssetName: "AppIconPreviewFrost"),
-        AppIconOption(id: "aurora", displayName: "Aurora", alternateIconName: "AbstraktAurora", previewAssetName: "AppIconPreviewAurora"),
-        AppIconOption(id: "sunset", displayName: "Sunset", alternateIconName: "AbstraktSunset", previewAssetName: "AppIconPreviewSunset"),
-        AppIconOption(id: "ocean", displayName: "Ocean", alternateIconName: "AbstraktOcean", previewAssetName: "AppIconPreviewOcean"),
-        AppIconOption(id: "bloom", displayName: "Bloom", alternateIconName: "AbstraktBloom", previewAssetName: "AppIconPreviewBloom"),
-        AppIconOption(id: "mono", displayName: "Mono", alternateIconName: "AbstraktMono", previewAssetName: "AppIconPreviewMono"),
-        AppIconOption(id: "pixel", displayName: "Pixel", alternateIconName: "AbstraktPixel", previewAssetName: "AppIconPreviewPixel"),
-        AppIconOption(id: "neon", displayName: "Neon", alternateIconName: "AbstraktNeon", previewAssetName: "AppIconPreviewNeon"),
+        AppIconOption(id: "default", displayName: "Default", alternateIconName: nil, previewAssetName: "AbstraktDefaultPreview"),
+        AppIconOption(id: "glass", displayName: "Glass", alternateIconName: "AbstraktGlass", previewAssetName: "AbstraktGlassPreview"),
+        AppIconOption(id: "purple", displayName: "Purple", alternateIconName: "AbstraktPurple", previewAssetName: "AbstraktPurplePreview"),
+        AppIconOption(id: "blue", displayName: "Blue", alternateIconName: "AbstraktBlue", previewAssetName: "AbstraktBluePreview"),
     ]
 
     static let primary = all[0]

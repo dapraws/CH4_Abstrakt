@@ -14,12 +14,10 @@ struct FontPickerSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 12) {
-                Image(systemName: "textformat")
-                    .font(AppFonts.font(.heading3))
-                    .foregroundStyle(AppColors.appBackground)
-                    .frame(width: 32, height: 32)
-                    .background(AppColors.primaryText)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                Image("font-color")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
 
                 Text("Choose Font")
                     .font(AppFonts.font(.heading2))

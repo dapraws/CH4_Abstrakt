@@ -2,102 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>AppGroupID</key>
+	<string>$(APP_GROUP_ID)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIcons</key>
-	<dict>
-		<key>CFBundleAlternateIcons</key>
-		<dict>
-			<key>AbstraktAurora</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>AbstraktAurora</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>AbstraktBloom</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>AbstraktBloom</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>AbstraktFrost</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>AbstraktFrost</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>AbstraktMono</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>AbstraktMono</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>AbstraktNeon</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>AbstraktNeon</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>AbstraktNoir</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>AbstraktNoir</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>AbstraktOcean</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>AbstraktOcean</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>AbstraktPixel</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>AbstraktPixel</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>AbstraktSunset</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>AbstraktSunset</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-		</dict>
-		<key>CFBundlePrimaryIcon</key>
-		<dict>
-			<key>CFBundleIconName</key>
-			<string>AppIcon</string>
-		</dict>
-	</dict>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -136,9 +46,21 @@
 		<key>UILaunchScreen</key>
 		<dict/>
 	</dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Quicksand-Light.ttf</string>
+		<string>Quicksand-Regular.ttf</string>
+		<string>Quicksand-Medium.ttf</string>
+		<string>Quicksand-SemiBold.ttf</string>
+		<string>Quicksand-Bold.ttf</string>
+		<string>Fusion-Pixel-Regular.ttf</string>
+	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~iphone</key>
 	<array>

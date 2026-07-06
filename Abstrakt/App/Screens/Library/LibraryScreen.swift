@@ -223,12 +223,10 @@ private struct LibraryEmptyState: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            Image(systemName: emptyIcon)
-                .font(AppFonts.font(.title))
-                .foregroundStyle(palette.secondaryText)
-                .frame(width: 68, height: 68)
-                .background(palette.chip)
-                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            Image("not-found-color")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 72, height: 72)
 
             VStack(spacing: 6) {
                 Text("No \(size.title.lowercased()) widgets")
@@ -244,7 +242,7 @@ private struct LibraryEmptyState: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, AppSpacing.screenHorizontal)
-        .padding(.top, 128)
+        .padding(.top, 258)
     }
 
     private var emptyIcon: String {
