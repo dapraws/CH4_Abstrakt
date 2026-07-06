@@ -268,7 +268,14 @@ private extension AppFontTheme {
     func sizeScale(for role: AppFontRole) -> CGFloat {
         switch self {
         case .sfPro, .sfProRounded:
-            return 1
+            switch role {
+            case .display, .title, .heading1, .widgetDisplay, .widgetTitle:
+                return 0.94
+            case .heading2, .heading3, .heading4, .body, .subBody, .subHeading, .widgetHeading, .widgetBody:
+                return 0.96
+            case .caption, .meta, .chip, .tab, .iconBadge, .widgetCaption, .widgetMeta:
+                return 0.97
+            }
         case .quicksand:
             return 1
         case .fusionPixel:

@@ -261,7 +261,16 @@ private struct BaseAbstraktWidgetFontToken {
 private extension AbstraktWidgetFontTheme {
     func sizeScale(for role: AbstraktWidgetFontRole) -> CGFloat {
         switch self {
-        case .sfPro, .sfProRounded, .quicksand:
+        case .sfPro, .sfProRounded:
+            switch role {
+            case .display, .displayCompact, .title, .subDisplay:
+                return 0.94
+            case .heading, .body, .bodyBold:
+                return 0.96
+            case .caption, .meta, .iconBadge:
+                return 0.97
+            }
+        case .quicksand:
             return 1
         case .fusionPixel:
             switch role {
