@@ -141,8 +141,6 @@ private struct WidgetPreviewSheetContent: View {
     @AppStorage(AppGroupConstants.portalIconClipStyleKey, store: settingsStore) private var portalIconClipStyleID = PortalIconClipStyle.default.id
     @AppStorage(AppGroupConstants.activityModeKey, store: settingsStore) private var activityModeID = ActivityMode.today.id
     @AppStorage(AppGroupConstants.eventModeKey, store: settingsStore) private var eventModeID = EventDisplayMode.upcoming.id
-    @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
-    @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore) private var sharedAppFontThemeID = AppFonts.defaultTheme.id
     @Environment(\.displayScale) private var displayScale
     @Environment(\.colorScheme) private var colorScheme
     @State private var showsAppsPicker = false
@@ -510,11 +508,11 @@ private struct WidgetPreviewSheetContent: View {
     }
 
     private var selectedFontDisplayName: String {
-        AppFontTheme.from(id: fontThemeID ?? activeAppFontThemeID).displayName
-    }
+        guard let fontThemeID else {
+            return "Font"
+        }
 
-    private var activeAppFontThemeID: String {
-        sharedAppFontThemeID.isEmpty ? appFontThemeID : sharedAppFontThemeID
+        return AppFontTheme.from(id: fontThemeID).displayName
     }
 
     private var previewColorScheme: ColorScheme {
@@ -681,69 +679,100 @@ private struct WidgetFontPickerSheet: View {
     @Binding var selectedThemeID: String?
     @Environment(\.dismiss) private var dismiss
 
-    var body: some View {
-        NavigationStack {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 12) {
-                    fontButton(title: "App Default", subtitle: "Follow Settings", themeID: nil, fontTheme: AppFonts.defaultTheme)
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: 2)
+    private let tileCornerRadius: CGFloat = 24
 
-                    ForEach(AppFontTheme.allCases) { theme in
-                        fontButton(title: theme.displayName, subtitle: theme.previewText, themeID: theme.id, fontTheme: theme)
-                    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack(spacing: 12) {
+                SheetHeaderSymbol(systemName: "textformat")
+
+                Text("Choose Font")
+                    .font(AppFonts.font(.heading2))
+                    .foregroundStyle(AppColors.primaryText)
+
+                Spacer()
+
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(AppFonts.font(.heading3))
+                        .foregroundStyle(AppColors.primaryText)
+                        .frame(width: 42, height: 42)
+                        .background(AppColors.cardSoft)
+                        .clipShape(Circle())
                 }
-                .padding(.horizontal, AppSpacing.screenHorizontal)
-                .padding(.top, 16)
-                .padding(.bottom, 28)
+                .buttonStyle(.plain)
             }
-            .background(AppColors.appBackground)
-            .navigationTitle("Font")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .font(AppFonts.font(.heading4))
+
+            LazyVGrid(columns: columns, spacing: 14) {
+                fontTile(title: "Font", themeID: nil, fontTheme: AppFonts.defaultTheme)
+
+                ForEach(AppFontTheme.allCases) { theme in
+                    fontTile(title: tileTitle(for: theme), themeID: theme.id, fontTheme: theme)
                 }
             }
+
+            Spacer(minLength: 0)
         }
+        .padding(.horizontal, AppSpacing.screenHorizontal)
+        .padding(.top, 20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(AppColors.appBackground)
+        .sensoryFeedback(.selection, trigger: selectedThemeID)
     }
 
-    private func fontButton(
+    private func fontTile(
         title: String,
-        subtitle: String,
         themeID: String?,
         fontTheme: AppFontTheme
     ) -> some View {
         let isSelected = selectedThemeID == themeID
 
         return Button {
-            selectedThemeID = themeID
-        } label: {
-            HStack(spacing: 14) {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(title)
-                        .font(AppFonts.font(.heading3, theme: fontTheme))
-                        .foregroundStyle(AppColors.primaryText)
-
-                    Text(subtitle)
-                        .font(AppFonts.font(.caption, theme: fontTheme))
-                        .foregroundStyle(AppColors.secondaryText)
-                }
-
-                Spacer(minLength: 12)
-
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(AppFonts.font(.heading3))
-                    .foregroundStyle(isSelected ? Color.green : AppColors.secondaryText)
+            withAnimation(.smooth(duration: 0.18)) {
+                selectedThemeID = themeID
             }
-            .padding(.horizontal, 18)
-            .frame(maxWidth: .infinity)
-            .frame(height: 72)
-            .background(AppColors.cardSoft)
-            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        } label: {
+            ZStack {
+                Text(title)
+                        .font(AppFonts.font(.heading3, theme: fontTheme))
+                        .lineSpacing(AppFonts.lineSpacing(.heading3, theme: fontTheme))
+                        .foregroundStyle(AppColors.primaryText)
+                        .multilineTextAlignment(.center)
+                        .minimumScaleFactor(0.72)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .frame(height: 88)
+            .background(isSelected ? AppColors.primaryText.opacity(0.06) : AppColors.cardSoft)
+            .clipShape(RoundedRectangle(cornerRadius: tileCornerRadius, style: .continuous))
+            .overlay {
+                if isSelected {
+                    RoundedRectangle(cornerRadius: tileCornerRadius, style: .continuous)
+                        .stroke(
+                            AppColors.primaryText.opacity(0.28),
+                            style: StrokeStyle(lineWidth: 2, dash: [7, 5], dashPhase: 0)
+                        )
+                        .padding(6)
+                }
+            }
         }
         .buttonStyle(.plain)
+        .animation(.smooth(duration: 0.18), value: isSelected)
+    }
+
+    private func tileTitle(for theme: AppFontTheme) -> String {
+        switch theme {
+        case .sfPro:
+            "Default"
+        case .sfProRounded:
+            "Round"
+        case .quicksand:
+            "Quicksand"
+        case .fusionPixel:
+            "Fusion\nPixel"
+        }
     }
 }
 
