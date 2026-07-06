@@ -10,7 +10,6 @@ import SwiftUI
 @main
 struct AbstraktApp: App {
     init() {
-        AppGroupConstants.migrateLegacyFallbackDefaultsIfNeeded()
         AppFonts.registerCustomFonts()
     }
 

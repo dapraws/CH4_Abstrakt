@@ -10,7 +10,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.daffa.abstrakt</string>
+		<string>$(APP_GROUP_ID)</string>
 	</array>
 </dict>
 </plist>

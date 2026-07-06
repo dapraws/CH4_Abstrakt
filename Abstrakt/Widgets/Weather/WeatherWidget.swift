@@ -19,8 +19,7 @@ struct WeatherSnapshot: Codable, Hashable {
     let locationName: String    // city / kabupaten from reverse geocoding
 
     private var usesFahrenheit: Bool {
-        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.daffa.abstrakt")?
-            .string(forKey: "settings.temperatureUnit") == "fahrenheit"
+        AbstraktAppGroup.defaults?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
     }
 
     var displayTemperature: Int { convertedFromCelsius(temperature) }

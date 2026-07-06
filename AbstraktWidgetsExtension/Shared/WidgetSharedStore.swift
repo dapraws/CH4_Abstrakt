@@ -7,7 +7,8 @@ enum WidgetSharedStore {
                 as? String,
             !value.isEmpty
         else {
-            return "group.daffa.abstrakt"
+            assertionFailure("Missing AppGroupID Info.plist value. Check APP_GROUP_ID in Signing.xcconfig.")
+            return ""
         }
 
         return value

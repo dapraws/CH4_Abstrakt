@@ -1,6 +1,21 @@
 import CoreText
 import SwiftUI
 
+enum AbstraktAppGroup {
+    static var suiteName: String? {
+        guard let value = Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String,
+              !value.isEmpty else {
+            return nil
+        }
+
+        return value
+    }
+
+    static var defaults: UserDefaults? {
+        suiteName.flatMap(UserDefaults.init(suiteName:))
+    }
+}
+
 // MARK: - Font Roles
 
 enum AbstraktWidgetFontRole {
@@ -32,7 +47,7 @@ enum AbstraktWidgetFontTheme: String, CaseIterable, Identifiable {
 
     static var sharedAppTheme: AbstraktWidgetFontTheme {
         from(
-            id: UserDefaults(suiteName: appGroupSuiteName)?.string(forKey: storageKey)
+            id: AbstraktAppGroup.defaults?.string(forKey: storageKey)
                 ?? UserDefaults.standard.string(forKey: storageKey)
                 ?? sfProRounded.id
         )
@@ -46,20 +61,13 @@ enum AbstraktWidgetFontTheme: String, CaseIterable, Identifiable {
         return Self(rawValue: id) ?? .sfProRounded
     }
 
-    private static let appGroupSuiteName = "group.daffa.abstrakt"
     private static let storageKey = "appFontTheme"
 }
 
 // MARK: - Font Factory
 
 enum AbstraktWidgetFonts {
-    private static let fontsRegisteredKey = "widget.fonts.registration.completed"
-
     static func registerCustomFonts(in bundle: Bundle = .main) {
-        guard !UserDefaults.standard.bool(forKey: fontsRegisteredKey) else {
-            return
-        }
-
         for fontFile in AbstraktWidgetFontFile.allCases {
             guard let url = fontFile.url(in: bundle) else {
                 continue
@@ -67,8 +75,6 @@ enum AbstraktWidgetFonts {
 
             CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
         }
-
-        UserDefaults.standard.set(true, forKey: fontsRegisteredKey)
     }
 
     static func font(_ role: AbstraktWidgetFontRole, theme: AbstraktWidgetFontTheme) -> Font {

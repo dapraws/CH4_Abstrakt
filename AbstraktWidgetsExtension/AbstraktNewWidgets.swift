@@ -74,7 +74,8 @@ struct HeartRateWidgetEntry: TimelineEntry {
     let timestamp: Date
 }
 
-private let widgetTimelineRefreshInterval: TimeInterval = 60
+private let widgetTimelineEntryInterval: TimeInterval = 60
+private let widgetTimelineEntryCount = 5
 
 // MARK: - Timeline Providers
 
@@ -91,10 +92,9 @@ struct SmallSolidWidgetProvider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: SmallSolidWidgetIntent, in context: Context) async -> Timeline<SmallSolidWidgetEntry> {
-        Timeline(
-            entries: [SmallSolidWidgetEntry.current(selectedWidget: configuration.preset)],
-            policy: .after(nextWidgetRefreshDate())
-        )
+        Timeline(entries: widgetTimelineEntries { date in
+            SmallSolidWidgetEntry.current(selectedWidget: configuration.preset, date: date)
+        }, policy: .atEnd)
     }
 }
 
@@ -111,10 +111,9 @@ struct MediumSolidWidgetProvider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: MediumSolidWidgetIntent, in context: Context) async -> Timeline<MediumSolidWidgetEntry> {
-        Timeline(
-            entries: [MediumSolidWidgetEntry.current(selectedWidget: configuration.preset)],
-            policy: .after(nextWidgetRefreshDate())
-        )
+        Timeline(entries: widgetTimelineEntries { date in
+            MediumSolidWidgetEntry.current(selectedWidget: configuration.preset, date: date)
+        }, policy: .atEnd)
     }
 }
 
@@ -131,15 +130,19 @@ struct LargeSolidWidgetProvider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: LargeSolidWidgetIntent, in context: Context) async -> Timeline<LargeSolidWidgetEntry> {
-        Timeline(
-            entries: [LargeSolidWidgetEntry.current(selectedWidget: configuration.preset)],
-            policy: .after(nextWidgetRefreshDate())
-        )
+        Timeline(entries: widgetTimelineEntries { date in
+            LargeSolidWidgetEntry.current(selectedWidget: configuration.preset, date: date)
+        }, policy: .atEnd)
     }
 }
 
-private func nextWidgetRefreshDate() -> Date {
-    .now.addingTimeInterval(widgetTimelineRefreshInterval)
+private func widgetTimelineEntries<Entry: TimelineEntry>(
+    makeEntry: (Date) -> Entry
+) -> [Entry] {
+    let now = Date()
+    return (0..<widgetTimelineEntryCount).map { offset in
+        makeEntry(now.addingTimeInterval(TimeInterval(offset) * widgetTimelineEntryInterval))
+    }
 }
 
 // MARK: - Widget Configurations
@@ -189,18 +192,18 @@ struct LargeSolidWidget: Widget {
 // MARK: - Current Entry Factories
 
 private extension SmallSolidWidgetEntry {
-    static func current(selectedWidget: SavedWidgetEntity?) -> SmallSolidWidgetEntry {
+    static func current(selectedWidget: SavedWidgetEntity?, date: Date = .now) -> SmallSolidWidgetEntry {
         SmallSolidWidgetEntry(
-            date: .now,
+            date: date,
             selectedWidgetID: resolvedWidgetID(from: selectedWidget, size: "small"),
             battery: BatteryWidgetEntry(
-                date: .now,
+                date: date,
                 level: WidgetSharedStore.batteryLevel,
                 estimatedMinutesRemaining: WidgetSharedStore.batteryEstimatedMinutes,
                 isCharging: WidgetSharedStore.batteryIsCharging
             ),
             health: StepWidgetEntry(
-                date: .now,
+                date: date,
                 steps: WidgetSharedStore.healthSteps,
                 distanceValue: WidgetSharedStore.healthDistanceValue,
                 distanceUnitName: WidgetSharedStore.healthDistanceUnitName
@@ -208,19 +211,19 @@ private extension SmallSolidWidgetEntry {
             activity: WidgetSharedStore.activity,
             event: WidgetSharedStore.eventSnapshot,
             portal: PortalEntry(
-                date: .now,
+                date: date,
                 temperature: WidgetSharedStore.portalWeatherTemperatureCelsius,
                 placeName: WidgetSharedStore.portalWeatherPlaceName
             ),
             storage: StorageWidgetEntry(
-                date: .now,
+                date: date,
                 totalBytes: WidgetSharedStore.storageTotalBytes,
                 availableBytes: WidgetSharedStore.storageAvailableBytes
             ),
             weather: WidgetSharedStore.weather,
             daylight: WidgetSharedStore.daylight,
             heartRate: HeartRateWidgetEntry(
-                date: .now,
+                date: date,
                 bpm: WidgetSharedStore.heartRateBPM,
                 timestamp: WidgetSharedStore.heartRateTimestamp
             )
@@ -249,12 +252,12 @@ private extension SmallSolidWidgetEntry {
 }
 
 private extension MediumSolidWidgetEntry {
-    static func current(selectedWidget: SavedWidgetEntity?) -> MediumSolidWidgetEntry {
+    static func current(selectedWidget: SavedWidgetEntity?, date: Date = .now) -> MediumSolidWidgetEntry {
         MediumSolidWidgetEntry(
-            date: .now,
+            date: date,
             selectedWidgetID: resolvedWidgetID(from: selectedWidget, size: "medium"),
             today: TodayWidgetEntry(
-                date: .now,
+                date: date,
                 temperature: WidgetSharedStore.weatherTemperatureCelsius,
                 high: WidgetSharedStore.weatherHighCelsius,
                 low: WidgetSharedStore.weatherLowCelsius,
@@ -282,24 +285,24 @@ private extension MediumSolidWidgetEntry {
 }
 
 private extension LargeSolidWidgetEntry {
-    static func current(selectedWidget: SavedWidgetEntity?) -> LargeSolidWidgetEntry {
+    static func current(selectedWidget: SavedWidgetEntity?, date: Date = .now) -> LargeSolidWidgetEntry {
         LargeSolidWidgetEntry(
-            date: .now,
+            date: date,
             selectedWidgetID: resolvedWidgetID(from: selectedWidget, size: "large"),
             battery: BatteryWidgetEntry(
-                date: .now,
+                date: date,
                 level: WidgetSharedStore.batteryLevel,
                 estimatedMinutesRemaining: WidgetSharedStore.batteryEstimatedMinutes,
                 isCharging: WidgetSharedStore.batteryIsCharging
             ),
             health: StepWidgetEntry(
-                date: .now,
+                date: date,
                 steps: WidgetSharedStore.healthSteps,
                 distanceValue: WidgetSharedStore.healthDistanceValue,
                 distanceUnitName: WidgetSharedStore.healthDistanceUnitName
             ),
             today: TodayWidgetEntry(
-                date: .now,
+                date: date,
                 temperature: WidgetSharedStore.weatherTemperatureCelsius,
                 high: WidgetSharedStore.weatherHighCelsius,
                 low: WidgetSharedStore.weatherLowCelsius,
@@ -307,7 +310,7 @@ private extension LargeSolidWidgetEntry {
                 conditionLabel: WidgetSharedStore.weatherConditionLabel
             ),
             storage: StorageWidgetEntry(
-                date: .now,
+                date: date,
                 totalBytes: WidgetSharedStore.storageTotalBytes,
                 availableBytes: WidgetSharedStore.storageAvailableBytes
             )

@@ -1,13 +1,11 @@
 import Foundation
 
 enum AppGroupConstants {
-    static let defaultSuiteName = "group.daffa.abstrakt"
-    static let legacyFallbackSuiteName = "group.default.abstrakt"
-
     static let suiteName: String = {
         guard let value = Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String,
               !value.isEmpty else {
-            return defaultSuiteName
+            assertionFailure("Missing AppGroupID Info.plist value. Check APP_GROUP_ID in Signing.xcconfig.")
+            return ""
         }
 
         return value
@@ -59,61 +57,4 @@ enum AppGroupConstants {
     static let simulatorActivePresetKeyMedium = "shared.widget.simulatorActivePreset.medium"
     static let simulatorActivePresetKeyLarge = "shared.widget.simulatorActivePreset.large"
     #endif
-    
-    static func migrateLegacyFallbackDefaultsIfNeeded() {
-        guard suiteName != legacyFallbackSuiteName,
-              let legacyDefaults = UserDefaults(suiteName: legacyFallbackSuiteName),
-              let currentDefaults = sharedDefaults else {
-            return
-        }
-
-        for key in sharedKeys where currentDefaults.object(forKey: key) == nil {
-            if let value = legacyDefaults.object(forKey: key) {
-                currentDefaults.set(value, forKey: key)
-            }
-        }
-
-    }
-
-    private static let sharedKeys = [
-        sharedClockTimeKey,
-        sharedClockDateKey,
-        sharedCalendarHeadlineKey,
-        sharedCalendarDetailKey,
-        sharedEventsKey,
-        eventModeKey,
-        sharedBatteryLevelKey,
-        sharedBatteryEstimatedHoursKey,
-        sharedBatteryEstimatedMinutesKey,
-        sharedBatteryIsChargingKey,
-        sharedHealthStepsKey,
-        sharedHealthDistanceKilometersKey,
-        activityModeKey,
-        sharedActivityTodayExerciseMinutesKey,
-        sharedActivityTodayActiveEnergyKey,
-        sharedActivityTodaySleepMinutesKey,
-        sharedActivityWeeklyExerciseMinutesKey,
-        sharedActivityWeeklyActiveEnergyKey,
-        sharedActivityWeeklySleepMinutesKey,
-        sharedWeatherTemperatureKey,
-        sharedWeatherHighKey,
-        sharedWeatherLowKey,
-        sharedWeatherSymbolKey,
-        sharedWeatherConditionLabelKey,
-        sharedPortalWeatherTemperatureKey,
-        sharedPortalWeatherPlaceNameKey,
-        portalSelectedAppsKey,
-        portalIconClipStyleKey,
-        sharedWidgetPresetsKey,
-        sharedWeatherKey,
-        sharedDaylightKey,
-        settingsAppFontThemeKey,
-        settingsTemperatureUnitKey,
-        settingsTemperatureDisplayKey,
-        settingsDistanceUnitKey,
-        sharedStorageTotalBytesKey,
-        sharedStorageAvailableBytesKey,
-        sharedHeartRateBPMKey,
-        sharedHeartRateTimestampKey
-    ]
 }

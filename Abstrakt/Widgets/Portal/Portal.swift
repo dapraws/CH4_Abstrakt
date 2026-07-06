@@ -13,7 +13,7 @@ struct PortalSnapshot: Codable, Hashable {
     let placeName: String
     
     private var usesFahrenheit: Bool {
-        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.daffa.abstrakt")?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
+        AbstraktAppGroup.defaults?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
     }
     
     var displayTemperature: Int {
@@ -478,12 +478,11 @@ struct Portal: View {
                     .foregroundStyle(palette.foreground)
             }
             
-            Text("\(snapshot.displayTemperature)° now in \(snapshot.placeName)")
+            Text("\(snapshot.displayTemperature)° now in \(metrics.truncatedPlaceLine(snapshot.placeName))")
                 .foregroundStyle(palette.foreground)
         }
         .font(AbstraktWidgetFonts.font(.body, theme: fontTheme).weight(.bold))
         .lineLimit(1)
-        .minimumScaleFactor(metrics.headerMinimumScale)
     }
     
     private func appCluster(metrics: PortalMetrics) -> some View {
@@ -675,6 +674,15 @@ private struct PortalMetrics {
     
     var headerMinimumScale: CGFloat {
         0.72
+    }
+
+    func truncatedPlaceLine(_ placeName: String) -> String {
+        let maxCharacters = max(8, Int(finite(size.width) / 10.5))
+        guard placeName.count > maxCharacters else {
+            return placeName
+        }
+
+        return String(placeName.prefix(maxCharacters - 3)) + "..."
     }
     
     var iconSize: CGFloat {

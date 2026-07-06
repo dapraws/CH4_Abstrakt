@@ -29,12 +29,10 @@ struct AppsPickerSheet: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            Image(systemName: "square.grid.2x2.fill")
-                .font(AppFonts.font(.heading3))
-                .foregroundStyle(AppColors.appBackground)
-                .frame(width: 32, height: 32)
-                .background(AppColors.primaryText)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            Image("icon-color")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
 
             Text("App Picker")
                 .font(AppFonts.font(.heading2))

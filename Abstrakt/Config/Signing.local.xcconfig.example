@@ -2,7 +2,7 @@
 // Do NOT commit your 'Signing.local.xcconfig' to Git.
 
 // Your personal Apple Developer Team ID (found in Developer Portal)
-DEVELOPMENT_TEAM = 44HUKD28FZ
+DEVELOPMENT_TEAM = 26C3R3K269
 
 // Your unique App Group ID (must match what you check in Xcode's Signing & Capabilities)
 APP_GROUP_ID = group.msaf.abstrakt

@@ -12,7 +12,7 @@ struct TodaySnapshot: Codable, Hashable {
     let conditionLabel: String
 
     private var usesFahrenheit: Bool {
-        UserDefaults(suiteName: Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? "group.daffa.abstrakt")?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
+        AbstraktAppGroup.defaults?.string(forKey: "settings.temperatureUnit") == "fahrenheit"
     }
 
     var displayTemperature: Int {

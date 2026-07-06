@@ -100,7 +100,8 @@ struct AppIconPickerScreen: View {
                     .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 18)
+            .padding(.top, 36)
+            .padding(.bottom, 24)
             .background(isSelected ? AppColors.primaryText.opacity(0.06) : AppColors.cardSoft)
             .clipShape(RoundedRectangle(cornerRadius: tileCornerRadius, style: .continuous))
             .overlay {

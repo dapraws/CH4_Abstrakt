@@ -189,11 +189,9 @@
 				TargetAttributes = {
 					1F65024C2FE959D7004BC514 = {
 						CreatedOnToolsVersion = 26.5;
-						DevelopmentTeam = MGF2PFTBQT;
 					};
 					2A4000023FE959D7004BC514 = {
 						CreatedOnToolsVersion = 26.5;
-						DevelopmentTeam = MGF2PFTBQT;
 					};
 				};
 			};
@@ -392,13 +390,14 @@
 			baseConfigurationReferenceAnchor = 1F65024F2FE959D7004BC514 /* Abstrakt */;
 			baseConfigurationReferenceRelativePath = Config/Signing.xcconfig;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AbstraktBlue AbstraktGlass AbstraktPurple";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Abstrakt/Abstrakt.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = MGF2PFTBQT;
+				DEVELOPMENT_TEAM = 26C3R3K269;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Abstrakt/Info.plist;
@@ -411,15 +410,16 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.daffa.abstrakt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.msaf.abstrakt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -435,13 +435,14 @@
 			baseConfigurationReferenceAnchor = 1F65024F2FE959D7004BC514 /* Abstrakt */;
 			baseConfigurationReferenceRelativePath = Config/Signing.xcconfig;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AbstraktBlue AbstraktGlass AbstraktPurple";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Abstrakt/Abstrakt.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = MGF2PFTBQT;
+				DEVELOPMENT_TEAM = 26C3R3K269;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Abstrakt/Info.plist;
@@ -454,15 +455,16 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.daffa.abstrakt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.msaf.abstrakt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -483,7 +485,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = MGF2PFTBQT;
+				DEVELOPMENT_TEAM = 26C3R3K269;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = AbstraktWidgetsExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
@@ -493,7 +495,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.daffa.abstrakt.widget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.msaf.abstrakt.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -514,7 +516,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = MGF2PFTBQT;
+				DEVELOPMENT_TEAM = 26C3R3K269;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = AbstraktWidgetsExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
@@ -524,7 +526,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.daffa.abstrakt.widget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.msaf.abstrakt.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;

@@ -7,7 +7,6 @@
 
 import Foundation
 import AppIntents
-import UIKit
 
 struct SavedWidgetEntity: AppEntity {
     static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Saved Widget")
@@ -32,10 +31,14 @@ struct SavedWidgetEntity: AppEntity {
     
     init() {
         self.id = ""
+        self.name = ""
+        self.widgetID = ""
+        self.sizeID = ""
     }
     
     var displayRepresentation: DisplayRepresentation {
-        if let imageURL = WidgetSharedStore.thumbnailURL(for: id) {
+        if let imageURL = WidgetSharedStore.thumbnailURL(for: id),
+           FileManager.default.fileExists(atPath: imageURL.path) {
             let displayImage = DisplayRepresentation.Image(url: imageURL)
             return DisplayRepresentation(title: "\(name)", image: displayImage)
         }
@@ -91,7 +94,8 @@ struct SavedWidgetQuery: EntityStringQuery {
 
 struct SmallSavedWidgetQuery: EntityStringQuery {
     func entities(for identifiers: [String]) async throws -> [SavedWidgetEntity] {
-        try await SavedWidgetQuery().entities(for: identifiers)
+        let presets = try await SavedWidgetQuery().entities(for: identifiers)
+        return presets.filter { $0.sizeID == "small" }
     }
     
     func entities(matching string: String) async throws -> [SavedWidgetEntity] {
@@ -107,7 +111,8 @@ struct SmallSavedWidgetQuery: EntityStringQuery {
 
 struct MediumSavedWidgetQuery: EntityStringQuery {
     func entities(for identifiers: [String]) async throws -> [SavedWidgetEntity] {
-        try await SavedWidgetQuery().entities(for: identifiers)
+        let presets = try await SavedWidgetQuery().entities(for: identifiers)
+        return presets.filter { $0.sizeID == "medium" }
     }
     
     func entities(matching string: String) async throws -> [SavedWidgetEntity] {
@@ -123,7 +128,8 @@ struct MediumSavedWidgetQuery: EntityStringQuery {
 
 struct LargeSavedWidgetQuery: EntityStringQuery {
     func entities(for identifiers: [String]) async throws -> [SavedWidgetEntity] {
-        try await SavedWidgetQuery().entities(for: identifiers)
+        let presets = try await SavedWidgetQuery().entities(for: identifiers)
+        return presets.filter { $0.sizeID == "large" }
     }
     
     func entities(matching string: String) async throws -> [SavedWidgetEntity] {

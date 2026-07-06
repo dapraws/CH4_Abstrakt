@@ -101,7 +101,7 @@ struct SettingsScreen: View {
         }
         .sheet(isPresented: $showsShareSheet) {
             ShareAppSheet()
-                .presentationDetents([.fraction(0.5)])
+                .presentationDetents([.fraction(0.48)])
         }
         .sensoryFeedback(.selection, trigger: temperatureUnitID)
         .sensoryFeedback(.selection, trigger: temperatureDisplayID)
