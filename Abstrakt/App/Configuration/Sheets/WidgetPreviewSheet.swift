@@ -150,6 +150,7 @@ private struct WidgetPreviewSheetContent: View {
     @State private var showingPermissionAlert = false
     @State private var appearanceMode: WidgetAppearanceMode = .system
     @State private var fontThemeID: String?
+    @State private var initialConfiguration: WidgetSheetConfigurationSnapshot?
 
     private var portalSelectedApps: [PortalApp] {
         get {
@@ -282,6 +283,7 @@ private struct WidgetPreviewSheetContent: View {
                 WidgetPreviewPrimaryButton(configuration: primaryButtonConfiguration) {
                     performPrimaryAction()
                 }
+                .animation(.snappy(duration: 0.24, extraBounce: 0), value: primaryButtonConfiguration.identity)
                 .padding(.horizontal, AppSpacing.screenHorizontal)
                 .padding(.bottom, AppSpacing.bottomBarInset)
             }
@@ -363,12 +365,18 @@ private struct WidgetPreviewSheetContent: View {
         case .saveToLibrary:
             return WidgetPreviewPrimaryButtonConfiguration(
                 title: isSaved ? "Update widget" : "Save widget",
-                systemImage: isSaved ? "arrow.triangle.2.circlepath.circle.fill" : "checkmark.seal.fill",
+                systemImage: "checkmark.seal.fill",
+                tint: .green
+            )
+        case .removeFromLibrary where libraryConfigurationHasChanges:
+            return WidgetPreviewPrimaryButtonConfiguration(
+                title: "Update widget",
+                systemImage: "checkmark.seal.fill",
                 tint: .green
             )
         case .removeFromLibrary:
             return WidgetPreviewPrimaryButtonConfiguration(
-                title: "Remove widget",
+                title: "Delete widget",
                 systemImage: "xmark.seal.fill",
                 tint: .red
             )
@@ -409,7 +417,11 @@ private struct WidgetPreviewSheetContent: View {
             savePreset()
             onDismiss?()
         case let .removeFromLibrary(preset):
-            removePreset(preset)
+            if libraryConfigurationHasChanges {
+                savePreset()
+            } else {
+                removePreset(preset)
+            }
             onDismiss?()
         }
     }
@@ -417,7 +429,15 @@ private struct WidgetPreviewSheetContent: View {
     @MainActor
     private func savePreset() {
         var presets = SharedModelContainer.readWidgetPresets()
-        let existingIndex = presets.firstIndex { $0.widgetID == item.id && $0.size == item.size }
+        let existingIndex: Array<WidgetPreset>.Index?
+
+        switch actionStyle {
+        case .saveToLibrary:
+            existingIndex = presets.firstIndex { $0.widgetID == item.id && $0.size == item.size }
+        case let .removeFromLibrary(preset):
+            existingIndex = presets.firstIndex { $0.id == preset.id }
+        }
+
         let presetID = existingIndex.map { presets[$0].id } ?? UUID()
         let savedPreset = WidgetPreset(
             id: presetID,
@@ -506,6 +526,26 @@ private struct WidgetPreviewSheetContent: View {
         appearanceMode.colorScheme ?? colorScheme
     }
 
+    private var currentConfiguration: WidgetSheetConfigurationSnapshot {
+        WidgetSheetConfigurationSnapshot(
+            appearanceMode: appearanceMode,
+            fontThemeID: fontThemeID,
+            portalSelectedAppsValue: portalSelectedAppsValue,
+            portalIconClipStyleID: portalIconClipStyleID,
+            activityModeID: activityModeID,
+            eventModeID: eventModeID
+        )
+    }
+
+    private var libraryConfigurationHasChanges: Bool {
+        guard case .removeFromLibrary = actionStyle,
+              let initialConfiguration else {
+            return false
+        }
+
+        return currentConfiguration != initialConfiguration
+    }
+
     private func syncConfigurationFromPreset() {
         let sourcePreset: WidgetPreset?
 
@@ -520,7 +560,24 @@ private struct WidgetPreviewSheetContent: View {
 
         appearanceMode = sourcePreset?.appearanceMode ?? .system
         fontThemeID = sourcePreset?.fontThemeID
+        initialConfiguration = WidgetSheetConfigurationSnapshot(
+            appearanceMode: sourcePreset?.appearanceMode ?? .system,
+            fontThemeID: sourcePreset?.fontThemeID,
+            portalSelectedAppsValue: portalSelectedAppsValue,
+            portalIconClipStyleID: portalIconClipStyleID,
+            activityModeID: activityModeID,
+            eventModeID: eventModeID
+        )
     }
+}
+
+private struct WidgetSheetConfigurationSnapshot: Equatable {
+    let appearanceMode: WidgetAppearanceMode
+    let fontThemeID: String?
+    let portalSelectedAppsValue: String
+    let portalIconClipStyleID: String
+    let activityModeID: String
+    let eventModeID: String
 }
 
 private struct WidgetCustomizationSection<Content: View>: View {
@@ -844,6 +901,10 @@ private struct WidgetPreviewPrimaryButtonConfiguration {
     let title: String
     let systemImage: String
     let tint: Color
+
+    var identity: String {
+        "\(title)-\(systemImage)"
+    }
 }
 
 private struct WidgetPreviewPrimaryButton: View {
@@ -852,14 +913,22 @@ private struct WidgetPreviewPrimaryButton: View {
 
     var body: some View {
         Button(action: action) {
-            WidgetPreviewPrimaryButtonContent(configuration: configuration)
-                .frame(maxWidth: 256)
-                .frame(height: 64)
+            ZStack {
+                WidgetPreviewPrimaryButtonContent(configuration: configuration)
+                    .id(configuration.identity)
+                    .transition(.asymmetric(
+                        insertion: .opacity.combined(with: .scale(scale: 0.96)),
+                        removal: .opacity.combined(with: .scale(scale: 1.04))
+                    ))
+            }
+            .frame(maxWidth: 256)
+            .frame(height: 64)
         }
         .buttonStyle(.plain)
         .background(Color.white)
         .clipShape(Capsule())
         .shadow(color: Color.black.opacity(0.08), radius: 2, x: 0, y: 1)
+        .animation(.snappy(duration: 0.24, extraBounce: 0), value: configuration.identity)
     }
 }
 
@@ -910,9 +979,11 @@ private struct WidgetPreviewPrimaryButtonContent: View {
         HStack(spacing: 10) {
             Image(systemName: configuration.systemImage)
                 .font(AppFonts.font(.heading2))
+                .contentTransition(.symbolEffect(.replace))
 
             Text(configuration.title)
                 .font(AppFonts.font(.heading2))
+                .contentTransition(.opacity)
         }
     }
 }
