@@ -18,7 +18,7 @@ struct LibraryScreen: View {
     private let onSelectPreset: (WidgetPreset) -> Void
 
     init(
-        presets: [WidgetPreset],
+        presets: [WidgetPreset] = SharedModelContainer.readWidgetPresets(),
         onSelectPreset: @escaping (WidgetPreset) -> Void = { _ in }
     ) {
         self.presets = presets
