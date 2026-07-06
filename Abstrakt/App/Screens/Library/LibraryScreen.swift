@@ -338,8 +338,12 @@ private struct LibraryWidgetRow: View {
                     }
                     #endif
                     if let item {
-                        WidgetPreview(item: item)
+                        WidgetPreview(
+                            item: item,
+                            fontThemeOverride: preset.fontThemeOverride
+                        )
                             .frame(width: previewSize.width, height: previewSize.height)
+                            .environment(\.colorScheme, preset.appearanceMode.colorScheme ?? palette.colorScheme)
                             .scaleEffect(previewScale, anchor: .topLeading)
                             .frame(width: scaledPreviewSize.width, height: scaledPreviewSize.height, alignment: .topLeading)
                             .rotationEffect(.degrees(rotationDegrees), anchor: .center)

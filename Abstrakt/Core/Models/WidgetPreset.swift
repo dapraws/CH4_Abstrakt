@@ -6,9 +6,30 @@ struct WidgetPreset: Identifiable, Codable, Hashable {
     let name: String
     let size: WidgetSize
     let appearanceMode: WidgetAppearanceMode
+    let fontThemeID: String?
+
+    init(
+        id: UUID,
+        widgetID: String,
+        name: String,
+        size: WidgetSize,
+        appearanceMode: WidgetAppearanceMode,
+        fontThemeID: String? = nil
+    ) {
+        self.id = id
+        self.widgetID = widgetID
+        self.name = name
+        self.size = size
+        self.appearanceMode = appearanceMode
+        self.fontThemeID = fontThemeID
+    }
 }
 
 extension WidgetPreset {
+    var fontThemeOverride: AbstraktWidgetFontTheme? {
+        fontThemeID.map(AbstraktWidgetFontTheme.from)
+    }
+
     static let seededLibrary: [WidgetPreset] = [
         WidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0001") ?? UUID(),

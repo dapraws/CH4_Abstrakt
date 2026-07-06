@@ -141,9 +141,15 @@ private struct WidgetPreviewSheetContent: View {
     @AppStorage(AppGroupConstants.portalIconClipStyleKey, store: settingsStore) private var portalIconClipStyleID = PortalIconClipStyle.default.id
     @AppStorage(AppGroupConstants.activityModeKey, store: settingsStore) private var activityModeID = ActivityMode.today.id
     @AppStorage(AppGroupConstants.eventModeKey, store: settingsStore) private var eventModeID = EventDisplayMode.upcoming.id
+    @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
+    @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore) private var sharedAppFontThemeID = AppFonts.defaultTheme.id
     @Environment(\.displayScale) private var displayScale
+    @Environment(\.colorScheme) private var colorScheme
     @State private var showsAppsPicker = false
+    @State private var showsFontPicker = false
     @State private var showingPermissionAlert = false
+    @State private var appearanceMode: WidgetAppearanceMode = .system
+    @State private var fontThemeID: String?
 
     private var portalSelectedApps: [PortalApp] {
         get {
@@ -246,10 +252,12 @@ private struct WidgetPreviewSheetContent: View {
                             portalSelectedAppsOverride: item.id == "portal" ? portalSelectedApps : nil,
                             portalIconClipStyleOverride: item.id == "portal" ? portalIconClipStyle : nil,
                             activityModeOverride: item.id == "activity" ? activityMode : nil,
-                            eventModeOverride: item.id == "events" ? eventMode : nil
+                            eventModeOverride: item.id == "events" ? eventMode : nil,
+                            fontThemeOverride: selectedWidgetFontTheme
                         )
                         .id(previewIdentity)
                         .frame(width: previewSize.width, height: previewSize.height)
+                        .environment(\.colorScheme, previewColorScheme)
                         .scaleEffect(previewScale)
                         .frame(
                             width: scaledPreviewSize.width,
@@ -280,6 +288,7 @@ private struct WidgetPreviewSheetContent: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(AppColors.appBackground)
             .ignoresSafeArea(.container, edges: [.horizontal, .bottom])
+            .onAppear(perform: syncConfigurationFromPreset)
             .alert("Permission Required", isPresented: $showingPermissionAlert) {
                 Button("Cancel", role: .cancel) { }
                 Button("Open Settings") {
@@ -295,10 +304,29 @@ private struct WidgetPreviewSheetContent: View {
             AppsPickerSheet(selectedApps: portalSelectedAppsBinding)
                 .presentationDetents([.fraction(0.8)])
         }
+        .sheet(isPresented: $showsFontPicker) {
+            WidgetFontPickerSheet(selectedThemeID: $fontThemeID)
+                .presentationDetents([.fraction(0.62)])
+        }
     }
 
     @ViewBuilder
     private var customizationControls: some View {
+        WidgetCustomizationSection(title: "Appearance") {
+            WidgetAppearanceControls(mode: $appearanceMode)
+        }
+        .padding(.top, 10)
+
+        WidgetCustomizationSection(title: "Font") {
+            WidgetFontCustomizationRow(
+                selectedThemeName: selectedFontDisplayName,
+                openFontPicker: {
+                    showsFontPicker = true
+                }
+            )
+        }
+        .padding(.top, 10)
+
         if item.id == "portal" {
             WidgetCustomizationSection(title: "Application") {
                 PortalCustomizationControls(
@@ -334,9 +362,9 @@ private struct WidgetPreviewSheetContent: View {
         switch actionStyle {
         case .saveToLibrary:
             return WidgetPreviewPrimaryButtonConfiguration(
-                title: isSaved ? "Remove widget" : "Save widget",
-                systemImage: isSaved ? "xmark.seal.fill" : "checkmark.seal.fill",
-                tint: isSaved ? .red : .green
+                title: isSaved ? "Update widget" : "Save widget",
+                systemImage: isSaved ? "arrow.triangle.2.circlepath.circle.fill" : "checkmark.seal.fill",
+                tint: .green
             )
         case .removeFromLibrary:
             return WidgetPreviewPrimaryButtonConfiguration(
@@ -373,12 +401,12 @@ private struct WidgetPreviewSheetContent: View {
     private func performPrimaryAction() {
         switch actionStyle {
         case .saveToLibrary:
-            if !isSaved, missingPermissionWarning != nil {
+            if missingPermissionWarning != nil {
                 showingPermissionAlert = true
                 return
             }
 
-            toggleSave()
+            savePreset()
             onDismiss?()
         case let .removeFromLibrary(preset):
             removePreset(preset)
@@ -387,20 +415,17 @@ private struct WidgetPreviewSheetContent: View {
     }
 
     @MainActor
-    private func toggleSave() {
+    private func savePreset() {
         var presets = SharedModelContainer.readWidgetPresets()
-
-        if let existingPreset = presets.first(where: { $0.widgetID == item.id && $0.size == item.size }) {
-            removePreset(existingPreset)
-            return
-        }
-
-        let newPreset = WidgetPreset(
-            id: UUID(),
+        let existingIndex = presets.firstIndex { $0.widgetID == item.id && $0.size == item.size }
+        let presetID = existingIndex.map { presets[$0].id } ?? UUID()
+        let savedPreset = WidgetPreset(
+            id: presetID,
             widgetID: item.id,
             name: item.displayName,
             size: item.size,
-            appearanceMode: .system
+            appearanceMode: appearanceMode,
+            fontThemeID: fontThemeID
         )
 
         let preview = WidgetPreview(
@@ -409,19 +434,25 @@ private struct WidgetPreviewSheetContent: View {
             portalSelectedAppsOverride: item.id == "portal" ? portalSelectedApps : nil,
             portalIconClipStyleOverride: item.id == "portal" ? portalIconClipStyle : nil,
             activityModeOverride: item.id == "activity" ? activityMode : nil,
-            eventModeOverride: item.id == "events" ? eventMode : nil
+            eventModeOverride: item.id == "events" ? eventMode : nil,
+            fontThemeOverride: selectedWidgetFontTheme
         )
         .frame(width: 160, height: 160)
-        .environment(\.colorScheme, .dark)
+        .environment(\.colorScheme, thumbnailColorScheme)
 
         let renderer = ImageRenderer(content: preview)
         renderer.scale = displayScale
 
         if let image = renderer.uiImage, let data = image.pngData() {
-            SharedModelContainer.saveThumbnail(data, for: newPreset.id.uuidString)
+            SharedModelContainer.saveThumbnail(data, for: savedPreset.id.uuidString)
         }
 
-        presets.append(newPreset)
+        if let existingIndex {
+            presets[existingIndex] = savedPreset
+        } else {
+            presets.append(savedPreset)
+        }
+
         SharedModelContainer.write(widgetPresets: presets)
         WidgetCenter.shared.reloadAllTimelines()
     }
@@ -433,19 +464,58 @@ private struct WidgetPreviewSheetContent: View {
     }
 
     private var previewIdentity: String {
+        let fontIdentity = fontThemeID ?? "app"
+        let appearanceIdentity = appearanceMode.id
+
         if item.id == "portal" {
-            return "\(item.id)-\(portalSelectedAppsValue)-\(portalIconClipStyleID)"
+            return "\(item.id)-\(portalSelectedAppsValue)-\(portalIconClipStyleID)-\(appearanceIdentity)-\(fontIdentity)"
         }
 
         guard item.id == "activity" else {
             if item.id == "events" {
-                return "\(item.id)-\(eventModeID)"
+                return "\(item.id)-\(eventModeID)-\(appearanceIdentity)-\(fontIdentity)"
             }
 
-            return item.id
+            return "\(item.id)-\(appearanceIdentity)-\(fontIdentity)"
         }
 
-        return "\(item.id)-\(activityModeID)"
+        return "\(item.id)-\(activityModeID)-\(appearanceIdentity)-\(fontIdentity)"
+    }
+
+    private var selectedWidgetFontTheme: AbstraktWidgetFontTheme? {
+        fontThemeID.map(AbstraktWidgetFontTheme.from)
+    }
+
+    private var selectedFontDisplayName: String {
+        AppFontTheme.from(id: fontThemeID ?? activeAppFontThemeID).displayName
+    }
+
+    private var activeAppFontThemeID: String {
+        sharedAppFontThemeID.isEmpty ? appFontThemeID : sharedAppFontThemeID
+    }
+
+    private var previewColorScheme: ColorScheme {
+        appearanceMode.colorScheme ?? colorScheme
+    }
+
+    private var thumbnailColorScheme: ColorScheme {
+        appearanceMode.colorScheme ?? colorScheme
+    }
+
+    private func syncConfigurationFromPreset() {
+        let sourcePreset: WidgetPreset?
+
+        switch actionStyle {
+        case .saveToLibrary:
+            sourcePreset = SharedModelContainer.readWidgetPresets().first {
+                $0.widgetID == item.id && $0.size == item.size
+            }
+        case let .removeFromLibrary(preset):
+            sourcePreset = preset
+        }
+
+        appearanceMode = sourcePreset?.appearanceMode ?? .system
+        fontThemeID = sourcePreset?.fontThemeID
     }
 }
 
@@ -463,6 +533,161 @@ private struct WidgetCustomizationSection<Content: View>: View {
             content
         }
         .frame(maxWidth: 340, alignment: .leading)
+    }
+}
+
+private struct WidgetAppearanceControls: View {
+    @Binding var mode: WidgetAppearanceMode
+
+    var body: some View {
+        GeometryReader { proxy in
+            let options = WidgetAppearanceMode.allCases
+            let selectedIndex = options.firstIndex(of: mode) ?? 0
+            let innerPadding: CGFloat = 5
+            let segmentWidth = max(0, (proxy.size.width - (innerPadding * 2)) / CGFloat(options.count))
+
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(AppColors.card)
+                    .frame(width: segmentWidth, height: 58)
+                    .offset(x: innerPadding + (CGFloat(selectedIndex) * segmentWidth))
+                    .animation(.snappy(duration: 0.24, extraBounce: 0), value: mode)
+
+                HStack(spacing: 0) {
+                    ForEach(options) { option in
+                        Button {
+                            mode = option
+                        } label: {
+                            Label(option.title, systemImage: option.systemImage)
+                                .font(AppFonts.font(.heading3))
+                                .foregroundStyle(AppColors.primaryText)
+                                .labelStyle(.titleAndIcon)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 58)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(innerPadding)
+            }
+            .background(AppColors.cardSoft)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        }
+        .frame(maxWidth: 340)
+        .frame(height: 68)
+    }
+}
+
+private struct WidgetFontCustomizationRow: View {
+    let selectedThemeName: String
+    let openFontPicker: () -> Void
+
+    var body: some View {
+        Button(action: openFontPicker) {
+            HStack(spacing: 16) {
+                Image(systemName: "textformat")
+                    .font(AppFonts.font(.heading3))
+                    .foregroundStyle(AppColors.appBackground)
+                    .frame(width: 34, height: 34)
+                    .background(AppColors.primaryText)
+                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+
+                Capsule()
+                    .fill(AppColors.primaryText.opacity(0.16))
+                    .frame(width: 4, height: 34)
+
+                Spacer(minLength: 10)
+
+                Text(selectedThemeName)
+                    .font(AppFonts.font(.heading3))
+                    .foregroundStyle(AppColors.primaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+
+                Image(systemName: "chevron.right")
+                    .font(AppFonts.font(.heading4))
+                    .foregroundStyle(AppColors.primaryText.opacity(0.42))
+            }
+            .padding(.horizontal, 18)
+            .frame(maxWidth: .infinity)
+            .frame(height: 68)
+            .background(AppColors.cardSoft)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: 340)
+        .accessibilityLabel("Choose widget font")
+    }
+}
+
+private struct WidgetFontPickerSheet: View {
+    @Binding var selectedThemeID: String?
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 12) {
+                    fontButton(title: "App Default", subtitle: "Follow Settings", themeID: nil, fontTheme: AppFonts.defaultTheme)
+
+                    ForEach(AppFontTheme.allCases) { theme in
+                        fontButton(title: theme.displayName, subtitle: theme.previewText, themeID: theme.id, fontTheme: theme)
+                    }
+                }
+                .padding(.horizontal, AppSpacing.screenHorizontal)
+                .padding(.top, 16)
+                .padding(.bottom, 28)
+            }
+            .background(AppColors.appBackground)
+            .navigationTitle("Font")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .font(AppFonts.font(.heading4))
+                }
+            }
+        }
+    }
+
+    private func fontButton(
+        title: String,
+        subtitle: String,
+        themeID: String?,
+        fontTheme: AppFontTheme
+    ) -> some View {
+        let isSelected = selectedThemeID == themeID
+
+        return Button {
+            selectedThemeID = themeID
+        } label: {
+            HStack(spacing: 14) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(title)
+                        .font(AppFonts.font(.heading3, theme: fontTheme))
+                        .foregroundStyle(AppColors.primaryText)
+
+                    Text(subtitle)
+                        .font(AppFonts.font(.caption, theme: fontTheme))
+                        .foregroundStyle(AppColors.secondaryText)
+                }
+
+                Spacer(minLength: 12)
+
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(AppFonts.font(.heading3))
+                    .foregroundStyle(isSelected ? Color.green : AppColors.secondaryText)
+            }
+            .padding(.horizontal, 18)
+            .frame(maxWidth: .infinity)
+            .frame(height: 72)
+            .background(AppColors.cardSoft)
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 }
 

@@ -6,7 +6,7 @@ import WidgetKit
 
 struct SmallSolidWidgetEntry: TimelineEntry {
     let date: Date
-    let selectedWidgetID: String?
+    let selectedPreset: SavedWidgetPreset?
     let battery: BatteryWidgetEntry
     let health: StepWidgetEntry
     let activity: ActivitySnapshot
@@ -20,13 +20,13 @@ struct SmallSolidWidgetEntry: TimelineEntry {
 
 struct MediumSolidWidgetEntry: TimelineEntry {
     let date: Date
-    let selectedWidgetID: String?
+    let selectedPreset: SavedWidgetPreset?
     let today: TodayWidgetEntry
 }
 
 struct LargeSolidWidgetEntry: TimelineEntry {
     let date: Date
-    let selectedWidgetID: String?
+    let selectedPreset: SavedWidgetPreset?
     let battery: BatteryWidgetEntry
     let health: StepWidgetEntry
     let today: TodayWidgetEntry
@@ -195,7 +195,7 @@ private extension SmallSolidWidgetEntry {
     static func current(selectedWidget: SavedWidgetEntity?, date: Date = .now) -> SmallSolidWidgetEntry {
         SmallSolidWidgetEntry(
             date: date,
-            selectedWidgetID: resolvedWidgetID(from: selectedWidget, size: "small"),
+            selectedPreset: resolvedPreset(from: selectedWidget, size: "small"),
             battery: BatteryWidgetEntry(
                 date: date,
                 level: WidgetSharedStore.batteryLevel,
@@ -235,18 +235,22 @@ private extension SmallSolidWidgetEntry {
     /// AppIntent system picker fails to deliver the entity (a known
     /// Simulator-only bug), fall back to the preset the host app marked as
     /// the active render target via Library → "Render on Home Screen".
-    private static func resolvedWidgetID(from preset: SavedWidgetEntity?, size: String) -> String? {
+    private static func resolvedPreset(from preset: SavedWidgetEntity?, size: String) -> SavedWidgetPreset? {
         #if targetEnvironment(simulator)
-        if let id = preset?.widgetID {
-            return id
+        if let preset, let id = UUID(uuidString: preset.id),
+           let saved = WidgetSharedStore.savedPreset(id: id, size: size) {
+            return saved
         }
         if let uuid = WidgetSharedStore.simulatorActivePresetID(forSize: size),
            let saved = WidgetSharedStore.savedPreset(id: uuid, size: size) {
-            return saved.widgetID
+            return saved
         }
         return nil
         #else
-        return preset?.widgetID
+        guard let preset, let id = UUID(uuidString: preset.id) else {
+            return nil
+        }
+        return WidgetSharedStore.savedPreset(id: id, size: size)
         #endif
     }
 }
@@ -255,7 +259,7 @@ private extension MediumSolidWidgetEntry {
     static func current(selectedWidget: SavedWidgetEntity?, date: Date = .now) -> MediumSolidWidgetEntry {
         MediumSolidWidgetEntry(
             date: date,
-            selectedWidgetID: resolvedWidgetID(from: selectedWidget, size: "medium"),
+            selectedPreset: resolvedPreset(from: selectedWidget, size: "medium"),
             today: TodayWidgetEntry(
                 date: date,
                 temperature: WidgetSharedStore.weatherTemperatureCelsius,
@@ -268,18 +272,22 @@ private extension MediumSolidWidgetEntry {
     }
 
     /// See `SmallSolidWidgetEntry.resolvedWidgetID(from:size:)`.
-    private static func resolvedWidgetID(from preset: SavedWidgetEntity?, size: String) -> String? {
+    private static func resolvedPreset(from preset: SavedWidgetEntity?, size: String) -> SavedWidgetPreset? {
         #if targetEnvironment(simulator)
-        if let id = preset?.widgetID {
-            return id
+        if let preset, let id = UUID(uuidString: preset.id),
+           let saved = WidgetSharedStore.savedPreset(id: id, size: size) {
+            return saved
         }
         if let uuid = WidgetSharedStore.simulatorActivePresetID(forSize: size),
            let saved = WidgetSharedStore.savedPreset(id: uuid, size: size) {
-            return saved.widgetID
+            return saved
         }
         return nil
         #else
-        return preset?.widgetID
+        guard let preset, let id = UUID(uuidString: preset.id) else {
+            return nil
+        }
+        return WidgetSharedStore.savedPreset(id: id, size: size)
         #endif
     }
 }
@@ -288,7 +296,7 @@ private extension LargeSolidWidgetEntry {
     static func current(selectedWidget: SavedWidgetEntity?, date: Date = .now) -> LargeSolidWidgetEntry {
         LargeSolidWidgetEntry(
             date: date,
-            selectedWidgetID: resolvedWidgetID(from: selectedWidget, size: "large"),
+            selectedPreset: resolvedPreset(from: selectedWidget, size: "large"),
             battery: BatteryWidgetEntry(
                 date: date,
                 level: WidgetSharedStore.batteryLevel,
@@ -319,18 +327,22 @@ private extension LargeSolidWidgetEntry {
 
     /// See `SmallSolidWidgetEntry.resolvedWidgetID(from:size:)`. Helpers are
     /// duplicated per entry type because each entry extension is private.
-    private static func resolvedWidgetID(from preset: SavedWidgetEntity?, size: String) -> String? {
+    private static func resolvedPreset(from preset: SavedWidgetEntity?, size: String) -> SavedWidgetPreset? {
         #if targetEnvironment(simulator)
-        if let id = preset?.widgetID {
-            return id
+        if let preset, let id = UUID(uuidString: preset.id),
+           let saved = WidgetSharedStore.savedPreset(id: id, size: size) {
+            return saved
         }
         if let uuid = WidgetSharedStore.simulatorActivePresetID(forSize: size),
            let saved = WidgetSharedStore.savedPreset(id: uuid, size: size) {
-            return saved.widgetID
+            return saved
         }
         return nil
         #else
-        return preset?.widgetID
+        guard let preset, let id = UUID(uuidString: preset.id) else {
+            return nil
+        }
+        return WidgetSharedStore.savedPreset(id: id, size: size)
         #endif
     }
 }
@@ -398,42 +410,84 @@ private extension HeartRateWidgetEntry {
     }
 }
 
+private extension SmallSolidWidgetEntry {
+    var fontTheme: AbstraktWidgetFontTheme {
+        selectedPreset?.fontTheme ?? WidgetSharedStore.appFontTheme
+    }
+}
+
+private extension MediumSolidWidgetEntry {
+    var fontTheme: AbstraktWidgetFontTheme {
+        selectedPreset?.fontTheme ?? WidgetSharedStore.appFontTheme
+    }
+}
+
+private extension LargeSolidWidgetEntry {
+    var fontTheme: AbstraktWidgetFontTheme {
+        selectedPreset?.fontTheme ?? WidgetSharedStore.appFontTheme
+    }
+}
+
+private extension SavedWidgetPreset {
+    var fontTheme: AbstraktWidgetFontTheme? {
+        fontThemeID.map(AbstraktWidgetFontTheme.from)
+    }
+
+    var colorSchemeOverride: ColorScheme? {
+        switch appearanceMode {
+        case "light":
+            .light
+        case "dark":
+            .dark
+        default:
+            nil
+        }
+    }
+}
+
 // MARK: - Widget Views
 
 private struct SmallSolidWidgetView: View {
     let entry: SmallSolidWidgetEntry
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        switch entry.selectedWidgetID {
+        content
+            .environment(\.colorScheme, entry.selectedPreset?.colorSchemeOverride ?? colorScheme)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch entry.selectedPreset?.widgetID {
         case "battery":
             BatteryWidget(
                 snapshot: entry.battery.renderSnapshot,
-                fontTheme: WidgetSharedStore.appFontTheme,
+                fontTheme: entry.fontTheme,
                 clipsToWidgetShape: false
             )
         case "steps":
             StepsWidget(
                 snapshot: entry.health.renderSnapshot,
-                fontTheme: WidgetSharedStore.appFontTheme,
+                fontTheme: entry.fontTheme,
                 clipsToWidgetShape: false
             )
         case "activity":
             ActivityWidget(
                 snapshot: entry.activity,
-                fontTheme: WidgetSharedStore.appFontTheme,
+                fontTheme: entry.fontTheme,
                 clipsToWidgetShape: false
             )
         case "events":
             EventsWidget(
                 snapshot: entry.event,
                 mode: WidgetSharedStore.eventMode,
-                fontTheme: WidgetSharedStore.appFontTheme,
+                fontTheme: entry.fontTheme,
                 clipsToWidgetShape: false
             )
         case "portal":
             Portal(
                 snapshot: entry.portal.renderSnapshot,
-                fontTheme: WidgetSharedStore.appFontTheme,
+                fontTheme: entry.fontTheme,
                 selectedApps: WidgetSharedStore.portalSelectedApps,
                 iconClipStyle: WidgetSharedStore.portalIconClipStyle,
                 usesInteractiveButtons: true,
@@ -442,25 +496,25 @@ private struct SmallSolidWidgetView: View {
         case "storage":
             StorageWidget(
                 snapshot: entry.storage.renderSnapshot,
-                fontTheme: WidgetSharedStore.appFontTheme,
+                fontTheme: entry.fontTheme,
                 clipsToWidgetShape: false
             )
         case "weather":
             WeatherWidget(
                 snapshot: entry.weather,
-                fontTheme: WidgetSharedStore.appFontTheme,
+                fontTheme: entry.fontTheme,
                 clipsToWidgetShape: false
             )
         case "daylight":
             DaylightWidget(
                 snapshot: entry.daylight,
-                fontTheme: WidgetSharedStore.appFontTheme,
+                fontTheme: entry.fontTheme,
                 clipsToWidgetShape: false
             )
         case "heart-rate":
             HeartRateWidget(
                 snapshot: entry.heartRate.renderSnapshot,
-                fontTheme: WidgetSharedStore.appFontTheme,
+                fontTheme: entry.fontTheme,
                 clipsToWidgetShape: false
             )
         default:
@@ -471,13 +525,20 @@ private struct SmallSolidWidgetView: View {
 
 private struct MediumSolidWidgetView: View {
     let entry: MediumSolidWidgetEntry
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        switch entry.selectedWidgetID {
+        content
+            .environment(\.colorScheme, entry.selectedPreset?.colorSchemeOverride ?? colorScheme)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch entry.selectedPreset?.widgetID {
         case "today":
             TodayWidget(
                 snapshot: entry.today.renderSnapshot,
-                fontTheme: WidgetSharedStore.appFontTheme,
+                fontTheme: entry.fontTheme,
                 clipsToWidgetShape: false
             )
         default:
@@ -488,9 +549,16 @@ private struct MediumSolidWidgetView: View {
 
 private struct LargeSolidWidgetView: View {
     let entry: LargeSolidWidgetEntry
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        switch entry.selectedWidgetID {
+        content
+            .environment(\.colorScheme, entry.selectedPreset?.colorSchemeOverride ?? colorScheme)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch entry.selectedPreset?.widgetID {
         default:
             InstructionSolidWidgetView()
         }
@@ -596,7 +664,7 @@ private extension SmallSolidWidgetEntry {
     static func preview(selectedWidgetID: String?) -> SmallSolidWidgetEntry {
         SmallSolidWidgetEntry(
             date: .widgetPreviewDate,
-            selectedWidgetID: selectedWidgetID,
+            selectedPreset: previewPreset(widgetID: selectedWidgetID, size: "small"),
             battery: BatteryWidgetEntry(
                 date: .widgetPreviewDate,
                 level: 76,
@@ -636,7 +704,7 @@ private extension MediumSolidWidgetEntry {
     static func preview(selectedWidgetID: String?) -> MediumSolidWidgetEntry {
         MediumSolidWidgetEntry(
             date: .widgetPreviewDate,
-            selectedWidgetID: selectedWidgetID,
+            selectedPreset: previewPreset(widgetID: selectedWidgetID, size: "medium"),
             today: TodayWidgetEntry(
                 date: .widgetPreviewDate,
                 temperature: 25,
@@ -653,7 +721,7 @@ private extension LargeSolidWidgetEntry {
     static func preview(selectedWidgetID: String?) -> LargeSolidWidgetEntry {
         LargeSolidWidgetEntry(
             date: .widgetPreviewDate,
-            selectedWidgetID: selectedWidgetID,
+            selectedPreset: previewPreset(widgetID: selectedWidgetID, size: "large"),
             battery: BatteryWidgetEntry(
                 date: .widgetPreviewDate,
                 level: 76,
@@ -681,6 +749,20 @@ private extension LargeSolidWidgetEntry {
             )
         )
     }
+}
+
+private func previewPreset(widgetID: String?, size: String) -> SavedWidgetPreset? {
+    guard let widgetID else {
+        return nil
+    }
+
+    return SavedWidgetPreset(
+        id: UUID(),
+        widgetID: widgetID,
+        name: widgetID,
+        size: size,
+        appearanceMode: "system"
+    )
 }
 
 private extension Date {

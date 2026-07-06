@@ -74,6 +74,7 @@ struct WidgetPreview: View {
     var portalIconClipStyleOverride: PortalIconClipStyle?
     var activityModeOverride: ActivityMode?
     var eventModeOverride: EventDisplayMode?
+    var fontThemeOverride: AbstraktWidgetFontTheme?
     @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
     @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore) private var sharedAppFontThemeID = AppFonts.defaultTheme.id
     @AppStorage(AppGroupConstants.portalSelectedAppsKey, store: settingsStore) private var portalSelectedAppsValue = PortalApp.storageValue(for: PortalApp.defaultSelection)
@@ -126,7 +127,11 @@ struct WidgetPreview: View {
     }
 
     private var widgetFontTheme: AbstraktWidgetFontTheme {
-        AbstraktWidgetFontTheme.from(id: sharedAppFontThemeID.isEmpty ? appFontThemeID : sharedAppFontThemeID)
+        if let fontThemeOverride {
+            return fontThemeOverride
+        }
+
+        return AbstraktWidgetFontTheme.from(id: sharedAppFontThemeID.isEmpty ? appFontThemeID : sharedAppFontThemeID)
     }
 
     private var portalSelectedApps: [PortalApp] {
