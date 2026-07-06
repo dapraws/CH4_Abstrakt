@@ -307,7 +307,7 @@ private struct WidgetPreviewSheetContent: View {
         }
         .sheet(isPresented: $showsFontPicker) {
             WidgetFontPickerSheet(selectedThemeID: $fontThemeID)
-                .presentationDetents([.fraction(0.52)])
+                .presentationDetents([.fraction(0.36)])
         }
     }
 
