@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./asset/lib/img/logo.png" alt="Abstrakt Logo" width="120" height="120" />
+  <img src="https://github.com/user-attachments/assets/df6cce3f-a7e6-4e98-aa50-0791b7aa8244" alt="Abstrakt Logo" width="120" height="120" />
 </p>
 
 <h1 align="center">Abstrakt</h1>
@@ -9,8 +9,7 @@
 </p>
 
 <p align="center">
-  Personalize your Home Screen with widgets that match your style.<br/>
-  Adjust colors, fonts, appearance, and units — make every widget truly yours.
+  Abstrakt is a native SwiftUI app for discovering, configuring, previewing, and saving widget presets before users place them on the iPhone Home Screen. The product is inspired by widget-first apps such as Koco, but it is built around Apple-native frameworks, a simple data layer, and an extension-safe architecture that can grow into Live Activities later.
 </p>
 
 <p align="center">
@@ -39,144 +38,196 @@
 
 ---
 
-## Features
+## Product Direction
 
-### Widget Library
-
-| Widget           | Description                                                    |
-| ---------------- | -------------------------------------------------------------- |
-| 🔋 **Battery**   | Device battery level and charging state via `UIDevice`         |
-| 👟 **Steps**     | Daily step count powered by HealthKit                          |
-| 🏃 **Activity**  | Activity summary with Today/Weekly display mode                |
-| ❤️ **HeartRate** | Latest heart rate reading with live-updating timestamp         |
-| 🌤️ **Weather**   | Current temperature and conditions powered by WeatherKit       |
-| 📅 **Events**    | Upcoming or current calendar events via EventKit               |
-| 🌅 **Daylight**  | Sunrise, sunset, and daylight window for your location         |
-| 💾 **Storage**   | Device storage breakdown via `FileManager`                     |
-| 📊 **Today**     | Daily overview combining date, weather, and activity           |
-| 🚀 **Portal**    | App-launcher widget with date, weather, and App Intent buttons |
-
-### Customization
-
-- **Fonts** — Choose from SF Pro, SF Pro Rounded, Quicksand, and Fusion Pixel; preference is shared across the app and widgets
-- **Appearance** — System, Light, and Dark modes per saved preset
-- **Units** — Temperature unit, temperature display mode, and distance unit configured globally
-- **Per-widget options** — Portal apps, Activity range, Events priority, and more
-- **Saved presets** — Save any configured widget to your Library and pick it from the Home Screen widget editor
-- **Alternate app icons** — Ten themed icons swappable from Settings
-
-### Widget Sizes
-
-- Home Screen: Small (170×170), Medium (364×170), Large (364×382)
+| Pillar | Direction |
+|---|---|
+| Host app first | gallery, widget detail, customization sheets, saved library, and settings |
+| WidgetKit first | iOS Home Screen widget experiences for `small`, `medium`, and `large` |
+| Native framework features | `HealthKit`, `WeatherKit`, `CoreLocation`, `EventKit`, `Foundation`, and related Apple APIs |
+| Design-system-first | semantic light/dark theming, typography roles, spacing, surface styling, and widget size tokens |
 
 ---
 
-## Tech Stack
+## Current Architecture
 
-| Technology       | Purpose                                                         |
-| ---------------- | --------------------------------------------------------------- |
-| **SwiftUI**      | Declarative UI framework for all screens and widget views       |
-| **WidgetKit**    | Widget rendering, timelines, and intent configuration           |
-| **App Groups**   | Shared data container between the main app and widget extension |
-| **App Intents**  | Interactive buttons in the Portal widget                        |
-| **HealthKit**    | Steps, activity, and heart rate data                            |
-| **WeatherKit**   | Real-time weather from Apple Weather                            |
-| **EventKit**     | Access to calendar events                                       |
-| **CoreLocation** | Location services for weather and daylight widgets              |
-| **UIKit**        | Device battery monitoring via `UIDevice`                        |
-| **Foundation**   | Storage capacity via `FileManager`                              |
-
----
-
-## Architecture
-
-Abstrakt follows the **MVVM (Model-View-ViewModel)** pattern with strict separation between the host app, shared data, and the widget extension.
-
-```
+```text
 Abstrakt/
-├── App/                        # App entry, screens, components, configuration
-│   ├── Screens/                # Gallery, Library, Settings, Onboarding
-│   ├── Components/             # Shared UI components
-│   └── Configuration/          # Customization sheets (font picker, etc.)
+├── App/
+│   ├── AbstraktApp.swift
+│   ├── Screens/
+│   ├── Components/
+│   ├── ContentView.swift
+│   └── Configuration/
 ├── Core/
-│   ├── Models/                 # Widget presets, sizes, appearance modes, catalog
-│   ├── Services/               # Framework wrappers (HealthKit, WeatherKit, etc.)
-│   ├── Settings/               # Shared preference enums and storage keys
-│   ├── Storage/                # App Group storage
-│   └── Constants/              # App Group IDs, catalogs
-├── DesignSystem/               # Design tokens — colors, fonts, spacing, radius
-│   └── Fonts/                  # Custom font files
-├── Widgets/                    # Extension-safe widget renderers
+│   ├── Models/
+│   ├── Services/
+│   ├── Storage/
+│   ├── Constants/
+│   └── Extensions/
+├── DesignSystem/
+├── Widgets/
 │   ├── SharedWidgetStyle.swift
 │   ├── Battery/
 │   ├── Steps/
 │   ├── Activity/
-│   ├── HeartRate/
-│   ├── Weather/
 │   ├── Events/
-│   ├── Daylight/
+│   ├── Portal/
 │   ├── Storage/
 │   ├── Today/
-│   └── Portal/
-└── AbstraktWidgetsExtension/   # WidgetKit extension bundle
+│   ├── Weather/
+│   └── Daylight/
+└── AbstraktWidgetsExtension/
     ├── AbstraktWidgetsBundle.swift
     ├── AbstraktNewWidgets.swift
-    ├── SolidWidgetIntents.swift
-    └── Shared/                 # SavedWidgetPreset, WidgetSharedStore
+    └── Shared/
 ```
-
-### Data Flow
-
-```
-Apple Framework → Core/Service → ViewModel → View
-                                     ↓
-                            App Group Storage → WidgetKit Extension → Shared Renderer
-```
-
-The main app reads from Apple frameworks, checks permissions, and writes prepared snapshots to App Group storage. The widget extension only reads from that shared container — it never requests HealthKit, CoreLocation, or WeatherKit access itself. Widget visuals live under `Widgets/` and compile into both targets, so the preview in the app and the widget on your Home Screen render the same code.
 
 ---
 
-## Accessibility
+## App Flow
 
-| Feature           | Status                                                     |
-| ----------------- | ---------------------------------------------------------- |
-| Dynamic Type      | ✅ Supported — all text scales with user preferences       |
-| Bold Text         | ✅ Supported — respects system bold text setting           |
-| Dark Mode         | ✅ Full support — semantic color roles adapt to appearance |
-| Permission States | ✅ Explicit empty and denied states across all widgets     |
+The intended main-app flow is:
 
----
+1. Browse the widget gallery.
+2. Choose a widget and open a customization sheet.
+3. Preview the chosen widget size on-device style.
+4. Adjust flexible options such as theme mode, font, font weight, gradient, icon set, counters, or per-widget settings.
+5. Save that configured widget preset into the Library page.
+6. From the Home Screen, the user adds a system widget and selects the saved preset through the widget configuration flow.
 
-## Requirements
-
-- iOS 17.0+
-- Xcode 15.0+
-- Apple Developer Program membership (required for WeatherKit and HealthKit entitlements)
+This means the app library is the source of truth for saved widget presets, while WidgetKit is the renderer on the Home Screen.
 
 ---
 
-## Getting Started
+## Current Implementation Snapshot
 
-1. Clone the repository
+The current app foundation includes:
 
-   ```bash
-   git clone https://github.com/your-username/Abstrakt.git
-   ```
+### Screens & UI
 
-2. Open the project in Xcode
+| Area | Details |
+|---|---|
+| Gallery | Widget cards with catalog-backed category chips and a preview sheet for the selected widget. |
+| Preview sheet | Renders the selected widget, shows its display title, and keeps the bottom save action in a separate control layer. |
+| Library | Grouped by `Small`, `Medium`, and `Large`, with swipeable size tabs, empty states, and cropped/scaled preview rows that hint at the saved widget surface. |
+| Settings | App font selection, temperature unit, temperature display, distance unit, access/permissions, FAQ, change icon, and release notes. |
 
-   ```bash
-   cd Abstrakt
-   open Abstrakt.xcodeproj
-   ```
+### Widget rendering
 
-3. Configure code signing
-   - Copy `Abstrakt/Config/Signing.local.xcconfig.example` to `Signing.local.xcconfig`
-   - Set your `DEVELOPMENT_TEAM` ID and `APP_GROUP_ID`
-   - `Signing.local.xcconfig` is gitignored — your credentials stay local
+- Shared widget renderers under `Abstrakt/Widgets/` that are compiled into both the host app and the WidgetKit extension.
+- Runtime widget previews and WidgetKit timelines consume live provider data or App Group cached values for battery, Health, calendar/date, time, storage, and WeatherKit-backed weather. Sample numbers are reserved for Xcode canvas previews.
+- Shared settings storage for widget-facing unit preferences and the selected widget font through the App Group.
+- Seamless rendering on iOS 17+ StandBy and iPad Lock Screens via the `containerBackground` API.
 
-4. Build and run on a simulator or device (iOS 17.0+)
+### Widget behavior
+
+| Widget | Behavior |
+|---|---|
+| Activity | Shows either today or weekly exercise minutes, active energy, and sleep totals, with the mode shared to WidgetKit through App Group storage. |
+| Events | Can prioritize upcoming events or currently running events, backed by EventKit refreshes cached into App Group storage. |
+| Portal | Combines calendar date context, current-location WeatherKit temperature, configurable MiniApp launchers, and App Intent buttons for launching selected system apps. |
+| Weather & Daylight | Backed by host-app WeatherKit/CoreLocation refreshes and shared weather condition assets. |
+| Storage | Device storage widgets using base-10 calculation math to perfectly match the iPhone's Settings > General > iPhone Storage metrics. |
+| Heart Rate | Reads live background BPM data from the user's HealthKit datastore. |
+
+### Data & permissions
+
+- Robust background data fetching featuring in-flight coalescing for WeatherKit (preventing rate limits) and safe active-scene authorization for HealthKit on iOS 18.
+- Strict Gallery enforcement that prevents saving widgets to the Library unless their required framework permissions (Location, Calendar, Health) are granted. (Note: Due to Apple privacy limits, HealthKit permissions are considered valid if they have been `.requested` since read access cannot be explicitly verified).
+
+The app font preference is written to shared storage so Home Screen widgets and in-app previews can render with matching typography. Widget views must stay extension-safe because the WidgetKit target also compiles the shared files under `Abstrakt/Widgets/`.
+
+---
+
+## Signing And App Group Configuration
+
+Signing is driven by `Abstrakt/Config/Signing.xcconfig`, with optional local overrides in `Abstrakt/Config/Signing.local.xcconfig`. Copy `Signing.local.xcconfig.example` when a developer needs a personal `DEVELOPMENT_TEAM` or `APP_GROUP_ID`.
+
+The app and widget extension entitlements both read `$(APP_GROUP_ID)`, and the same value is injected into `Info.plist` as `AppGroupID` so host-app providers and WidgetKit read from one shared App Group suite.
+
+---
+
+## System Widget Flow
+
+The iOS widget gallery should expose only the generic `Solid Widget` renderer for the current app direction. It has three supported selections:
+
+- `Small Widget`
+- `Medium Widget`
+- `Large Widget`
+
+After a user adds one of these widgets to the Home Screen, the system `Edit Widget` sheet exposes a saved widget picker backed by App Intents. That picker must show only saved library presets matching the selected widget size, with thumbnails when the app has generated them.
+
+---
+
+## Widget Size Direction
+
+For now the app should focus on iPhone Home Screen sizes only:
+
+| Size | Default preview target |
+|---|---|
+| `Small` | `170 x 170` |
+| `Medium` | `364 x 170` |
+| `Large` | `364 x 382` |
+
+These values are measured fallback sizes and aspect-ratio baselines, not a device-by-device sizing table. In-app previews should fit the available container width while preserving the widget family's measured aspect ratio; WidgetKit widgets should render into the size supplied by the system.
+
+Lock Screen widgets, StandBy layouts, Live Activities, and Dynamic Island remain planned follow-up surfaces, but they are not the primary app flow yet.
+
+---
+
+## Customization Model
+
+Customization is intentionally flexible:
+
+- Some widgets expose only a few toggles.
+- Some widgets open nested sheets such as font pickers.
+- Some widgets use inline segmented controls or checkbox-style rows.
+- Some widgets support metric-specific settings such as step goals or counters.
+
+Per-widget customization examples:
+
+| Widget | Customization |
+|---|---|
+| Portal | Six-app MiniApps picker and icon clip styles, shared with WidgetKit through App Group storage. |
+| Activity | Today/Weekly display mode, shared with WidgetKit through App Group storage. |
+| Events | Upcoming/Current priority mode, shared with WidgetKit through App Group storage. |
+
+Because of that, customization belongs to `App/Configuration/` plus widget-specific configuration sheets inside each widget folder.
+
+Global settings such as temperature unit, temperature display, and distance unit belong to `Core/Settings/` and should be read by both the host app and WidgetKit through extension-safe shared storage. Widget-specific visual choices remain part of the saved preset configuration.
+
+---
+
+## Widget Naming Direction
+
+- Widget folders should be named after the actual widget entry users browse in the gallery.
+- Use concise feature names such as `Battery`, `Steps`, `Activity`, `Events`, `Portal`, `Storage`, `Today`, `Weather`, `Daylight`, and `HeartRate`.
+- Avoid style-only names or names that only describe the Home Screen size.
+
+The underlying data source still belongs in `Core/Services/`, but the widget itself should be named by the user-facing design/preset identity.
+
+---
+
+## Shared Widget Rendering
+
+Widget visuals should be implemented once under `Abstrakt/Widgets/` and reused by both the host app and `AbstraktWidgetsExtension`.
+
+| Location | Owns |
+|---|---|
+| `Abstrakt/Widgets/<WidgetName>/` | SwiftUI renderer and any render snapshots that are safe for both targets. |
+| `Abstrakt/Widgets/SharedWidgetStyle.swift` | Extension-safe widget typography, palette, and custom font registration. |
+| `AbstraktWidgetsExtension/AbstraktNewWidgets.swift` | WidgetKit timelines, entries, size-slot routing, and App Intent configuration only. |
+
+App-only provider adapters or preview conveniences inside shared widget files must be guarded with `#if !WIDGET_EXTENSION`.
+
+---
+
+## Core Model Direction
+
+`Core/Models/` is the shared model layer for the app. That is where common types such as widget presets, widget sizes, appearance modes, catalog items, and categories should live.
+
+Not every widget needs its own `Model` or `ViewModel` file. A widget folder should only add local types when it truly has unique configuration or presentation logic that is not shared.
 
 ---
 
@@ -186,35 +237,51 @@ Built by a team from **Apple Developer Academy @ BINUS Bali** as part of an App 
 
 <table align="center">
   <tr>
-    <td align="center" width="200">
-      <img src="https://github.com/msafdev.png" width="100" height="100" style="border-radius: 50%;" alt="Salman" /><br/>
+    <td align="center" width="260">
+      <img src="https://github.com/msafdev.png" width="120" height="120" style="border-radius: 50%;" alt="Salman's Profile" /><br/><br/>
       <strong>M. Salman Alfarisi</strong><br/>
-      <sub>Developer</sub><br/>
-      <a href="https://github.com/msafdev"><img src="https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github" alt="GitHub" /></a>
-      <a href="https://linkedin.com/in/msafdev"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+      <sub>Developer</sub><br/><br/>
+      <a href="https://github.com/msafdev"><img src="https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github" alt="Salman's GitHub" /></a>
+      <a href="https://linkedin.com/in/msafdev"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="Salman's LinkedIn" /></a>
     </td>
-    <td align="center" width="200">
-      <img src="https://github.com/dapraws.png" width="100" height="100" style="border-radius: 50%;" alt="Darrel" /><br/>
+    <td align="center" width="260">
+      <img src="https://github.com/dapraws.png" width="120" height="120" style="border-radius: 50%;" alt="Darrel's Profile" /><br/><br/>
       <strong>M. Darrel Prawira</strong><br/>
-      <sub>Developer</sub><br/>
-      <a href="https://github.com/dapraws"><img src="https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github" alt="GitHub" /></a>
-      <a href="https://www.linkedin.com/in/dapraws/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+      <sub>Developer</sub><br/><br/>
+      <a href="https://github.com/dapraws"><img src="https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github" alt="Darrel's Github" /></a>
+      <a href="https://www.linkedin.com/in/dapraws/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="Darrel's LinkedIn" /></a>
     </td>
-    <td align="center" width="200">
-      <img src="https://github.com/daffayusranizar.png" width="100" height="100" style="border-radius: 50%;" alt="Daffa" /><br/>
+  </tr>
+  <tr>
+    <td align="center" width="260">
+      <img src="https://media.licdn.com/dms/image/v2/D5603AQFyte7BRlP91A/profile-displayphoto-crop_800_800/B56ZmypVQtJ0AI-/0/1759638804206?e=1784764800&v=beta&t=_3BSTiPiIebe2vLP3SG7HGD1V5Fv3mgrnUJ5Y1qXbX4" width="120" height="120" style="border-radius: 50%;" alt="Daffa's Profile" /><br/><br/>
       <strong>Daffa Yusranizar A.</strong><br/>
-      <sub>Developer</sub><br/>
+      <sub>Developer</sub><br/><br/>
       <a href="https://github.com/daffayusranizar"><img src="https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github" alt="GitHub" /></a>
-      <a href="https://www.linkedin.com/in/daffayusranizar/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+      <a href="https://www.linkedin.com/in/daffayusranizar/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="Daffa's LinkedIn" /></a>
     </td>
-    <td align="center" width="200">
-      <img src="https://via.placeholder.com/100" width="100" height="100" style="border-radius: 50%;" alt="Syafiq" /><br/>
+    <td align="center" width="260">
+      <img src="https://media.licdn.com/dms/image/v2/D4E03AQGFg_vR4EQvew/profile-displayphoto-crop_800_800/B4EZ8m_UPBJMAI-/0/1783065560959?e=1784764800&v=beta&t=ppxF1_RxTXHrb2ADbAZLTWXzMkR3f77l0dX4R1Xj-7g" width="120" height="120" style="border-radius: 50%;" alt="Syafiq's Profile" /><br/><br/>
       <strong>Syafiq Fii Dzilaalin</strong><br/>
-      <sub>Designer</sub><br/>
-      <a href="https://www.linkedin.com/in/syafiq-fii-dzilaalin-5a5200265/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+      <sub>Designer</sub><br/><br/>
+      <a href="https://www.linkedin.com/in/syafiq-fii-dzilaalin-5a5200265/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="Syafiq's LinkedIn" /></a>
     </td>
   </tr>
 </table>
+
+---
+
+## Documentation Map
+
+Start here when making architecture or product changes:
+
+| # | Document | Purpose |
+|---|---|---|
+| 1 | [docs/PROJECT_OVERVIEW.md](./docs/PROJECT_OVERVIEW.md) | Product shape, core UX, module direction |
+| 2 | [docs/FEATURE_FRAMEWORK_MATRIX.md](./docs/FEATURE_FRAMEWORK_MATRIX.md) | Widget-to-framework mapping, permissions, services |
+| 3 | [docs/DESIGN_FOUNDATION.md](./docs/DESIGN_FOUNDATION.md) | Design tokens, appearance modes, layout rules, typography |
+| 4 | [docs/architecture/FOLDER_STRUCTURE.md](./docs/architecture/FOLDER_STRUCTURE.md) | Canonical folder blueprint, naming rules |
+| 5 | [docs/product/WIDGET_LIBRARY_FLOW.md](./docs/product/WIDGET_LIBRARY_FLOW.md) | User flow, customization rules, library rules |
 
 ---
 

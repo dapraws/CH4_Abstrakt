@@ -1,7 +1,7 @@
 # Tech Report
 
 <p align="center">
-  <img src="../asset/lib/img/logo.png" alt="Abstrakt Logo" width="120" height="120" />
+  <img width="120" height="120" alt="logo" src="https://github.com/user-attachments/assets/df6cce3f-a7e6-4e98-aa50-0791b7aa8244" />
 </p>
 
 ## 1. Abstrakt Team
@@ -96,7 +96,7 @@ The main thing we learned was that WidgetKit is closer to a snapshot than a tiny
 The app now works by letting the main app do most of the work: checking permissions, reading system data, formatting it, saving presets, and writing values into shared storage. The WidgetKit extension then exposes three size slots, Small, Medium, and Large, and lets the user pick one of the saved presets from the system widget editor.
 
 <p align="center">
-  <img src="../asset/lib/img/diagram.svg" alt="Abstrakt app and widget data flow" width="720" />
+  <img width="720" alt="Abstrakt app and widget data flow" src="https://github.com/user-attachments/assets/a9e5cb71-5953-420b-ae8c-7869877c8180" />
 </p>
 
 We also learned that "live data" sounds simple until each feature asks for something different. Weather needs location, Health needs permission, calendar needs access, storage needs filesystem readings, and WidgetKit can still refresh later than expected.
