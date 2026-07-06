@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./asset/lib/img/logo.png" alt="Abstrakt Logo" width="120" height="120" />
+  <img src="https://github.com/user-attachments/assets/df6cce3f-a7e6-4e98-aa50-0791b7aa8244" alt="Abstrakt Logo" width="120" height="120" />
 </p>
 
 <h1 align="center">Abstrakt</h1>
