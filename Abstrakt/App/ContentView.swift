@@ -26,6 +26,7 @@ struct ContentView: View {
     @State private var selectedTab: BottomBarTab = .gallery
     @State private var showsLibrary = false
     @State private var selectedGalleryItem: WidgetCatalogItem?
+    @State private var selectedLibraryPreset: WidgetPreset?
     @State private var hasRequestedHealthAuth = false
 
     // MARK: - Properties
@@ -111,14 +112,27 @@ struct ContentView: View {
             .zIndex(3)
 
             if showsLibrary {
-                LibraryScreen()
+                LibraryScreen { preset in
+                    selectedLibraryPreset = preset
+                }
                     .transition(.opacity)
                     .zIndex(2)
             }
 
             if let selectedGalleryItem {
-                WidgetPreviewSheetCover(item: selectedGalleryItem) {
+                WidgetPreviewSheetCover(item: selectedGalleryItem, actionStyle: .saveToLibrary) {
                     self.selectedGalleryItem = nil
+                }
+                .zIndex(4)
+            }
+
+            if let selectedLibraryPreset,
+               let selectedLibraryItem = WidgetCatalog.item(withID: selectedLibraryPreset.widgetID) {
+                WidgetPreviewSheetCover(
+                    item: selectedLibraryItem,
+                    actionStyle: .removeFromLibrary(selectedLibraryPreset)
+                ) {
+                    self.selectedLibraryPreset = nil
                 }
                 .zIndex(4)
             }

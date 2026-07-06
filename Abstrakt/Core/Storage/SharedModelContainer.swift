@@ -64,6 +64,18 @@ enum SharedModelContainer {
 
         defaults?.set(data, forKey: AppGroupConstants.sharedWidgetPresetsKey)
     }
+
+    static func removeWidgetPreset(id: UUID) {
+        var presets = readWidgetPresets()
+        guard let index = presets.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+
+        let presetID = presets[index].id.uuidString
+        presets.remove(at: index)
+        write(widgetPresets: presets)
+        removeThumbnail(for: presetID)
+    }
     
     static func readWidgetPresets() -> [WidgetPreset] {
         guard let data = defaults?.data(forKey: AppGroupConstants.sharedWidgetPresetsKey),

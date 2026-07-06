@@ -12,6 +12,14 @@ struct LibraryScreen: View {
 
     @State private var selectedSize: WidgetSize = .small
 
+    // MARK: Properties
+
+    private let onSelectPreset: (WidgetPreset) -> Void
+
+    init(onSelectPreset: @escaping (WidgetPreset) -> Void = { _ in }) {
+        self.onSelectPreset = onSelectPreset
+    }
+
     // MARK: Data
 
     private var sizeCounts: [WidgetSize: Int] {
@@ -47,6 +55,7 @@ struct LibraryScreen: View {
                         presets: presets(for: size),
                         palette: palette,
                         headerHeight: headerHeight,
+                        onSelectPreset: onSelectPreset,
                         onRenderToHomeScreen: renderAction,
                         isActiveRenderTarget: activeCheck
                     )
@@ -190,6 +199,7 @@ private struct LibrarySizePage: View {
     let presets: [WidgetPreset]
     let palette: LibraryPalette
     let headerHeight: CGFloat
+    let onSelectPreset: (WidgetPreset) -> Void
     let onRenderToHomeScreen: (WidgetPreset) -> Void
     let isActiveRenderTarget: (WidgetPreset) -> Bool
 
@@ -203,6 +213,7 @@ private struct LibrarySizePage: View {
                         LibraryWidgetRow(
                             preset: preset,
                             palette: palette,
+                            onSelect: onSelectPreset,
                             onRenderToHomeScreen: onRenderToHomeScreen,
                             isActiveRenderTarget: isActiveRenderTarget(preset)
                         )
@@ -262,6 +273,7 @@ private struct LibraryEmptyState: View {
 private struct LibraryWidgetRow: View {
     let preset: WidgetPreset
     let palette: LibraryPalette
+    let onSelect: (WidgetPreset) -> Void
     let onRenderToHomeScreen: (WidgetPreset) -> Void
     let isActiveRenderTarget: Bool
 
@@ -342,6 +354,10 @@ private struct LibraryWidgetRow: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: rowHeight)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            onSelect(preset)
+        }
         .clipped()
         .overlay(alignment: .bottom) {
             Rectangle()
