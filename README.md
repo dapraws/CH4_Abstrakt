@@ -237,32 +237,34 @@ Built by a team from **Apple Developer Academy @ BINUS Bali** as part of an App 
 
 <table align="center">
   <tr>
-    <td align="center" width="200">
-      <img src="https://github.com/msafdev.png" width="100" height="100" style="border-radius: 50%;" alt="Salman" /><br/>
+    <td align="center" width="260">
+      <img src="https://github.com/msafdev.png" width="120" height="120" style="border-radius: 50%;" alt="Salman's Profile" /><br/><br/>
       <strong>M. Salman Alfarisi</strong><br/>
-      <sub>Developer</sub><br/>
-      <a href="https://github.com/msafdev"><img src="https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github" alt="GitHub" /></a>
-      <a href="https://linkedin.com/in/msafdev"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+      <sub>Developer</sub><br/><br/>
+      <a href="https://github.com/msafdev"><img src="https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github" alt="Salman's GitHub" /></a>
+      <a href="https://linkedin.com/in/msafdev"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="Salman's LinkedIn" /></a>
     </td>
-    <td align="center" width="200">
-      <img src="https://github.com/dapraws.png" width="100" height="100" style="border-radius: 50%;" alt="Darrel" /><br/>
+    <td align="center" width="260">
+      <img src="https://github.com/dapraws.png" width="120" height="120" style="border-radius: 50%;" alt="Darrel's Profile" /><br/><br/>
       <strong>M. Darrel Prawira</strong><br/>
-      <sub>Developer</sub><br/>
-      <a href="https://github.com/dapraws"><img src="https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github" alt="GitHub" /></a>
-      <a href="https://www.linkedin.com/in/dapraws/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+      <sub>Developer</sub><br/><br/>
+      <a href="https://github.com/dapraws"><img src="https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github" alt="Darrel's Github" /></a>
+      <a href="https://www.linkedin.com/in/dapraws/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="Darrel's LinkedIn" /></a>
     </td>
-    <td align="center" width="200">
-      <img src="https://github.com/daffayusranizar.png" width="100" height="100" style="border-radius: 50%;" alt="Daffa" /><br/>
+  </tr>
+  <tr>
+    <td align="center" width="260">
+      <img src="https://media.licdn.com/dms/image/v2/D5603AQFyte7BRlP91A/profile-displayphoto-crop_800_800/B56ZmypVQtJ0AI-/0/1759638804206?e=1784764800&v=beta&t=_3BSTiPiIebe2vLP3SG7HGD1V5Fv3mgrnUJ5Y1qXbX4" width="120" height="120" style="border-radius: 50%;" alt="Daffa's Profile" /><br/><br/>
       <strong>Daffa Yusranizar A.</strong><br/>
-      <sub>Developer</sub><br/>
+      <sub>Developer</sub><br/><br/>
       <a href="https://github.com/daffayusranizar"><img src="https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github" alt="GitHub" /></a>
-      <a href="https://www.linkedin.com/in/daffayusranizar/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+      <a href="https://www.linkedin.com/in/daffayusranizar/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="Daffa's LinkedIn" /></a>
     </td>
-    <td align="center" width="200">
-      <img src="https://via.placeholder.com/100" width="100" height="100" style="border-radius: 50%;" alt="Syafiq" /><br/>
+    <td align="center" width="260">
+      <img src="https://media.licdn.com/dms/image/v2/D4E03AQGFg_vR4EQvew/profile-displayphoto-crop_800_800/B4EZ8m_UPBJMAI-/0/1783065560959?e=1784764800&v=beta&t=ppxF1_RxTXHrb2ADbAZLTWXzMkR3f77l0dX4R1Xj-7g" width="120" height="120" style="border-radius: 50%;" alt="Syafiq's Profile" /><br/><br/>
       <strong>Syafiq Fii Dzilaalin</strong><br/>
-      <sub>Designer</sub><br/>
-      <a href="https://www.linkedin.com/in/syafiq-fii-dzilaalin-5a5200265/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+      <sub>Designer</sub><br/><br/>
+      <a href="https://www.linkedin.com/in/syafiq-fii-dzilaalin-5a5200265/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="Syafiq's LinkedIn" /></a>
     </td>
   </tr>
 </table>
