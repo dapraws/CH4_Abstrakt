@@ -141,6 +141,8 @@ private struct WidgetPreviewSheetContent: View {
     @AppStorage(AppGroupConstants.portalIconClipStyleKey, store: settingsStore) private var portalIconClipStyleID = PortalIconClipStyle.default.id
     @AppStorage(AppGroupConstants.activityModeKey, store: settingsStore) private var activityModeID = ActivityMode.today.id
     @AppStorage(AppGroupConstants.eventModeKey, store: settingsStore) private var eventModeID = EventDisplayMode.upcoming.id
+    @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
+    @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore) private var sharedAppFontThemeID = AppFonts.defaultTheme.id
     @Environment(\.displayScale) private var displayScale
     @Environment(\.colorScheme) private var colorScheme
     @State private var showsAppsPicker = false
@@ -305,7 +307,7 @@ private struct WidgetPreviewSheetContent: View {
         }
         .sheet(isPresented: $showsFontPicker) {
             WidgetFontPickerSheet(selectedThemeID: $fontThemeID)
-                .presentationDetents([.fraction(0.62)])
+                .presentationDetents([.fraction(0.52)])
         }
     }
 
@@ -509,10 +511,14 @@ private struct WidgetPreviewSheetContent: View {
 
     private var selectedFontDisplayName: String {
         guard let fontThemeID else {
-            return "Font"
+            return AppFontTheme.from(id: activeAppFontThemeID).displayName
         }
 
         return AppFontTheme.from(id: fontThemeID).displayName
+    }
+
+    private var activeAppFontThemeID: String {
+        sharedAppFontThemeID.isEmpty ? appFontThemeID : sharedAppFontThemeID
     }
 
     private var previewColorScheme: ColorScheme {
@@ -676,11 +682,18 @@ private struct WidgetFontCustomizationRow: View {
 }
 
 private struct WidgetFontPickerSheet: View {
+    private static let settingsStore = AppGroupConstants.sharedDefaults
+
     @Binding var selectedThemeID: String?
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
+    @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore) private var sharedAppFontThemeID = AppFonts.defaultTheme.id
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: 2)
     private let tileCornerRadius: CGFloat = 24
+    private var activeAppFontTheme: AppFontTheme {
+        AppFontTheme.from(id: sharedAppFontThemeID.isEmpty ? appFontThemeID : sharedAppFontThemeID)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -707,7 +720,7 @@ private struct WidgetFontPickerSheet: View {
             }
 
             LazyVGrid(columns: columns, spacing: 14) {
-                fontTile(title: "Font", themeID: nil, fontTheme: AppFonts.defaultTheme)
+                fontTile(title: tileTitle(for: activeAppFontTheme), themeID: nil, fontTheme: activeAppFontTheme)
 
                 ForEach(AppFontTheme.allCases) { theme in
                     fontTile(title: tileTitle(for: theme), themeID: theme.id, fontTheme: theme)
@@ -737,12 +750,12 @@ private struct WidgetFontPickerSheet: View {
         } label: {
             ZStack {
                 Text(title)
-                        .font(AppFonts.font(.heading3, theme: fontTheme))
-                        .lineSpacing(AppFonts.lineSpacing(.heading3, theme: fontTheme))
-                        .foregroundStyle(AppColors.primaryText)
-                        .multilineTextAlignment(.center)
-                        .minimumScaleFactor(0.72)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .font(AppFonts.font(.heading3, theme: fontTheme))
+                    .lineSpacing(AppFonts.lineSpacing(.heading3, theme: fontTheme))
+                    .foregroundStyle(AppColors.primaryText)
+                    .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.72)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .frame(height: 88)
             .background(isSelected ? AppColors.primaryText.opacity(0.06) : AppColors.cardSoft)
