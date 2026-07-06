@@ -264,11 +264,11 @@ private extension AbstraktWidgetFontTheme {
         case .sfPro, .sfProRounded:
             switch role {
             case .display, .displayCompact, .title, .subDisplay:
-                return 0.94
+                return 0.89
             case .heading, .body, .bodyBold:
-                return 0.96
+                return 0.91
             case .caption, .meta, .iconBadge:
-                return 0.97
+                return 0.92
             }
         case .quicksand:
             return 1

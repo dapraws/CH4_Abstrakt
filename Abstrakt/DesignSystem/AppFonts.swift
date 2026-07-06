@@ -270,11 +270,11 @@ private extension AppFontTheme {
         case .sfPro, .sfProRounded:
             switch role {
             case .display, .title, .heading1, .widgetDisplay, .widgetTitle:
-                return 0.94
+                return 0.89
             case .heading2, .heading3, .heading4, .body, .subBody, .subHeading, .widgetHeading, .widgetBody:
-                return 0.96
+                return 0.91
             case .caption, .meta, .chip, .tab, .iconBadge, .widgetCaption, .widgetMeta:
-                return 0.97
+                return 0.92
             }
         case .quicksand:
             return 1

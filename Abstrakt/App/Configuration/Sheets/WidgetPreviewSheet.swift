@@ -284,7 +284,6 @@ private struct WidgetPreviewSheetContent: View {
                     performPrimaryAction()
                 }
                 .animation(.snappy(duration: 0.24, extraBounce: 0), value: primaryButtonConfiguration.identity)
-                .padding(.horizontal, AppSpacing.screenHorizontal)
                 .padding(.bottom, AppSpacing.bottomBarInset)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -620,7 +619,7 @@ private struct WidgetAppearanceControls: View {
                             mode = option
                         } label: {
                             Label(option.title, systemImage: option.systemImage)
-                                .font(AppFonts.font(.heading3))
+                                .font(AppFonts.font(.heading4))
                                 .foregroundStyle(AppColors.primaryText)
                                 .labelStyle(.titleAndIcon)
                                 .frame(maxWidth: .infinity)
@@ -647,16 +646,12 @@ private struct WidgetFontCustomizationRow: View {
     var body: some View {
         Button(action: openFontPicker) {
             HStack(spacing: 16) {
-                Image(systemName: "textformat")
-                    .font(AppFonts.font(.heading3))
-                    .foregroundStyle(AppColors.appBackground)
-                    .frame(width: 34, height: 34)
-                    .background(AppColors.primaryText)
-                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                Image(systemName: "t.square.fill")
+                    .font(AppFonts.font(.title))
 
                 Capsule()
                     .fill(AppColors.primaryText.opacity(0.16))
-                    .frame(width: 4, height: 34)
+                    .frame(width: 2, height: 20)
 
                 Spacer(minLength: 10)
 
