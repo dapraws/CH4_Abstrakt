@@ -596,7 +596,7 @@ private struct WidgetCustomizationSection<Content: View>: View {
 
             content
         }
-        .frame(maxWidth: 340, alignment: .leading)
+        .frame(maxWidth: 360, alignment: .leading)
     }
 }
 
@@ -638,7 +638,7 @@ private struct WidgetAppearanceControls: View {
             .background(AppColors.cardSoft)
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
-        .frame(maxWidth: 340)
+        .frame(maxWidth: 360)
         .frame(height: 68)
     }
 }
@@ -676,7 +676,7 @@ private struct WidgetFontCustomizationRow: View {
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
         .buttonStyle(.plain)
-        .frame(maxWidth: 340)
+        .frame(maxWidth: 360)
         .accessibilityLabel("Choose widget font")
     }
 }
@@ -816,7 +816,7 @@ private struct PortalCustomizationControls: View {
 
             PortalClipStyleMenu(clipStyle: $clipStyle)
         }
-        .frame(maxWidth: 340)
+        .frame(maxWidth: 360)
     }
 }
 
@@ -885,7 +885,7 @@ private struct ActivityCustomizationControls: View {
             .background(AppColors.cardSoft)
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
-        .frame(maxWidth: 340)
+        .frame(maxWidth: 360)
         .frame(height: 58)
     }
 }
@@ -928,7 +928,7 @@ private struct EventsCustomizationControls: View {
             .background(AppColors.cardSoft)
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
-        .frame(maxWidth: 340)
+        .frame(maxWidth: 360)
         .frame(height: 58)
     }
 }
