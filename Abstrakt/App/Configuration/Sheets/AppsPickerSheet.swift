@@ -39,7 +39,7 @@ struct AppsPickerSheet: View {
 
             Button {
                 selectedApps = draftApps
-                WidgetCenter.shared.reloadAllTimelines()
+                WidgetTimelineReloadScheduler.schedule()
                 dismiss()
             } label: {
                 Text("Done")

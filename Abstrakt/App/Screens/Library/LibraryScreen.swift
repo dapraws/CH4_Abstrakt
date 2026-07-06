@@ -14,20 +14,25 @@ struct LibraryScreen: View {
 
     // MARK: Properties
 
+    private let presets: [WidgetPreset]
     private let onSelectPreset: (WidgetPreset) -> Void
 
-    init(onSelectPreset: @escaping (WidgetPreset) -> Void = { _ in }) {
+    init(
+        presets: [WidgetPreset],
+        onSelectPreset: @escaping (WidgetPreset) -> Void = { _ in }
+    ) {
+        self.presets = presets
         self.onSelectPreset = onSelectPreset
     }
 
     // MARK: Data
 
     private var sizeCounts: [WidgetSize: Int] {
-        Dictionary(grouping: SharedModelContainer.readWidgetPresets(), by: \.size).mapValues(\.count)
+        Dictionary(grouping: presets, by: \.size).mapValues(\.count)
     }
 
     private func presets(for size: WidgetSize) -> [WidgetPreset] {
-        SharedModelContainer.readWidgetPresets().filter { $0.size == size }
+        presets.filter { $0.size == size }
     }
 
     // MARK: Body
@@ -136,7 +141,7 @@ struct LibraryScreen: View {
     #if targetEnvironment(simulator)
     private func setActiveSimulatorPreset(_ preset: WidgetPreset) {
         SharedModelContainer.setSimulatorActivePreset(id: preset.id, size: preset.size)
-        WidgetCenter.shared.reloadAllTimelines()
+        WidgetTimelineReloadScheduler.reloadNow()
     }
     #endif
 

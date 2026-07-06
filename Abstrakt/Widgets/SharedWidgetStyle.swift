@@ -2,23 +2,23 @@ import CoreText
 import SwiftUI
 
 enum AbstraktAppGroup {
-    static var suiteName: String? {
+    static let suiteName: String? = {
         guard let value = Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String,
               !value.isEmpty else {
             return nil
         }
 
         return value
-    }
+    }()
 
-    static var defaults: UserDefaults? {
+    static let defaults: UserDefaults? = {
         guard let suiteName,
               FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: suiteName) != nil else {
             return nil
         }
 
         return UserDefaults(suiteName: suiteName)
-    }
+    }()
 }
 
 // MARK: - Font Roles

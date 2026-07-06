@@ -158,7 +158,7 @@ private struct WidgetPreviewSheetContent: View {
         }
         nonmutating set {
             portalSelectedAppsValue = PortalApp.storageValue(for: newValue)
-            WidgetCenter.shared.reloadAllTimelines()
+            WidgetTimelineReloadScheduler.schedule()
         }
     }
 
@@ -168,7 +168,7 @@ private struct WidgetPreviewSheetContent: View {
         }
         nonmutating set {
             portalIconClipStyleID = newValue.id
-            WidgetCenter.shared.reloadAllTimelines()
+            WidgetTimelineReloadScheduler.schedule()
         }
     }
 
@@ -178,7 +178,7 @@ private struct WidgetPreviewSheetContent: View {
         }
         nonmutating set {
             activityModeID = newValue.id
-            WidgetCenter.shared.reloadAllTimelines()
+            WidgetTimelineReloadScheduler.schedule()
         }
     }
 
@@ -188,7 +188,7 @@ private struct WidgetPreviewSheetContent: View {
         }
         nonmutating set {
             eventModeID = newValue.id
-            WidgetCenter.shared.reloadAllTimelines()
+            WidgetTimelineReloadScheduler.schedule()
         }
     }
 
@@ -474,13 +474,13 @@ private struct WidgetPreviewSheetContent: View {
         }
 
         SharedModelContainer.write(widgetPresets: presets)
-        WidgetCenter.shared.reloadAllTimelines()
+        WidgetTimelineReloadScheduler.reloadNow()
     }
 
     @MainActor
     private func removePreset(_ preset: WidgetPreset) {
         SharedModelContainer.removeWidgetPreset(id: preset.id)
-        WidgetCenter.shared.reloadAllTimelines()
+        WidgetTimelineReloadScheduler.reloadNow()
     }
 
     private var previewIdentity: String {

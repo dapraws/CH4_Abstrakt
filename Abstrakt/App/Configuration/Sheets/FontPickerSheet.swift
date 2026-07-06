@@ -58,7 +58,7 @@ struct FontPickerSheet: View {
                 appFontThemeID = theme.id
                 sharedAppFontThemeID = theme.id
             }
-            WidgetCenter.shared.reloadAllTimelines()
+            WidgetTimelineReloadScheduler.schedule()
         } label: {
             ZStack {
                 Text(tileTitle(for: theme))

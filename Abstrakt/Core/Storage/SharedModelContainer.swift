@@ -1,6 +1,11 @@
 import Foundation
+import WidgetKit
 
 enum SharedModelContainer {
+    static let widgetPresetsDidChangeNotification = Notification.Name("SharedModelContainerWidgetPresetsDidChange")
+
+    private static var cachedWidgetPresets: [WidgetPreset]?
+
     private static var defaults: UserDefaults? {
         AppGroupConstants.sharedDefaults
     }
@@ -65,6 +70,8 @@ enum SharedModelContainer {
         }
 
         defaults?.set(data, forKey: AppGroupConstants.sharedWidgetPresetsKey)
+        cachedWidgetPresets = widgetPresets
+        NotificationCenter.default.post(name: widgetPresetsDidChangeNotification, object: nil)
     }
 
     static func removeWidgetPreset(id: UUID) {
@@ -80,10 +87,17 @@ enum SharedModelContainer {
     }
     
     static func readWidgetPresets() -> [WidgetPreset] {
+        if let cachedWidgetPresets {
+            return cachedWidgetPresets
+        }
+
         guard let data = defaults?.data(forKey: AppGroupConstants.sharedWidgetPresetsKey),
               let presets = try? JSONDecoder().decode([WidgetPreset].self, from: data) else {
+            cachedWidgetPresets = []
             return []
         }
+
+        cachedWidgetPresets = presets
         return presets
     }
     
@@ -166,5 +180,33 @@ enum SharedModelContainer {
         default:
             break
         }
+    }
+}
+
+enum WidgetTimelineReloadScheduler {
+    private static var pendingReload: Task<Void, Never>?
+
+    static func schedule(after delay: Duration = .milliseconds(450)) {
+        pendingReload?.cancel()
+        pendingReload = Task { @MainActor in
+            do {
+                try await Task.sleep(for: delay)
+            } catch {
+                return
+            }
+
+            guard !Task.isCancelled else {
+                return
+            }
+
+            WidgetCenter.shared.reloadAllTimelines()
+            pendingReload = nil
+        }
+    }
+
+    static func reloadNow() {
+        pendingReload?.cancel()
+        pendingReload = nil
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }

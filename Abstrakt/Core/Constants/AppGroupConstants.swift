@@ -11,14 +11,14 @@ enum AppGroupConstants {
         return value
     }()
 
-    static var sharedDefaults: UserDefaults? {
+    static let sharedDefaults: UserDefaults? = {
         guard !suiteName.isEmpty,
               FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: suiteName) != nil else {
             return nil
         }
 
         return UserDefaults(suiteName: suiteName)
-    }
+    }()
     static let sharedClockTimeKey = "shared.clock.time"
     static let sharedClockDateKey = "shared.clock.date"
     static let sharedCalendarHeadlineKey = "shared.calendar.headline"

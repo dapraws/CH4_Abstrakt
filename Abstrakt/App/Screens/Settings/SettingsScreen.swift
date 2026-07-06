@@ -399,7 +399,7 @@ struct SettingsScreen: View {
     }
 
     private func reloadWidgetTimelines() {
-        WidgetCenter.shared.reloadAllTimelines()
+        WidgetTimelineReloadScheduler.schedule()
     }
 
     // MARK: - Header Action Handlers
