@@ -62,6 +62,26 @@ We first explored the ideas that felt most exciting: animated widgets, quick con
 
 That direction narrowed pretty fast. WidgetKit was useful, but not in the way we imagined. It was good for glanceable information, but strict about animation, refresh timing, and direct system control.
 
+<p align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/99cd077e-a1f4-4bc9-a745-b915c087693c" width="260" alt="Gallery" /><br/>
+        <sub><b>Gallery</b><br/>Browse widgets by framework</sub>
+      </td>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/1cfd6db9-ac2b-4e86-97fe-39ec89f9b7eb" width="260" alt="Settings" /><br/>
+        <sub><b>Settings</b><br/>App font, units, permissions</sub>
+      </td>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/49a7db6f-4e93-401e-a321-90add0b6f721" width="260" alt="Library" /><br/>
+        <sub><b>Library</b><br/>Saved presets by size</sub>
+      </td>
+    </tr>
+  </table>
+</p>
+
+
 What we actually tried in code:
 
 - A main app flow that starts with onboarding, then lands on a custom tab shell with Gallery, Library, and Settings.
