@@ -192,7 +192,7 @@ private extension SmallSolidWidgetEntry {
     static func current(selectedWidget: SavedWidgetEntity?) -> SmallSolidWidgetEntry {
         SmallSolidWidgetEntry(
             date: .now,
-            selectedWidgetID: selectedWidget?.widgetID,
+            selectedWidgetID: resolvedWidgetID(from: selectedWidget, size: "small"),
             battery: BatteryWidgetEntry(
                 date: .now,
                 level: WidgetSharedStore.batteryLevel,
@@ -227,13 +227,32 @@ private extension SmallSolidWidgetEntry {
             
         )
     }
+
+    /// Resolves which widget ID should render. On the simulator, if the
+    /// AppIntent system picker fails to deliver the entity (a known
+    /// Simulator-only bug), fall back to the preset the host app marked as
+    /// the active render target via Library → "Render on Home Screen".
+    private static func resolvedWidgetID(from preset: SavedWidgetEntity?, size: String) -> String? {
+        #if targetEnvironment(simulator)
+        if let id = preset?.widgetID {
+            return id
+        }
+        if let uuid = WidgetSharedStore.simulatorActivePresetID(forSize: size),
+           let saved = WidgetSharedStore.savedPreset(id: uuid, size: size) {
+            return saved.widgetID
+        }
+        return nil
+        #else
+        return preset?.widgetID
+        #endif
+    }
 }
 
 private extension MediumSolidWidgetEntry {
     static func current(selectedWidget: SavedWidgetEntity?) -> MediumSolidWidgetEntry {
         MediumSolidWidgetEntry(
             date: .now,
-            selectedWidgetID: selectedWidget?.widgetID,
+            selectedWidgetID: resolvedWidgetID(from: selectedWidget, size: "medium"),
             today: TodayWidgetEntry(
                 date: .now,
                 temperature: WidgetSharedStore.weatherTemperatureCelsius,
@@ -244,13 +263,29 @@ private extension MediumSolidWidgetEntry {
             )
         )
     }
+
+    /// See `SmallSolidWidgetEntry.resolvedWidgetID(from:size:)`.
+    private static func resolvedWidgetID(from preset: SavedWidgetEntity?, size: String) -> String? {
+        #if targetEnvironment(simulator)
+        if let id = preset?.widgetID {
+            return id
+        }
+        if let uuid = WidgetSharedStore.simulatorActivePresetID(forSize: size),
+           let saved = WidgetSharedStore.savedPreset(id: uuid, size: size) {
+            return saved.widgetID
+        }
+        return nil
+        #else
+        return preset?.widgetID
+        #endif
+    }
 }
 
 private extension LargeSolidWidgetEntry {
     static func current(selectedWidget: SavedWidgetEntity?) -> LargeSolidWidgetEntry {
         LargeSolidWidgetEntry(
             date: .now,
-            selectedWidgetID: selectedWidget?.widgetID,
+            selectedWidgetID: resolvedWidgetID(from: selectedWidget, size: "large"),
             battery: BatteryWidgetEntry(
                 date: .now,
                 level: WidgetSharedStore.batteryLevel,
@@ -277,6 +312,23 @@ private extension LargeSolidWidgetEntry {
                 availableBytes: WidgetSharedStore.storageAvailableBytes
             )
         )
+    }
+
+    /// See `SmallSolidWidgetEntry.resolvedWidgetID(from:size:)`. Helpers are
+    /// duplicated per entry type because each entry extension is private.
+    private static func resolvedWidgetID(from preset: SavedWidgetEntity?, size: String) -> String? {
+        #if targetEnvironment(simulator)
+        if let id = preset?.widgetID {
+            return id
+        }
+        if let uuid = WidgetSharedStore.simulatorActivePresetID(forSize: size),
+           let saved = WidgetSharedStore.savedPreset(id: uuid, size: size) {
+            return saved.widgetID
+        }
+        return nil
+        #else
+        return preset?.widgetID
+        #endif
     }
 }
 

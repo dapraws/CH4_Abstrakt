@@ -92,6 +92,30 @@ enum SharedModelContainer {
             try? FileManager.default.removeItem(at: url)
         }
     }
+
+    #if targetEnvironment(simulator)
+    /// Writes the preset UUID that the simulator's widget extension should render
+    /// for the given size. This bypasses the broken AppIntent system picker on iOS Simulator.
+    static func setSimulatorActivePreset(id: UUID, size: WidgetSize) {
+        defaults?.set(id.uuidString, forKey: simulatorActivePresetKey(for: size))
+    }
+
+    /// Reads back the currently active simulator preset UUID for the given size.
+    static func simulatorActivePresetID(for size: WidgetSize) -> UUID? {
+        guard let raw = defaults?.string(forKey: simulatorActivePresetKey(for: size)) else {
+            return nil
+        }
+        return UUID(uuidString: raw)
+    }
+
+    private static func simulatorActivePresetKey(for size: WidgetSize) -> String {
+        switch size {
+        case .small:  return AppGroupConstants.simulatorActivePresetKeySmall
+        case .medium: return AppGroupConstants.simulatorActivePresetKeyMedium
+        case .large:  return AppGroupConstants.simulatorActivePresetKeyLarge
+        }
+    }
+    #endif
     
     static func write(storage: StorageSnapshot) {
         defaults?.set(storage.totalBytes, forKey: AppGroupConstants.sharedStorageTotalBytesKey)

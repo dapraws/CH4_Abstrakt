@@ -53,6 +53,12 @@ enum AppGroupConstants {
     static let sharedStorageAvailableBytesKey = "shared.storage.availableBytes"
     static let sharedHeartRateBPMKey = "shared.heartRate.bpm"
     static let sharedHeartRateTimestampKey = "shared.heartRate.timestamp"
+
+    #if targetEnvironment(simulator)
+    static let simulatorActivePresetKeySmall = "shared.widget.simulatorActivePreset.small"
+    static let simulatorActivePresetKeyMedium = "shared.widget.simulatorActivePreset.medium"
+    static let simulatorActivePresetKeyLarge = "shared.widget.simulatorActivePreset.large"
+    #endif
     
     static func migrateLegacyFallbackDefaultsIfNeeded() {
         guard suiteName != legacyFallbackSuiteName,
