@@ -87,9 +87,10 @@ Use the feature matrix in `docs/FEATURE_FRAMEWORK_MATRIX.md` as the canonical ma
 
 ## Permission Handling
 
-- Saving a widget in the app's Gallery requires checking its associated permissions (HealthKit, CoreLocation, EventKit) first.
-- If a widget requires a permission that has not been explicitly granted by the user, saving is blocked and the user is prompted to open Settings to grant access.
-- **HealthKit Privacy Exception**: Due to Apple's privacy guidelines for HealthKit, apps cannot programmatically verify if a user granted or denied read access (it always appears as `.notDetermined` unless explicitly requested). Therefore, Health-dependent widgets treat `.requested` as the highest verifiable permission level, and allow saving if the status is `.requested`. Blocking `.requested` would permanently prevent users from ever saving a Health widget.
+- Saving a widget in the app's Gallery triggers the associated system permission prompt (HealthKit, CoreLocation, EventKit) only when the user chooses to save.
+- If the user accepts the prompt, the widget is saved and its data is fetched immediately.
+- If the user declines the prompt, saving is blocked and a warning alert is shown; tapping Save again attempts the system prompt again where iOS allows it, or opens Settings for permanently denied permissions.
+- **HealthKit Privacy Exception**: Due to Apple's privacy guidelines for HealthKit, apps cannot programmatically verify if a user granted or denied read access (it always appears as `.notDetermined` unless explicitly requested). Therefore, Health-dependent widgets treat `.requested` as the highest verifiable permission level, and allow saving if the prompt was requested. Blocking `.requested` would permanently prevent users from ever saving a Health widget.
 
 ## Folder Intent
 

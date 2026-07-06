@@ -133,8 +133,8 @@ The current app foundation includes:
 
 ### Data & permissions
 
-- Robust background data fetching featuring in-flight coalescing for WeatherKit (preventing rate limits) and safe active-scene authorization for HealthKit on iOS 18.
-- Strict Gallery enforcement that prevents saving widgets to the Library unless their required framework permissions (Location, Calendar, Health) are granted. (Note: Due to Apple privacy limits, HealthKit permissions are considered valid if they have been `.requested` since read access cannot be explicitly verified).
+- Just-in-time data fetching: providers refresh only when at least one saved widget needs them, and always-on refresh loops stop when the Library is empty.
+- Permission-on-save: the Gallery requests framework permissions the first time you save a widget, blocks the save if you decline, and lets you retry or open Settings. (Note: due to Apple privacy limits, HealthKit permissions are considered valid once they have been `.requested`, since read access cannot be explicitly verified).
 
 The app font preference is written to shared storage so Home Screen widgets and in-app previews can render with matching typography. Widget views must stay extension-safe because the WidgetKit target also compiles the shared files under `Abstrakt/Widgets/`.
 

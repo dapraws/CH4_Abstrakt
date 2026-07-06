@@ -25,6 +25,14 @@ enum SharedModelContainer {
         defaults?.set(clock.dateText, forKey: AppGroupConstants.sharedClockDateKey)
     }
 
+    static func write(calendar: CalendarSnapshot) {
+        defaults?.set(calendar.headline, forKey: AppGroupConstants.sharedCalendarHeadlineKey)
+        defaults?.set(calendar.detail, forKey: AppGroupConstants.sharedCalendarDetailKey)
+        if let data = try? JSONEncoder().encode(calendar.eventSnapshot) {
+            defaults?.set(data, forKey: AppGroupConstants.sharedEventsKey)
+        }
+    }
+
     static func write(battery: BatterySnapshot) {
         defaults?.set(battery.level, forKey: AppGroupConstants.sharedBatteryLevelKey)
         if let estimatedMinutesRemaining = battery.estimatedMinutesRemaining {

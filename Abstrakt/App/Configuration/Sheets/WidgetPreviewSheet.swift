@@ -298,7 +298,7 @@ private struct WidgetPreviewSheetContent: View {
                     }
                 }
             } message: {
-                Text(missingPermissionWarning ?? "This widget requires additional permissions.")
+                Text(permissionAlertMessage ?? "This widget requires additional permissions in Settings.")
             }
         }
         .sheet(isPresented: $showsAppsPicker) {
@@ -382,47 +382,111 @@ private struct WidgetPreviewSheetContent: View {
         }
     }
 
-    private var missingPermissionWarning: String? {
-        if item.categories.contains(.healthKit) {
-            let state = HealthSummaryProvider.shared.authorizationState()
-            if state == .notDetermined || state == .unavailable {
-                return "Requires Health access in Settings"
-            }
-        }
-        if item.categories.contains(.weatherKit) {
-            let status = CLLocationManager().authorizationStatus
-            if status != .authorizedWhenInUse && status != .authorizedAlways {
-                return "Requires Location access in Settings"
-            }
-        }
-        if item.categories.contains(.eventKit) {
-            let state = EventKitProvider.authorizationState()
-            if state != .authorized {
-                return "Requires Calendar access in Settings"
-            }
-        }
-        return nil
-    }
+    @State private var permissionAlertMessage: String?
 
     @MainActor
     private func performPrimaryAction() {
-        switch actionStyle {
-        case .saveToLibrary:
-            if missingPermissionWarning != nil {
-                showingPermissionAlert = true
-                return
-            }
-
-            savePreset()
-            onDismiss?()
-        case let .removeFromLibrary(preset):
-            if libraryConfigurationHasChanges {
+        Task { @MainActor in
+            switch actionStyle {
+            case .saveToLibrary:
+                guard await requestPermissionsForCurrentWidget() else {
+                    return
+                }
                 savePreset()
-            } else {
-                removePreset(preset)
+                await refreshSavedWidgetData()
+                onDismiss?()
+            case let .removeFromLibrary(preset):
+                if libraryConfigurationHasChanges {
+                    guard await requestPermissionsForCurrentWidget() else {
+                        return
+                    }
+                    savePreset()
+                    await refreshSavedWidgetData()
+                } else {
+                    removePreset(preset)
+                }
+                onDismiss?()
             }
-            onDismiss?()
         }
+    }
+
+    @MainActor
+    private func requestPermissionsForCurrentWidget() async -> Bool {
+        for category in item.categories {
+            switch category {
+            case .healthKit:
+                let state = HealthSummaryProvider.shared.authorizationState()
+                if state == .unavailable {
+                    permissionAlertMessage = "Health access is unavailable on this device."
+                    showingPermissionAlert = true
+                    return false
+                }
+                if state == .notDetermined {
+                    _ = await HealthSummaryProvider.shared.requestAuthorization()
+                }
+            case .weatherKit:
+                let status = CLLocationManager().authorizationStatus
+                if status == .notDetermined {
+                    let finalStatus = await LocationProvider().requestAuthorizationStatus()
+                    if finalStatus != .authorizedWhenInUse && finalStatus != .authorizedAlways {
+                        permissionAlertMessage = "Location access is required for Weather widgets."
+                        showingPermissionAlert = true
+                        return false
+                    }
+                } else if status == .denied || status == .restricted {
+                    permissionAlertMessage = "Location access is denied. Weather widgets need location access in Settings."
+                    showingPermissionAlert = true
+                    return false
+                }
+            case .eventKit:
+                let state = EventKitProvider.authorizationState()
+                if state == .notDetermined {
+                    let granted = await EventKitProvider.requestCalendarAccess()
+                    if !granted {
+                        permissionAlertMessage = "Calendar access is required for Events widgets."
+                        showingPermissionAlert = true
+                        return false
+                    }
+                } else if state == .denied || state == .restricted {
+                    permissionAlertMessage = "Calendar access is denied. Events widgets need calendar access in Settings."
+                    showingPermissionAlert = true
+                    return false
+                }
+            default:
+                break
+            }
+        }
+        return true
+    }
+
+    @MainActor
+    private func refreshSavedWidgetData() async {
+        if item.categories.contains(.healthKit) {
+            let health = await HealthSummaryProvider.shared.todaySnapshot()
+            let activity = await HealthSummaryProvider.shared.activitySnapshots()
+            let heartRate = await HealthSummaryProvider.shared.latestHeartRate()
+            SharedModelContainer.write(health: health)
+            SharedModelContainer.write(activity: activity)
+            SharedModelContainer.write(heartRate: heartRate)
+        }
+
+        if item.categories.contains(.weatherKit) || item.categories.contains(.portal) {
+            let today = await WeatherProvider.shared.todaySnapshot()
+            let portal = await WeatherProvider.shared.portalSnapshot()
+            let weather = await WeatherProvider.shared.weatherSnapshot()
+            let daylight = await WeatherProvider.shared.daylightSnapshot()
+            SharedModelContainer.write(today: today)
+            SharedModelContainer.write(portal: portal)
+            SharedModelContainer.write(weather: weather)
+            SharedModelContainer.write(daylight: daylight)
+        }
+
+        if item.categories.contains(.eventKit) {
+            let calendar = await EventKitProvider.currentSnapshot()
+            SharedModelContainer.write(calendar: calendar)
+        }
+
+        WidgetTimelineReloadScheduler.reloadNow()
     }
 
     @MainActor
