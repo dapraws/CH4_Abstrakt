@@ -101,7 +101,7 @@ struct HeartRateWidget: View {
                 Spacer()
                 Image("heart-color")
                     .resizable()
-                    .frame(width: 42, height: 42)
+                    .frame(width: 32, height: 32)
             }
             Spacer()
 

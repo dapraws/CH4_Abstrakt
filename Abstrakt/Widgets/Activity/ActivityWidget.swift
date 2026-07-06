@@ -106,7 +106,7 @@ struct ActivityWidget: View {
                 Image("heart-color")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 28, height: 28)
+                    .frame(width: 32, height: 32)
             }
 
             Spacer()
