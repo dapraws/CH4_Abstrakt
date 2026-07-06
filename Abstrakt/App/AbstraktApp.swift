@@ -28,8 +28,9 @@ private extension AbstraktApp {
         AppFonts.registerCustomFonts()
         AbstraktWidgetFonts.registerCustomFonts()
 
+        _ = HealthSummaryProvider.shared
+
         Task.detached(priority: .utility) {
-            _ = HealthSummaryProvider.shared
             _ = EKEventStore()
         }
     }

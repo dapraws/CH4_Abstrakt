@@ -148,6 +148,7 @@ private struct WidgetPreviewSheetContent: View {
     @State private var showsAppsPicker = false
     @State private var showsFontPicker = false
     @State private var showingPermissionAlert = false
+    @State private var isPerformingPrimaryAction = false
     @State private var appearanceMode: WidgetAppearanceMode = .system
     @State private var fontThemeID: String?
     @State private var initialConfiguration: WidgetSheetConfigurationSnapshot?
@@ -248,14 +249,7 @@ private struct WidgetPreviewSheetContent: View {
             ZStack(alignment: .bottom) {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
-                        WidgetPreview(
-                            item: item,
-                            portalSelectedAppsOverride: item.id == "portal" ? portalSelectedApps : nil,
-                            portalIconClipStyleOverride: item.id == "portal" ? portalIconClipStyle : nil,
-                            activityModeOverride: item.id == "activity" ? activityMode : nil,
-                            eventModeOverride: item.id == "events" ? eventMode : nil,
-                            fontThemeOverride: selectedWidgetFontTheme
-                        )
+                        configuredPreview()
                         .id(previewIdentity)
                         .frame(width: previewSize.width, height: previewSize.height)
                         .environment(\.colorScheme, previewColorScheme)
@@ -328,7 +322,16 @@ private struct WidgetPreviewSheetContent: View {
         }
         .padding(.top, 10)
 
-        if item.id == "portal" {
+        ForEach(item.customizations) { customization in
+            customizationSection(for: customization)
+                .padding(.top, 10)
+        }
+    }
+
+    @ViewBuilder
+    private func customizationSection(for customization: WidgetCustomization) -> some View {
+        switch customization {
+        case .portalApps:
             WidgetCustomizationSection(title: "Application") {
                 PortalCustomizationControls(
                     selectedApps: portalSelectedAppsBinding,
@@ -337,21 +340,14 @@ private struct WidgetPreviewSheetContent: View {
                     showsAppsPicker = true
                 }
             }
-            .padding(.top, 10)
-        }
-
-        if item.id == "activity" {
+        case .activityMode:
             WidgetCustomizationSection(title: "Data Range") {
-                ActivityCustomizationControls(mode: activityModeBinding)
+                WidgetSegmentedControl(selection: activityModeBinding)
             }
-            .padding(.top, 10)
-        }
-
-        if item.id == "events" {
+        case .eventMode:
             WidgetCustomizationSection(title: "Event Priority") {
-                EventsCustomizationControls(mode: eventModeBinding)
+                WidgetSegmentedControl(selection: eventModeBinding)
             }
-            .padding(.top, 10)
         }
     }
 
@@ -360,6 +356,14 @@ private struct WidgetPreviewSheetContent: View {
     }
 
     private var primaryButtonConfiguration: WidgetPreviewPrimaryButtonConfiguration {
+        if isPerformingPrimaryAction {
+            return WidgetPreviewPrimaryButtonConfiguration(
+                title: "Preparing widget",
+                systemImage: "hourglass",
+                tint: .blue
+            )
+        }
+
         switch actionStyle {
         case .saveToLibrary:
             return WidgetPreviewPrimaryButtonConfiguration(
@@ -386,7 +390,19 @@ private struct WidgetPreviewSheetContent: View {
 
     @MainActor
     private func performPrimaryAction() {
+        guard !isPerformingPrimaryAction else {
+            return
+        }
+
+        isPerformingPrimaryAction = true
         Task { @MainActor in
+            var shouldResetActionState = true
+            defer {
+                if shouldResetActionState {
+                    isPerformingPrimaryAction = false
+                }
+            }
+
             switch actionStyle {
             case .saveToLibrary:
                 guard await requestPermissionsForCurrentWidget() else {
@@ -394,6 +410,7 @@ private struct WidgetPreviewSheetContent: View {
                 }
                 savePreset()
                 await refreshSavedWidgetData()
+                shouldResetActionState = false
                 onDismiss?()
             case let .removeFromLibrary(preset):
                 if libraryConfigurationHasChanges {
@@ -405,6 +422,7 @@ private struct WidgetPreviewSheetContent: View {
                 } else {
                     removePreset(preset)
                 }
+                shouldResetActionState = false
                 onDismiss?()
             }
         }
@@ -511,15 +529,7 @@ private struct WidgetPreviewSheetContent: View {
             fontThemeID: fontThemeID
         )
 
-        let preview = WidgetPreview(
-            item: item,
-            isThumbnail: true,
-            portalSelectedAppsOverride: item.id == "portal" ? portalSelectedApps : nil,
-            portalIconClipStyleOverride: item.id == "portal" ? portalIconClipStyle : nil,
-            activityModeOverride: item.id == "activity" ? activityMode : nil,
-            eventModeOverride: item.id == "events" ? eventMode : nil,
-            fontThemeOverride: selectedWidgetFontTheme
-        )
+        let preview = configuredPreview(isThumbnail: true)
         .frame(width: 160, height: 160)
         .environment(\.colorScheme, thumbnailColorScheme)
 
@@ -547,22 +557,35 @@ private struct WidgetPreviewSheetContent: View {
     }
 
     private var previewIdentity: String {
-        let fontIdentity = fontThemeID ?? "app"
-        let appearanceIdentity = appearanceMode.id
+        previewIdentityComponents.joined(separator: "-")
+    }
 
-        if item.id == "portal" {
-            return "\(item.id)-\(portalSelectedAppsValue)-\(portalIconClipStyleID)-\(appearanceIdentity)-\(fontIdentity)"
-        }
+    private var previewIdentityComponents: [String] {
+        [
+            item.id,
+            appearanceMode.id,
+            fontThemeID ?? "app",
+            supports(.portalApps) ? portalSelectedAppsValue : nil,
+            supports(.portalApps) ? portalIconClipStyleID : nil,
+            supports(.activityMode) ? activityModeID : nil,
+            supports(.eventMode) ? eventModeID : nil,
+        ].compactMap { $0 }
+    }
 
-        guard item.id == "activity" else {
-            if item.id == "events" {
-                return "\(item.id)-\(eventModeID)-\(appearanceIdentity)-\(fontIdentity)"
-            }
+    private func supports(_ customization: WidgetCustomization) -> Bool {
+        item.customizations.contains(customization)
+    }
 
-            return "\(item.id)-\(appearanceIdentity)-\(fontIdentity)"
-        }
-
-        return "\(item.id)-\(activityModeID)-\(appearanceIdentity)-\(fontIdentity)"
+    private func configuredPreview(isThumbnail: Bool = false) -> some View {
+        WidgetPreview(
+            item: item,
+            isThumbnail: isThumbnail,
+            portalSelectedAppsOverride: supports(.portalApps) ? portalSelectedApps : nil,
+            portalIconClipStyleOverride: supports(.portalApps) ? portalIconClipStyle : nil,
+            activityModeOverride: supports(.activityMode) ? activityMode : nil,
+            eventModeOverride: supports(.eventMode) ? eventMode : nil,
+            fontThemeOverride: selectedWidgetFontTheme
+        )
     }
 
     private var selectedWidgetFontTheme: AbstraktWidgetFontTheme? {
@@ -911,56 +934,40 @@ private struct PortalClipStyleMenu: View {
     }
 }
 
-private struct ActivityCustomizationControls: View {
-    @Binding var mode: ActivityMode
+private protocol WidgetSegmentedOption: CaseIterable, Hashable, Identifiable where AllCases: Collection, AllCases.Element == Self {
+    var title: String { get }
+    var customizationSystemImage: String { get }
+}
 
-    var body: some View {
-        GeometryReader { proxy in
-            let options = ActivityMode.allCases
-            let selectedIndex = options.firstIndex(of: mode) ?? 0
-            let innerPadding: CGFloat = 5
-            let segmentWidth = max(0, (proxy.size.width - (innerPadding * 2)) / CGFloat(options.count))
-
-            ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(AppColors.card)
-                    .frame(width: segmentWidth, height: 48)
-                    .offset(x: innerPadding + (CGFloat(selectedIndex) * segmentWidth))
-                    .animation(.snappy(duration: 0.24, extraBounce: 0), value: mode)
-
-                HStack(spacing: 0) {
-                    ForEach(options) { option in
-                        Button {
-                            mode = option
-                        } label: {
-                            Label(option.title, systemImage: option == .today ? "sun.max.fill" : "calendar.badge.clock")
-                                .font(AppFonts.font(.heading3))
-                                .foregroundStyle(AppColors.primaryText)
-                                .labelStyle(.titleAndIcon)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 48)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(innerPadding)
-            }
-            .background(AppColors.cardSoft)
-            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+extension ActivityMode: WidgetSegmentedOption {
+    var customizationSystemImage: String {
+        switch self {
+        case .today:
+            "sun.max.fill"
+        case .weekly:
+            "calendar.badge.clock"
         }
-        .frame(maxWidth: 360)
-        .frame(height: 58)
     }
 }
 
-private struct EventsCustomizationControls: View {
-    @Binding var mode: EventDisplayMode
+extension EventDisplayMode: WidgetSegmentedOption {
+    var customizationSystemImage: String {
+        switch self {
+        case .upcoming:
+            "calendar.badge.clock"
+        case .current:
+            "calendar.badge.exclamationmark"
+        }
+    }
+}
+
+private struct WidgetSegmentedControl<Option: WidgetSegmentedOption>: View {
+    @Binding var selection: Option
 
     var body: some View {
         GeometryReader { proxy in
-            let options = EventDisplayMode.allCases
-            let selectedIndex = options.firstIndex(of: mode) ?? 0
+            let options = Array(Option.allCases)
+            let selectedIndex = options.firstIndex(of: selection) ?? 0
             let innerPadding: CGFloat = 5
             let segmentWidth = max(0, (proxy.size.width - (innerPadding * 2)) / CGFloat(options.count))
 
@@ -969,14 +976,14 @@ private struct EventsCustomizationControls: View {
                     .fill(AppColors.card)
                     .frame(width: segmentWidth, height: 48)
                     .offset(x: innerPadding + (CGFloat(selectedIndex) * segmentWidth))
-                    .animation(.snappy(duration: 0.24, extraBounce: 0), value: mode)
+                    .animation(.snappy(duration: 0.24, extraBounce: 0), value: selection)
 
                 HStack(spacing: 0) {
                     ForEach(options) { option in
                         Button {
-                            mode = option
+                            selection = option
                         } label: {
-                            Label(option.title, systemImage: option == .upcoming ? "calendar.badge.clock" : "calendar.badge.exclamationmark")
+                            Label(option.title, systemImage: option.customizationSystemImage)
                                 .font(AppFonts.font(.heading3))
                                 .foregroundStyle(AppColors.primaryText)
                                 .labelStyle(.titleAndIcon)
@@ -1005,6 +1012,10 @@ private struct WidgetPreviewPrimaryButtonConfiguration {
     var identity: String {
         "\(title)-\(systemImage)"
     }
+
+    var isLoading: Bool {
+        systemImage == "hourglass"
+    }
 }
 
 private struct WidgetPreviewPrimaryButton: View {
@@ -1025,6 +1036,7 @@ private struct WidgetPreviewPrimaryButton: View {
             .frame(height: 64)
         }
         .buttonStyle(.plain)
+        .disabled(configuration.isLoading)
         .background(Color.white)
         .clipShape(Capsule())
         .shadow(color: Color.black.opacity(0.08), radius: 2, x: 0, y: 1)

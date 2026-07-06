@@ -44,6 +44,7 @@ nonisolated enum WidgetCatalog {
             name: "Activity",
             size: .small,
             categories: [.healthKit],
+            customizations: [.activityMode],
             isPro: false
         ),
         WidgetCatalogItem(
@@ -51,6 +52,7 @@ nonisolated enum WidgetCatalog {
             name: "Events",
             size: .small,
             categories: [.eventKit],
+            customizations: [.eventMode],
             isPro: false
         ),
         WidgetCatalogItem(
@@ -58,6 +60,7 @@ nonisolated enum WidgetCatalog {
             name: "Portal",
             size: .small,
             categories: [.portal],
+            customizations: [.portalApps],
             isPro: false
         ),
         WidgetCatalogItem(
