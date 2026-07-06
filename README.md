@@ -1,5 +1,9 @@
 # Abstrakt
 
+<p align="center">
+  <img src="./asset/lib/img/logo.png" alt="Abstrakt Logo" width="120" height="120" />
+</p>
+
 Abstrakt is a native SwiftUI app for discovering, configuring, previewing, and saving widget presets before users place them on the iPhone Home Screen. The product is inspired by widget-first apps such as Koco, but it is built around Apple-native frameworks, a simple data layer, and an extension-safe architecture that can grow into Live Activities later.
 
 ## Product Direction

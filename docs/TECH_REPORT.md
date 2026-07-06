@@ -1,7 +1,6 @@
 # Tech Report
 
 <p align="center">
-  <!-- TODO: Replace with actual app logo -->
   <img src="../asset/lib/img/logo.png" alt="Abstrakt Logo" width="120" height="120" />
 </p>
 
