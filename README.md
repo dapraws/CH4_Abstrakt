@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./asset/lib/img/logo.png" alt="Abstrakt Logo" width="120" height="120" />
+  <img src="https://github.com/user-attachments/assets/df6cce3f-a7e6-4e98-aa50-0791b7aa8244" alt="Abstrakt Logo" width="120" height="120" />
 </p>
 
 <h1 align="center">Abstrakt</h1>
@@ -18,6 +18,22 @@
   <img src="https://img.shields.io/badge/SwiftUI-5-purple?style=flat-square" alt="SwiftUI" />
   <img src="https://img.shields.io/badge/Architecture-MVVM-green?style=flat-square" alt="MVVM" />
   <img src="https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square" alt="License" />
+</p>
+
+---
+
+## Screenshots
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/99cd077e-a1f4-4bc9-a745-b915c087693c" alt="Gallery" width="240" />
+  &nbsp;&nbsp;
+  <img src="https://github.com/user-attachments/assets/1cfd6db9-ac2b-4e86-97fe-39ec89f9b7eb" alt="Settings" width="240" />
+  &nbsp;&nbsp;
+  <img src="https://github.com/user-attachments/assets/49a7db6f-4e93-401e-a321-90add0b6f721" alt="Library" width="240" />
+</p>
+
+<p align="center">
+  <sub><b>Gallery</b> — browse widgets by framework &nbsp;·&nbsp; <b>Settings</b> — app font, units, permissions &nbsp;·&nbsp; <b>Library</b> — saved presets by size</sub>
 </p>
 
 ---
@@ -215,6 +231,44 @@ Not every widget needs its own `Model` or `ViewModel` file. A widget folder shou
 
 ---
 
+## Team
+
+Built by a team from **Apple Developer Academy @ BINUS Bali** as part of an App Extension challenge.
+
+<table align="center">
+  <tr>
+    <td align="center" width="200">
+      <img src="https://github.com/msafdev.png" width="100" height="100" style="border-radius: 50%;" alt="Salman" /><br/>
+      <strong>M. Salman Alfarisi</strong><br/>
+      <sub>Developer</sub><br/>
+      <a href="https://github.com/msafdev"><img src="https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github" alt="GitHub" /></a>
+      <a href="https://linkedin.com/in/msafdev"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+    </td>
+    <td align="center" width="200">
+      <img src="https://github.com/dapraws.png" width="100" height="100" style="border-radius: 50%;" alt="Darrel" /><br/>
+      <strong>M. Darrel Prawira</strong><br/>
+      <sub>Developer</sub><br/>
+      <a href="https://github.com/dapraws"><img src="https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github" alt="GitHub" /></a>
+      <a href="https://www.linkedin.com/in/dapraws/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+    </td>
+    <td align="center" width="200">
+      <img src="https://github.com/daffayusranizar.png" width="100" height="100" style="border-radius: 50%;" alt="Daffa" /><br/>
+      <strong>Daffa Yusranizar A.</strong><br/>
+      <sub>Developer</sub><br/>
+      <a href="https://github.com/daffayusranizar"><img src="https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github" alt="GitHub" /></a>
+      <a href="https://www.linkedin.com/in/daffayusranizar/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+    </td>
+    <td align="center" width="200">
+      <img src="https://via.placeholder.com/100" width="100" height="100" style="border-radius: 50%;" alt="Syafiq" /><br/>
+      <strong>Syafiq Fii Dzilaalin</strong><br/>
+      <sub>Designer</sub><br/>
+      <a href="https://www.linkedin.com/in/syafiq-fii-dzilaalin-5a5200265/"><img src="https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+    </td>
+  </tr>
+</table>
+
+---
+
 ## Documentation Map
 
 Start here when making architecture or product changes:
@@ -226,3 +280,9 @@ Start here when making architecture or product changes:
 | 3 | [docs/DESIGN_FOUNDATION.md](./docs/DESIGN_FOUNDATION.md) | Design tokens, appearance modes, layout rules, typography |
 | 4 | [docs/architecture/FOLDER_STRUCTURE.md](./docs/architecture/FOLDER_STRUCTURE.md) | Canonical folder blueprint, naming rules |
 | 5 | [docs/product/WIDGET_LIBRARY_FLOW.md](./docs/product/WIDGET_LIBRARY_FLOW.md) | User flow, customization rules, library rules |
+
+---
+
+## License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
