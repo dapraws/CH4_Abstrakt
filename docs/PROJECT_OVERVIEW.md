@@ -122,6 +122,12 @@ Not every widget needs a dedicated view model. Add one only when the widget has 
 - Wraps Apple frameworks behind extension-safe models
 - Handles permissions, freshness, caching, and framework-specific translation
 
+## Data & Permission Strategy
+
+- The host app does not fetch framework-backed data or request permissions until the user actually saves a widget that needs them.
+- `ContentView` refreshes only the providers whose frameworks appear in the saved widget presets, and only starts always-on refresh loops when at least one preset exists.
+- Permission prompts fire from the Save action in the preview sheet, not on app launch. Widgets are expected to render explicit empty, denied, and loading states while they wait for data.
+
 ## Future Surface Direction
 
 Once the Home Screen widget flow is stable, the same feature and preset system should expand to:

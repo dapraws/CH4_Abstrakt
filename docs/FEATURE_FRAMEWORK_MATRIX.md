@@ -41,7 +41,7 @@ This file is the canonical mapping between widget features and Apple-native fram
 
 ## Permission Expectations
 
-- **Gallery Enforcement**: The host app prevents saving widgets to the Library if their required framework permissions are missing. For most frameworks (like CoreLocation or EventKit), the app explicitly requires an "Authorized" state.
+- **Permission-on-Save**: The host app requests framework permissions the first time the user saves a dependent widget, not at launch. For most frameworks (like CoreLocation or EventKit), if the user declines the system prompt, saving is blocked and an alert is shown; a later Save tap shows the alert again and offers to open Settings, since iOS will not re-show the system prompt after a denial.
 - **HealthKit Privacy Exception**: Due to Apple privacy rules, the system never exposes whether a user granted or denied read access to Health data. HealthKit read queries only return `.notDetermined`. Because of this, Health widgets treat `.requested` as the highest verifiable permission state and allow saving if the prompt was requested. Blocking `.requested` would permanently prevent all users from saving Health widgets.
 
 | Widget Family | Permission |
@@ -59,16 +59,14 @@ This file is the canonical mapping between widget features and Apple-native fram
 
 ## Current Live Data Refresh
 
-The host app refreshes widget-facing data on launch and whenever the scene becomes active:
+The host app refreshes widget-facing data on a just-in-time basis:
 
-- Health: requests `HealthKit` read access for step count, walking/running distance, exercise time, active energy, and sleep analysis, then stores today's step/distance totals plus today and weekly exercise minutes, active energy, and sleep totals for health widgets.
-- Battery: enables `UIDevice` battery monitoring, stores percentage and charging state, and estimates remaining hours when discharging.
-- Calendar: requests EventKit calendar access, stores today's weekday plus the next remaining event for legacy consumers, and stores a richer same-day event snapshot for widgets that need to distinguish upcoming and current events.
-- Storage: reads total and available file-system capacity, then stores aggregate byte counts.
-- Weather: requests when-in-use location authorization, fetches local WeatherKit conditions, and stores current temperature, today's high/low, condition symbols, and weather widget snapshots.
-- Portal: fetches WeatherKit conditions for the current location in the host app and stores the current temperature/place name for the widget renderer.
+- **Gated refresh**: Data fetches are gated by the saved widget presets. On scene-active, `ContentView` computes which framework categories are needed by saved presets and refreshes only those providers. A fresh install with no presets does not start HealthKit observers, WeatherKit fetches, calendar fetches, or the always-on refresh loops.
+- **Permission-on-save**: HealthKit, CoreLocation, and EventKit permission requests happen when the user saves the first widget that requires them, not at launch. After a successful save, the relevant provider runs immediately to populate the shared store.
+- **Lazy loops**: The 1-second clock loop and 60-second battery/storage loop only run while the scene is active and at least one preset exists; they stop when the library is empty.
+- **Pre-warming**: App Groups, custom fonts, `HKHealthStore`, and `EKEventStore` are pre-warmed at app launch to avoid first-tap stalls in the Gallery and save sheets.
 
-The WidgetKit extension reads these values from the App Group. It should not request HealthKit, CoreLocation, or WeatherKit access directly.
+Per-framework refresh behavior remains the same once triggered (Health observer queries, WeatherKit bundle with coalescing, EventKit snapshots, battery/storage reads, etc.). WidgetKit extension reads only from the App Group and must not request HealthKit, CoreLocation, or WeatherKit access directly.
 
 Runtime widget rendering should use provider/App Group values or explicit empty/permission-denied states. Static sample numbers belong only in Xcode previews.
 

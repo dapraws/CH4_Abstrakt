@@ -35,17 +35,17 @@ struct SavedWidgetEntity: AppEntity {
         self.widgetID = ""
         self.sizeID = ""
     }
-    
+
     var displayRepresentation: DisplayRepresentation {
         if let imageURL = WidgetSharedStore.thumbnailURL(for: id),
-           FileManager.default.fileExists(atPath: imageURL.path) {
-            let displayImage = DisplayRepresentation.Image(url: imageURL)
+           let imageData = try? Data(contentsOf: imageURL) {
+            let displayImage = DisplayRepresentation.Image(data: imageData)
             return DisplayRepresentation(title: "\(name)", image: displayImage)
         }
-        
+
         return DisplayRepresentation(title: "\(name)")
     }
-    
+
     static var defaultQuery = SavedWidgetQuery()
 }
 

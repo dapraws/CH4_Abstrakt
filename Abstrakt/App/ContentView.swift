@@ -35,6 +35,14 @@ struct ContentView: View {
     private let runsLiveWidgetTasks: Bool
     private let previewHasCompletedOnboarding: Bool?
 
+    private var shouldRunRefreshLoops: Bool {
+        runsLiveWidgetTasks && scenePhase == .active && !widgetPresets.isEmpty
+    }
+
+    private var shouldObserveHealth: Bool {
+        runsLiveWidgetTasks && savedWidgetCategories().contains(.healthKit)
+    }
+
     init(
         runsLiveWidgetTasks: Bool = true,
         initialTab: BottomBarTab = .gallery,
@@ -68,8 +76,8 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: SharedModelContainer.widgetPresetsDidChangeNotification)) { _ in
             reloadWidgetPresets()
         }
-        .task {
-            guard runsLiveWidgetTasks else {
+        .task(id: shouldObserveHealth) {
+            guard shouldObserveHealth else {
                 return
             }
 
@@ -85,14 +93,25 @@ struct ContentView: View {
                 return
             }
 
-            if !hasRequestedHealthAuth {
+            if shouldObserveHealth,
+               !hasRequestedHealthAuth,
+               HealthSummaryProvider.shared.authorizationState() == .notDetermined {
                 hasRequestedHealthAuth = true
                 try? await Task.sleep(for: .milliseconds(800))
                 await HealthSummaryProvider.shared.requestAuthorization()
             }
 
             try? await Task.sleep(for: .milliseconds(220))
-            await refreshWidgetData()
+
+            if !widgetPresets.isEmpty {
+                await refreshWidgetData()
+            }
+        }
+        .task(id: shouldRunRefreshLoops) {
+            guard shouldRunRefreshLoops else {
+                return
+            }
+
             await runRefreshLoops()
         }
     }
@@ -208,51 +227,61 @@ struct ContentView: View {
 
     private func refreshWidgetData() async {
         let appFontThemeID = appFontThemeID
-        let clock = ClockDataProvider.currentSnapshot()
-        let battery = BatteryStatusProvider.currentSnapshot()
-        let storage = StorageProvider.currentSnapshot()
-        async let calendar = EventKitProvider.currentSnapshot()
-        async let today = WeatherProvider.shared.todaySnapshot()
-        async let portal = WeatherProvider.shared.portalSnapshot()
-        async let weather = WeatherProvider.shared.weatherSnapshot()
-        async let daylight = WeatherProvider.shared.daylightSnapshot()
-        async let heartRate = HealthSummaryProvider.shared.latestHeartRate()
-        async let health = HealthSummaryProvider.shared.todaySnapshot()
-        async let activity = HealthSummaryProvider.shared.activitySnapshots()
+        let categories = savedWidgetCategories()
 
-        SharedModelContainer.write(
-            clock: clock,
-            calendar: await calendar
-        )
-        SharedModelContainer.write(battery: battery)
-        SharedModelContainer.write(storage: storage)
+        SharedModelContainer.write(clock: ClockDataProvider.currentSnapshot())
+        SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
+        SharedModelContainer.write(storage: StorageProvider.currentSnapshot())
         SharedModelContainer.write(appFontThemeID: appFontThemeID)
 
-        let (
-            todaySnapshot,
-            portalSnapshot,
-            weatherSnapshot,
-            daylightSnapshot,
-            heartRateSnapshot,
-            healthSnapshot,
-            activitySnapshots
-        ) = await (
-            today,
-            portal,
-            weather,
-            daylight,
-            heartRate,
-            health,
-            activity
-        )
+        if categories.contains(.eventKit) {
+            let calendar = await EventKitProvider.currentSnapshot()
+            SharedModelContainer.write(calendar: calendar)
+        }
 
-        SharedModelContainer.write(today: todaySnapshot)
-        SharedModelContainer.write(portal: portalSnapshot)
-        SharedModelContainer.write(weather: weatherSnapshot)
-        SharedModelContainer.write(daylight: daylightSnapshot)
-        SharedModelContainer.write(heartRate: heartRateSnapshot)
-        SharedModelContainer.write(health: healthSnapshot)
-        SharedModelContainer.write(activity: activitySnapshots)
+        if categories.contains(.weatherKit) || categories.contains(.portal) {
+            async let today = WeatherProvider.shared.todaySnapshot()
+            async let portal = WeatherProvider.shared.portalSnapshot()
+            async let weather = WeatherProvider.shared.weatherSnapshot()
+            async let daylight = WeatherProvider.shared.daylightSnapshot()
+
+            let (
+                todaySnapshot,
+                portalSnapshot,
+                weatherSnapshot,
+                daylightSnapshot
+            ) = await (
+                today,
+                portal,
+                weather,
+                daylight
+            )
+
+            SharedModelContainer.write(today: todaySnapshot)
+            SharedModelContainer.write(portal: portalSnapshot)
+            SharedModelContainer.write(weather: weatherSnapshot)
+            SharedModelContainer.write(daylight: daylightSnapshot)
+        }
+
+        if categories.contains(.healthKit) {
+            async let heartRate = HealthSummaryProvider.shared.latestHeartRate()
+            async let health = HealthSummaryProvider.shared.todaySnapshot()
+            async let activity = HealthSummaryProvider.shared.activitySnapshots()
+
+            let (
+                heartRateSnapshot,
+                healthSnapshot,
+                activitySnapshots
+            ) = await (
+                heartRate,
+                health,
+                activity
+            )
+
+            SharedModelContainer.write(heartRate: heartRateSnapshot)
+            SharedModelContainer.write(health: healthSnapshot)
+            SharedModelContainer.write(activity: activitySnapshots)
+        }
 
         WidgetTimelineReloadScheduler.reloadNow()
     }
@@ -264,7 +293,7 @@ struct ContentView: View {
     }
 
     private func runClockRefreshLoop() async {
-        while !Task.isCancelled {
+        while !Task.isCancelled, !SharedModelContainer.readWidgetPresets().isEmpty {
             SharedModelContainer.write(clock: ClockDataProvider.currentSnapshot())
             do {
                 try await Task.sleep(for: Self.clockRefreshInterval)
@@ -275,7 +304,7 @@ struct ContentView: View {
     }
 
     private func runSlowDataRefreshLoop() async {
-        while !Task.isCancelled {
+        while !Task.isCancelled, !SharedModelContainer.readWidgetPresets().isEmpty {
             SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
             SharedModelContainer.write(storage: StorageProvider.currentSnapshot())
             WidgetTimelineReloadScheduler.schedule()
@@ -287,11 +316,20 @@ struct ContentView: View {
         }
     }
 
+
     private func refreshHealthWidgetData() async {
         let health = await HealthSummaryProvider.shared.todaySnapshot()
         let activity = await HealthSummaryProvider.shared.activitySnapshots()
         SharedModelContainer.write(health: health)
         SharedModelContainer.write(activity: activity)
+    }
+
+    private func savedWidgetCategories() -> Set<WidgetCategory> {
+        let catalog = WidgetCatalog.items
+        let needed = widgetPresets
+            .compactMap { preset in catalog.first { $0.id == preset.widgetID }?.categories }
+            .flatMap { $0 }
+        return Set(needed)
     }
 
     private func reloadWidgetPresets() {

@@ -151,7 +151,12 @@ final class LocationProvider: NSObject, LocationProviding {
 extension LocationProvider: CLLocationManagerDelegate {
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         Task { @MainActor in
-            authorizationContinuation?.resume(returning: manager.authorizationStatus)
+            let status = manager.authorizationStatus
+            guard status != .notDetermined else {
+                // The dialog was just presented; wait for the user's actual response.
+                return
+            }
+            authorizationContinuation?.resume(returning: status)
             authorizationContinuation = nil
         }
     }

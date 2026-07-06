@@ -144,13 +144,7 @@ struct WidgetPreview: View {
 
     @ViewBuilder
     var body: some View {
-        if isThumbnail {
-            widgetContent(date: Date())
-        } else {
-            TimelineView(.everyMinute) { timeline in
-                widgetContent(date: timeline.date)
-            }
-        }
+        widgetContent(date: Date())
     }
 
     @ViewBuilder
