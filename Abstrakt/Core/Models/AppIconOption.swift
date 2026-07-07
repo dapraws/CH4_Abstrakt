@@ -47,3 +47,11 @@ extension AppIconOption {
         return all.first { $0.alternateIconName == alternateIconName } ?? primary
     }
 }
+
+// MARK: - Localization
+
+extension AppIconOption {
+    var localizedName: String {
+        L("app_icon.\(id)")
+    }
+}

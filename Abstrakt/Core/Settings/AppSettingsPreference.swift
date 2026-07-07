@@ -136,3 +136,38 @@ enum AppSettingsPreference {
     static let distanceUnitKey = "settings.distanceUnit"
     static let appLanguageKey = "settings.appLanguage"
 }
+
+// MARK: - Localized Names
+
+extension TemperatureUnitPreference {
+    var localizedName: String {
+        switch self {
+        case .celsius:
+            L("preference.temperature.celsius")
+        case .fahrenheit:
+            L("preference.temperature.fahrenheit")
+        }
+    }
+}
+
+extension TemperatureDisplayPreference {
+    var localizedName: String {
+        switch self {
+        case .actual:
+            L("preference.temperature_display.actual")
+        case .feelsLike:
+            L("preference.temperature_display.feels_like")
+        }
+    }
+}
+
+extension DistanceUnitPreference {
+    var localizedName: String {
+        switch self {
+        case .kilometers:
+            L("preference.distance.kilometers")
+        case .miles:
+            L("preference.distance.miles")
+        }
+    }
+}
