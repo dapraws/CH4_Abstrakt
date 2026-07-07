@@ -10,14 +10,21 @@ struct SettingsScreen: View {
 
     // MARK: - State
 
-    @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
-    @AppStorage(AppSettingsPreference.temperatureUnitKey, store: settingsStore) private var temperatureUnitID = TemperatureUnitPreference.celsius.id
-    @AppStorage(AppSettingsPreference.temperatureDisplayKey, store: settingsStore) private var temperatureDisplayID = TemperatureDisplayPreference.actual.id
-    @AppStorage(AppSettingsPreference.distanceUnitKey, store: settingsStore) private var distanceUnitID = DistanceUnitPreference.kilometers.id
+    @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID =
+        AppFonts.defaultTheme.id
+    @AppStorage(AppSettingsPreference.temperatureUnitKey, store: settingsStore)
+    private var temperatureUnitID = TemperatureUnitPreference.celsius.id
+    @AppStorage(
+        AppSettingsPreference.temperatureDisplayKey,
+        store: settingsStore
+    ) private var temperatureDisplayID = TemperatureDisplayPreference.actual.id
+    @AppStorage(AppSettingsPreference.distanceUnitKey, store: settingsStore)
+    private var distanceUnitID = DistanceUnitPreference.kilometers.id
     @Environment(\.scenePhase) private var scenePhase
     @State private var permissionSnapshot = PermissionAccessSnapshot.loading
     @State private var showsFontPicker = false
     @State private var showsShareSheet = false
+    @Environment(LocalizationManager.self) private var localization
     @State private var currentAppIcon = AppIconOption.from(
         alternateIconName: UIApplication.shared.alternateIconName
     )
@@ -45,9 +52,15 @@ struct SettingsScreen: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            ScrollFadeView(showsIndicators: false, headerHeight: 36, contentTopPadding: 8, contentBottomPadding: 78, coordinateSpaceName: "settingsScroll") { fadeProgress in
+            ScrollFadeView(
+                showsIndicators: false,
+                headerHeight: 36,
+                contentTopPadding: 8,
+                contentBottomPadding: 78,
+                coordinateSpaceName: "settingsScroll"
+            ) { fadeProgress in
                 FadingNavigationBar(fadeProgress: fadeProgress) {
-                    Text("Settings")
+                    Text(L("settings.title"))
                         .font(AppFonts.font(.heading2))
                         .foregroundStyle(AppColors.primaryText)
                         .frame(maxWidth: .infinity)
@@ -55,6 +68,7 @@ struct SettingsScreen: View {
             } content: {
                 VStack(spacing: 20) {
                     headerActions
+                    generalSection
                     displayAppearanceSection
                     temperatureSection
                     measurementsSection
@@ -71,8 +85,15 @@ struct SettingsScreen: View {
                     AppIconPickerScreen {
                         path.removeLast()
                     }
+                case .changeLanguage:
+                    LanguagePickerScreen {
+                        path.removeLast()
+                    }
                 default:
-                    SettingsDetailScreen(route: route, permissionSnapshot: $permissionSnapshot) {
+                    SettingsDetailScreen(
+                        route: route,
+                        permissionSnapshot: $permissionSnapshot
+                    ) {
                         path.removeLast()
                     }
                 }
@@ -110,13 +131,32 @@ struct SettingsScreen: View {
 
     // MARK: - Sections
 
+    private var generalSection: some View {
+        SettingsSection(
+            title: L("settings.section.general"),
+            fontTheme: selectedTheme
+        ) {
+            settingsNavigationRow(
+                icon: "globe",
+                iconColor: .white,
+                iconBackground: Color(red: 0.31, green: 0.56, blue: 1),
+                title: L("settings.row.language"),
+                value: localization.currentLanguage.displayName,
+                route: .changeLanguage
+            )
+        }
+    }
+
     private var displayAppearanceSection: some View {
-        SettingsSection(title: "Display & Appearance", fontTheme: selectedTheme) {
+        SettingsSection(
+            title: L("settings.section.display_appearance"),
+            fontTheme: selectedTheme
+        ) {
             settingsButtonRow(
                 icon: "textformat",
                 iconColor: .white,
                 iconBackground: AppColors.accentBlue,
-                title: "App Font",
+                title: L("settings.row.app_font"),
                 value: selectedTheme.displayName
             ) {
                 showsFontPicker = true
@@ -126,21 +166,24 @@ struct SettingsScreen: View {
                 icon: "app.badge",
                 iconColor: .white,
                 iconBackground: Color(red: 0.08, green: 0.82, blue: 0.56),
-                title: "Change Icon",
-                value: currentAppIcon.displayName,
+                title: L("settings.row.change_icon"),
+                value: currentAppIcon.localizedName,
                 route: .changeIcon
             )
         }
     }
 
     private var temperatureSection: some View {
-        SettingsSection(title: "Temperature", fontTheme: selectedTheme) {
+        SettingsSection(
+            title: L("settings.section.temperature"),
+            fontTheme: selectedTheme
+        ) {
             settingsMenuRow(
                 icon: "sun.max.fill",
                 iconColor: .white,
                 iconBackground: Color(red: 1, green: 0.55, blue: 0.36),
-                title: "Temperature Unit",
-                value: temperatureUnit.displayName
+                title: L("settings.row.temperature_unit"),
+                value: temperatureUnit.localizedName
             ) {
                 temperatureUnitButton(.celsius)
                 temperatureUnitButton(.fahrenheit)
@@ -150,8 +193,8 @@ struct SettingsScreen: View {
                 icon: "thermometer.medium",
                 iconColor: .white,
                 iconBackground: Color(red: 0.31, green: 0.56, blue: 1),
-                title: "Temperature Display",
-                value: temperatureDisplay.displayName
+                title: L("settings.row.temperature_display"),
+                value: temperatureDisplay.localizedName
             ) {
                 temperatureDisplayButton(.actual)
                 temperatureDisplayButton(.feelsLike)
@@ -160,13 +203,16 @@ struct SettingsScreen: View {
     }
 
     private var measurementsSection: some View {
-        SettingsSection(title: "Measurements", fontTheme: selectedTheme) {
+        SettingsSection(
+            title: L("settings.section.measurements"),
+            fontTheme: selectedTheme
+        ) {
             settingsMenuRow(
                 icon: "figure.walk",
                 iconColor: .white,
                 iconBackground: Color(red: 0.45, green: 0.36, blue: 1),
-                title: "Distance Unit",
-                value: distanceUnit.displayName
+                title: L("settings.row.distance_unit"),
+                value: distanceUnit.localizedName
             ) {
                 distanceUnitButton(.kilometers)
                 distanceUnitButton(.miles)
@@ -175,34 +221,41 @@ struct SettingsScreen: View {
     }
 
     private var widgetsSection: some View {
-        SettingsSection(title: "Widgets & Dynamic Island", fontTheme: selectedTheme) {
+        SettingsSection(
+            title: L("settings.section.widgets"),
+            fontTheme: selectedTheme
+        ) {
             settingsNavigationRow(
                 icon: "heart.fill",
                 iconColor: .white,
                 iconBackground: Color(red: 1, green: 0.42, blue: 0.39),
-                title: "Access & Permissions",
+                title: L("settings.row.permissions"),
                 value: permissionSnapshot.summaryValue,
                 route: .permissions,
-                valueStyle: permissionSnapshot.needsAttention ? .warning : .plain
+                valueStyle: permissionSnapshot.needsAttention
+                    ? .warning : .plain
             )
 
             settingsNavigationRow(
                 icon: "questionmark",
                 iconColor: .black,
                 iconBackground: Color(red: 1, green: 0.78, blue: 0.31),
-                title: "Help & FAQ",
+                title: L("settings.row.faq"),
                 route: .faq
             )
         }
     }
 
     private var othersSection: some View {
-        SettingsSection(title: "Others", fontTheme: selectedTheme) {
+        SettingsSection(
+            title: L("settings.section.others"),
+            fontTheme: selectedTheme
+        ) {
             settingsNavigationRow(
                 icon: "arrow.up",
                 iconColor: .white,
                 iconBackground: Color(red: 0.31, green: 0.56, blue: 1),
-                title: "What's New",
+                title: L("settings.row.whats_new"),
                 route: .whatsNew
             )
         }
@@ -214,9 +267,10 @@ struct SettingsScreen: View {
                 .font(AppFonts.font(.heading2))
                 .foregroundStyle(AppColors.accentPink)
 
-            Text("Made by SSJ (1.23.0) Build 01")
-                .font(AppFonts.font(.caption))
-                .foregroundStyle(AppColors.tertiaryText)
+            Text(L("settings.footer.made_by", "1.23.0", "01")).font(
+                AppFonts.font(.caption)
+            )
+            .foregroundStyle(AppColors.tertiaryText)
         }
         .padding(.top, 6)
         .padding(.bottom, 24)
@@ -226,15 +280,27 @@ struct SettingsScreen: View {
 
     private var headerActions: some View {
         HStack(spacing: 0) {
-            footerAction(icon: "arrowshape.turn.up.right.fill", title: "Share App", color: Color(red: 0.08, green: 0.79, blue: 0.55)) {
+            footerAction(
+                icon: "arrowshape.turn.up.right.fill",
+                title: L("settings.header.share_app"),
+                color: Color(red: 0.08, green: 0.79, blue: 0.55)
+            ) {
                 showsShareSheet = true
             }
             footerDivider
-            footerAction(icon: "star.fill", title: "Rate Us", color: Color(red: 1, green: 0.75, blue: 0.28)) {
+            footerAction(
+                icon: "star.fill",
+                title: L("settings.header.rate_us"),
+                color: Color(red: 1, green: 0.75, blue: 0.28)
+            ) {
                 rateApp()
             }
             footerDivider
-            footerAction(icon: "at", title: "Feedback", color: Color(red: 0.43, green: 0.46, blue: 1)) {
+            footerAction(
+                icon: "at",
+                title: L("settings.header.feedback"),
+                color: Color(red: 0.43, green: 0.46, blue: 1)
+            ) {
                 sendFeedback()
             }
         }
@@ -249,7 +315,12 @@ struct SettingsScreen: View {
             .frame(width: 1, height: 48)
     }
 
-    private func footerAction(icon: String, title: String, color: Color, action: @escaping () -> Void) -> some View {
+    private func footerAction(
+        icon: String,
+        title: String,
+        color: Color,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             VStack(spacing: 8) {
                 Image(systemName: icon)
@@ -351,29 +422,46 @@ struct SettingsScreen: View {
     // MARK: - Menu Actions
 
     @ViewBuilder
-    private func temperatureUnitButton(_ unit: TemperatureUnitPreference) -> some View {
+    private func temperatureUnitButton(_ unit: TemperatureUnitPreference)
+        -> some View
+    {
         Button {
             setTemperatureUnit(unit)
         } label: {
-            Label(unit.displayName, systemImage: temperatureUnit == unit ? "checkmark.circle.fill" : "circle")
+            Label(
+                unit.localizedName,
+                systemImage: temperatureUnit == unit
+                    ? "checkmark.circle.fill" : "circle"
+            )
         }
     }
 
     @ViewBuilder
-    private func temperatureDisplayButton(_ display: TemperatureDisplayPreference) -> some View {
+    private func temperatureDisplayButton(
+        _ display: TemperatureDisplayPreference
+    ) -> some View {
         Button {
             setTemperatureDisplay(display)
         } label: {
-            Label(display.displayName, systemImage: temperatureDisplay == display ? "checkmark.circle.fill" : "circle")
+            Label(
+                display.displayName,
+                systemImage: temperatureDisplay == display
+                    ? "checkmark.circle.fill" : "circle"
+            )
         }
     }
 
     @ViewBuilder
-    private func distanceUnitButton(_ unit: DistanceUnitPreference) -> some View {
+    private func distanceUnitButton(_ unit: DistanceUnitPreference) -> some View
+    {
         Button {
             setDistanceUnit(unit)
         } label: {
-            Label(unit.displayName, systemImage: distanceUnit == unit ? "checkmark.circle.fill" : "circle")
+            Label(
+                unit.localizedName,
+                systemImage: distanceUnit == unit
+                    ? "checkmark.circle.fill" : "circle"
+            )
         }
     }
 
@@ -384,7 +472,8 @@ struct SettingsScreen: View {
         reloadWidgetTimelines()
     }
 
-    private func setTemperatureDisplay(_ display: TemperatureDisplayPreference) {
+    private func setTemperatureDisplay(_ display: TemperatureDisplayPreference)
+    {
         withAnimation(.smooth(duration: 0.18)) {
             temperatureDisplayID = display.id
         }
@@ -434,6 +523,7 @@ struct SettingsScreen: View {
 
 private enum SettingsRoute: Hashable {
     case changeIcon
+    case changeLanguage
     case permissions
     case faq
     case whatsNew
@@ -469,9 +559,15 @@ private struct PermissionAccessSnapshot {
     static func current() async -> PermissionAccessSnapshot {
         PermissionAccessSnapshot(
             items: [
-                PermissionAccessItem.health(state: HealthSummaryProvider.shared.authorizationState()),
-                PermissionAccessItem.location(status: CLLocationManager().authorizationStatus),
-                PermissionAccessItem.calendar(state: EventKitProvider.authorizationState()),
+                PermissionAccessItem.health(
+                    state: HealthSummaryProvider.shared.authorizationState()
+                ),
+                PermissionAccessItem.location(
+                    status: CLLocationManager().authorizationStatus
+                ),
+                PermissionAccessItem.calendar(
+                    state: EventKitProvider.authorizationState()
+                ),
                 PermissionAccessItem.systemData,
             ]
         )
@@ -500,7 +596,8 @@ private struct PermissionAccessItem: Identifiable {
                 gradientColors: [.pink, .red],
                 title: "Health",
                 status: .ready("Requested"),
-                detail: "Used for steps, walking distance, exercise minutes, active energy, and sleep totals. iOS keeps exact Health read grants private after the request.",
+                detail:
+                    "Used for steps, walking distance, exercise minutes, active energy, and sleep totals. iOS keeps exact Health read grants private after the request.",
                 action: nil
             )
         case .notDetermined:
@@ -510,7 +607,8 @@ private struct PermissionAccessItem: Identifiable {
                 gradientColors: [.pink, .red],
                 title: "Health",
                 status: .needsRequest("Needs Access"),
-                detail: "Allow Health access so widgets can use your real activity, distance, energy, and sleep data.",
+                detail:
+                    "Allow Health access so widgets can use your real activity, distance, energy, and sleep data.",
                 action: .requestHealth
             )
         case .unavailable:
@@ -520,20 +618,23 @@ private struct PermissionAccessItem: Identifiable {
                 gradientColors: [.gray, .secondary],
                 title: "Health",
                 status: .unavailable("Unavailable"),
-                detail: "Health data is not available on this device, so health widgets will render empty values.",
+                detail:
+                    "Health data is not available on this device, so health widgets will render empty values.",
                 action: nil
             )
         }
     }
 
-    static func location(status: CLAuthorizationStatus) -> PermissionAccessItem {
+    static func location(status: CLAuthorizationStatus) -> PermissionAccessItem
+    {
         let base = PermissionAccessItem(
             id: "location",
             icon: "location.fill",
             gradientColors: [.blue, .green.opacity(0.75)],
             title: "Location & Weather",
             status: .ready("Allowed"),
-            detail: "Used to fetch local WeatherKit conditions, city names, temperatures, forecasts, and sun-event widgets.",
+            detail:
+                "Used to fetch local WeatherKit conditions, city names, temperatures, forecasts, and sun-event widgets.",
             action: nil
         )
 
@@ -541,24 +642,46 @@ private struct PermissionAccessItem: Identifiable {
         case .authorizedAlways, .authorizedWhenInUse:
             return base
         case .notDetermined:
-            return base.replacing(status: .needsRequest("Needs Access"), detail: "Allow location access so weather widgets can use your current place.", action: .requestLocation)
+            return base.replacing(
+                status: .needsRequest("Needs Access"),
+                detail:
+                    "Allow location access so weather widgets can use your current place.",
+                action: .requestLocation
+            )
         case .denied:
-            return base.replacing(status: .blocked("Denied"), detail: "Location access is denied. Weather widgets will use cached or placeholder data until access is enabled.", action: .openSettings)
+            return base.replacing(
+                status: .blocked("Denied"),
+                detail:
+                    "Location access is denied. Weather widgets will use cached or placeholder data until access is enabled.",
+                action: .openSettings
+            )
         case .restricted:
-            return base.replacing(status: .blocked("Restricted"), detail: "Location access is restricted on this device. Weather widgets will use cached or placeholder data.", action: .openSettings)
+            return base.replacing(
+                status: .blocked("Restricted"),
+                detail:
+                    "Location access is restricted on this device. Weather widgets will use cached or placeholder data.",
+                action: .openSettings
+            )
         @unknown default:
-            return base.replacing(status: .blocked("Unknown"), detail: "Location access is in an unknown state. Open Settings to review it.", action: .openSettings)
+            return base.replacing(
+                status: .blocked("Unknown"),
+                detail:
+                    "Location access is in an unknown state. Open Settings to review it.",
+                action: .openSettings
+            )
         }
     }
 
-    static func calendar(state: CalendarPermissionState) -> PermissionAccessItem {
+    static func calendar(state: CalendarPermissionState) -> PermissionAccessItem
+    {
         let base = PermissionAccessItem(
             id: "calendar",
             icon: "calendar",
             gradientColors: [.white, .red.opacity(0.78)],
             title: "Calendar",
             status: .ready("Allowed"),
-            detail: "Used to show current and upcoming calendar events in the Events widget.",
+            detail:
+                "Used to show current and upcoming calendar events in the Events widget.",
             action: nil
         )
 
@@ -566,27 +689,55 @@ private struct PermissionAccessItem: Identifiable {
         case .authorized:
             return base
         case .notDetermined:
-            return base.replacing(status: .needsRequest("Needs Access"), detail: "Allow calendar access so the widget can show your next event and now-running events.", action: .requestCalendar)
+            return base.replacing(
+                status: .needsRequest("Needs Access"),
+                detail:
+                    "Allow calendar access so the widget can show your next event and now-running events.",
+                action: .requestCalendar
+            )
         case .denied:
-            return base.replacing(status: .blocked("Denied"), detail: "Calendar access is denied. Calendar widgets will show a permission state until access is enabled.", action: .openSettings)
+            return base.replacing(
+                status: .blocked("Denied"),
+                detail:
+                    "Calendar access is denied. Calendar widgets will show a permission state until access is enabled.",
+                action: .openSettings
+            )
         case .restricted:
-            return base.replacing(status: .blocked("Restricted"), detail: "Calendar access is restricted on this device. Calendar widgets will show a permission state.", action: .openSettings)
+            return base.replacing(
+                status: .blocked("Restricted"),
+                detail:
+                    "Calendar access is restricted on this device. Calendar widgets will show a permission state.",
+                action: .openSettings
+            )
         case .limited:
-            return base.replacing(status: .blocked("Limited"), detail: "Calendar access is limited. Full calendar access is needed to show event widgets reliably.", action: .openSettings)
+            return base.replacing(
+                status: .blocked("Limited"),
+                detail:
+                    "Calendar access is limited. Full calendar access is needed to show event widgets reliably.",
+                action: .openSettings
+            )
         }
     }
 
     static let systemData = PermissionAccessItem(
         id: "system",
         icon: "internaldrive.fill",
-        gradientColors: [Color(red: 0.31, green: 0.56, blue: 1), Color(red: 0.08, green: 0.79, blue: 0.55)],
+        gradientColors: [
+            Color(red: 0.31, green: 0.56, blue: 1),
+            Color(red: 0.08, green: 0.79, blue: 0.55),
+        ],
         title: "Battery & Storage",
         status: .ready("No Permission Needed"),
-        detail: "Battery level and aggregate storage capacity come from system APIs that do not require a user permission prompt.",
+        detail:
+            "Battery level and aggregate storage capacity come from system APIs that do not require a user permission prompt.",
         action: nil
     )
 
-    private func replacing(status: PermissionAccessStatus, detail: String, action: PermissionAccessAction?) -> PermissionAccessItem {
+    private func replacing(
+        status: PermissionAccessStatus,
+        detail: String,
+        action: PermissionAccessAction?
+    ) -> PermissionAccessItem {
         PermissionAccessItem(
             id: id,
             icon: icon,
@@ -607,7 +758,8 @@ private enum PermissionAccessStatus {
 
     var title: String {
         switch self {
-        case .ready(let title), .needsRequest(let title), .blocked(let title), .unavailable(let title):
+        case .ready(let title), .needsRequest(let title), .blocked(let title),
+            .unavailable(let title):
             title
         }
     }
@@ -690,7 +842,9 @@ private struct SettingsRowContent: View {
                 .foregroundStyle(iconColor)
                 .frame(width: 34, height: 34)
                 .background(iconBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .clipShape(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                )
 
             Text(title)
                 .font(AppFonts.font(.subHeading, theme: fontTheme))
@@ -748,7 +902,12 @@ private struct SettingsDetailScreen: View {
     let onBack: () -> Void
 
     var body: some View {
-        ScrollFadeView(showsIndicators: false, headerHeight: 36, contentTopPadding: 12, coordinateSpaceName: "settingsDetailScroll") { fadeProgress in
+        ScrollFadeView(
+            showsIndicators: false,
+            headerHeight: 36,
+            contentTopPadding: 12,
+            coordinateSpaceName: "settingsDetailScroll"
+        ) { fadeProgress in
             FadingNavigationBar(fadeProgress: fadeProgress) {
                 header
             }
@@ -802,9 +961,14 @@ private struct SettingsDetailScreen: View {
                 title: "Help & FAQ",
                 status: "Ready",
                 statusColor: AppColors.accentGreen,
-                detail: "Answers for widgets, permissions, refresh timing, and customization will live here."
+                detail:
+                    "Answers for widgets, permissions, refresh timing, and customization will live here."
             )
         case .changeIcon:
+            // Handled by AppIconPickerScreen via navigationDestination; never
+            // rendered here. Kept for switch exhaustiveness.
+            EmptyView()
+        case .changeLanguage:
             // Handled by AppIconPickerScreen via navigationDestination; never
             // rendered here. Kept for switch exhaustiveness.
             EmptyView()
@@ -815,7 +979,8 @@ private struct SettingsDetailScreen: View {
                 title: "What's New",
                 status: "Build 19",
                 statusColor: AppColors.accentBlue,
-                detail: "Custom fonts, widget previews, library sheets, and shared unit preferences are now part of the app foundation."
+                detail:
+                    "Custom fonts, widget previews, library sheets, and shared unit preferences are now part of the app foundation."
             )
         }
     }
@@ -832,6 +997,8 @@ private struct SettingsDetailScreen: View {
         switch route {
         case .changeIcon:
             "Change Icon"
+        case .changeLanguage:
+            "Change Language"
         case .permissions:
             "Access & Permissions"
         case .faq:
@@ -841,12 +1008,45 @@ private struct SettingsDetailScreen: View {
         }
     }
 
-    private func detailCard(icon: String, iconBackground: Color, title: String, status: String, statusColor: Color, detail: String) -> some View {
-        detailCard(icon: icon, iconBackground: LinearGradient(colors: [iconBackground, iconBackground], startPoint: .top, endPoint: .bottom), title: title, status: status, statusColor: statusColor, detail: detail)
+    private func detailCard(
+        icon: String,
+        iconBackground: Color,
+        title: String,
+        status: String,
+        statusColor: Color,
+        detail: String
+    ) -> some View {
+        detailCard(
+            icon: icon,
+            iconBackground: LinearGradient(
+                colors: [iconBackground, iconBackground],
+                startPoint: .top,
+                endPoint: .bottom
+            ),
+            title: title,
+            status: status,
+            statusColor: statusColor,
+            detail: detail
+        )
     }
 
-    private func detailCard(icon: String, iconBackground: LinearGradient, title: String, status: String, statusColor: Color, detail: String) -> some View {
-        permissionCard(icon: icon, iconBackground: iconBackground, title: title, status: status, statusColor: statusColor, detail: detail, actionTitle: nil)
+    private func detailCard(
+        icon: String,
+        iconBackground: LinearGradient,
+        title: String,
+        status: String,
+        statusColor: Color,
+        detail: String
+    ) -> some View {
+        permissionCard(
+            icon: icon,
+            iconBackground: iconBackground,
+            title: title,
+            status: status,
+            statusColor: statusColor,
+            detail: detail,
+            actionTitle: nil
+        )
     }
 
     private func permissionCard(
@@ -866,7 +1066,9 @@ private struct SettingsDetailScreen: View {
                     .foregroundStyle(.white)
                     .frame(width: 46, height: 46)
                     .background(iconBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+                    .clipShape(
+                        RoundedRectangle(cornerRadius: 13, style: .continuous)
+                    )
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
@@ -905,7 +1107,11 @@ private struct SettingsDetailScreen: View {
     private func permissionCard(_ item: PermissionAccessItem) -> some View {
         permissionCard(
             icon: item.icon,
-            iconBackground: LinearGradient(colors: item.gradientColors, startPoint: .topLeading, endPoint: .bottomTrailing),
+            iconBackground: LinearGradient(
+                colors: item.gradientColors,
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
             title: item.title,
             status: item.status.title,
             statusColor: item.status.color,
@@ -920,7 +1126,8 @@ private struct SettingsDetailScreen: View {
     }
 
     @MainActor
-    private func performPermissionAction(_ action: PermissionAccessAction) async {
+    private func performPermissionAction(_ action: PermissionAccessAction) async
+    {
         switch action {
         case .requestHealth:
             await HealthSummaryProvider.shared.requestAuthorization()
@@ -941,7 +1148,9 @@ private struct SettingsDetailScreen: View {
     }
 
     private func openAppSettings() {
-        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        guard let url = URL(string: UIApplication.openSettingsURLString) else {
+            return
+        }
         UIApplication.shared.open(url)
     }
 }
