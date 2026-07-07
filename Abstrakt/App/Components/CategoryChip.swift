@@ -9,16 +9,22 @@ struct CategoryChip: View {
             Image(systemName: category.systemImage)
                 .font(AppFonts.font(.iconBadge))
 
-            Text(category.title)
+            Text(category.localizedTitle)
                 .font(AppFonts.font(.chip))
         }
-        .foregroundStyle(isSelected ? AppColors.chipTextSelected : AppColors.chipText)
+        .foregroundStyle(
+            isSelected ? AppColors.chipTextSelected : AppColors.chipText
+        )
         .padding(.horizontal, 16)
         .frame(height: 32)
         .background(isSelected ? AppColors.chipSelected : AppColors.chip)
         .overlay {
             RoundedRectangle(cornerRadius: 15, style: .continuous)
-                .stroke(isSelected ? AppColors.chipBorderSelected : AppColors.chipBorder, lineWidth: 0.5)
+                .stroke(
+                    isSelected
+                        ? AppColors.chipBorderSelected : AppColors.chipBorder,
+                    lineWidth: 0.5
+                )
         }
         .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
     }

@@ -44,15 +44,17 @@ struct LibraryScreen: View {
             TabView(selection: $selectedSize) {
                 ForEach(WidgetSize.allCases) { size in
                     #if targetEnvironment(simulator)
-                    let renderAction: (WidgetPreset) -> Void = { preset in
-                        setActiveSimulatorPreset(preset)
-                    }
-                    let activeCheck: (WidgetPreset) -> Bool = { preset in
-                        SharedModelContainer.simulatorActivePresetID(for: size) == preset.id
-                    }
+                        let renderAction: (WidgetPreset) -> Void = { preset in
+                            setActiveSimulatorPreset(preset)
+                        }
+                        let activeCheck: (WidgetPreset) -> Bool = { preset in
+                            SharedModelContainer.simulatorActivePresetID(
+                                for: size
+                            ) == preset.id
+                        }
                     #else
-                    let renderAction: (WidgetPreset) -> Void = { _ in }
-                    let activeCheck: (WidgetPreset) -> Bool = { _ in false }
+                        let renderAction: (WidgetPreset) -> Void = { _ in }
+                        let activeCheck: (WidgetPreset) -> Bool = { _ in false }
                     #endif
 
                     LibrarySizePage(
@@ -104,13 +106,25 @@ struct LibraryScreen: View {
                 Button {
                     selectedSize = size
                 } label: {
-                    Text("\(size.title) (\(sizeCounts[size, default: 0]))")
-                        .font(AppFonts.font(.heading3))
-                        .foregroundStyle(selectedSize == size ? palette.chipTextSelected : palette.chipText)
+                    Text(
+                        "\(size.localizedName) (\(sizeCounts[size, default: 0]))"
+                    ).font(AppFonts.font(.heading3))
+                        .foregroundStyle(
+                            selectedSize == size
+                                ? palette.chipTextSelected : palette.chipText
+                        )
                         .frame(maxWidth: .infinity)
                         .frame(height: 52)
-                        .background(selectedSize == size ? palette.chipSelected : palette.chip)
-                        .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
+                        .background(
+                            selectedSize == size
+                                ? palette.chipSelected : palette.chip
+                        )
+                        .clipShape(
+                            RoundedRectangle(
+                                cornerRadius: 25,
+                                style: .continuous
+                            )
+                        )
                 }
                 .buttonStyle(.plain)
             }
@@ -139,10 +153,13 @@ struct LibraryScreen: View {
     }
 
     #if targetEnvironment(simulator)
-    private func setActiveSimulatorPreset(_ preset: WidgetPreset) {
-        SharedModelContainer.setSimulatorActivePreset(id: preset.id, size: preset.size)
-        WidgetTimelineReloadScheduler.reloadNow()
-    }
+        private func setActiveSimulatorPreset(_ preset: WidgetPreset) {
+            SharedModelContainer.setSimulatorActivePreset(
+                id: preset.id,
+                size: preset.size
+            )
+            WidgetTimelineReloadScheduler.reloadNow()
+        }
     #endif
 
 }
@@ -157,11 +174,15 @@ private struct LibraryPalette {
     }
 
     var background: Color {
-        isDark ? Color(red: 0.16, green: 0.16, blue: 0.18) : AppColors.appBackground
+        isDark
+            ? Color(red: 0.16, green: 0.16, blue: 0.18)
+            : AppColors.appBackground
     }
 
     var backgroundWash: Color {
-        isDark ? Color(red: 0.46, green: 0.26, blue: 0.46).opacity(0.28) : Color.white.opacity(0.46)
+        isDark
+            ? Color(red: 0.46, green: 0.26, blue: 0.46).opacity(0.28)
+            : Color.white.opacity(0.46)
     }
 
     var scrim: Color {
@@ -245,15 +266,17 @@ private struct LibraryEmptyState: View {
                 .frame(width: 64, height: 64)
 
             VStack(spacing: 6) {
-                Text("No \(size.title.lowercased()) widgets")
+                Text(L("library.empty.title", size.localizedName.lowercased()))
                     .font(AppFonts.font(.heading2))
                     .foregroundStyle(palette.primaryText)
 
-                Text("Saved \(size.title.lowercased()) widgets will appear here.")
-                    .font(AppFonts.font(.body))
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(palette.secondaryText)
-                    .lineLimit(2)
+                Text(
+                    L("library.empty.subtitle", size.localizedName.lowercased())
+                )
+                .font(AppFonts.font(.body))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(palette.secondaryText)
+                .lineLimit(2)
             }
         }
         .frame(maxWidth: .infinity)
@@ -312,10 +335,16 @@ private struct LibraryWidgetRow: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let contentWidth = proxy.size.width - (AppSpacing.screenHorizontal * 2)
+            let contentWidth =
+                proxy.size.width - (AppSpacing.screenHorizontal * 2)
             let textWidth = min(contentWidth * textWidthRatio, maximumTextWidth)
-            let previewColumnWidth = max(0, contentWidth - textWidth - contentGap)
-            let previewSize = size.previewSize(fittingWidth: previewColumnWidth / previewScale)
+            let previewColumnWidth = max(
+                0,
+                contentWidth - textWidth - contentGap
+            )
+            let previewSize = size.previewSize(
+                fittingWidth: previewColumnWidth / previewScale
+            )
             let scaledPreviewSize = CGSize(
                 width: previewSize.width * previewScale,
                 height: previewSize.height * previewScale
@@ -341,29 +370,51 @@ private struct LibraryWidgetRow: View {
                     }
                     .foregroundStyle(palette.secondaryText)
                 }
-                .frame(width: textWidth, height: rowHeight - textBottomPadding, alignment: .bottomLeading)
+                .frame(
+                    width: textWidth,
+                    height: rowHeight - textBottomPadding,
+                    alignment: .bottomLeading
+                )
                 .padding(.bottom, textBottomPadding)
 
                 ZStack(alignment: .topTrailing) {
                     #if targetEnvironment(simulator)
-                    if isActiveRenderTarget {
-                        simulatorActiveBadge
-                    }
+                        if isActiveRenderTarget {
+                            simulatorActiveBadge
+                        }
                     #endif
                     if let item {
                         WidgetPreview(
                             item: item,
                             fontThemeOverride: fontThemeOverride
                         )
-                            .frame(width: previewSize.width, height: previewSize.height)
-                            .environment(\.colorScheme, preset.appearanceMode.colorScheme ?? palette.colorScheme)
-                            .scaleEffect(previewScale, anchor: .topLeading)
-                            .frame(width: scaledPreviewSize.width, height: scaledPreviewSize.height, alignment: .topLeading)
-                            .rotationEffect(.degrees(rotationDegrees), anchor: .center)
-                            .offset(x: previewXOffset, y: previewYOffset)
+                        .frame(
+                            width: previewSize.width,
+                            height: previewSize.height
+                        )
+                        .environment(
+                            \.colorScheme,
+                            preset.appearanceMode.colorScheme
+                                ?? palette.colorScheme
+                        )
+                        .scaleEffect(previewScale, anchor: .topLeading)
+                        .frame(
+                            width: scaledPreviewSize.width,
+                            height: scaledPreviewSize.height,
+                            alignment: .topLeading
+                        )
+                        .rotationEffect(
+                            .degrees(rotationDegrees),
+                            anchor: .center
+                        )
+                        .offset(x: previewXOffset, y: previewYOffset)
                     }
                 }
-                .frame(width: previewColumnWidth, height: rowHeight, alignment: .topTrailing)
+                .frame(
+                    width: previewColumnWidth,
+                    height: rowHeight,
+                    alignment: .topTrailing
+                )
                 .clipped()
             }
             .padding(.horizontal, AppSpacing.screenHorizontal)
@@ -383,27 +434,30 @@ private struct LibraryWidgetRow: View {
                 .padding(.leading, AppSpacing.screenHorizontal)
         }
         #if targetEnvironment(simulator)
-        .contextMenu {
-            Button {
-                onRenderToHomeScreen(preset)
-            } label: {
-                Label("Render on Home Screen", systemImage: "wand.and.stars")
+            .contextMenu {
+                Button {
+                    onRenderToHomeScreen(preset)
+                } label: {
+                    Label(
+                        "Render on Home Screen",
+                        systemImage: "wand.and.stars"
+                    )
+                }
             }
-        }
         #endif
     }
 
     #if targetEnvironment(simulator)
-    private var simulatorActiveBadge: some View {
-        Image(systemName: "checkmark.circle.fill")
-            .font(AppFonts.font(.caption))
-            .foregroundStyle(.white)
-            .frame(width: 24, height: 24)
-            .background(Color.green)
-            .clipShape(Circle())
-            .padding(.top, 8)
-            .padding(.trailing, 8)
-    }
+        private var simulatorActiveBadge: some View {
+            Image(systemName: "checkmark.circle.fill")
+                .font(AppFonts.font(.caption))
+                .foregroundStyle(.white)
+                .frame(width: 24, height: 24)
+                .background(Color.green)
+                .clipShape(Circle())
+                .padding(.top, 8)
+                .padding(.trailing, 8)
+        }
     #endif
 
     // MARK: Layout Metrics
@@ -523,7 +577,9 @@ private struct LibraryWidgetRow: View {
     // MARK: Visual Variation
 
     private var rotationDegrees: Double {
-        let seed = preset.widgetID.unicodeScalars.reduce(0) { $0 + Int($1.value) }
+        let seed = preset.widgetID.unicodeScalars.reduce(0) {
+            $0 + Int($1.value)
+        }
         let angles = [-1.8, 1.2, -1.1, 1.6, -0.7]
         return angles[seed % angles.count]
     }

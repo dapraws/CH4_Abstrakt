@@ -2,7 +2,7 @@ import SwiftUI
 
 struct HomeScreen: View {
     var body: some View {
-        CenterTextScreen(title: "Home")
+        CenterTextScreen(title: L("home.title"))
     }
 }
 
