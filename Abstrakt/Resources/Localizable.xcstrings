@@ -1,0 +1,508 @@
+{
+  "sourceLanguage" : "en",
+  "version" : "1.0",
+  "strings" : {
+    "common.cancel" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Batal" } }
+      }
+    },
+    "common.done" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Selesai" } }
+      }
+    },
+    "common.save" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Simpan" } }
+      }
+    },
+    "common.remove" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Hapus" } }
+      }
+    },
+    "common.back" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Back" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Kembali" } }
+      }
+    },
+    "common.close" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Tutup" } }
+      }
+    },
+
+    "tab.home" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Home" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Beranda" } }
+      }
+    },
+    "tab.gallery" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Gallery" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Galeri" } }
+      }
+    },
+    "tab.library" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Library" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Koleksi" } }
+      }
+    },
+    "tab.settings" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Pengaturan" } }
+      }
+    },
+
+    "onboarding.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Welcome to Abstrakt" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Selamat datang di Abstrakt" } }
+      }
+    },
+    "onboarding.subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Build widgets you actually want on your Home Screen." } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Bikin widget yang beneran kamu mau di Layar Utama." } }
+      }
+    },
+    "onboarding.cta" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Get Started" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Mulai" } }
+      }
+    },
+
+    "gallery.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Gallery" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Galeri" } }
+      }
+    },
+    "gallery.empty.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No widgets in this category" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Belum ada widget di kategori ini" } }
+      }
+    },
+    "gallery.category.all" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Semua" } }
+      }
+    },
+
+    "library.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Library" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Koleksi" } }
+      }
+    },
+    "library.empty.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your library is empty" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Koleksi kamu masih kosong" } }
+      }
+    },
+    "library.empty.subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save a widget from the Gallery to see it here." } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Simpan widget dari Galeri untuk melihatnya di sini." } }
+      }
+    },
+
+    "settings.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Pengaturan" } }
+      }
+    },
+    "settings.section.general" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "General" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Umum" } }
+      }
+    },
+    "settings.section.display_appearance" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Display & Appearance" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Tampilan & Antarmuka" } }
+      }
+    },
+    "settings.section.temperature" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Temperature" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Suhu" } }
+      }
+    },
+    "settings.section.measurements" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Measurements" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Satuan Ukuran" } }
+      }
+    },
+    "settings.section.widgets" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Widgets & Dynamic Island" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Widget & Dynamic Island" } }
+      }
+    },
+    "settings.section.others" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Others" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Lainnya" } }
+      }
+    },
+
+    "settings.row.language" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Language" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Bahasa" } }
+      }
+    },
+    "settings.row.app_font" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Font" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Font Aplikasi" } }
+      }
+    },
+    "settings.row.change_icon" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Change Icon" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Ganti Ikon" } }
+      }
+    },
+    "settings.row.temperature_unit" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Temperature Unit" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Satuan Suhu" } }
+      }
+    },
+    "settings.row.temperature_display" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Temperature Display" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Tampilan Suhu" } }
+      }
+    },
+    "settings.row.distance_unit" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Distance Unit" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Satuan Jarak" } }
+      }
+    },
+    "settings.row.permissions" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Access & Permissions" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Akses & Izin" } }
+      }
+    },
+    "settings.row.faq" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Help & FAQ" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Bantuan & FAQ" } }
+      }
+    },
+    "settings.row.whats_new" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "What's New" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Yang Baru" } }
+      }
+    },
+
+    "settings.header.share_app" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Share App" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Bagikan Aplikasi" } }
+      }
+    },
+    "settings.header.rate_us" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rate Us" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Beri Nilai" } }
+      }
+    },
+    "settings.header.feedback" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Feedback" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Masukan" } }
+      }
+    },
+    "settings.footer.made_by" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Made by SSJ (%@) Build %@" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Dibuat oleh SSJ (%@) Build %@" } }
+      }
+    },
+
+    "preference.temperature.celsius" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Celsius" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Celsius" } }
+      }
+    },
+    "preference.temperature.fahrenheit" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fahrenheit" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Fahrenheit" } }
+      }
+    },
+    "preference.temperature_display.actual" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Actual" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Aktual" } }
+      }
+    },
+    "preference.temperature_display.feels_like" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Feels Like" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Terasa Seperti" } }
+      }
+    },
+    "preference.distance.kilometers" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Kilometers" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Kilometer" } }
+      }
+    },
+    "preference.distance.miles" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Miles" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Mil" } }
+      }
+    },
+
+    "appearance.system" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "System" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Sistem" } }
+      }
+    },
+    "appearance.light" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Light" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Terang" } }
+      }
+    },
+    "appearance.dark" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dark" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Gelap" } }
+      }
+    },
+
+    "widget_preview.section.appearance" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Appearance" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Antarmuka" } }
+      }
+    },
+    "widget_preview.section.font" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Font" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Font" } }
+      }
+    },
+    "widget_preview.section.application" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Application" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Aplikasi" } }
+      }
+    },
+    "widget_preview.section.data_range" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Data Range" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Rentang Data" } }
+      }
+    },
+    "widget_preview.section.event_priority" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Event Priority" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Prioritas Acara" } }
+      }
+    },
+    "widget_preview.save_to_library" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save to Library" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Simpan ke Koleksi" } }
+      }
+    },
+    "widget_preview.saved" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Saved" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Tersimpan" } }
+      }
+    },
+    "widget_preview.preparing" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preparing widget" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Menyiapkan widget" } }
+      }
+    },
+    "widget_preview.permission_note" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This widget requires additional permissions in Settings." } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Widget ini butuh izin tambahan di Pengaturan." } }
+      }
+    },
+
+    "font_picker.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose Font" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Pilih Font" } }
+      }
+    },
+    "apps_picker.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose Apps" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Pilih Aplikasi" } }
+      }
+    },
+    "share_sheet.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Share Abstrakt" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Bagikan Abstrakt" } }
+      }
+    },
+
+    "permissions.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Access & Permissions" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Akses & Izin" } }
+      }
+    },
+    "permissions.status.granted" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Granted" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Diizinkan" } }
+      }
+    },
+    "permissions.status.denied" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Denied" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Ditolak" } }
+      }
+    },
+    "permissions.status.not_determined" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not Set" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Belum Diatur" } }
+      }
+    },
+    "permissions.summary.all_granted" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All granted" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Semua diizinkan" } }
+      }
+    },
+    "permissions.summary.needs_attention" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Needs attention" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Perlu perhatian" } }
+      }
+    },
+    "permissions.summary.loading" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Checking…" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Memeriksa…" } }
+      }
+    },
+
+    "faq.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Help & FAQ" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Bantuan & FAQ" } }
+      }
+    },
+    "whats_new.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "What's New" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Yang Baru" } }
+      }
+    },
+
+    "app_icon_picker.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Icon" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Ikon Aplikasi" } }
+      }
+    },
+    "app_icon_picker.error.generic" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Couldn't change icon: %@" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Gagal mengganti ikon: %@" } }
+      }
+    },
+
+    "widget_category.all" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Semua" } }
+      }
+    },
+    "widget_category.portal" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Portal" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Portal" } }
+      }
+    },
+
+    "app_icon.default" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Bawaan" } }
+      }
+    },
+    "app_icon.glass" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Glass" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Kaca" } }
+      }
+    },
+    "app_icon.purple" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Purple" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Ungu" } }
+      }
+    },
+    "app_icon.blue" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Blue" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Biru" } }
+      }
+    },
+    "font_theme.preview.sf_pro" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Crisp system clarity" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Kejernihan sistem yang tajam" } }
+      }
+    },
+    "font_theme.preview.sf_pro_rounded" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Friendly native rhythm" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Ritme asli yang ramah" } }
+      }
+    },
+    "font_theme.preview.quicksand" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Soft rounded widgets" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Widget lembut membulat" } }
+      }
+    },
+    "font_theme.preview.fusion_pixel" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pixel-perfect energy" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Energi piksel yang sempurna" } }
+      }
+    }
+  }
+}
