@@ -58,6 +58,40 @@ enum TemperatureDisplayPreference: String, CaseIterable, Identifiable {
     }
 }
 
+enum AppLanguage: String, CaseIterable, Identifiable {
+    case system
+    case english
+    case indonesian
+
+    var id: String { rawValue }
+
+    var localeCode: String? {
+        switch self {
+        case .system:
+            nil
+        case .english:
+            "en"
+        case .indonesian:
+            "id"
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .system:
+            "System"
+        case .english:
+            "English"
+        case .indonesian:
+            "Bahasa Indonesia"
+        }
+    }
+
+    static func from(id: String) -> AppLanguage {
+        Self(rawValue: id) ?? .system
+    }
+}
+
 enum DistanceUnitPreference: String, CaseIterable, Identifiable {
     case kilometers
     case miles
@@ -100,4 +134,5 @@ enum AppSettingsPreference {
     static let temperatureUnitKey = "settings.temperatureUnit"
     static let temperatureDisplayKey = "settings.temperatureDisplay"
     static let distanceUnitKey = "settings.distanceUnit"
+    static let appLanguageKey = "settings.appLanguage"
 }
