@@ -36,13 +36,15 @@ enum AppShareContent {
 
     /// Rotating share taglines. One is picked at random per share so the
     /// message feels fresh instead of canned.
-    static let broadcastLines: [String] = [
-        "I just gave my home screen a personality. Meet Abstrakt.",
-        "Stop me before I rearrange my widgets again. Abstrakt did this.",
-        "Your home screen called. It wants Abstrakt.",
-        "Turns out my widgets were boring. Fixed that with Abstrakt.",
-        "Made my home screen actually mine. Abstrakt.",
-    ]
+    static var broadcastLines: [String] {
+        [
+            L("broadcast.line.1"),
+            L("broadcast.line.2"),
+            L("broadcast.line.3"),
+            L("broadcast.line.4"),
+            L("broadcast.line.5"),
+        ]
+    }
 
     static func randomBroadcastLine() -> String {
         broadcastLines.randomElement() ?? broadcastLines[0]

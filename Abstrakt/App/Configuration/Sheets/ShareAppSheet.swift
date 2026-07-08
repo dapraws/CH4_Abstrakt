@@ -49,8 +49,7 @@ struct ShareAppSheet: View {
         HStack(spacing: 12) {
             SheetHeaderSymbol(systemName: "arrowshape.turn.up.right.fill")
 
-            Text("Share Abstrakt")
-                .font(AppFonts.font(.heading2))
+            Text(L("share_sheet.title"))                .font(AppFonts.font(.heading2))
                 .foregroundStyle(AppColors.primaryText)
 
             Spacer()
@@ -170,7 +169,7 @@ private struct ShareAppButtonContent: View {
             Image(systemName: "arrowshape.turn.up.right.fill")
                 .font(AppFonts.font(.heading2))
 
-            Text("Share App")
+            Text(L("share_sheet.button"))
                 .font(AppFonts.font(.heading2))
         }
     }
@@ -196,7 +195,7 @@ private struct ShareCardView: View {
                     Text("Abstrakt")
                         .font(AppFonts.font(.heading3))
                         .foregroundStyle(AppColors.primaryText)
-                    Text("Widgets, your way")
+                    Text(L("share_sheet.tagline"))
                         .font(AppFonts.font(.caption))
                         .foregroundStyle(AppColors.secondaryText)
                 }

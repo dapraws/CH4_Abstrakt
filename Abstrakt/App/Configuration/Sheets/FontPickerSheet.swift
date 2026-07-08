@@ -16,7 +16,7 @@ struct FontPickerSheet: View {
             HStack(spacing: 12) {
                 SheetHeaderSymbol(systemName: "textformat")
 
-                Text("Choose Font")
+                Text(L("font_picker.title"))
                     .font(AppFonts.font(.heading2))
                     .foregroundStyle(AppColors.primaryText)
 
