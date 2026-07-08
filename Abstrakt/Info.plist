@@ -66,5 +66,14 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>CFBundleLocalizations</key>
+    <array>
+        <string>en</string>
+        <string>id</string>
+        <string>es</string>
+        <string>pt-BR</string>
+    </array>
+    <key>CFBundleAllowMixedLocalizations</key>
+    <true/>
 </dict>
 </plist>
