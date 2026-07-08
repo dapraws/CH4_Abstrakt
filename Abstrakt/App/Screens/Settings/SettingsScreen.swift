@@ -103,6 +103,9 @@ struct SettingsScreen: View {
         .task {
             await refreshPermissionSnapshot()
         }
+        .onChange(of: localization.currentLanguage) { _, _ in
+            Task { await refreshPermissionSnapshot() }
+        }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
             refreshCurrentAppIcon()
@@ -594,10 +597,9 @@ private struct PermissionAccessItem: Identifiable {
                 id: "health",
                 icon: "heart.fill",
                 gradientColors: [.pink, .red],
-                title: "Health",
-                status: .ready("Requested"),
-                detail:
-                    "Used for steps, walking distance, exercise minutes, active energy, and sleep totals. iOS keeps exact Health read grants private after the request.",
+                title: L("permission.item.health.title"),
+                status: .ready(L("permission.status.requested")),
+                detail: L("permission.item.health.detail.requested"),
                 action: nil
             )
         case .notDetermined:
@@ -605,10 +607,9 @@ private struct PermissionAccessItem: Identifiable {
                 id: "health",
                 icon: "heart.fill",
                 gradientColors: [.pink, .red],
-                title: "Health",
-                status: .needsRequest("Needs Access"),
-                detail:
-                    "Allow Health access so widgets can use your real activity, distance, energy, and sleep data.",
+                title: L("permission.item.health.title"),
+                status: .needsRequest(L("permission.status.needs_access")),
+                detail: L("permission.item.health.detail.needs"),
                 action: .requestHealth
             )
         case .unavailable:
@@ -616,10 +617,9 @@ private struct PermissionAccessItem: Identifiable {
                 id: "health",
                 icon: "heart.fill",
                 gradientColors: [.gray, .secondary],
-                title: "Health",
-                status: .unavailable("Unavailable"),
-                detail:
-                    "Health data is not available on this device, so health widgets will render empty values.",
+                title: L("permission.item.health.title"),
+                status: .unavailable(L("permission.status.unavailable")),
+                detail: L("permission.item.health.detail.unavailable"),
                 action: nil
             )
         }
@@ -631,10 +631,9 @@ private struct PermissionAccessItem: Identifiable {
             id: "location",
             icon: "location.fill",
             gradientColors: [.blue, .green.opacity(0.75)],
-            title: "Location & Weather",
-            status: .ready("Allowed"),
-            detail:
-                "Used to fetch local WeatherKit conditions, city names, temperatures, forecasts, and sun-event widgets.",
+            title: L("permission.item.location.title"),
+            status: .ready(L("permission.status.allowed")),
+            detail: L("permission.item.location.detail.allowed"),
             action: nil
         )
 
@@ -643,30 +642,26 @@ private struct PermissionAccessItem: Identifiable {
             return base
         case .notDetermined:
             return base.replacing(
-                status: .needsRequest("Needs Access"),
-                detail:
-                    "Allow location access so weather widgets can use your current place.",
+                status: .needsRequest(L("permission.status.needs_access")),
+                detail: L("permission.item.location.detail.needs"),
                 action: .requestLocation
             )
         case .denied:
             return base.replacing(
-                status: .blocked("Denied"),
-                detail:
-                    "Location access is denied. Weather widgets will use cached or placeholder data until access is enabled.",
+                status: .blocked(L("permission.status.denied")),
+                detail: L("permission.item.location.detail.denied"),
                 action: .openSettings
             )
         case .restricted:
             return base.replacing(
-                status: .blocked("Restricted"),
-                detail:
-                    "Location access is restricted on this device. Weather widgets will use cached or placeholder data.",
+                status: .blocked(L("permission.status.restricted")),
+                detail: L("permission.item.location.detail.restricted"),
                 action: .openSettings
             )
         @unknown default:
             return base.replacing(
-                status: .blocked("Unknown"),
-                detail:
-                    "Location access is in an unknown state. Open Settings to review it.",
+                status: .blocked(L("permission.status.unknown")),
+                detail: L("permission.item.location.detail.unknown"),
                 action: .openSettings
             )
         }
@@ -678,10 +673,9 @@ private struct PermissionAccessItem: Identifiable {
             id: "calendar",
             icon: "calendar",
             gradientColors: [.white, .red.opacity(0.78)],
-            title: "Calendar",
-            status: .ready("Allowed"),
-            detail:
-                "Used to show current and upcoming calendar events in the Events widget.",
+            title: L("permission.item.calendar.title"),
+            status: .ready(L("permission.status.allowed")),
+            detail: L("permission.item.calendar.detail.allowed"),
             action: nil
         )
 
@@ -690,48 +684,45 @@ private struct PermissionAccessItem: Identifiable {
             return base
         case .notDetermined:
             return base.replacing(
-                status: .needsRequest("Needs Access"),
-                detail:
-                    "Allow calendar access so the widget can show your next event and now-running events.",
+                status: .needsRequest(L("permission.status.needs_access")),
+                detail: L("permission.item.calendar.detail.needs"),
                 action: .requestCalendar
             )
         case .denied:
             return base.replacing(
-                status: .blocked("Denied"),
-                detail:
-                    "Calendar access is denied. Calendar widgets will show a permission state until access is enabled.",
+                status: .blocked(L("permission.status.denied")),
+                detail: L("permission.item.calendar.detail.denied"),
                 action: .openSettings
             )
         case .restricted:
             return base.replacing(
-                status: .blocked("Restricted"),
-                detail:
-                    "Calendar access is restricted on this device. Calendar widgets will show a permission state.",
+                status: .blocked(L("permission.status.restricted")),
+                detail: L("permission.item.calendar.detail.restricted"),
                 action: .openSettings
             )
         case .limited:
             return base.replacing(
-                status: .blocked("Limited"),
-                detail:
-                    "Calendar access is limited. Full calendar access is needed to show event widgets reliably.",
+                status: .blocked(L("permission.status.limited")),
+                detail: L("permission.item.calendar.detail.limited"),
                 action: .openSettings
             )
         }
     }
 
-    static let systemData = PermissionAccessItem(
-        id: "system",
-        icon: "internaldrive.fill",
-        gradientColors: [
-            Color(red: 0.31, green: 0.56, blue: 1),
-            Color(red: 0.08, green: 0.79, blue: 0.55),
-        ],
-        title: "Battery & Storage",
-        status: .ready("No Permission Needed"),
-        detail:
-            "Battery level and aggregate storage capacity come from system APIs that do not require a user permission prompt.",
-        action: nil
-    )
+    static var systemData: PermissionAccessItem {
+        PermissionAccessItem(
+            id: "system",
+            icon: "internaldrive.fill",
+            gradientColors: [
+                Color(red: 0.31, green: 0.56, blue: 1),
+                Color(red: 0.08, green: 0.79, blue: 0.55),
+            ],
+            title: L("permission.item.system.title"),
+            status: .ready(L("permission.status.no_permission_needed")),
+            detail: L("permission.item.system.detail"),
+            action: nil
+        )
+    }
 
     private func replacing(
         status: PermissionAccessStatus,
@@ -794,9 +785,9 @@ private enum PermissionAccessAction {
     var title: String {
         switch self {
         case .requestHealth, .requestLocation, .requestCalendar:
-            "Connect"
+            L("permission.action.connect")
         case .openSettings:
-            "Settings"
+            L("permission.action.settings")
         }
     }
 }
@@ -958,29 +949,24 @@ private struct SettingsDetailScreen: View {
             detailCard(
                 icon: "questionmark",
                 iconBackground: Color(red: 1, green: 0.78, blue: 0.31),
-                title: "Help & FAQ",
-                status: "Ready",
+                title: L("settings.row.faq"),
+                status: L("faq.status.ready"),
                 statusColor: AppColors.accentGreen,
-                detail:
-                    "Answers for widgets, permissions, refresh timing, and customization will live here."
+                detail: L("faq.detail")
             )
-        case .changeIcon:
-            // Handled by AppIconPickerScreen via navigationDestination; never
-            // rendered here. Kept for switch exhaustiveness.
-            EmptyView()
-        case .changeLanguage:
-            // Handled by AppIconPickerScreen via navigationDestination; never
-            // rendered here. Kept for switch exhaustiveness.
+        case .changeIcon, .changeLanguage:
+            // Handled by AppIconPickerScreen/LanguagePickerScreen via
+            // navigationDestination; never rendered here. Kept for switch
+            // exhaustiveness.
             EmptyView()
         case .whatsNew:
             detailCard(
                 icon: "arrow.up",
                 iconBackground: Color(red: 0.31, green: 0.56, blue: 1),
-                title: "What's New",
+                title: L("settings.row.whats_new"),
                 status: "Build 19",
                 statusColor: AppColors.accentBlue,
-                detail:
-                    "Custom fonts, widget previews, library sheets, and shared unit preferences are now part of the app foundation."
+                detail: L("whats_new.detail")
             )
         }
     }
@@ -996,15 +982,15 @@ private struct SettingsDetailScreen: View {
     private var title: String {
         switch route {
         case .changeIcon:
-            "Change Icon"
+            L("settings.row.change_icon")
         case .changeLanguage:
-            "Change Language"
+            L("settings.row.language")
         case .permissions:
-            "Access & Permissions"
+            L("settings.row.permissions")
         case .faq:
-            "Help & FAQ"
+            L("settings.row.faq")
         case .whatsNew:
-            "What's New"
+            L("settings.row.whats_new")
         }
     }
 
