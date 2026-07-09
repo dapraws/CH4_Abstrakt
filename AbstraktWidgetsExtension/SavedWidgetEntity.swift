@@ -22,11 +22,14 @@ struct SavedWidgetEntity: AppEntity {
     @Property(title: "Size")
     var sizeID: String
     
-    init(id: String, name: String, widgetID: String, sizeID: String) {
+    var thumbnailData: Data?
+    
+    init(id: String, name: String, widgetID: String, sizeID: String, thumbnailData: Data? = nil) {
         self.id = id
         self.name = name
         self.widgetID = widgetID
         self.sizeID = sizeID
+        self.thumbnailData = thumbnailData
     }
     
     init() {
@@ -34,11 +37,11 @@ struct SavedWidgetEntity: AppEntity {
         self.name = ""
         self.widgetID = ""
         self.sizeID = ""
+        self.thumbnailData = nil
     }
 
     var displayRepresentation: DisplayRepresentation {
-        if let imageURL = WidgetSharedStore.thumbnailURL(for: id),
-           let imageData = try? Data(contentsOf: imageURL) {
+        if let imageData = thumbnailData {
             let displayImage = DisplayRepresentation.Image(data: imageData)
             return DisplayRepresentation(title: "\(name)", image: displayImage)
         }
@@ -53,42 +56,35 @@ struct SavedWidgetQuery: EntityStringQuery {
     func entities(for identifiers: [String]) async throws -> [SavedWidgetEntity] {
         let presets = WidgetSharedStore.allSavedPresets
         return identifiers.compactMap { id in
-            if let preset = presets.first(where: { $0.id.uuidString == id }) {
-                return SavedWidgetEntity(
-                    id: preset.id.uuidString,
-                    name: preset.name,
-                    widgetID: preset.widgetID,
-                    sizeID: preset.size
-                )
-            }
-            return nil
+            presets.first { $0.id.uuidString == id }.map { entity(for: $0) }
         }
     }
     
     func entities(matching string: String) async throws -> [SavedWidgetEntity] {
         let presets = WidgetSharedStore.allSavedPresets
-        return presets
             .filter { $0.name.localizedCaseInsensitiveContains(string) }
-            .map {
-                SavedWidgetEntity(
-                    id: $0.id.uuidString,
-                    name: $0.name,
-                    widgetID: $0.widgetID,
-                    sizeID: $0.size
-                )
-            }
+        return presets.map { entity(for: $0) }
     }
     
     func suggestedEntities() async throws -> [SavedWidgetEntity] {
-        let presets = WidgetSharedStore.allSavedPresets
-        return presets.map {
-            SavedWidgetEntity(
-                id: $0.id.uuidString,
-                name: $0.name,
-                widgetID: $0.widgetID,
-                sizeID: $0.size
-            )
+        WidgetSharedStore.allSavedPresets.map { entity(for: $0) }
+    }
+    
+    private func entity(for preset: SavedWidgetPreset) -> SavedWidgetEntity {
+        SavedWidgetEntity(
+            id: preset.id.uuidString,
+            name: preset.name,
+            widgetID: preset.widgetID,
+            sizeID: preset.size,
+            thumbnailData: thumbnailData(for: preset)
+        )
+    }
+    
+    private func thumbnailData(for preset: SavedWidgetPreset) -> Data? {
+        guard let url = WidgetSharedStore.thumbnailURL(for: preset.id.uuidString) else {
+            return nil
         }
+        return try? Data(contentsOf: url)
     }
 }
 

@@ -99,8 +99,8 @@ struct DaylightWidget: View {
                 Image(snapshot.sunEventIcon)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 50 * iconTrim, height: 50 * iconTrim)
-                    .frame(width: 50, height: 50)
+                    .frame(width: 40 * iconTrim, height: 40 * iconTrim)
+                    .frame(width: 40, height: 40)
                     .clipped()
 
                 Spacer()

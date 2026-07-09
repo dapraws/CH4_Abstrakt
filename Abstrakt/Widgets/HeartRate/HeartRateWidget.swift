@@ -99,7 +99,7 @@ struct HeartRateWidget: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Spacer()
-                Image("heart-color")
+                Image("heartbeat-color")
                     .resizable()
                     .frame(width: 32, height: 32)
             }
