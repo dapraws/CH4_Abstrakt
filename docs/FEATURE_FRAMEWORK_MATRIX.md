@@ -22,7 +22,7 @@ This file is the canonical mapping between widget features and Apple-native fram
 | Reminders | Task and completion widgets | `EventKit` | `Foundation`, `WidgetKit` | User-facing family stays separate from Calendar even though the API owner overlaps. |
 | Battery | Device battery status widgets | `UIKit` (`UIDevice`) | `WidgetKit`, `Foundation` | Uses `UIDevice` battery monitoring in the host app and writes level/charging state to shared widget storage. |
 | Storage | Device storage widgets | `Foundation` (`FileManager`) | `WidgetKit` | Reads file-system capacity and available bytes from the host app and writes them to shared widget storage. |
-| App Preferences | App font, temperature unit, temperature display, distance unit | `Foundation` | `SwiftUI`, `WidgetKit` | Stored through app/shared preferences. App font and unit preferences are shared with widget rendering. |
+| App Preferences | App language, app font, app icon, temperature unit, temperature display, distance unit | `Foundation` | `SwiftUI`, `UIKit`, `WidgetKit` | Stored through app/shared preferences where extension-safe. App language, app font, and unit preferences are shared; alternate app icons are app-only UIKit customization. |
 
 ## Customization Expectations By Family
 
@@ -37,7 +37,7 @@ This file is the canonical mapping between widget features and Apple-native fram
 | Reminders | Count style, completion focus, category filter, typography |
 | Battery | Style preset, threshold emphasis, accent color, compact/full presentation |
 | Storage | Compact/full storage presentation, actual used/available emphasis |
-| App Preferences | App font theme, temperature unit, temperature display mode, distance unit |
+| App Preferences | App language, app font theme, alternate app icon, temperature unit, temperature display mode, distance unit |
 
 ## Permission Expectations
 
@@ -55,7 +55,7 @@ This file is the canonical mapping between widget features and Apple-native fram
 | Reminders | Reminders access via `EventKit` |
 | Battery | No explicit user permission for device battery state |
 | Storage | No explicit user permission for aggregate file-system capacity |
-| App Preferences | No permission required |
+| App Preferences | No permission required. Alternate app icons use `UIApplication.setAlternateIconName` and stay in the host app only. |
 
 ## Current Live Data Refresh
 
@@ -70,14 +70,17 @@ Per-framework refresh behavior remains the same once triggered (Health observer 
 
 Runtime widget rendering should use provider/App Group values or explicit empty/permission-denied states. Static sample numbers belong only in Xcode previews.
 
-Shared unit preferences are also read from the App Group:
+Shared app preferences are also read from the App Group:
 
-- App font theme: `SF Pro`, `SF Pro Rounded`, `Quicksand`, or `Fusion Pixel`
+- App font theme: `SF Pro`, `SF Rounded`, `Quicksand`, or `Fusion Pixel`
+- App language: `System`, `English`, `Bahasa Indonesia`, `Español`, or `Português (Brasil)`
 - Temperature unit: `Celsius` or `Fahrenheit`
 - Temperature display: `Actual` or `Feels Like`
 - Distance unit: `Kilometers` or `Miles`
 
 These preferences affect widget typography and formatted widget values. They should not be modeled as per-widget visual style unless a specific widget later needs an override.
+
+Localization strings live in `Abstrakt/Resources/Localizable.xcstrings`. Runtime app language selection is owned by `Core/Localization/LocalizationManager.swift` and should be used by screens, sheets, permission messages, and settings labels instead of hard-coded user-facing strings.
 
 For active development, the app keeps a one-second clock refresh loop while the scene is active, refreshes slower-changing battery and storage data about once per minute, and registers HealthKit observer queries for step/distance changes. The WidgetKit extension currently requests timeline refreshes about once per minute, but iOS may still throttle normal Home Screen widget reloads. True per-second background behavior should move to Live Activities or another system surface designed for live updates.
 
@@ -119,7 +122,7 @@ Saved Widget Preset
     ↓
 Shared Widget Renderer
     ↓
-App Library + WidgetExtension Slots
+App Library + WidgetKit Slots
 ```
 
 The host app should be where preset composition happens. Saving from the gallery writes App Group preset data and a thumbnail image for the system picker. WidgetKit should mostly route timeline data and saved configuration into shared renderers under `Abstrakt/Widgets/`.

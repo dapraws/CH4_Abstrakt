@@ -10,6 +10,8 @@ Abstrakt is a SwiftUI iOS app that helps users build a personal library of saved
 - Widget extension: exposes three size-based `Solid Widget` renderers and renders saved presets on the Home Screen
 - Shared render layer: widget visuals live under `Abstrakt/Widgets/` and are compiled into both the host app and WidgetKit extension
 - Runtime data flow: host-app providers refresh battery, Health, calendar/date, time, storage, and WeatherKit data into App Group storage for WidgetKit; in-app previews use provider/cache values instead of sample numbers
+- Design system: app surfaces use the concrete `AppColors` roles documented in `DESIGN_FOUNDATION.md`, including filled `card`/`cardSoft` surfaces and `accentPurple` (`#615FFF`) for primary branded actions
+- Localization flow: app strings live in `Localizable.xcstrings`, while `LocalizationManager` lets users choose System, English, Indonesian, Spanish, or Portuguese-Brazil from Settings
 - Future surfaces: Lock Screen widgets, StandBy, Live Activities, and Dynamic Island
 
 ## Near-Term Priorities
@@ -23,6 +25,8 @@ Abstrakt is a SwiftUI iOS app that helps users build a personal library of saved
 - Keep Weather and Daylight backed by WeatherKit/CoreLocation in the host app, with widget-safe snapshots cached into the shared App Group.
 - Keep light, dark, and system appearance modes first-class in both previews and saved configuration
 - Keep global app preferences, such as units and app font, separate from widget-specific saved preset styling
+- Keep localization keys in the string catalog and route user-facing strings through the localization helpers rather than hard-coding screen copy
+- Keep app-only personalization, such as alternate app icons, out of widget-extension code paths
 
 ## Core User Experience
 
@@ -53,8 +57,10 @@ Important UX constraints:
 - Gallery category chips should come from active `WidgetCatalog` categories, so framework-backed groups such as `HealthKit`, `WeatherKit`, `EventKit`, `Foundation`, `UIKit`, and `Portal` are discoverable without maintaining a separate chip list.
 - Library rows should crop the widget preview under the row divider instead of shrinking the design into a tiny thumbnail.
 - Preview sheets should use a full-width bottom sheet treatment with a drag indicator, title metadata below the rendered widget, and a bottom save action separated from the widget preview layer.
+- Settings should expose app language, app font, alternate app icon, unit preferences, permissions, FAQ, sharing, and release notes without mixing those global preferences into per-widget configuration.
 - Unit preferences should use compact picker/menu controls from Settings and persist through shared storage for widget rendering.
 - App font changes should persist to shared storage and reload WidgetKit timelines so in-app previews and Home Screen widgets use the same selected typography.
+- App language changes should persist through shared settings, update visible strings, and reload timelines when widget-visible strings may change.
 - Portal launcher MiniApp selection and icon clip style should persist to shared storage and reload WidgetKit timelines so the Home Screen renderer matches the in-app preview.
 - Signing and App Group setup should remain config-driven through `Signing.xcconfig` plus optional local overrides, with app and extension entitlements sharing the same `APP_GROUP_ID`.
 
@@ -73,12 +79,13 @@ Abstrakt/
 │   ├── Services/
 │   ├── Storage/
 │   ├── Constants/
+│   ├── Localization/
 │   └── Extensions/
 ├── DesignSystem/
 ├── Widgets/
 │   ├── SharedWidgetStyle.swift
 │   └── <WidgetName>/
-└── WidgetExtension/
+└── AbstraktWidgetsExtension/
 ```
 
 ## Shared Data Ownership
@@ -86,7 +93,8 @@ Abstrakt/
 - The host app owns gallery state, customization state, permission messaging, and saved widget presets.
 - `Core/Storage/` should hold saved preset storage abstractions.
 - `Core/Settings/` should hold shared preference types for app and widget surfaces, such as temperature unit, temperature display, and distance unit.
-- `WidgetExtension/` should consume saved configuration data and route WidgetKit entries into shared widget renderers rather than owning duplicate visual implementations.
+- `Core/Localization/` should hold runtime localization helpers and language state; screens should use localized keys rather than hard-coded user-facing strings.
+- `AbstraktWidgetsExtension/` should consume saved configuration data and route WidgetKit entries into shared widget renderers rather than owning duplicate visual implementations.
 - Widget-specific folders should define their render snapshots and SwiftUI views in an extension-safe way. App-only provider adapters can live beside those views behind `#if !WIDGET_EXTENSION`.
 - Interactive widget buttons should use App Intents available to the widget extension. Framework-backed data such as WeatherKit still flows through the host app and App Group storage.
 

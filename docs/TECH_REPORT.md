@@ -86,6 +86,7 @@ What we actually tried in code:
 - A main app flow that starts with onboarding, then lands on a custom tab shell with Gallery, Library, and Settings.
 - A gallery of widget ideas grouped by framework, like HealthKit, WeatherKit, EventKit, UIKit, Foundation, and Portal.
 - A bottom-sheet preview where the user can inspect a widget and change a few real options, like Portal apps, Activity range, Events priority, font, and units.
+- A Settings area for app language, app font, alternate app icons, unit preferences, permissions, sharing, FAQ, and release notes.
 - Shared widget renderers, so the preview inside the app and the actual WidgetKit extension are not two totally separate designs.
 - A save toggle that writes and removes widget presets from App Group storage, then shows those saved widgets in the Library.
 - Thumbnail generation for saved widgets, so the system widget picker can show a more visual preset choice.
@@ -145,7 +146,7 @@ It could work with only SwiftUI and WidgetKit, but then it would mostly be a sta
 
 ### About Accessibility and Localization
 
-We want the app to support readable text, dark mode, clear contrast, and permission states that make sense. Localization is not the first priority while the app structure is still changing, but the interface should not be written in a way that blocks it later.
+We want the app to support readable text, dark mode, clear contrast, and permission states that make sense. Localization is now part of the app foundation: app copy is moving through `Localizable.xcstrings`, Settings includes a dedicated Language screen, and the current supported choices are System, English, Bahasa Indonesia, Español, and Português (Brasil).
 
 ### About Privacy
 

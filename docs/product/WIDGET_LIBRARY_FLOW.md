@@ -26,6 +26,7 @@ This document captures the intended user flow for widget selection, customizatio
 - The preview sheet should show the rendered widget and its display title before any future form controls.
 - The save action stays pinned in its own bottom layer, separate from both the rendered widget and future form content.
 - App-wide settings such as temperature unit, temperature display, and distance unit should live in Settings rather than inside every widget customization sheet unless a widget explicitly supports an override.
+- App language, app font, and alternate app icon choices should also live in Settings. Language and font changes can affect widget-visible text or typography through shared storage; alternate icons are host-app-only personalization.
 - Saving should be blocked when a widget's required permission is unavailable, with HealthKit treated specially because iOS does not expose read-authorization status after the prompt.
 
 ## Library Rules

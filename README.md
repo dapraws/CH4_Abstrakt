@@ -33,7 +33,7 @@
 </p>
 
 <p align="center">
-  <sub><b>Gallery</b> — browse widgets by framework &nbsp;·&nbsp; <b>Settings</b> — app font, units, permissions &nbsp;·&nbsp; <b>Library</b> — saved presets by size</sub>
+  <sub><b>Gallery</b> — browse widgets by framework &nbsp;·&nbsp; <b>Settings</b> — language, font, icons, units, permissions &nbsp;·&nbsp; <b>Library</b> — saved presets by size</sub>
 </p>
 
 ---
@@ -46,6 +46,7 @@
 | WidgetKit first | iOS Home Screen widget experiences for `small`, `medium`, and `large` |
 | Native framework features | `HealthKit`, `WeatherKit`, `CoreLocation`, `EventKit`, `Foundation`, and related Apple APIs |
 | Design-system-first | semantic light/dark theming, typography roles, spacing, surface styling, and widget size tokens |
+| Localized experience | user-selectable app language backed by the string catalog and shared settings |
 
 ---
 
@@ -64,6 +65,7 @@ Abstrakt/
 │   ├── Services/
 │   ├── Storage/
 │   ├── Constants/
+│   ├── Localization/
 │   └── Extensions/
 ├── DesignSystem/
 ├── Widgets/
@@ -76,10 +78,14 @@ Abstrakt/
 │   ├── Storage/
 │   ├── Today/
 │   ├── Weather/
-│   └── Daylight/
+│   ├── Daylight/
+│   └── HeartRate/
 └── AbstraktWidgetsExtension/
     ├── AbstraktWidgetsBundle.swift
     ├── AbstraktNewWidgets.swift
+    ├── SolidWidgetIntents.swift
+    ├── SavedWidgetEntity.swift
+    ├── Fonts/
     └── Shared/
 ```
 
@@ -111,13 +117,14 @@ The current app foundation includes:
 | Gallery | Widget cards with catalog-backed category chips and a preview sheet for the selected widget. |
 | Preview sheet | Renders the selected widget, shows its display title, and keeps the bottom save action in a separate control layer. |
 | Library | Grouped by `Small`, `Medium`, and `Large`, with swipeable size tabs, empty states, and cropped/scaled preview rows that hint at the saved widget surface. |
-| Settings | App font selection, temperature unit, temperature display, distance unit, access/permissions, FAQ, change icon, and release notes. |
+| Settings | App language, app font, alternate app icon, temperature unit, temperature display, distance unit, access/permissions, FAQ, share sheet, and release notes. |
 
 ### Widget rendering
 
 - Shared widget renderers under `Abstrakt/Widgets/` that are compiled into both the host app and the WidgetKit extension.
 - Runtime widget previews and WidgetKit timelines consume live provider data or App Group cached values for battery, Health, calendar/date, time, storage, and WeatherKit-backed weather. Sample numbers are reserved for Xcode canvas previews.
 - Shared settings storage for widget-facing unit preferences and the selected widget font through the App Group.
+- Shared localization storage for `System`, `English`, `Bahasa Indonesia`, `Español`, and `Português (Brasil)` language choices.
 - Seamless rendering on iOS 17+ StandBy and iPad Lock Screens via the `containerBackground` API.
 
 ### Widget behavior
@@ -196,6 +203,10 @@ Per-widget customization examples:
 Because of that, customization belongs to `App/Configuration/` plus widget-specific configuration sheets inside each widget folder.
 
 Global settings such as temperature unit, temperature display, and distance unit belong to `Core/Settings/` and should be read by both the host app and WidgetKit through extension-safe shared storage. Widget-specific visual choices remain part of the saved preset configuration.
+
+Language selection is also a global app setting. The string catalog lives at `Abstrakt/Resources/Localizable.xcstrings`, runtime language switching is coordinated by `Core/Localization/LocalizationManager.swift`, and the selected language is persisted with the other shared settings so app text can update without hard-coding strings in screens.
+
+Alternate app icons are app-only customization. The picker uses `Core/Models/AppIconOption.swift`, preview images under `Assets.xcassets/AppIcons/`, and the alternate icon entries registered in `Info.plist`; widget extension code should not call app-icon APIs.
 
 ---
 

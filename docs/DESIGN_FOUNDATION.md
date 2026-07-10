@@ -9,6 +9,7 @@ This document defines the UI foundation for Abstrakt across the main app, widget
 - Flexible enough for widget-specific customization
 - Consistent between app previews and actual WidgetKit rendering
 - Strong enough to support a library of saved presets rather than one-off widget screens
+- Localized enough that screen copy, picker labels, permission messages, and settings rows can switch language without layout breakage
 
 ## Appearance Modes
 
@@ -24,26 +25,48 @@ Rules:
 - `Light` and `Dark` must preview deterministically inside the app sheet even if the app itself is running in another appearance.
 - Saved presets should persist the appearance choice as part of widget configuration when the widget supports it.
 
-## Semantic Color Roles
+## Color Tokens
 
-Start from roles, not hard-coded values.
+`AppColors` is the canonical source for app color roles. Start from these roles instead of hard-coded values in feature code or docs.
 
-- `background.app`
-- `background.sheet`
-- `background.preview`
-- `surface.primary`
-- `surface.secondary`
-- `surface.selected`
-- `content.primary`
-- `content.secondary`
-- `content.tertiary`
-- `accent.primary`
-- `accent.secondary`
-- `border.subtle`
-- `border.focus`
-- `state.positive`
-- `state.warning`
-- `state.critical`
+| Token | Light | Dark | Use |
+|---|---|---|---|
+| `appBackground` | `#F0F2FC` | `#17171D` | Main app background |
+| `topFade` | `#F0F2FC` | `#17171D` | Top navigation fade background |
+| `card` | `#F7F8FD` | `#1D1D24` | Primary grouped surface |
+| `cardSoft` | `#ECEEF7` | `#22222B` | Softer controls, empty slots, secondary grouped surfaces |
+| `miniAppEmptySlot` | `#E2E5EF` | `#30303A` | Empty Portal mini-app slots |
+| `miniAppEmptySlotBorder` | `#C9CEDC` | `#3B3B46` | Empty Portal slot boundary when a boundary is required |
+| `chip` | `#FCFCFC` | `#070707` | Unselected chips |
+| `chipSelected` | `#141414` | `#F4F4F4` | Selected chips |
+| `chipBorder` | `#141414` at 7% | `#F4F4F4` at 7% | Subtle chip boundary |
+| `chipBorderSelected` | `#141414` at 12% | `#F4F4F4` at 12% | Selected chip boundary |
+| `chipText` | `#141414` | `#F4F4F4` | Unselected chip text |
+| `chipTextSelected` | `#F0F2FC` | `#17171D` | Selected chip text |
+| `tabBar` | `#000000` | `#000000` | Bottom tab bar base |
+| `tabBarBorder` | `#161616` | `#161616` | Bottom tab bar divider |
+| `tabBarIcon` | `#FFFFFF` at 42% | `#FFFFFF` at 42% | Unselected tab icon |
+| `tabBarIconSelected` | `#FFFFFF` | `#FFFFFF` | Selected tab icon |
+| `separator` | `#FFFFFF` at 12% | `#FFFFFF` at 12% | Lightweight separators |
+| `primaryText` | `#141414` | `#F4F4F4` | Primary labels and headings |
+| `secondaryText` | `#141414` at 62% | `#F4F4F4` at 62% | Secondary copy |
+| `tertiaryText` | `#141414` at 42% | `#F4F4F4` at 42% | Metadata and low-emphasis copy |
+| `accentBlue` | `rgb(0.29, 0.63, 1.0)` | Same | Blue feature accents |
+| `accentGreen` | `rgb(0.32, 0.89, 0.48)` | Same | Green feature accents |
+| `accentPurple` | `#615FFF` | `#615FFF` | Primary brand/action purple |
+| `accentPink` | `rgb(0.97, 0.45, 0.63)` | Same | Pink feature accents |
+| `widgetBackground` | `#FDFDFD` | `#060606` | Widget canvas background |
+| `widgetPrimaryText` | `#0A0A0A` | `#F4F4F4` | Widget primary text |
+| `widgetSecondaryText` | `#0A0A0A` at 62% | `#F4F4F4` at 62% | Widget secondary text |
+| `widgetTertiaryText` | `#0A0A0A` at 42% | `#F4F4F4` at 42% | Widget metadata text |
+| `widgetStroke` | `#0A0A0A` at 8% | `#F4F4F4` at 8% | Widget boundaries when a stroke is needed |
+
+Rules:
+
+- Prefer `card` and `cardSoft` filled surfaces over visible borders. Borders should be rare and quiet.
+- Use `accentPurple` (`#615FFF`) for primary onboarding actions, selected permission toggles, and prominent branded controls.
+- Keep widget colors separate from app colors. Runtime widgets should use the `widget*` roles instead of app screen text/background roles.
+- Use opacity roles exactly as defined above; do not replace them with nearby opaque grays.
 
 ## Typography Roles
 
@@ -52,6 +75,7 @@ The app needs two kinds of typography tokens:
 ### Semantic UI Roles
 
 - `display`
+- `homeDisplay`
 - `title`
 - `heading1`
 - `heading2`
@@ -75,7 +99,7 @@ Widgets use the same semantic sizing model, and the selected app font theme is s
 - `widgetCaption`
 - `widgetMeta`
 
-The app font picker currently exposes `SF Pro`, `SF Pro Rounded`, `Quicksand`, and `Fusion Pixel`. Pixel fonts use smaller token sizes and tighter line spacing so multiline layouts remain visually comparable across font themes.
+The app font picker currently exposes `SF Pro`, `SF Rounded`, `Quicksand`, and `Fusion Pixel`, with `Quicksand` as the default app font. Pixel fonts use smaller token sizes and tighter line spacing so multiline layouts remain visually comparable across font themes.
 
 Rules:
 
@@ -84,6 +108,23 @@ Rules:
 - Bottom bar icon sizing should stay stable and must not change based on the selected app font.
 - App font changes should update visible app rows immediately without requiring a screen refresh.
 - App font changes should also be written to App Group storage and trigger a WidgetKit timeline reload.
+
+## Localization Roles
+
+The app supports a user-selectable language setting with these options:
+
+- `System`
+- `English`
+- `Bahasa Indonesia`
+- `Español`
+- `Português (Brasil)`
+
+Rules:
+
+- User-facing strings belong in `Localizable.xcstrings`; SwiftUI screens should call the localization helpers instead of embedding fixed English text.
+- Language changes should visibly update Settings, onboarding, Gallery, Library, preview sheets, picker sheets, permission alerts, and other app copy.
+- Text containers should allow realistic expansion for Spanish, Portuguese-Brazil, and Indonesian strings through wrapping, line limits, or minimum scale factors where needed.
+- Widget-visible strings should be sourced from localized keys or prelocalized view data, then refreshed through WidgetKit when the language changes.
 
 ## Layout Foundation
 
@@ -108,7 +149,7 @@ Rules:
 - Activity widgets may use a minimal title, one SF Symbol status mark, and stacked metric rows with lighter unit labels. The Today/Weekly choice belongs in the preview sheet and must stay shared with WidgetKit.
 - Events widgets use compact date context, a status badge such as `Starts soon` or `Now`, and stacked event text. The Upcoming/Current priority choice belongs in the preview sheet and must stay shared with WidgetKit.
 - Weather widgets may use custom condition assets when the asset name maps directly from the WeatherKit condition snapshot, while still rendering a legible fallback for unknown conditions.
-- Storage widgets should render used and available portions inside a subtly bordered rounded container. The available portion uses a neutral zinc/gray treatment in both light and dark appearances.
+- Storage widgets should render used and available portions inside a quiet rounded container. Use `widgetStroke` only when separation cannot be achieved with fill, spacing, or contrast.
 - Lock Screen `Circular`, `Rectangular`, and `Inline` dimensions are documented here for future iOS widget expansion, but the shipping app flow remains Home Screen first.
 - Do not invent custom preview aspect ratios when one of these rows applies.
 
@@ -156,7 +197,9 @@ Rules:
 - The row title must remain visible while the picker is open.
 - Menus should be anchored near the tapped row/value, not centered on the screen.
 - App font selection uses a sheet because it is a visual tile picker, not a compact value menu.
-- The font picker sheet uses a compact header and two-column font tiles. The active tile should be visually distinct through an outline or dashed border treatment rather than relying only on text.
+- The font picker sheet uses a compact header and two-column font tiles. The active tile should be visually distinct through selected fill, contrast, or a very quiet focus treatment rather than relying only on text.
+- Language selection uses a dedicated tile screen so each language can appear in its own display name.
+- App icon selection uses a dedicated two-column visual picker with preview art for `Default`, `Glass`, `Purple`, and `Blue` icons. This is app-only UI and should not be mirrored in the widget extension.
 
 ## Library Page Pattern
 
@@ -210,7 +253,9 @@ Likely concrete files over time:
 
 - `AppColors.swift`
 - `WidgetAppearanceTokens.swift`
-- `AppFonts.swift` owns app font roles and selectable app font themes. Current themes are `SF Pro`, `SF Pro Rounded`, `Quicksand`, and `Fusion Pixel`; custom font files live in `DesignSystem/Fonts` and are registered at app launch.
+- `AppFonts.swift` owns app font roles and selectable app font themes. Current themes are `SF Pro`, `SF Rounded`, `Quicksand`, and `Fusion Pixel`; custom font files live in `DesignSystem/Fonts` and are registered at app launch.
+- `Core/Localization/LocalizationManager.swift` owns the selected app language and localized bundle.
+- `Abstrakt/Resources/Localizable.xcstrings` owns app copy for supported languages.
 - `Abstrakt/Widgets/SharedWidgetStyle.swift` owns extension-safe widget font roles, shared widget palettes, and custom font registration for both the host app and WidgetKit extension.
 - `WidgetFontCatalog.swift`
 - `AppSpacing.swift`
