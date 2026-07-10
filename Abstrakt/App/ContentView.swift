@@ -93,6 +93,8 @@ struct ContentView: View {
                 return
             }
 
+            await refreshBaselineWidgetData(reloadsTimelines: true)
+
             if shouldObserveHealth,
                !hasRequestedHealthAuth,
                HealthSummaryProvider.shared.authorizationState() == .notDetermined {
@@ -104,7 +106,7 @@ struct ContentView: View {
             try? await Task.sleep(for: .milliseconds(220))
 
             if !widgetPresets.isEmpty {
-                await refreshWidgetData()
+                await refreshSavedWidgetData()
             }
         }
         .task(id: shouldRunRefreshLoops) {
@@ -225,14 +227,25 @@ struct ContentView: View {
 
     // MARK: - Widget Data Refresh
 
-    private func refreshWidgetData() async {
-        let appFontThemeID = appFontThemeID
-        let categories = savedWidgetCategories()
+    private func refreshBaselineWidgetData(reloadsTimelines: Bool = false) async {
+        let storageTask = Task.detached(priority: .utility) {
+            StorageProvider.currentSnapshot()
+        }
 
         SharedModelContainer.write(clock: ClockDataProvider.currentSnapshot())
         SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
-        SharedModelContainer.write(storage: StorageProvider.currentSnapshot())
         SharedModelContainer.write(appFontThemeID: appFontThemeID)
+        SharedModelContainer.write(storage: await storageTask.value)
+
+        if reloadsTimelines {
+            WidgetTimelineReloadScheduler.schedule()
+        }
+    }
+
+    private func refreshSavedWidgetData() async {
+        let categories = savedWidgetCategories()
+
+        await refreshBaselineWidgetData()
 
         if categories.contains(.eventKit) {
             let calendar = await EventKitProvider.currentSnapshot()
@@ -305,9 +318,7 @@ struct ContentView: View {
 
     private func runSlowDataRefreshLoop() async {
         while !Task.isCancelled, !SharedModelContainer.readWidgetPresets().isEmpty {
-            SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
-            SharedModelContainer.write(storage: StorageProvider.currentSnapshot())
-            WidgetTimelineReloadScheduler.schedule()
+            await refreshBaselineWidgetData(reloadsTimelines: true)
             do {
                 try await Task.sleep(for: Self.slowDataRefreshInterval)
             } catch {
@@ -344,4 +355,6 @@ struct ContentView: View {
         initialTab: .home,
         previewHasCompletedOnboarding: true
     )
+    .environment(LocalizationManager.shared)
+    .environment(\.locale, LocalizationManager.shared.locale)
 }

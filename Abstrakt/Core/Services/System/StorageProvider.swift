@@ -6,22 +6,22 @@
 //
 import Foundation
 
-struct StorageSnapshot: Codable, Hashable {
+struct StorageSnapshot: Codable, Hashable, Sendable {
     let totalBytes: Int64
     let availableBytes: Int64
 
     var usedBytes: Int64 { totalBytes - availableBytes }
 }
 
-enum StorageProvider {
+nonisolated enum StorageProvider {
     static func currentSnapshot() -> StorageSnapshot {
         let url = URL(fileURLWithPath: NSHomeDirectory())
         let keys: Set<URLResourceKey> = [.volumeTotalCapacityKey, .volumeAvailableCapacityForImportantUsageKey]
-        
+
         if let values = try? url.resourceValues(forKeys: keys),
            let total = values.volumeTotalCapacity,
            let free = values.volumeAvailableCapacityForImportantUsage {
-            
+
             let marketedTotal = marketingSize(for: max(0, Int64(total)))
             return StorageSnapshot(
                 totalBytes: marketedTotal,
@@ -47,14 +47,14 @@ enum StorageProvider {
     private static func marketingSize(for rawBytes: Int64) -> Int64 {
         let base10GB = Double(rawBytes) / 1_000_000_000.0
         let standardSizes: [Double] = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096]
-        
+
         for size in standardSizes {
             // Give a 5% margin for APFS formatting overhead differences
             if base10GB <= size * 1.05 {
                 return Int64(size * 1_000_000_000.0)
             }
         }
-        
+
         return rawBytes
     }
 
