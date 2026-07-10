@@ -82,18 +82,23 @@ struct SettingsScreen: View {
             .navigationDestination(for: SettingsRoute.self) { route in
                 switch route {
                 case .changeIcon:
-                    AppIconPickerScreen {
+                    AppIconScreen {
                         path.removeLast()
                     }
                 case .changeLanguage:
-                    LanguagePickerScreen {
+                    LanguageScreen {
                         path.removeLast()
                     }
-                default:
-                    SettingsDetailScreen(
-                        route: route,
-                        permissionSnapshot: $permissionSnapshot
-                    ) {
+                case .permissions:
+                    PermissionsScreen(permissionSnapshot: $permissionSnapshot) {
+                        path.removeLast()
+                    }
+                case .faq:
+                    FAQScreen {
+                        path.removeLast()
+                    }
+                case .whatsNew:
+                    WhatsNewScreen {
                         path.removeLast()
                     }
                 }
@@ -114,7 +119,7 @@ struct SettingsScreen: View {
             }
         }
         .onChange(of: path) { _, newPath in
-            // Returning from the icon picker: reflect any new selection.
+            // Returning from the icon screen: reflect any new selection.
             if newPath.isEmpty {
                 refreshCurrentAppIcon()
             }
@@ -270,7 +275,7 @@ struct SettingsScreen: View {
                 .font(AppFonts.font(.heading2))
                 .foregroundStyle(AppColors.accentPink)
 
-            Text(L("settings.footer.made_by", "1.23.0", "01")).font(
+            Text(L("settings.footer.made_by", "1.0", "01")).font(
                 AppFonts.font(.caption)
             )
             .foregroundStyle(AppColors.tertiaryText)
@@ -539,7 +544,7 @@ private enum SettingsRowValueStyle {
 
 // MARK: - Permissions
 
-private struct PermissionAccessSnapshot {
+struct PermissionAccessSnapshot {
     var items: [PermissionAccessItem]
     var isLoading: Bool = false
 
@@ -577,7 +582,7 @@ private struct PermissionAccessSnapshot {
     }
 }
 
-private struct PermissionAccessItem: Identifiable {
+struct PermissionAccessItem: Identifiable {
     let id: String
     let icon: String
     let gradientColors: [Color]
@@ -596,7 +601,7 @@ private struct PermissionAccessItem: Identifiable {
             return PermissionAccessItem(
                 id: "health",
                 icon: "heart.fill",
-                gradientColors: [.pink, .red],
+                gradientColors: [AppColors.accentPink],
                 title: L("permission.item.health.title"),
                 status: .ready(L("permission.status.requested")),
                 detail: L("permission.item.health.detail.requested"),
@@ -606,7 +611,7 @@ private struct PermissionAccessItem: Identifiable {
             return PermissionAccessItem(
                 id: "health",
                 icon: "heart.fill",
-                gradientColors: [.pink, .red],
+                gradientColors: [AppColors.accentPink],
                 title: L("permission.item.health.title"),
                 status: .needsRequest(L("permission.status.needs_access")),
                 detail: L("permission.item.health.detail.needs"),
@@ -616,7 +621,7 @@ private struct PermissionAccessItem: Identifiable {
             return PermissionAccessItem(
                 id: "health",
                 icon: "heart.fill",
-                gradientColors: [.gray, .secondary],
+                gradientColors: [.gray],
                 title: L("permission.item.health.title"),
                 status: .unavailable(L("permission.status.unavailable")),
                 detail: L("permission.item.health.detail.unavailable"),
@@ -630,7 +635,7 @@ private struct PermissionAccessItem: Identifiable {
         let base = PermissionAccessItem(
             id: "location",
             icon: "location.fill",
-            gradientColors: [.blue, .green.opacity(0.75)],
+            gradientColors: [AppColors.accentBlue],
             title: L("permission.item.location.title"),
             status: .ready(L("permission.status.allowed")),
             detail: L("permission.item.location.detail.allowed"),
@@ -672,7 +677,7 @@ private struct PermissionAccessItem: Identifiable {
         let base = PermissionAccessItem(
             id: "calendar",
             icon: "calendar",
-            gradientColors: [.white, .red.opacity(0.78)],
+            gradientColors: [Color(red: 1, green: 0.42, blue: 0.39)],
             title: L("permission.item.calendar.title"),
             status: .ready(L("permission.status.allowed")),
             detail: L("permission.item.calendar.detail.allowed"),
@@ -713,10 +718,7 @@ private struct PermissionAccessItem: Identifiable {
         PermissionAccessItem(
             id: "system",
             icon: "internaldrive.fill",
-            gradientColors: [
-                Color(red: 0.31, green: 0.56, blue: 1),
-                Color(red: 0.08, green: 0.79, blue: 0.55),
-            ],
+            gradientColors: [Color(red: 0.31, green: 0.56, blue: 1)],
             title: L("permission.item.system.title"),
             status: .ready(L("permission.status.no_permission_needed")),
             detail: L("permission.item.system.detail"),
@@ -741,7 +743,7 @@ private struct PermissionAccessItem: Identifiable {
     }
 }
 
-private enum PermissionAccessStatus {
+enum PermissionAccessStatus {
     case ready(String)
     case needsRequest(String)
     case blocked(String)
@@ -776,7 +778,7 @@ private enum PermissionAccessStatus {
     }
 }
 
-private enum PermissionAccessAction {
+enum PermissionAccessAction {
     case requestHealth
     case requestLocation
     case requestCalendar
@@ -885,262 +887,8 @@ private struct SettingsRowContent: View {
     }
 }
 
-// MARK: - Detail Screen
-
-private struct SettingsDetailScreen: View {
-    let route: SettingsRoute
-    @Binding var permissionSnapshot: PermissionAccessSnapshot
-    let onBack: () -> Void
-
-    var body: some View {
-        ScrollFadeView(
-            showsIndicators: false,
-            headerHeight: 36,
-            contentTopPadding: 12,
-            coordinateSpaceName: "settingsDetailScroll"
-        ) { fadeProgress in
-            FadingNavigationBar(fadeProgress: fadeProgress) {
-                header
-            }
-        } content: {
-            VStack(spacing: 16) {
-                content
-                    .padding(.bottom, 120)
-            }
-            .padding(.horizontal, AppSpacing.screenHorizontal)
-        }
-        .background(AppColors.appBackground.ignoresSafeArea())
-        .toolbarVisibility(.hidden, for: .navigationBar)
-        .task {
-            guard route == .permissions else { return }
-            await refreshPermissionSnapshot()
-        }
-    }
-
-    private var header: some View {
-        ZStack {
-            Text(title)
-                .font(AppFonts.font(.heading2))
-                .foregroundStyle(AppColors.primaryText)
-                .frame(maxWidth: .infinity)
-
-            HStack {
-                Button(action: onBack) {
-                    Image(systemName: "chevron.left")
-                        .font(AppFonts.font(.caption))
-                        .foregroundStyle(AppColors.primaryText)
-                        .frame(width: 42, height: 42)
-                        .background(AppColors.card)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-
-                Spacer()
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        switch route {
-        case .permissions:
-            permissionsContent
-        case .faq:
-            detailCard(
-                icon: "questionmark",
-                iconBackground: Color(red: 1, green: 0.78, blue: 0.31),
-                title: L("settings.row.faq"),
-                status: L("faq.status.ready"),
-                statusColor: AppColors.accentGreen,
-                detail: L("faq.detail")
-            )
-        case .changeIcon, .changeLanguage:
-            // Handled by AppIconPickerScreen/LanguagePickerScreen via
-            // navigationDestination; never rendered here. Kept for switch
-            // exhaustiveness.
-            EmptyView()
-        case .whatsNew:
-            detailCard(
-                icon: "arrow.up",
-                iconBackground: Color(red: 0.31, green: 0.56, blue: 1),
-                title: L("settings.row.whats_new"),
-                status: "Build 19",
-                statusColor: AppColors.accentBlue,
-                detail: L("whats_new.detail")
-            )
-        }
-    }
-
-    private var permissionsContent: some View {
-        VStack(spacing: 14) {
-            ForEach(permissionSnapshot.items) { item in
-                permissionCard(item)
-            }
-        }
-    }
-
-    private var title: String {
-        switch route {
-        case .changeIcon:
-            L("settings.row.change_icon")
-        case .changeLanguage:
-            L("settings.row.language")
-        case .permissions:
-            L("settings.row.permissions")
-        case .faq:
-            L("settings.row.faq")
-        case .whatsNew:
-            L("settings.row.whats_new")
-        }
-    }
-
-    private func detailCard(
-        icon: String,
-        iconBackground: Color,
-        title: String,
-        status: String,
-        statusColor: Color,
-        detail: String
-    ) -> some View {
-        detailCard(
-            icon: icon,
-            iconBackground: LinearGradient(
-                colors: [iconBackground, iconBackground],
-                startPoint: .top,
-                endPoint: .bottom
-            ),
-            title: title,
-            status: status,
-            statusColor: statusColor,
-            detail: detail
-        )
-    }
-
-    private func detailCard(
-        icon: String,
-        iconBackground: LinearGradient,
-        title: String,
-        status: String,
-        statusColor: Color,
-        detail: String
-    ) -> some View {
-        permissionCard(
-            icon: icon,
-            iconBackground: iconBackground,
-            title: title,
-            status: status,
-            statusColor: statusColor,
-            detail: detail,
-            actionTitle: nil
-        )
-    }
-
-    private func permissionCard(
-        icon: String,
-        iconBackground: LinearGradient,
-        title: String,
-        status: String,
-        statusColor: Color,
-        detail: String,
-        actionTitle: String?,
-        action: @escaping () -> Void = {}
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 14) {
-                Image(systemName: icon)
-                    .font(AppFonts.font(.heading3))
-                    .foregroundStyle(.white)
-                    .frame(width: 46, height: 46)
-                    .background(iconBackground)
-                    .clipShape(
-                        RoundedRectangle(cornerRadius: 13, style: .continuous)
-                    )
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(AppFonts.font(.heading3))
-                        .foregroundStyle(AppColors.primaryText)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.82)
-                    Text(status)
-                        .font(AppFonts.font(.caption))
-                        .foregroundStyle(statusColor)
-                }
-
-                Spacer()
-
-                if let actionTitle {
-                    Button(actionTitle, action: action)
-                        .font(AppFonts.font(.meta))
-                        .foregroundStyle(AppColors.primaryText)
-                        .padding(.horizontal, 14)
-                        .frame(height: 30)
-                        .background(AppColors.appBackground.opacity(0.6))
-                        .clipShape(Capsule())
-                }
-            }
-
-            Text(detail)
-                .font(AppFonts.font(.caption))
-                .lineSpacing(AppFonts.lineSpacing(.caption))
-                .foregroundStyle(AppColors.primaryText)
-        }
-        .padding(16)
-        .background(AppColors.card)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-    }
-
-    private func permissionCard(_ item: PermissionAccessItem) -> some View {
-        permissionCard(
-            icon: item.icon,
-            iconBackground: LinearGradient(
-                colors: item.gradientColors,
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            ),
-            title: item.title,
-            status: item.status.title,
-            statusColor: item.status.color,
-            detail: item.detail,
-            actionTitle: item.action?.title
-        ) {
-            guard let action = item.action else { return }
-            Task {
-                await performPermissionAction(action)
-            }
-        }
-    }
-
-    @MainActor
-    private func performPermissionAction(_ action: PermissionAccessAction) async
-    {
-        switch action {
-        case .requestHealth:
-            await HealthSummaryProvider.shared.requestAuthorization()
-        case .requestLocation:
-            _ = await LocationProvider().requestAuthorizationStatus()
-        case .requestCalendar:
-            _ = await EventKitProvider.requestCalendarAccess()
-        case .openSettings:
-            openAppSettings()
-        }
-
-        await refreshPermissionSnapshot()
-    }
-
-    @MainActor
-    private func refreshPermissionSnapshot() async {
-        permissionSnapshot = await PermissionAccessSnapshot.current()
-    }
-
-    private func openAppSettings() {
-        guard let url = URL(string: UIApplication.openSettingsURLString) else {
-            return
-        }
-        UIApplication.shared.open(url)
-    }
-}
-
 #Preview {
     SettingsScreen()
+        .environment(LocalizationManager.shared)
+        .environment(\.locale, LocalizationManager.shared.locale)
 }

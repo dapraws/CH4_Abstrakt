@@ -1,5 +1,5 @@
 //
-//  AppIconPickerScreen.swift
+//  AppIconScreen.swift
 //  Abstrakt
 //
 //  Created by Muhammad Darrel Prawira on 06/07/26.
@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-/// Grid picker for the app's alternate icons.
+/// Grid screen for the app's alternate icons.
 ///
 /// Tapping a tile calls `UIApplication.setAlternateIconName`, which is an
 /// app-only API (never available in the widget extension). iOS shows its own
 /// confirmation alert after the change — that alert is system-owned and cannot
 /// be suppressed via public API.
-struct AppIconPickerScreen: View {
+struct AppIconScreen: View {
     let onBack: () -> Void
 
     @State private var selectedIconID: String = AppIconOption.from(
@@ -21,18 +21,21 @@ struct AppIconPickerScreen: View {
     ).id
     @State private var changeError: String?
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: 2)
-    private let tileCornerRadius: CGFloat = 24
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: 4)
+    private let iconCornerRadius: CGFloat = 16
 
     var body: some View {
         ScrollFadeView(
             showsIndicators: false,
             headerHeight: 36,
             contentTopPadding: 12,
-            coordinateSpaceName: "appIconPickerScroll"
+            coordinateSpaceName: "appIconScroll"
         ) { fadeProgress in
             FadingNavigationBar(fadeProgress: fadeProgress) {
-                header
+                SettingsSubscreenHeader(
+                    title: L("settings.row.change_icon"),
+                    onBack: onBack
+                )
             }
         } content: {
             VStack(spacing: 16) {
@@ -54,32 +57,8 @@ struct AppIconPickerScreen: View {
         }
         .background(AppColors.appBackground.ignoresSafeArea())
         .toolbarVisibility(.hidden, for: .navigationBar)
+        .settingsEdgeSwipeBack(onBack: onBack)
         .sensoryFeedback(.selection, trigger: selectedIconID)
-    }
-
-    // MARK: - Header
-
-    private var header: some View {
-        ZStack {
-            Text("App Icon")
-                .font(AppFonts.font(.heading2))
-                .foregroundStyle(AppColors.primaryText)
-                .frame(maxWidth: .infinity)
-
-            HStack {
-                Button(action: onBack) {
-                    Image(systemName: "chevron.left")
-                        .font(AppFonts.font(.caption))
-                        .foregroundStyle(AppColors.primaryText)
-                        .frame(width: 42, height: 42)
-                        .background(AppColors.card)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-
-                Spacer()
-            }
-        }
     }
 
     // MARK: - Tile
@@ -90,8 +69,8 @@ struct AppIconPickerScreen: View {
         return Button {
             select(option)
         } label: {
-            VStack(spacing: 12) {
-                iconThumbnail(option)
+            VStack(spacing: 8) {
+                iconThumbnail(option, isSelected: isSelected)
 
                 Text(option.displayName)
                     .font(AppFonts.font(.caption))
@@ -100,49 +79,53 @@ struct AppIconPickerScreen: View {
                     .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity)
-            .padding(.top, 36)
-            .padding(.bottom, 24)
-            .background(isSelected ? AppColors.primaryText.opacity(0.06) : AppColors.cardSoft)
-            .clipShape(RoundedRectangle(cornerRadius: tileCornerRadius, style: .continuous))
-            .overlay {
-                if isSelected {
-                    RoundedRectangle(cornerRadius: tileCornerRadius - 6, style: .continuous)
-                        .stroke(
-                            AppColors.primaryText.opacity(0.28),
-                            style: StrokeStyle(lineWidth: 2, dash: [7, 5])
-                        )
-                        .padding(6)
-                }
-            }
         }
         .buttonStyle(.plain)
         .animation(.smooth(duration: 0.18), value: isSelected)
     }
 
     @ViewBuilder
-    private func iconThumbnail(_ option: AppIconOption) -> some View {
-        let shape = RoundedRectangle(cornerRadius: 18, style: .continuous)
+    private func iconThumbnail(_ option: AppIconOption, isSelected: Bool) -> some View {
+        let shape = RoundedRectangle(cornerRadius: iconCornerRadius, style: .continuous)
 
-        if let image = UIImage(named: option.previewAssetName) {
-            Image(uiImage: image)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 74, height: 74)
-                .clipShape(shape)
-        } else {
-            // Placeholder shown until the design team drops in real preview art.
-            shape
-                .fill(AppColors.miniAppEmptySlot)
-                .frame(width: 74, height: 74)
-                .overlay {
-                    Image(systemName: "app.dashed")
-                        .font(AppFonts.font(.heading2))
-                        .foregroundStyle(AppColors.tertiaryText)
-                }
-                .overlay {
-                    shape.stroke(AppColors.miniAppEmptySlotBorder, lineWidth: 1)
-                }
+        ZStack(alignment: .topTrailing) {
+            if let image = UIImage(named: option.previewAssetName) {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 54, height: 54)
+                    .clipShape(shape)
+            } else {
+                // Placeholder shown until the design team drops in real preview art.
+                shape
+                    .fill(AppColors.miniAppEmptySlot)
+                    .frame(width: 54, height: 54)
+                    .overlay {
+                        Image(systemName: "app.dashed")
+                            .font(AppFonts.font(.caption))
+                            .foregroundStyle(AppColors.tertiaryText)
+                    }
+                    .overlay {
+                        shape.stroke(AppColors.miniAppEmptySlotBorder, lineWidth: 1)
+                    }
+            }
+
+            if isSelected {
+                Image(systemName: "checkmark.seal.fill")
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(.white, .green)
+                    .font(.system(size: 16))
+                    .scaleEffect(isSelected ? 1 : 0.55)
+                    .opacity(isSelected ? 1 : 0)
+                    .rotationEffect(.degrees(6))
+                    .offset(x: 6, y: -6)
+                    .transition(
+                        .scale(scale: 0.55, anchor: .center)
+                            .combined(with: .opacity)
+                    )
+            }
         }
+        .animation(.smooth(duration: 0.24), value: isSelected)
     }
 
     // MARK: - Selection
@@ -153,7 +136,9 @@ struct AppIconPickerScreen: View {
         // No-op if the requested icon already matches the live state.
         let currentName = UIApplication.shared.alternateIconName
         guard currentName != option.alternateIconName else {
-            selectedIconID = option.id
+            withAnimation(.smooth(duration: 0.24)) {
+                selectedIconID = option.id
+            }
             return
         }
 
@@ -163,7 +148,7 @@ struct AppIconPickerScreen: View {
                     changeError = "Couldn't change icon: \(error.localizedDescription)"
                 } else {
                     changeError = nil
-                    withAnimation(.smooth(duration: 0.18)) {
+                    withAnimation(.smooth(duration: 0.24)) {
                         selectedIconID = option.id
                     }
                 }
@@ -174,6 +159,6 @@ struct AppIconPickerScreen: View {
 
 #Preview {
     NavigationStack {
-        AppIconPickerScreen(onBack: {})
+        AppIconScreen(onBack: {})
     }
 }

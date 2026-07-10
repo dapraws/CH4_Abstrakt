@@ -41,7 +41,7 @@ enum PortalApp: String, Codable, Identifiable {
     case photos
     case safari
     case shortcuts
-    case settings
+    case health
     case store
     case translate
 
@@ -51,7 +51,7 @@ enum PortalApp: String, Codable, Identifiable {
         .calls,
         .messages,
         .shortcuts,
-        .settings,
+        .health,
         .activity,
         .music,
         .books,
@@ -72,7 +72,7 @@ enum PortalApp: String, Codable, Identifiable {
         .maps,
         .calendar,
         .shortcuts,
-        .settings,
+        .health,
     ]
 
     static func selection(from storedValue: String?) -> [PortalApp] {
@@ -120,8 +120,8 @@ enum PortalApp: String, Codable, Identifiable {
             "Safari"
         case .shortcuts:
             "Shortcuts"
-        case .settings:
-            "Settings"
+        case .health:
+            "Health"
         case .store:
             "App Store"
         case .translate:
@@ -157,8 +157,8 @@ enum PortalApp: String, Codable, Identifiable {
             "safari"
         case .shortcuts:
             "shortcuts"
-        case .settings:
-            "settings"
+        case .health:
+            "health"
         case .store:
             "store"
         case .translate:
@@ -194,8 +194,8 @@ enum PortalApp: String, Codable, Identifiable {
             URL(string: "https://www.apple.com")!
         case .shortcuts:
             URL(string: "shortcuts://")!
-        case .settings:
-            URL(string: "App-Prefs:root")!
+        case .health:
+            URL(string: "health://")!
         case .store:
             URL(string: "itms-apps://apps.apple.com")!
         case .translate:
@@ -381,12 +381,12 @@ struct OpenPortalTranslateIntent: AppIntent {
     }
 }
 
-struct OpenPortalSettingsIntent: AppIntent {
-    static var title: LocalizedStringResource = "Open Settings"
-    static var description = IntentDescription("Open Settings from the Portal.")
+struct OpenPortalHealthIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open Health"
+    static var description = IntentDescription("Open Health from the Portal.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
-        .result(opensIntent: OpenURLIntent(PortalApp.settings.launchURL))
+        .result(opensIntent: OpenURLIntent(PortalApp.health.launchURL))
     }
 }
 #endif
@@ -600,8 +600,8 @@ struct Portal: View {
         case .shortcuts:
             Button(role: nil, intent: OpenPortalShortcutsIntent(), label: label)
                 .buttonStyle(.plain)
-        case .settings:
-            Button(role: nil, intent: OpenPortalSettingsIntent(), label: label)
+        case .health:
+            Button(role: nil, intent: OpenPortalHealthIntent(), label: label)
                 .buttonStyle(.plain)
         case .store:
             Button(role: nil, intent: OpenPortalStoreIntent(), label: label)

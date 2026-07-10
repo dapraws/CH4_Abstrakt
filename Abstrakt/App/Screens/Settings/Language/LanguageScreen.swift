@@ -1,5 +1,5 @@
 //
-//  LanguagePickerScreen.swift
+//  LanguageScreen.swift
 //  Abstrakt
 //
 //  Created by Muhammad Darrel Prawira on 07/07/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LanguagePickerScreen: View {
+struct LanguageScreen: View {
     let onBack: () -> Void
 
     @Environment(LocalizationManager.self) private var localization
@@ -19,10 +19,13 @@ struct LanguagePickerScreen: View {
             showsIndicators: false,
             headerHeight: 36,
             contentTopPadding: 12,
-            coordinateSpaceName: "languagePickerScroll"
+            coordinateSpaceName: "languageScroll"
         ) { fadeProgress in
             FadingNavigationBar(fadeProgress: fadeProgress) {
-                header
+                SettingsSubscreenHeader(
+                    title: L("language.title"),
+                    onBack: onBack
+                )
             }
         } content: {
             VStack(spacing: 14) {
@@ -35,32 +38,8 @@ struct LanguagePickerScreen: View {
         }
         .background(AppColors.appBackground.ignoresSafeArea())
         .toolbarVisibility(.hidden, for: .navigationBar)
+        .settingsEdgeSwipeBack(onBack: onBack)
         .sensoryFeedback(.selection, trigger: localization.currentLanguage)
-    }
-
-    // MARK: - Header
-
-    private var header: some View {
-        ZStack {
-            Text(L("language_picker.title"))
-                .font(AppFonts.font(.heading2))
-                .foregroundStyle(AppColors.primaryText)
-                .frame(maxWidth: .infinity)
-
-            HStack {
-                Button(action: onBack) {
-                    Image(systemName: "chevron.left")
-                        .font(AppFonts.font(.caption))
-                        .foregroundStyle(AppColors.primaryText)
-                        .frame(width: 42, height: 42)
-                        .background(AppColors.card)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-
-                Spacer()
-            }
-        }
     }
 
     // MARK: - Tile
@@ -106,7 +85,8 @@ struct LanguagePickerScreen: View {
 
 #Preview {
     NavigationStack {
-        LanguagePickerScreen(onBack: {})
+        LanguageScreen(onBack: {})
             .environment(LocalizationManager.shared)
+            .environment(\.locale, LocalizationManager.shared.locale)
     }
 }

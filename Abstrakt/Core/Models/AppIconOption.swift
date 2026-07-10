@@ -7,12 +7,12 @@
 
 import Foundation
 
-/// A selectable app icon shown in the icon picker.
+/// A selectable app icon shown in the app icon screen.
 ///
 /// - `alternateIconName` is the key registered under `CFBundleAlternateIcons`
 ///   in the app's `Info.plist`, or `nil` for the primary icon.
 /// - `previewAssetName` is an image in `Assets.xcassets/AppIcons/` used as a
-///   thumbnail in the picker.
+///   thumbnail in the app icon screen.
 /// - Alternate icon PNGs are copied as loose app resources and referenced by
 ///   `Info.plist`.
 struct AppIconOption: Identifiable, Hashable {
@@ -25,7 +25,7 @@ struct AppIconOption: Identifiable, Hashable {
 }
 
 extension AppIconOption {
-    /// All options in the order shown in the picker. First entry is the
+    /// All options in the order shown in the app icon screen. First entry is the
     /// primary icon (uses the existing `AppIcon` asset as its thumbnail).
     static let all: [AppIconOption] = [
         AppIconOption(id: "default", displayName: "Default", alternateIconName: nil, previewAssetName: "AbstraktDefaultPreview"),
@@ -52,6 +52,15 @@ extension AppIconOption {
 
 extension AppIconOption {
     var localizedName: String {
-        L("app_icon.\(id)")
+        switch id {
+        case "glass":
+            L("app_icon.glass")
+        case "purple":
+            L("app_icon.purple")
+        case "blue":
+            L("app_icon.blue")
+        default:
+            L("app_icon.default")
+        }
     }
 }
