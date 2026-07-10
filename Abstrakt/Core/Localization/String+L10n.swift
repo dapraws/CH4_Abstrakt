@@ -14,13 +14,12 @@
 //
 
 import Foundation
-import SwiftUI
 
-func L(_ key: String, _ args: CVarArg...) -> String {
-    let format = LocalizationManager.shared.bundle.localizedString(
-        forKey: key,
-        value: nil,
-        table: nil
+func L(_ key: String.LocalizationValue, _ args: CVarArg...) -> String {
+    let format = String(
+        localized: key,
+        bundle: LocalizationManager.shared.bundle,
+        locale: LocalizationManager.shared.locale
     )
     if args.isEmpty { return format }
     return String(format: format, locale: LocalizationManager.shared.locale, arguments: args)
