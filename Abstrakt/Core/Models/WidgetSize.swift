@@ -52,3 +52,18 @@ enum WidgetSize: String, CaseIterable, Codable, Identifiable {
         previewSize(fittingWidth: availableWidth).height
     }
 }
+
+// MARK: - Localization
+
+extension WidgetSize {
+    var localizedName: String {
+        switch self {
+        case .small:
+            L("widget_size.small")
+        case .medium:
+            L("widget_size.medium")
+        case .large:
+            L("widget_size.large")
+        }
+    }
+}

@@ -18,15 +18,15 @@ enum WidgetCategory: String, CaseIterable, Codable, Hashable, Identifiable {
         case .portal:
             "Portal"
         case .healthKit:
-            "HealthKit"
+            "Health"
         case .weatherKit:
-            "WeatherKit"
+            "Weather"
         case .foundation:
-            "Foundation"
+            "Time"
         case .eventKit:
-            "EventKit"
+            "Calendar"
         case .uiKit:
-            "UIKit"
+            "Device"
         }
     }
 
@@ -46,6 +46,29 @@ enum WidgetCategory: String, CaseIterable, Codable, Hashable, Identifiable {
             "calendar"
         case .uiKit:
             "iphone"
+        }
+    }
+}
+
+// MARK: - Localization
+
+extension WidgetCategory {
+    var localizedTitle: String {
+        switch self {
+        case .all:
+            L("widget_category.all")
+        case .portal:
+            L("widget_category.portal")
+        case .healthKit:
+            L("widget_category.health")
+        case .weatherKit:
+            L("widget_category.weather")
+        case .foundation:
+            L("widget_category.time")
+        case .eventKit:
+            L("widget_category.calendar")
+        case .uiKit:
+            L("widget_category.device")
         }
     }
 }

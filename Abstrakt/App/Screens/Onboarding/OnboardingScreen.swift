@@ -5,10 +5,10 @@ struct OnboardingScreen: View {
 
     @State private var currentStep = 0
 
-    private let steps = [
-        "Welcome to Abstrakt.\nBuild your own widget library.",
-        "Browse by style or data category.\nThen open a widget to customize it.",
-        "Save presets to your library.\nThen choose them from the Home Screen widget."
+    private let stepKeys = [
+        "onboarding.step1",
+        "onboarding.step2",
+        "onboarding.step3"
     ]
 
     var body: some View {
@@ -19,8 +19,8 @@ struct OnboardingScreen: View {
                 Spacer()
 
                 TabView(selection: $currentStep) {
-                    ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
-                        Text(step)
+                    ForEach(Array(stepKeys.enumerated()), id: \.offset) { index, key in
+                        Text(L(key))
                             .font(AppFonts.font(.title))
                             .foregroundStyle(AppColors.primaryText)
                             .multilineTextAlignment(.center)
@@ -32,13 +32,13 @@ struct OnboardingScreen: View {
                 .frame(height: 260)
 
                 Button {
-                    if currentStep == steps.count - 1 {
+                    if currentStep == stepKeys.count - 1 {
                         onFinish()
                     } else {
                         currentStep += 1
                     }
                 } label: {
-                    Text(currentStep == steps.count - 1 ? "Start" : "Next")
+                    Text(currentStep == stepKeys.count - 1 ? L("onboarding.start") : L("onboarding.next"))
                         .font(AppFonts.font(.heading3))
                         .foregroundStyle(AppColors.chipTextSelected)
                         .frame(maxWidth: .infinity)

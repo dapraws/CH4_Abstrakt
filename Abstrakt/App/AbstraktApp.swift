@@ -10,6 +10,8 @@ import SwiftUI
 
 @main
 struct AbstraktApp: App {
+    @State private var localization = LocalizationManager.shared
+
     init() {
         prewarmSharedResources()
     }
@@ -17,6 +19,8 @@ struct AbstraktApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(localization)
+                .environment(\.locale, localization.locale)
         }
     }
 }

@@ -31,7 +31,7 @@ struct AppsPickerSheet: View {
         HStack(spacing: 12) {
             SheetHeaderSymbol(systemName: "app.dashed")
 
-            Text("App Picker")
+            Text(L("apps_picker.title"))
                 .font(AppFonts.font(.heading2))
                 .foregroundStyle(AppColors.primaryText)
 
@@ -42,7 +42,7 @@ struct AppsPickerSheet: View {
                 WidgetTimelineReloadScheduler.schedule()
                 dismiss()
             } label: {
-                Text("Done")
+                Text(L("common.done"))
                     .font(AppFonts.font(.heading3))
                     .foregroundStyle(AppColors.appBackground)
                     .frame(height: 42)

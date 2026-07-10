@@ -335,3 +335,20 @@ private enum CustomFontFile: String, CaseIterable {
             ?? bundle.url(forResource: resourceName, withExtension: "ttf")
     }
 }
+
+// MARK: - Localization
+
+extension AppFontTheme {
+    var localizedPreviewText: String {
+        switch self {
+        case .sfPro:
+            L("font_theme.preview.sf_pro")
+        case .sfProRounded:
+            L("font_theme.preview.sf_pro_rounded")
+        case .quicksand:
+            L("font_theme.preview.quicksand")
+        case .fusionPixel:
+            L("font_theme.preview.fusion_pixel")
+        }
+    }
+}

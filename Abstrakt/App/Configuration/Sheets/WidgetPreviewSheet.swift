@@ -30,17 +30,20 @@ struct WidgetPreviewSheetPresentation: View {
                     .ignoresSafeArea()
                     .onTapGesture(perform: close)
 
-                WidgetPreviewSheetContent(item: item, actionStyle: actionStyle) {
+                WidgetPreviewSheetContent(item: item, actionStyle: actionStyle)
+                {
                     close()
                 }
                 .frame(width: proxy.size.width, height: sheetHeight)
-                .clipShape(UnevenRoundedRectangle(
-                    topLeadingRadius: 42,
-                    bottomLeadingRadius: 0,
-                    bottomTrailingRadius: 0,
-                    topTrailingRadius: 42,
-                    style: .continuous
-                ))
+                .clipShape(
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: 42,
+                        bottomLeadingRadius: 0,
+                        bottomTrailingRadius: 0,
+                        topTrailingRadius: 42,
+                        style: .continuous
+                    )
+                )
                 .background(alignment: .bottom) {
                     AppColors.appBackground
                         .frame(height: upwardResistanceLimit)
@@ -84,12 +87,19 @@ struct WidgetPreviewSheetPresentation: View {
                 }
             }
             .onEnded { value in
-                let shouldDismiss = value.translation.height > 90 || value.predictedEndTranslation.height > 180
+                let shouldDismiss =
+                    value.translation.height > 90
+                    || value.predictedEndTranslation.height > 180
 
                 if shouldDismiss {
                     close()
                 } else {
-                    withAnimation(.interactiveSpring(response: 0.22, dampingFraction: 0.86)) {
+                    withAnimation(
+                        .interactiveSpring(
+                            response: 0.22,
+                            dampingFraction: 0.86
+                        )
+                    ) {
                         dragOffset = 0
                     }
                 }
@@ -121,7 +131,10 @@ struct WidgetPreviewSheetPresentation: View {
             return
         }
 
-        withAnimation(.smooth(duration: 0.34, extraBounce: 0), completionCriteria: .logicallyComplete) {
+        withAnimation(
+            .smooth(duration: 0.34, extraBounce: 0),
+            completionCriteria: .logicallyComplete
+        ) {
             isPresented = false
             dragOffset = 0
         } completion: {
@@ -137,12 +150,20 @@ private struct WidgetPreviewSheetContent: View {
     let actionStyle: WidgetPreviewSheetActionStyle
     var onDismiss: (() -> Void)? = nil
 
-    @AppStorage(AppGroupConstants.portalSelectedAppsKey, store: settingsStore) private var portalSelectedAppsValue = PortalApp.storageValue(for: PortalApp.defaultSelection)
-    @AppStorage(AppGroupConstants.portalIconClipStyleKey, store: settingsStore) private var portalIconClipStyleID = PortalIconClipStyle.default.id
-    @AppStorage(AppGroupConstants.activityModeKey, store: settingsStore) private var activityModeID = ActivityMode.today.id
-    @AppStorage(AppGroupConstants.eventModeKey, store: settingsStore) private var eventModeID = EventDisplayMode.upcoming.id
-    @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
-    @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore) private var sharedAppFontThemeID = AppFonts.defaultTheme.id
+    @AppStorage(AppGroupConstants.portalSelectedAppsKey, store: settingsStore)
+    private var portalSelectedAppsValue = PortalApp.storageValue(
+        for: PortalApp.defaultSelection
+    )
+    @AppStorage(AppGroupConstants.portalIconClipStyleKey, store: settingsStore)
+    private var portalIconClipStyleID = PortalIconClipStyle.default.id
+    @AppStorage(AppGroupConstants.activityModeKey, store: settingsStore) private
+        var activityModeID = ActivityMode.today.id
+    @AppStorage(AppGroupConstants.eventModeKey, store: settingsStore) private
+        var eventModeID = EventDisplayMode.upcoming.id
+    @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID =
+        AppFonts.defaultTheme.id
+    @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore)
+    private var sharedAppFontThemeID = AppFonts.defaultTheme.id
     @Environment(\.displayScale) private var displayScale
     @Environment(\.colorScheme) private var colorScheme
     @State private var showsAppsPicker = false
@@ -239,7 +260,10 @@ private struct WidgetPreviewSheetContent: View {
     var body: some View {
         GeometryReader { proxy in
             let previewSize = item.size.previewSize(
-                fittingWidth: max(0, proxy.size.width - (AppSpacing.screenHorizontal * 2))
+                fittingWidth: max(
+                    0,
+                    proxy.size.width - (AppSpacing.screenHorizontal * 2)
+                )
             )
             let scaledPreviewSize = CGSize(
                 width: previewSize.width * previewScale,
@@ -250,22 +274,27 @@ private struct WidgetPreviewSheetContent: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
                         configuredPreview()
-                        .id(previewIdentity)
-                        .frame(width: previewSize.width, height: previewSize.height)
-                        .environment(\.colorScheme, previewColorScheme)
-                        .scaleEffect(previewScale)
-                        .frame(
-                            width: scaledPreviewSize.width,
-                            height: scaledPreviewSize.height
-                        )
+                            .id(previewIdentity)
+                            .frame(
+                                width: previewSize.width,
+                                height: previewSize.height
+                            )
+                            .environment(\.colorScheme, previewColorScheme)
+                            .scaleEffect(previewScale)
+                            .frame(
+                                width: scaledPreviewSize.width,
+                                height: scaledPreviewSize.height
+                            )
 
-                        Text("\(item.displayName) | \(item.primaryCategory.title)")
-                            .font(AppFonts.font(.heading3))
-                            .foregroundStyle(AppColors.primaryText)
-                            .multilineTextAlignment(.center)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.72)
-                            .frame(maxWidth: .infinity, alignment: .center)
+                        Text(
+                            "\(item.displayName) | \(item.primaryCategory.localizedTitle)"
+                        )
+                        .font(AppFonts.font(.heading3))
+                        .foregroundStyle(AppColors.primaryText)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.72)
+                        .frame(maxWidth: .infinity, alignment: .center)
 
                         customizationControls
                     }
@@ -274,25 +303,38 @@ private struct WidgetPreviewSheetContent: View {
                     .padding(.bottom, 132 + AppSpacing.bottomBarInset)
                 }
 
-                WidgetPreviewPrimaryButton(configuration: primaryButtonConfiguration) {
+                WidgetPreviewPrimaryButton(
+                    configuration: primaryButtonConfiguration
+                ) {
                     performPrimaryAction()
                 }
-                .animation(.snappy(duration: 0.24, extraBounce: 0), value: primaryButtonConfiguration.identity)
+                .animation(
+                    .snappy(duration: 0.24, extraBounce: 0),
+                    value: primaryButtonConfiguration.identity
+                )
                 .padding(.bottom, AppSpacing.bottomBarInset)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(AppColors.appBackground)
             .ignoresSafeArea(.container, edges: [.horizontal, .bottom])
             .onAppear(perform: syncConfigurationFromPreset)
-            .alert("Permission Required", isPresented: $showingPermissionAlert) {
-                Button("Cancel", role: .cancel) { }
-                Button("Open Settings") {
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
+            .alert(
+                L("widget_preview.permission_alert.title"),
+                isPresented: $showingPermissionAlert
+            ) {
+                Button(L("common.cancel"), role: .cancel) {}
+                Button(L("widget_preview.permission_alert.open_settings")) {
+                    if let url = URL(
+                        string: UIApplication.openSettingsURLString
+                    ) {
                         UIApplication.shared.open(url)
                     }
                 }
             } message: {
-                Text(permissionAlertMessage ?? "This widget requires additional permissions in Settings.")
+                Text(
+                    permissionAlertMessage
+                        ?? L("widget_preview.permission_note")
+                )
             }
         }
         .sheet(isPresented: $showsAppsPicker) {
@@ -307,12 +349,14 @@ private struct WidgetPreviewSheetContent: View {
 
     @ViewBuilder
     private var customizationControls: some View {
-        WidgetCustomizationSection(title: "Appearance") {
+        WidgetCustomizationSection(
+            title: L("widget_preview.section.appearance")
+        ) {
             WidgetAppearanceControls(mode: $appearanceMode)
         }
         .padding(.top, 10)
 
-        WidgetCustomizationSection(title: "Font") {
+        WidgetCustomizationSection(title: L("widget_preview.section.font")) {
             WidgetFontCustomizationRow(
                 selectedThemeName: selectedFontDisplayName,
                 openFontPicker: {
@@ -329,10 +373,14 @@ private struct WidgetPreviewSheetContent: View {
     }
 
     @ViewBuilder
-    private func customizationSection(for customization: WidgetCustomization) -> some View {
+    private func customizationSection(for customization: WidgetCustomization)
+        -> some View
+    {
         switch customization {
         case .portalApps:
-            WidgetCustomizationSection(title: "Application") {
+            WidgetCustomizationSection(
+                title: L("widget_preview.section.application")
+            ) {
                 PortalCustomizationControls(
                     selectedApps: portalSelectedAppsBinding,
                     clipStyle: portalIconClipStyleBinding
@@ -341,24 +389,32 @@ private struct WidgetPreviewSheetContent: View {
                 }
             }
         case .activityMode:
-            WidgetCustomizationSection(title: "Data Range") {
+            WidgetCustomizationSection(
+                title: L("widget_preview.section.data_range")
+            ) {
                 WidgetSegmentedControl(selection: activityModeBinding)
             }
         case .eventMode:
-            WidgetCustomizationSection(title: "Event Priority") {
+            WidgetCustomizationSection(
+                title: L("widget_preview.section.event_priority")
+            ) {
                 WidgetSegmentedControl(selection: eventModeBinding)
             }
         }
     }
 
     private var isSaved: Bool {
-        SharedModelContainer.readWidgetPresets().contains { $0.widgetID == item.id && $0.size == item.size }
+        SharedModelContainer.readWidgetPresets().contains {
+            $0.widgetID == item.id && $0.size == item.size
+        }
     }
 
-    private var primaryButtonConfiguration: WidgetPreviewPrimaryButtonConfiguration {
+    private var primaryButtonConfiguration:
+        WidgetPreviewPrimaryButtonConfiguration
+    {
         if isPerformingPrimaryAction {
             return WidgetPreviewPrimaryButtonConfiguration(
-                title: "Preparing widget",
+                title: L("widget_preview.preparing"),
                 systemImage: "hourglass",
                 tint: .blue
             )
@@ -367,19 +423,21 @@ private struct WidgetPreviewSheetContent: View {
         switch actionStyle {
         case .saveToLibrary:
             return WidgetPreviewPrimaryButtonConfiguration(
-                title: isSaved ? "Update widget" : "Save widget",
+                title: isSaved
+                    ? L("widget_preview.button.update")
+                    : L("widget_preview.button.save"),
                 systemImage: "checkmark.seal.fill",
                 tint: .green
             )
         case .removeFromLibrary where libraryConfigurationHasChanges:
             return WidgetPreviewPrimaryButtonConfiguration(
-                title: "Update widget",
+                title: L("widget_preview.button.update"),
                 systemImage: "checkmark.seal.fill",
                 tint: .green
             )
         case .removeFromLibrary:
             return WidgetPreviewPrimaryButtonConfiguration(
-                title: "Delete widget",
+                title: L("widget_preview.button.delete"),
                 systemImage: "xmark.seal.fill",
                 tint: .red
             )
@@ -412,7 +470,7 @@ private struct WidgetPreviewSheetContent: View {
                 await refreshSavedWidgetData()
                 shouldResetActionState = false
                 onDismiss?()
-            case let .removeFromLibrary(preset):
+            case .removeFromLibrary(let preset):
                 if libraryConfigurationHasChanges {
                     guard await requestPermissionsForCurrentWidget() else {
                         return
@@ -435,24 +493,30 @@ private struct WidgetPreviewSheetContent: View {
             case .healthKit:
                 let state = HealthSummaryProvider.shared.authorizationState()
                 if state == .unavailable {
-                    permissionAlertMessage = "Health access is unavailable on this device."
+                    permissionAlertMessage = L("permission.health.unavailable")
                     showingPermissionAlert = true
                     return false
                 }
                 if state == .notDetermined {
-                    _ = await HealthSummaryProvider.shared.requestAuthorization()
+                    _ = await HealthSummaryProvider.shared
+                        .requestAuthorization()
                 }
             case .weatherKit:
                 let status = CLLocationManager().authorizationStatus
                 if status == .notDetermined {
-                    let finalStatus = await LocationProvider().requestAuthorizationStatus()
-                    if finalStatus != .authorizedWhenInUse && finalStatus != .authorizedAlways {
-                        permissionAlertMessage = "Location access is required for Weather widgets."
+                    let finalStatus = await LocationProvider()
+                        .requestAuthorizationStatus()
+                    if finalStatus != .authorizedWhenInUse
+                        && finalStatus != .authorizedAlways
+                    {
+                        permissionAlertMessage = L(
+                            "permission.location.required"
+                        )
                         showingPermissionAlert = true
                         return false
                     }
                 } else if status == .denied || status == .restricted {
-                    permissionAlertMessage = "Location access is denied. Weather widgets need location access in Settings."
+                    permissionAlertMessage = L("permission.location.denied")
                     showingPermissionAlert = true
                     return false
                 }
@@ -461,12 +525,14 @@ private struct WidgetPreviewSheetContent: View {
                 if state == .notDetermined {
                     let granted = await EventKitProvider.requestCalendarAccess()
                     if !granted {
-                        permissionAlertMessage = "Calendar access is required for Events widgets."
+                        permissionAlertMessage = L(
+                            "permission.calendar.required"
+                        )
                         showingPermissionAlert = true
                         return false
                     }
                 } else if state == .denied || state == .restricted {
-                    permissionAlertMessage = "Calendar access is denied. Events widgets need calendar access in Settings."
+                    permissionAlertMessage = L("permission.calendar.denied")
                     showingPermissionAlert = true
                     return false
                 }
@@ -481,14 +547,17 @@ private struct WidgetPreviewSheetContent: View {
     private func refreshSavedWidgetData() async {
         if item.categories.contains(.healthKit) {
             let health = await HealthSummaryProvider.shared.todaySnapshot()
-            let activity = await HealthSummaryProvider.shared.activitySnapshots()
+            let activity = await HealthSummaryProvider.shared
+                .activitySnapshots()
             let heartRate = await HealthSummaryProvider.shared.latestHeartRate()
             SharedModelContainer.write(health: health)
             SharedModelContainer.write(activity: activity)
             SharedModelContainer.write(heartRate: heartRate)
         }
 
-        if item.categories.contains(.weatherKit) || item.categories.contains(.portal) {
+        if item.categories.contains(.weatherKit)
+            || item.categories.contains(.portal)
+        {
             let today = await WeatherProvider.shared.todaySnapshot()
             let portal = await WeatherProvider.shared.portalSnapshot()
             let weather = await WeatherProvider.shared.weatherSnapshot()
@@ -514,8 +583,10 @@ private struct WidgetPreviewSheetContent: View {
 
         switch actionStyle {
         case .saveToLibrary:
-            existingIndex = presets.firstIndex { $0.widgetID == item.id && $0.size == item.size }
-        case let .removeFromLibrary(preset):
+            existingIndex = presets.firstIndex {
+                $0.widgetID == item.id && $0.size == item.size
+            }
+        case .removeFromLibrary(let preset):
             existingIndex = presets.firstIndex { $0.id == preset.id }
         }
 
@@ -530,14 +601,17 @@ private struct WidgetPreviewSheetContent: View {
         )
 
         let preview = configuredPreview(isThumbnail: true)
-        .frame(width: 160, height: 160)
-        .environment(\.colorScheme, thumbnailColorScheme)
+            .frame(width: 160, height: 160)
+            .environment(\.colorScheme, thumbnailColorScheme)
 
         let renderer = ImageRenderer(content: preview)
         renderer.scale = displayScale
 
         if let image = renderer.uiImage, let data = image.pngData() {
-            SharedModelContainer.saveThumbnail(data, for: savedPreset.id.uuidString)
+            SharedModelContainer.saveThumbnail(
+                data,
+                for: savedPreset.id.uuidString
+            )
         }
 
         if let existingIndex {
@@ -580,8 +654,10 @@ private struct WidgetPreviewSheetContent: View {
         WidgetPreview(
             item: item,
             isThumbnail: isThumbnail,
-            portalSelectedAppsOverride: supports(.portalApps) ? portalSelectedApps : nil,
-            portalIconClipStyleOverride: supports(.portalApps) ? portalIconClipStyle : nil,
+            portalSelectedAppsOverride: supports(.portalApps)
+                ? portalSelectedApps : nil,
+            portalIconClipStyleOverride: supports(.portalApps)
+                ? portalIconClipStyle : nil,
             activityModeOverride: supports(.activityMode) ? activityMode : nil,
             eventModeOverride: supports(.eventMode) ? eventMode : nil,
             fontThemeOverride: selectedWidgetFontTheme
@@ -629,7 +705,8 @@ private struct WidgetPreviewSheetContent: View {
 
     private var libraryConfigurationHasChanges: Bool {
         guard case .removeFromLibrary = actionStyle,
-              let initialConfiguration else {
+            let initialConfiguration
+        else {
             return false
         }
 
@@ -644,7 +721,7 @@ private struct WidgetPreviewSheetContent: View {
             sourcePreset = SharedModelContainer.readWidgetPresets().first {
                 $0.widgetID == item.id && $0.size == item.size
             }
-        case let .removeFromLibrary(preset):
+        case .removeFromLibrary(let preset):
             sourcePreset = preset
         }
 
@@ -695,14 +772,23 @@ private struct WidgetAppearanceControls: View {
             let options = WidgetAppearanceMode.allCases
             let selectedIndex = options.firstIndex(of: mode) ?? 0
             let innerPadding: CGFloat = 5
-            let segmentWidth = max(0, (proxy.size.width - (innerPadding * 2)) / CGFloat(options.count))
+            let segmentWidth = max(
+                0,
+                (proxy.size.width - (innerPadding * 2)) / CGFloat(options.count)
+            )
 
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .fill(AppColors.card)
                     .frame(width: segmentWidth, height: 58)
-                    .offset(x: innerPadding + (CGFloat(selectedIndex) * segmentWidth))
-                    .animation(.snappy(duration: 0.24, extraBounce: 0), value: mode)
+                    .offset(
+                        x: innerPadding
+                            + (CGFloat(selectedIndex) * segmentWidth)
+                    )
+                    .animation(
+                        .snappy(duration: 0.24, extraBounce: 0),
+                        value: mode
+                    )
 
                 HStack(spacing: 0) {
                     ForEach(options) { option in
@@ -773,13 +859,21 @@ private struct WidgetFontPickerSheet: View {
 
     @Binding var selectedThemeID: String?
     @Environment(\.dismiss) private var dismiss
-    @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
-    @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore) private var sharedAppFontThemeID = AppFonts.defaultTheme.id
+    @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID =
+        AppFonts.defaultTheme.id
+    @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore)
+    private var sharedAppFontThemeID = AppFonts.defaultTheme.id
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: 2)
+    private let columns = Array(
+        repeating: GridItem(.flexible(), spacing: 14),
+        count: 2
+    )
     private let tileCornerRadius: CGFloat = 24
     private var activeAppFontTheme: AppFontTheme {
-        AppFontTheme.from(id: sharedAppFontThemeID.isEmpty ? appFontThemeID : sharedAppFontThemeID)
+        AppFontTheme.from(
+            id: sharedAppFontThemeID.isEmpty
+                ? appFontThemeID : sharedAppFontThemeID
+        )
     }
 
     var body: some View {
@@ -787,7 +881,7 @@ private struct WidgetFontPickerSheet: View {
             HStack(spacing: 12) {
                 SheetHeaderSymbol(systemName: "textformat")
 
-                Text("Choose Font")
+                Text(L("font_picker.title"))
                     .font(AppFonts.font(.heading2))
                     .foregroundStyle(AppColors.primaryText)
 
@@ -808,7 +902,11 @@ private struct WidgetFontPickerSheet: View {
 
             LazyVGrid(columns: columns, spacing: 14) {
                 ForEach(AppFontTheme.allCases) { theme in
-                    fontTile(title: tileTitle(for: theme), themeID: theme.id, fontTheme: theme)
+                    fontTile(
+                        title: tileTitle(for: theme),
+                        themeID: theme.id,
+                        fontTheme: theme
+                    )
                 }
             }
 
@@ -816,7 +914,11 @@ private struct WidgetFontPickerSheet: View {
         }
         .padding(.horizontal, AppSpacing.screenHorizontal)
         .padding(.top, 20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .frame(
+            maxWidth: .infinity,
+            maxHeight: .infinity,
+            alignment: .topLeading
+        )
         .background(AppColors.appBackground)
         .sensoryFeedback(.selection, trigger: selectedThemeID)
     }
@@ -826,7 +928,8 @@ private struct WidgetFontPickerSheet: View {
         themeID: String,
         fontTheme: AppFontTheme
     ) -> some View {
-        let isSelected = selectedThemeID == themeID
+        let isSelected =
+            selectedThemeID == themeID
             || (selectedThemeID == nil && themeID == activeAppFontTheme.id)
 
         return Button {
@@ -837,23 +940,40 @@ private struct WidgetFontPickerSheet: View {
             ZStack {
                 Text(title)
                     .font(AppFonts.font(.heading3, theme: fontTheme))
-                    .lineSpacing(AppFonts.lineSpacing(.heading3, theme: fontTheme))
+                    .lineSpacing(
+                        AppFonts.lineSpacing(.heading3, theme: fontTheme)
+                    )
                     .foregroundStyle(AppColors.primaryText)
                     .multilineTextAlignment(.center)
                     .minimumScaleFactor(0.72)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .frame(height: 88)
-            .background(isSelected ? AppColors.primaryText.opacity(0.06) : AppColors.cardSoft)
-            .clipShape(RoundedRectangle(cornerRadius: tileCornerRadius, style: .continuous))
+            .background(
+                isSelected
+                    ? AppColors.primaryText.opacity(0.06) : AppColors.cardSoft
+            )
+            .clipShape(
+                RoundedRectangle(
+                    cornerRadius: tileCornerRadius,
+                    style: .continuous
+                )
+            )
             .overlay {
                 if isSelected {
-                    RoundedRectangle(cornerRadius: tileCornerRadius - 6, style: .continuous)
-                        .stroke(
-                            AppColors.primaryText.opacity(0.28),
-                            style: StrokeStyle(lineWidth: 2, dash: [7, 5], dashPhase: 0)
+                    RoundedRectangle(
+                        cornerRadius: tileCornerRadius - 6,
+                        style: .continuous
+                    )
+                    .stroke(
+                        AppColors.primaryText.opacity(0.28),
+                        style: StrokeStyle(
+                            lineWidth: 2,
+                            dash: [7, 5],
+                            dashPhase: 0
                         )
-                        .padding(6)
+                    )
+                    .padding(6)
                 }
             }
         }
@@ -889,14 +1009,21 @@ private struct PortalCustomizationControls: View {
                             .resizable()
                             .scaledToFill()
                             .frame(width: 34, height: 34)
-                            .clipShape(PortalIconShape(style: clipStyle, cornerRadius: 11))
+                            .clipShape(
+                                PortalIconShape(
+                                    style: clipStyle,
+                                    cornerRadius: 11
+                                )
+                            )
                     }
                 }
                 .padding(.horizontal, 16)
                 .frame(maxWidth: .infinity)
                 .frame(height: 58)
                 .background(AppColors.cardSoft)
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .clipShape(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                )
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Choose MiniApps")
@@ -918,7 +1045,11 @@ private struct PortalClipStyleMenu: View {
                         clipStyle = style
                     }
                 } label: {
-                    Label(style.title, systemImage: clipStyle == style ? "checkmark.circle.fill" : style.systemImage)
+                    Label(
+                        style.title,
+                        systemImage: clipStyle == style
+                            ? "checkmark.circle.fill" : style.systemImage
+                    )
                 }
             }
         } label: {
@@ -928,13 +1059,16 @@ private struct PortalClipStyleMenu: View {
                 .labelStyle(.iconOnly)
                 .frame(width: 58, height: 58)
                 .background(AppColors.cardSoft)
-                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .clipShape(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                )
         }
         .buttonStyle(.plain)
     }
 }
 
-private protocol WidgetSegmentedOption: CaseIterable, Hashable, Identifiable where AllCases: Collection, AllCases.Element == Self {
+private protocol WidgetSegmentedOption: CaseIterable, Hashable, Identifiable
+where AllCases: Collection, AllCases.Element == Self {
     var title: String { get }
     var customizationSystemImage: String { get }
 }
@@ -969,27 +1103,39 @@ private struct WidgetSegmentedControl<Option: WidgetSegmentedOption>: View {
             let options = Array(Option.allCases)
             let selectedIndex = options.firstIndex(of: selection) ?? 0
             let innerPadding: CGFloat = 5
-            let segmentWidth = max(0, (proxy.size.width - (innerPadding * 2)) / CGFloat(options.count))
+            let segmentWidth = max(
+                0,
+                (proxy.size.width - (innerPadding * 2)) / CGFloat(options.count)
+            )
 
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .fill(AppColors.card)
                     .frame(width: segmentWidth, height: 48)
-                    .offset(x: innerPadding + (CGFloat(selectedIndex) * segmentWidth))
-                    .animation(.snappy(duration: 0.24, extraBounce: 0), value: selection)
+                    .offset(
+                        x: innerPadding
+                            + (CGFloat(selectedIndex) * segmentWidth)
+                    )
+                    .animation(
+                        .snappy(duration: 0.24, extraBounce: 0),
+                        value: selection
+                    )
 
                 HStack(spacing: 0) {
                     ForEach(options) { option in
                         Button {
                             selection = option
                         } label: {
-                            Label(option.title, systemImage: option.customizationSystemImage)
-                                .font(AppFonts.font(.heading3))
-                                .foregroundStyle(AppColors.primaryText)
-                                .labelStyle(.titleAndIcon)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 48)
-                                .contentShape(Rectangle())
+                            Label(
+                                option.title,
+                                systemImage: option.customizationSystemImage
+                            )
+                            .font(AppFonts.font(.heading3))
+                            .foregroundStyle(AppColors.primaryText)
+                            .labelStyle(.titleAndIcon)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 48)
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
@@ -1027,10 +1173,16 @@ private struct WidgetPreviewPrimaryButton: View {
             ZStack {
                 WidgetPreviewPrimaryButtonContent(configuration: configuration)
                     .id(configuration.identity)
-                    .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .scale(scale: 0.96)),
-                        removal: .opacity.combined(with: .scale(scale: 1.04))
-                    ))
+                    .transition(
+                        .asymmetric(
+                            insertion: .opacity.combined(
+                                with: .scale(scale: 0.96)
+                            ),
+                            removal: .opacity.combined(
+                                with: .scale(scale: 1.04)
+                            )
+                        )
+                    )
             }
             .frame(maxWidth: 256)
             .frame(height: 64)
@@ -1040,7 +1192,10 @@ private struct WidgetPreviewPrimaryButton: View {
         .background(Color.white)
         .clipShape(Capsule())
         .shadow(color: Color.black.opacity(0.08), radius: 2, x: 0, y: 1)
-        .animation(.snappy(duration: 0.24, extraBounce: 0), value: configuration.identity)
+        .animation(
+            .snappy(duration: 0.24, extraBounce: 0),
+            value: configuration.identity
+        )
     }
 }
 
@@ -1057,11 +1212,26 @@ private struct WidgetPreviewPrimaryButtonContent: View {
                         .foregroundStyle(
                             LinearGradient(
                                 stops: [
-                                    .init(color: configuration.tint.opacity(0), location: 0),
-                                    .init(color: configuration.tint.opacity(0.12), location: 0.32),
-                                    .init(color: configuration.tint.opacity(0.54), location: 0.5),
-                                    .init(color: configuration.tint.opacity(0.12), location: 0.68),
-                                    .init(color: configuration.tint.opacity(0), location: 1),
+                                    .init(
+                                        color: configuration.tint.opacity(0),
+                                        location: 0
+                                    ),
+                                    .init(
+                                        color: configuration.tint.opacity(0.12),
+                                        location: 0.32
+                                    ),
+                                    .init(
+                                        color: configuration.tint.opacity(0.54),
+                                        location: 0.5
+                                    ),
+                                    .init(
+                                        color: configuration.tint.opacity(0.12),
+                                        location: 0.68
+                                    ),
+                                    .init(
+                                        color: configuration.tint.opacity(0),
+                                        location: 1
+                                    ),
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -1069,7 +1239,10 @@ private struct WidgetPreviewPrimaryButtonContent: View {
                         )
                         .mask(
                             Capsule()
-                                .frame(width: proxy.size.width * 0.42, height: proxy.size.height * 1.35)
+                                .frame(
+                                    width: proxy.size.width * 0.42,
+                                    height: proxy.size.height * 1.35
+                                )
                                 .blur(radius: 6)
                                 .rotationEffect(.degrees(8))
                                 .offset(x: proxy.size.width * shimmerPhase)
@@ -1078,10 +1251,16 @@ private struct WidgetPreviewPrimaryButtonContent: View {
                 }
                 .allowsHitTesting(false)
             }
-            .symbolEffect(.pulse.wholeSymbol, options: .repeating.speed(0.35), value: shimmerPhase > 0)
+            .symbolEffect(
+                .pulse.wholeSymbol,
+                options: .repeating.speed(0.35),
+                value: shimmerPhase > 0
+            )
             .onAppear {
                 shimmerPhase = -0.9
-                withAnimation(.easeInOut(duration: 4.4).repeatForever(autoreverses: false)) {
+                withAnimation(
+                    .easeInOut(duration: 4.4).repeatForever(autoreverses: false)
+                ) {
                     shimmerPhase = 1.45
                 }
             }
