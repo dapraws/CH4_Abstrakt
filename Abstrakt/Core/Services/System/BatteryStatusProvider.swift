@@ -15,15 +15,16 @@ struct BatterySnapshot: Codable, Hashable {
     }
 
     var timeRemainingLabel: String {
-        if isCharging {
-            return "Charging"
-        }
-
         guard let estimatedMinutesRemaining else {
-            return "Estimating"
+            return isCharging ? "Charging" : "Estimating"
         }
-
-        return "\(Self.durationLabel(for: estimatedMinutesRemaining))"
+        
+        let duration = Self.durationLabel(for: estimatedMinutesRemaining)
+        if isCharging {
+            return level == 100 ? "Full" : "\(duration) to full"
+        }
+        
+        return duration
     }
 
     static func durationLabel(for minutes: Int) -> String {
@@ -60,8 +61,14 @@ enum BatteryStatusProvider {
     }
 
     private static func estimatedMinutesRemaining(for level: Int, state: UIDevice.BatteryState) -> Int? {
-        guard state != .charging, state != .full else {
-            return nil
+        if state == .charging {
+            // Rough estimate: charging takes ~120 mins for 100% -> 1.2 min per 1%
+            let remainingPercent = 100 - max(0, min(100, level))
+            return max(0, Int(round(Double(remainingPercent) * 1.2)))
+        }
+
+        guard state != .full else {
+            return 0
         }
 
         // iOS does not expose exact runtime remaining, so this estimates from a 10-hour full charge.

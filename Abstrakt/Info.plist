@@ -32,6 +32,17 @@
 	<string>Abstrakt reads steps, walking distance, sleep analysis, and etc. to render Health widgets.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Abstrakt uses your location to show local weather in widgets.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Quicksand-Light.ttf</string>
+		<string>Quicksand-Regular.ttf</string>
+		<string>Quicksand-Medium.ttf</string>
+		<string>Quicksand-SemiBold.ttf</string>
+		<string>Quicksand-Bold.ttf</string>
+		<string>Fusion-Pixel-Regular.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -46,15 +57,6 @@
 		<key>UILaunchScreen</key>
 		<dict/>
 	</dict>
-	<key>UIAppFonts</key>
-	<array>
-		<string>Quicksand-Light.ttf</string>
-		<string>Quicksand-Regular.ttf</string>
-		<string>Quicksand-Medium.ttf</string>
-		<string>Quicksand-SemiBold.ttf</string>
-		<string>Quicksand-Bold.ttf</string>
-		<string>Fusion-Pixel-Regular.ttf</string>
-	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

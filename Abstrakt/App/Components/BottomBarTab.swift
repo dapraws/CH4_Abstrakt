@@ -16,7 +16,7 @@ enum BottomBarTab: String, CaseIterable, Identifiable {
         case .gallery:
             "Gallery"
         case .widgets:
-            "WIP"
+            "Live Activities"
         case .settings:
             "Settings"
         case .library:
