@@ -90,9 +90,9 @@ struct FontPickerSheet: View {
     private func tileTitle(for theme: AppFontTheme) -> String {
         switch theme {
         case .sfPro:
-            "Default"
+            "SF Pro"
         case .sfProRounded:
-            "Round"
+            "SF Rounded"
         case .quicksand:
             "Quicksand"
         case .fusionPixel:

@@ -2,6 +2,7 @@ import CoreText
 import SwiftUI
 
 enum AppFontRole {
+    case homeDisplay
     case display
     case title
     case heading1
@@ -37,7 +38,7 @@ enum AppFontTheme: String, CaseIterable, Identifiable {
         case .sfPro:
             "SF Pro"
         case .sfProRounded:
-            "SF Pro Rounded"
+            "SF Rounded"
         case .quicksand:
             "Quicksand"
         case .fusionPixel:
@@ -69,7 +70,7 @@ enum AppFontTheme: String, CaseIterable, Identifiable {
 
 enum AppFonts {
     static let appFontStorageKey = "appFontTheme"
-    static let defaultTheme: AppFontTheme = .sfProRounded
+    static let defaultTheme: AppFontTheme = .quicksand
 
     static var selectedAppTheme: AppFontTheme {
         AppFontTheme.from(id: UserDefaults.standard.string(forKey: appFontStorageKey) ?? defaultTheme.id)
@@ -180,6 +181,10 @@ private struct BaseFontToken {
 
     init(role: AppFontRole) {
         switch role {
+        case .homeDisplay:
+            size = 44
+            weight = .bold
+            lineSpacing = -2
         case .display:
             size = 34
             weight = .bold
@@ -269,7 +274,7 @@ private extension AppFontTheme {
         switch self {
         case .sfPro, .sfProRounded:
             switch role {
-            case .display, .title, .heading1, .widgetDisplay, .widgetTitle:
+            case .homeDisplay, .display, .title, .heading1, .widgetDisplay, .widgetTitle:
                 return 0.89
             case .heading2, .heading3, .heading4, .body, .subBody, .subHeading, .widgetHeading, .widgetBody:
                 return 0.91
@@ -280,7 +285,7 @@ private extension AppFontTheme {
             return 1
         case .fusionPixel:
             switch role {
-            case .display, .title, .heading1, .widgetDisplay, .widgetTitle:
+            case .homeDisplay, .display, .title, .heading1, .widgetDisplay, .widgetTitle:
                 return 0.74
             case .heading2, .heading3, .heading4, .body, .subBody, .subHeading, .widgetHeading, .widgetBody:
                 return 0.78
@@ -298,7 +303,7 @@ private extension AppFontTheme {
             return 1
         case .fusionPixel:
             switch role {
-            case .display, .title, .heading1, .widgetDisplay, .widgetTitle:
+            case .homeDisplay, .display, .title, .heading1, .widgetDisplay, .widgetTitle:
                 return -6
             case .heading2, .heading3, .heading4, .body, .subBody, .subHeading, .widgetHeading, .widgetBody:
                 return -5

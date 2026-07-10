@@ -23,7 +23,7 @@ enum AppColors {
     static let tertiaryText = dynamicColor(light: 0x141414, dark: 0xF4F4F4).opacity(0.42)
     static let accentBlue = Color(red: 0.29, green: 0.63, blue: 1.0)
     static let accentGreen = Color(red: 0.32, green: 0.89, blue: 0.48)
-    static let accentPurple = Color(red: 0.55, green: 0.30, blue: 1.0)
+    static let accentPurple = Color(red: 0x61 / 255.0, green: 0x5F / 255.0, blue: 0xFF / 255.0)
     static let accentPink = Color(red: 0.97, green: 0.45, blue: 0.63)
     static let widgetBackground = dynamicColor(light: 0xFDFDFD, dark: 0x060606)
     static let widgetPrimaryText = dynamicColor(light: 0x0A0A0A, dark: 0xF4F4F4)

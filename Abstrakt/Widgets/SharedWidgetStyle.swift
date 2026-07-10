@@ -47,14 +47,14 @@ enum AbstraktWidgetFontTheme: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     static var selectedAppTheme: AbstraktWidgetFontTheme {
-        from(id: UserDefaults.standard.string(forKey: storageKey) ?? sfProRounded.id)
+        from(id: UserDefaults.standard.string(forKey: storageKey) ?? quicksand.id)
     }
 
     static var sharedAppTheme: AbstraktWidgetFontTheme {
         from(
             id: AbstraktAppGroup.defaults?.string(forKey: storageKey)
                 ?? UserDefaults.standard.string(forKey: storageKey)
-                ?? sfProRounded.id
+                ?? quicksand.id
         )
     }
 
@@ -63,7 +63,7 @@ enum AbstraktWidgetFontTheme: String, CaseIterable, Identifiable {
             return .sfProRounded
         }
 
-        return Self(rawValue: id) ?? .sfProRounded
+        return Self(rawValue: id) ?? .quicksand
     }
 
     private static let storageKey = "appFontTheme"

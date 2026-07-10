@@ -669,7 +669,7 @@ private struct WidgetPreviewSheetContent: View {
             return nil
         }
 
-        return AbstraktWidgetFontTheme(rawValue: fontThemeID) ?? .sfProRounded
+        return AbstraktWidgetFontTheme(rawValue: fontThemeID) ?? .quicksand
     }
 
     private var selectedFontDisplayName: String {
@@ -984,9 +984,9 @@ private struct WidgetFontPickerSheet: View {
     private func tileTitle(for theme: AppFontTheme) -> String {
         switch theme {
         case .sfPro:
-            "Default"
+            "SF Pro"
         case .sfProRounded:
-            "Round"
+            "SF Rounded"
         case .quicksand:
             "Quicksand"
         case .fusionPixel:

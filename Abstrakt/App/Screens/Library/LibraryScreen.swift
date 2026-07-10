@@ -328,7 +328,7 @@ private struct LibraryWidgetRow: View {
             return nil
         }
 
-        return AbstraktWidgetFontTheme(rawValue: fontThemeID) ?? .sfProRounded
+        return AbstraktWidgetFontTheme(rawValue: fontThemeID) ?? .quicksand
     }
 
     // MARK: Body
