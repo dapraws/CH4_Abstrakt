@@ -2,18 +2,19 @@ import Foundation
 
 nonisolated enum WidgetCatalog {
     private static let allItemOrder: [String] = [
-        "calendar",
         "reminder",
         "battery",
         "steps",
         "activity",
+        "sleep",
         "events",
         "portal",
-        "storage",
+        "heart-rate",
         "today",
+        "calendar",
+        "storage",
         "weather",
-        "daylight",
-        "heart-rate"
+        "daylight"
     ]
 
     private static let chipOrder: [WidgetCategory] = [
@@ -27,13 +28,6 @@ nonisolated enum WidgetCatalog {
     ]
 
     static let items: [WidgetCatalogItem] = [
-        WidgetCatalogItem(
-            id: "calendar",
-            name: "Calendar",
-            size: .small,
-            categories: [.eventKit, .foundation],
-            isPro: false
-        ),
         WidgetCatalogItem(
             id: "reminder",
             name: "Reminder",
@@ -65,6 +59,13 @@ nonisolated enum WidgetCatalog {
             isPro: false
         ),
         WidgetCatalogItem(
+            id: "sleep",
+            name: "Sleep",
+            size: .small,
+            categories: [.healthKit],
+            isPro: false
+        ),
+        WidgetCatalogItem(
             id: "events",
             name: "Events",
             size: .small,
@@ -85,6 +86,13 @@ nonisolated enum WidgetCatalog {
             name: "Today",
             size: .medium,
             categories: [.weatherKit, .eventKit, .foundation],
+            isPro: false
+        ),
+        WidgetCatalogItem(
+            id: "calendar",
+            name: "Calendar",
+            size: .small,
+            categories: [.eventKit, .foundation],
             isPro: false
         ),
         WidgetCatalogItem(
@@ -124,7 +132,8 @@ nonisolated enum WidgetCatalog {
     }
 
     static func galleryItems(for category: WidgetCategory) -> [WidgetCatalogItem] {
-        let orderedItems = allItemOrder.compactMap { item(withID: $0) }
+        let orderedIDs = galleryOrder[category] ?? allItemOrder
+        let orderedItems = orderedIDs.compactMap { item(withID: $0) }
         guard category != .all else {
             return orderedItems
         }
@@ -136,20 +145,38 @@ nonisolated enum WidgetCatalog {
         items.first { $0.id == id }
     }
 
+    static func sortPresets(_ presets: [WidgetPreset]) -> [WidgetPreset] {
+        presets.sorted { lhs, rhs in
+            let leftIndex = orderIndex(for: lhs.widgetID)
+            let rightIndex = orderIndex(for: rhs.widgetID)
+
+            if leftIndex == rightIndex {
+                return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
+            }
+
+            return leftIndex < rightIndex
+        }
+    }
+
+    private static func orderIndex(for widgetID: String) -> Int {
+        allItemOrder.firstIndex(of: widgetID) ?? Int.max
+    }
+
     private static let galleryOrder: [WidgetCategory: [String]] = [
         .all: [
-            "calendar",
             "reminder",
             "battery",
             "steps",
             "activity",
+            "sleep",
             "events",
             "portal",
-            "storage",
-            "today",
-            "daylight",
-            "weather",
             "heart-rate",
+            "today",
+            "calendar",
+            "storage",
+            "weather",
+            "daylight",
         ],
         .portal: [
             "portal",
@@ -157,6 +184,7 @@ nonisolated enum WidgetCatalog {
         .healthKit: [
             "steps",
             "activity",
+            "sleep",
             "heart-rate"
         ],
         .weatherKit: [
@@ -165,14 +193,14 @@ nonisolated enum WidgetCatalog {
             "weather",
         ],
         .eventKit: [
-            "calendar",
             "reminder",
             "events",
             "today",
+            "calendar",
         ],
         .foundation: [
-            "calendar",
             "today",
+            "calendar",
             "storage",
         ],
         .uiKit: [

@@ -32,7 +32,9 @@ struct LibraryScreen: View {
     }
 
     private func presets(for size: WidgetSize) -> [WidgetPreset] {
-        presets.filter { $0.size == size }
+        WidgetCatalog.sortPresets(
+            presets.filter { $0.size == size }
+        )
     }
 
     // MARK: Body
