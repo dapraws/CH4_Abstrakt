@@ -97,6 +97,36 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         }
     }
 
+    var secondaryDisplayName: String {
+        switch self {
+        case .system:
+            "Follow your iPhone language"
+        case .english:
+            "English"
+        case .indonesian:
+            "Indonesia"
+        case .spanish:
+            "Espana"
+        case .portugueseBrazil:
+            "Brasil"
+        }
+    }
+
+    var badgeText: String {
+        switch self {
+        case .system:
+            "SYS"
+        case .english:
+            "🇺🇸"
+        case .indonesian:
+            "🇮🇩"
+        case .spanish:
+            "🇪🇸"
+        case .portugueseBrazil:
+            "🇧🇷"
+        }
+    }
+
     static func from(id: String) -> AppLanguage {
         Self(rawValue: id) ?? .system
     }

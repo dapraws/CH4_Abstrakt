@@ -28,9 +28,11 @@ struct LanguageScreen: View {
                 )
             }
         } content: {
-            VStack(spacing: 14) {
+            VStack(spacing: 8) {
                 ForEach(AppLanguage.allCases) { language in
-                    languageTile(language)
+                    ZStack {
+                        languageTile(language)
+                    }
                 }
             }
             .padding(.horizontal, AppSpacing.screenHorizontal)
@@ -50,26 +52,61 @@ struct LanguageScreen: View {
         return Button {
             select(language)
         } label: {
-            Text(language.displayName)
-                .font(AppFonts.font(.heading3))
-                .foregroundStyle(AppColors.primaryText)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 22)
-                .background(isSelected ? AppColors.primaryText.opacity(0.06) : AppColors.cardSoft)
-                .clipShape(RoundedRectangle(cornerRadius: tileCornerRadius, style: .continuous))
-                .overlay {
-                    if isSelected {
-                        RoundedRectangle(cornerRadius: tileCornerRadius - 6, style: .continuous)
-                            .stroke(
-                                AppColors.primaryText.opacity(0.28),
-                                style: StrokeStyle(lineWidth: 2, dash: [7, 5])
-                            )
-                            .padding(6)
-                    }
+            HStack(spacing: 14) {
+                languageBadge(language, isSelected: isSelected)
+
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(language.displayName)
+                        .font(AppFonts.font(.heading3))
+                        .foregroundStyle(AppColors.primaryText)
+                        .multilineTextAlignment(.leading)
+
+                    Text(language.secondaryDisplayName)
+                        .font(AppFonts.font(.caption))
+                        .foregroundStyle(AppColors.secondaryText)
+                        .multilineTextAlignment(.leading)
                 }
+
+                Spacer(minLength: 12)
+
+                if isSelected {
+                    Image(systemName: "checkmark.seal.fill")
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(.white, .green)
+                        .font(.system(size: 20))
+                        .transition(
+                            .scale(scale: 0.55, anchor: .center)
+                                .combined(with: .opacity)
+                        )
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .background(isSelected ? AppColors.cardSoft.opacity(0.96) : AppColors.card)
+            .clipShape(RoundedRectangle(cornerRadius: tileCornerRadius, style: .continuous))
         }
         .buttonStyle(.plain)
         .animation(.smooth(duration: 0.18), value: isSelected)
+    }
+
+    @ViewBuilder
+    private func languageBadge(_ language: AppLanguage, isSelected: Bool) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 14, style: .continuous)
+
+        ZStack {
+            shape
+                .fill(isSelected ? AppColors.primaryText.opacity(0.1) : AppColors.cardSoft)
+
+            if language == .system {
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(AppColors.primaryText)
+            } else {
+                Text(language.badgeText)
+                    .font(.system(size: 20))
+            }
+        }
+        .frame(width: 44, height: 44)
     }
 
     // MARK: - Selection
