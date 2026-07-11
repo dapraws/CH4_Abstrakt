@@ -12,6 +12,7 @@ struct WidgetCard: View {
     @AppStorage(AppGroupConstants.portalIconClipStyleKey, store: settingsStore) private var portalIconClipStyleID = PortalIconClipStyle.default.id
     @AppStorage(AppGroupConstants.activityModeKey, store: settingsStore) private var activityModeID = ActivityMode.today.id
     @AppStorage(AppGroupConstants.eventModeKey, store: settingsStore) private var eventModeID = EventDisplayMode.upcoming.id
+    @AppStorage(AppGroupConstants.reminderSelectedIdentifierKey, store: settingsStore) private var reminderSelectedIdentifier = ""
 
     private var previewSize: CGSize {
         item.size.previewSize(
@@ -55,6 +56,10 @@ struct WidgetCard: View {
         guard item.id == "activity" else {
             if item.id == "events" {
                 return "\(item.id)-\(eventModeID)"
+            }
+
+            if item.id == "reminder" {
+                return "\(item.id)-\(reminderSelectedIdentifier)"
             }
 
             return item.id
@@ -153,6 +158,16 @@ struct WidgetPreview: View {
             widgetBackground
         } else {
                 switch item.id {
+                case "calendar":
+                    CalendarWidget(
+                        snapshot: CalendarMonthSnapshot(date: date),
+                        fontTheme: widgetFontTheme
+                    )
+                case "reminder":
+                    ReminderWidget(
+                        snapshot: reminderSnapshot,
+                        fontTheme: widgetFontTheme
+                    )
                 case "battery":
                     BatteryWidget(
                         snapshot: BatterySnapshotViewData(
@@ -257,16 +272,16 @@ struct WidgetPreview: View {
         case .today:
             return ActivitySnapshot(
                 mode: .today,
-                exerciseMinutes: activityTodayExerciseMinutes > 0 ? activityTodayExerciseMinutes : 30,
-                activeEnergyCalories: activityTodayActiveEnergy > 0 ? activityTodayActiveEnergy : 450,
-                sleepMinutes: activityTodaySleepMinutes > 0 ? activityTodaySleepMinutes : 435
+                exerciseMinutes: activityTodayExerciseMinutes,
+                activeEnergyCalories: activityTodayActiveEnergy,
+                sleepMinutes: activityTodaySleepMinutes
             )
         case .weekly:
             return ActivitySnapshot(
                 mode: .weekly,
-                exerciseMinutes: activityWeeklyExerciseMinutes > 0 ? activityWeeklyExerciseMinutes : 180,
-                activeEnergyCalories: activityWeeklyActiveEnergy > 0 ? activityWeeklyActiveEnergy : 2850,
-                sleepMinutes: activityWeeklySleepMinutes > 0 ? activityWeeklySleepMinutes : 3100
+                exerciseMinutes: activityWeeklyExerciseMinutes,
+                activeEnergyCalories: activityWeeklyActiveEnergy,
+                sleepMinutes: activityWeeklySleepMinutes
             )
         }
     }
@@ -289,6 +304,15 @@ struct WidgetPreview: View {
               let snapshot = try? JSONDecoder().decode(WeatherSnapshot.self, from: weatherSnapshotData) else {
             return .placeholder
         }
+        return snapshot
+    }
+
+    private var reminderSnapshot: ReminderSnapshot {
+        guard let data = AppGroupConstants.sharedDefaults?.data(forKey: AppGroupConstants.sharedRemindersKey),
+              let snapshot = try? JSONDecoder().decode(ReminderSnapshot.self, from: data) else {
+            return .placeholder
+        }
+
         return snapshot
     }
 

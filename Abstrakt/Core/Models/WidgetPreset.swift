@@ -28,6 +28,20 @@ struct WidgetPreset: Identifiable, Codable, Hashable {
 extension WidgetPreset {
     static let seededLibrary: [WidgetPreset] = [
         WidgetPreset(
+            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0011") ?? UUID(),
+            widgetID: "calendar",
+            name: "Calendar",
+            size: .small,
+            appearanceMode: .system
+        ),
+        WidgetPreset(
+            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0012") ?? UUID(),
+            widgetID: "reminder",
+            name: "Reminder",
+            size: .small,
+            appearanceMode: .system
+        ),
+        WidgetPreset(
             id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0001") ?? UUID(),
             widgetID: "battery",
             name: "Battery",

@@ -249,7 +249,9 @@ struct ContentView: View {
 
         if categories.contains(.eventKit) {
             let calendar = await EventKitProvider.currentSnapshot()
+            let reminders = await ReminderProvider.currentSnapshot()
             SharedModelContainer.write(calendar: calendar)
+            SharedModelContainer.write(reminders: reminders)
         }
 
         if categories.contains(.weatherKit) || categories.contains(.portal) {
@@ -318,7 +320,7 @@ struct ContentView: View {
 
     private func runSlowDataRefreshLoop() async {
         while !Task.isCancelled, !SharedModelContainer.readWidgetPresets().isEmpty {
-            await refreshBaselineWidgetData(reloadsTimelines: true)
+            await refreshSavedWidgetData()
             do {
                 try await Task.sleep(for: Self.slowDataRefreshInterval)
             } catch {

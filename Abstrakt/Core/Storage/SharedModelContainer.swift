@@ -33,6 +33,14 @@ enum SharedModelContainer {
         }
     }
 
+    static func write(reminders: ReminderSnapshot) {
+        guard let data = try? JSONEncoder().encode(reminders) else {
+            return
+        }
+
+        defaults?.set(data, forKey: AppGroupConstants.sharedRemindersKey)
+    }
+
     static func write(battery: BatterySnapshot) {
         defaults?.set(battery.level, forKey: AppGroupConstants.sharedBatteryLevelKey)
         if let estimatedMinutesRemaining = battery.estimatedMinutesRemaining {

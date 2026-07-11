@@ -2,6 +2,8 @@ import Foundation
 
 nonisolated enum WidgetCatalog {
     private static let allItemOrder: [String] = [
+        "calendar",
+        "reminder",
         "battery",
         "steps",
         "activity",
@@ -25,6 +27,21 @@ nonisolated enum WidgetCatalog {
     ]
 
     static let items: [WidgetCatalogItem] = [
+        WidgetCatalogItem(
+            id: "calendar",
+            name: "Calendar",
+            size: .small,
+            categories: [.eventKit, .foundation],
+            isPro: false
+        ),
+        WidgetCatalogItem(
+            id: "reminder",
+            name: "Reminder",
+            size: .small,
+            categories: [.eventKit],
+            customizations: [.reminderItem],
+            isPro: false
+        ),
         WidgetCatalogItem(
             id: "battery",
             name: "Battery",
@@ -121,6 +138,8 @@ nonisolated enum WidgetCatalog {
 
     private static let galleryOrder: [WidgetCategory: [String]] = [
         .all: [
+            "calendar",
+            "reminder",
             "battery",
             "steps",
             "activity",
@@ -146,10 +165,13 @@ nonisolated enum WidgetCatalog {
             "weather",
         ],
         .eventKit: [
+            "calendar",
+            "reminder",
             "events",
             "today",
         ],
         .foundation: [
+            "calendar",
             "today",
             "storage",
         ],

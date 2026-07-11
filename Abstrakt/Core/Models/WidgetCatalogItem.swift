@@ -42,6 +42,7 @@ enum WidgetCustomization: String, CaseIterable, Codable, Hashable, Identifiable 
     case portalApps
     case activityMode
     case eventMode
+    case reminderItem
 
     var id: String { rawValue }
 }

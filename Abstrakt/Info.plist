@@ -24,10 +24,25 @@
 	<string>public.app-category.utilities</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.msaf.abstrakt</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>abstrakt</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>Abstrakt reads upcoming events to render calendar-aware widgets.</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>Abstrakt reads upcoming events to render calendar-aware widgets.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>Abstrakt reads your reminders to render reminder widgets.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Abstrakt reads your reminders to render reminder widgets.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Abstrakt reads steps, walking distance, sleep analysis, and etc. to render Health widgets.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

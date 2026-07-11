@@ -7,6 +7,8 @@ import WidgetKit
 struct SmallSolidWidgetEntry: TimelineEntry {
     let date: Date
     let selectedPreset: SavedWidgetPreset?
+    let calendar: CalendarMonthSnapshot
+    let reminders: ReminderSnapshot
     let battery: BatteryWidgetEntry
     let health: StepWidgetEntry
     let activity: ActivitySnapshot
@@ -196,6 +198,8 @@ private extension SmallSolidWidgetEntry {
         SmallSolidWidgetEntry(
             date: date,
             selectedPreset: resolvedPreset(from: selectedWidget, size: "small"),
+            calendar: CalendarMonthSnapshot(date: date),
+            reminders: WidgetSharedStore.reminders,
             battery: BatteryWidgetEntry(
                 date: date,
                 level: WidgetSharedStore.batteryLevel,
@@ -459,6 +463,19 @@ private struct SmallSolidWidgetView: View {
     @ViewBuilder
     private var content: some View {
         switch entry.selectedPreset?.widgetID {
+        case "calendar":
+            CalendarWidget(
+                snapshot: entry.calendar,
+                fontTheme: entry.fontTheme,
+                clipsToWidgetShape: false
+            )
+        case "reminder":
+            ReminderWidget(
+                snapshot: entry.reminders,
+                fontTheme: entry.fontTheme,
+                clipsToWidgetShape: false
+            )
+            .widgetURL(entry.reminders.deepLinkURL)
         case "battery":
             BatteryWidget(
                 snapshot: entry.battery.renderSnapshot,
@@ -665,6 +682,8 @@ private extension SmallSolidWidgetEntry {
         SmallSolidWidgetEntry(
             date: .widgetPreviewDate,
             selectedPreset: previewPreset(widgetID: selectedWidgetID, size: "small"),
+            calendar: CalendarMonthSnapshot(date: .widgetPreviewDate),
+            reminders: .placeholder,
             battery: BatteryWidgetEntry(
                 date: .widgetPreviewDate,
                 level: 76,
@@ -775,6 +794,18 @@ private extension Date {
     SmallSolidWidget()
 } timeline: {
     SmallSolidWidgetEntry.preview(selectedWidgetID: "battery")
+}
+
+#Preview("Small - Calendar", as: .systemSmall) {
+    SmallSolidWidget()
+} timeline: {
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "calendar")
+}
+
+#Preview("Small - Reminder", as: .systemSmall) {
+    SmallSolidWidget()
+} timeline: {
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "reminder")
 }
 
 #Preview("Small - Steps", as: .systemSmall) {

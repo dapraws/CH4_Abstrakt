@@ -160,6 +160,14 @@ private struct WidgetPreviewSheetContent: View {
         var activityModeID = ActivityMode.today.id
     @AppStorage(AppGroupConstants.eventModeKey, store: settingsStore) private
         var eventModeID = EventDisplayMode.upcoming.id
+    @AppStorage(
+        AppGroupConstants.reminderSelectedIdentifierKey,
+        store: settingsStore
+    ) private var reminderSelectedIdentifier = ""
+    @AppStorage(
+        AppGroupConstants.reminderSelectedTitleKey,
+        store: settingsStore
+    ) private var reminderSelectedTitle = ""
     @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID =
         AppFonts.defaultTheme.id
     @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore)
@@ -168,6 +176,7 @@ private struct WidgetPreviewSheetContent: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var showsAppsPicker = false
     @State private var showsFontPicker = false
+    @State private var showsReminderPicker = false
     @State private var showingPermissionAlert = false
     @State private var isPerformingPrimaryAction = false
     @State private var appearanceMode: WidgetAppearanceMode = .system
@@ -345,6 +354,13 @@ private struct WidgetPreviewSheetContent: View {
             WidgetFontPickerSheet(selectedThemeID: $fontThemeID)
                 .presentationDetents([.fraction(0.36)])
         }
+        .sheet(isPresented: $showsReminderPicker) {
+            ReminderPickerSheet(
+                selectedReminderIdentifier: $reminderSelectedIdentifier,
+                selectedReminderTitle: $reminderSelectedTitle
+            )
+            .presentationDetents([.fraction(0.72)])
+        }
     }
 
     @ViewBuilder
@@ -399,6 +415,14 @@ private struct WidgetPreviewSheetContent: View {
                 title: L("widget_preview.section.event_priority")
             ) {
                 WidgetSegmentedControl(selection: eventModeBinding)
+            }
+        case .reminderItem:
+            WidgetCustomizationSection(title: "Reminder") {
+                ReminderCustomizationRow(
+                    selectedReminderTitle: selectedReminderDisplayTitle
+                ) {
+                    showsReminderPicker = true
+                }
             }
         }
     }
@@ -528,22 +552,40 @@ private struct WidgetPreviewSheetContent: View {
                     return false
                 }
             case .eventKit:
-                let state = EventKitProvider.authorizationState()
-                if state == .notDetermined {
-                    let granted = await EventKitProvider.requestCalendarAccess()
-                    if !granted {
+                if item.id == "reminder" {
+                    let state = ReminderProvider.authorizationState()
+                    if state == .notDetermined {
+                        let granted = await ReminderProvider.requestReminderAccess()
+                        if !granted {
+                            Haptics.warning.play()
+                            permissionAlertMessage = "Reminders access is required for Reminder widgets."
+                            showingPermissionAlert = true
+                            return false
+                        }
+                    } else if state == .denied || state == .restricted {
                         Haptics.warning.play()
-                        permissionAlertMessage = L(
-                            "permission.calendar.required"
-                        )
+                        permissionAlertMessage = "Reminders access is denied. Enable it in Settings to use Reminder widgets."
                         showingPermissionAlert = true
                         return false
                     }
-                } else if state == .denied || state == .restricted {
-                    Haptics.warning.play()
-                    permissionAlertMessage = L("permission.calendar.denied")
-                    showingPermissionAlert = true
-                    return false
+                } else {
+                    let state = EventKitProvider.authorizationState()
+                    if state == .notDetermined {
+                        let granted = await EventKitProvider.requestCalendarAccess()
+                        if !granted {
+                            Haptics.warning.play()
+                            permissionAlertMessage = L(
+                                "permission.calendar.required"
+                            )
+                            showingPermissionAlert = true
+                            return false
+                        }
+                    } else if state == .denied || state == .restricted {
+                        Haptics.warning.play()
+                        permissionAlertMessage = L("permission.calendar.denied")
+                        showingPermissionAlert = true
+                        return false
+                    }
                 }
             default:
                 break
@@ -579,7 +621,9 @@ private struct WidgetPreviewSheetContent: View {
 
         if item.categories.contains(.eventKit) {
             let calendar = await EventKitProvider.currentSnapshot()
+            let reminders = await ReminderProvider.currentSnapshot()
             SharedModelContainer.write(calendar: calendar)
+            SharedModelContainer.write(reminders: reminders)
         }
 
         WidgetTimelineReloadScheduler.reloadNow()
@@ -652,6 +696,7 @@ private struct WidgetPreviewSheetContent: View {
             supports(.portalApps) ? portalIconClipStyleID : nil,
             supports(.activityMode) ? activityModeID : nil,
             supports(.eventMode) ? eventModeID : nil,
+            supports(.reminderItem) ? reminderSelectedIdentifier : nil,
         ].compactMap { $0 }
     }
 
@@ -708,7 +753,8 @@ private struct WidgetPreviewSheetContent: View {
             portalSelectedAppsValue: portalSelectedAppsValue,
             portalIconClipStyleID: portalIconClipStyleID,
             activityModeID: activityModeID,
-            eventModeID: eventModeID
+            eventModeID: eventModeID,
+            reminderSelectedIdentifier: reminderSelectedIdentifier
         )
     }
 
@@ -742,8 +788,17 @@ private struct WidgetPreviewSheetContent: View {
             portalSelectedAppsValue: portalSelectedAppsValue,
             portalIconClipStyleID: portalIconClipStyleID,
             activityModeID: activityModeID,
-            eventModeID: eventModeID
+            eventModeID: eventModeID,
+            reminderSelectedIdentifier: reminderSelectedIdentifier
         )
+    }
+
+    private var selectedReminderDisplayTitle: String {
+        if reminderSelectedTitle.isEmpty {
+            return "Choose list"
+        }
+
+        return reminderSelectedTitle
     }
 }
 
@@ -754,6 +809,7 @@ private struct WidgetSheetConfigurationSnapshot: Equatable {
     let portalIconClipStyleID: String
     let activityModeID: String
     let eventModeID: String
+    let reminderSelectedIdentifier: String
 }
 
 private struct WidgetCustomizationSection<Content: View>: View {
@@ -1007,6 +1063,194 @@ private struct WidgetFontPickerSheet: View {
         case .fusionPixel:
             "Fusion\nPixel"
         }
+    }
+}
+
+private struct ReminderCustomizationRow: View {
+    let selectedReminderTitle: String
+    let openReminderPicker: () -> Void
+
+    var body: some View {
+        Button {
+            Haptics.selection.play()
+            openReminderPicker()
+        } label: {
+            HStack(spacing: 16) {
+                Image(systemName: "checklist")
+                    .font(AppFonts.font(.title))
+
+                Capsule()
+                    .fill(AppColors.primaryText.opacity(0.16))
+                    .frame(width: 2, height: 20)
+
+                Spacer(minLength: 10)
+
+                Text(selectedReminderTitle)
+                    .font(AppFonts.font(.heading3))
+                    .foregroundStyle(AppColors.primaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+
+                Image(systemName: "chevron.right")
+                    .font(AppFonts.font(.heading4))
+                    .foregroundStyle(AppColors.primaryText.opacity(0.42))
+            }
+            .padding(.horizontal, 18)
+            .frame(maxWidth: .infinity)
+            .frame(height: 68)
+            .background(AppColors.cardSoft)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: 360)
+        .accessibilityLabel("Choose reminder list")
+    }
+}
+
+private struct ReminderPickerSheet: View {
+    @Binding var selectedReminderIdentifier: String
+    @Binding var selectedReminderTitle: String
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var reminderLists: [ReminderListSummary] = []
+    @State private var isLoading = true
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            header
+
+            if isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            } else if reminderLists.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("No reminder lists yet")
+                        .font(AppFonts.font(.heading3))
+                        .foregroundStyle(AppColors.primaryText)
+
+                    Text("Create a list in Apple Reminders, then come back here to feature it in the widget.")
+                        .font(AppFonts.font(.body))
+                        .foregroundStyle(AppColors.secondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            } else {
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: 12) {
+                        reminderButton(
+                            title: "Auto pick",
+                            subtitle: "Show tasks from all reminder lists",
+                            identifier: ""
+                        )
+
+                        ForEach(reminderLists) { reminder in
+                            reminderButton(
+                                title: reminder.title,
+                                subtitle: reminder.subtitle,
+                                identifier: reminder.id
+                            )
+                        }
+                    }
+                    .padding(.bottom, 16)
+                }
+            }
+        }
+        .padding(.horizontal, AppSpacing.screenHorizontal)
+        .padding(.top, 20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(AppColors.appBackground)
+        .task {
+            await loadReminders()
+        }
+    }
+
+    private var header: some View {
+        HStack(spacing: 12) {
+            SheetHeaderSymbol(systemName: "checklist")
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Pick reminder list")
+                    .font(AppFonts.font(.heading2))
+                    .foregroundStyle(AppColors.primaryText)
+
+                Text("The widget will show tasks from this list.")
+                    .font(AppFonts.font(.caption))
+                    .foregroundStyle(AppColors.secondaryText)
+            }
+
+            Spacer()
+
+            Button {
+                Haptics.selection.play()
+                dismiss()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(AppFonts.font(.heading3))
+                    .foregroundStyle(AppColors.primaryText)
+                    .frame(width: 42, height: 42)
+                    .background(AppColors.cardSoft)
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func reminderButton(
+        title: String,
+        subtitle: String,
+        identifier: String
+    ) -> some View {
+        let isSelected = selectedReminderIdentifier == identifier
+
+        return Button {
+            Haptics.selection.play()
+            selectedReminderIdentifier = identifier
+            selectedReminderTitle = identifier.isEmpty ? "" : title
+            Task { @MainActor in
+                let snapshot = await ReminderProvider.currentSnapshot()
+                SharedModelContainer.write(reminders: snapshot)
+                WidgetTimelineReloadScheduler.reloadNow()
+            }
+            dismiss()
+        } label: {
+            HStack(spacing: 14) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(AppFonts.font(.heading3))
+                        .foregroundStyle(AppColors.primaryText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.76)
+
+                    Text(subtitle)
+                        .font(AppFonts.font(.caption))
+                        .foregroundStyle(AppColors.secondaryText)
+                        .lineLimit(2)
+                }
+
+                Spacer(minLength: 12)
+
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(
+                        isSelected ? AppColors.accentGreen : AppColors.tertiaryText
+                    )
+            }
+            .padding(.horizontal, 18)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(height: 74)
+            .background(
+                isSelected ? AppColors.primaryText.opacity(0.06) : AppColors.cardSoft
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    @MainActor
+    private func loadReminders() async {
+        isLoading = true
+        reminderLists = await ReminderProvider.availableReminderLists()
+        isLoading = false
     }
 }
 
