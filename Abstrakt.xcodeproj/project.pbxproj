@@ -51,6 +51,10 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Core/Services/Location/LocationProvider.swift,
+				LiveActivities/Battery/BatteryActivityAttributes.swift,
+				LiveActivities/Battery/BatteryChargingLiveActivity.swift,
+				LiveActivities/CompactModeActivity.swift,
+				LiveActivities/LiveActivityTypography.swift,
 			);
 			target = 2A4000023FE959D7004BC514 /* AbstraktWidgetsExtension */;
 		};

@@ -184,7 +184,7 @@ For now the app should focus on iPhone Home Screen sizes only:
 
 These values are measured fallback sizes and aspect-ratio baselines, not a device-by-device sizing table. In-app previews should fit the available container width while preserving the widget family's measured aspect ratio; WidgetKit widgets should render into the size supplied by the system.
 
-Lock Screen widgets, StandBy layouts, Live Activities, and Dynamic Island remain planned follow-up surfaces, but they are not the primary app flow yet.
+Lock Screen widgets, StandBy layouts, and Dynamic Island remain planned follow-up surfaces. Live Activities are currently supported for specific metrics (e.g., Battery Charging).
 
 ---
 

@@ -23,6 +23,7 @@ struct ContentView: View {
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
+    @AppStorage(AppGroupConstants.liveActivityBatteryEnabledKey, store: AppGroupConstants.sharedDefaults) private var isBatteryLiveActivityEnabled = false
     @State private var selectedTab: BottomBarTab = .gallery
     @State private var showsLibrary = false
     @State private var selectedGalleryItem: WidgetCatalogItem?
@@ -69,12 +70,29 @@ struct ContentView: View {
                 }
             }
         }
+        .onAppear {
+            UIDevice.current.isBatteryMonitoringEnabled = true
+            if isBatteryLiveActivityEnabled {
+                let batterySnapshot = BatteryStatusProvider.currentSnapshot()
+                SharedModelContainer.write(battery: batterySnapshot)
+                BatteryLiveActivityProvider.shared.startIfNeeded(with: batterySnapshot)
+                BatteryLiveActivityProvider.shared.update(with: batterySnapshot)
+            }
+        }
         .onChange(of: appFontThemeID) { _, newValue in
             SharedModelContainer.write(appFontThemeID: newValue)
             WidgetTimelineReloadScheduler.schedule()
         }
         .onReceive(NotificationCenter.default.publisher(for: SharedModelContainer.widgetPresetsDidChangeNotification)) { _ in
             reloadWidgetPresets()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIDevice.batteryStateDidChangeNotification)) { _ in
+            if isBatteryLiveActivityEnabled {
+                let batterySnapshot = BatteryStatusProvider.currentSnapshot()
+                SharedModelContainer.write(battery: batterySnapshot)
+                BatteryLiveActivityProvider.shared.startIfNeeded(with: batterySnapshot)
+                BatteryLiveActivityProvider.shared.update(with: batterySnapshot)
+            }
         }
         .task(id: shouldObserveHealth) {
             guard shouldObserveHealth else {
@@ -185,7 +203,7 @@ struct ContentView: View {
                 selectedGalleryItem = item
             }
         case .widgets:
-            WIPScreen()
+            LiveActivityScreen()
         case .settings:
             SettingsScreen()
         case .library:
@@ -233,7 +251,12 @@ struct ContentView: View {
         }
 
         SharedModelContainer.write(clock: ClockDataProvider.currentSnapshot())
-        SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
+        let batterySnapshot = BatteryStatusProvider.currentSnapshot()
+        SharedModelContainer.write(battery: batterySnapshot)
+        if isBatteryLiveActivityEnabled {
+            BatteryLiveActivityProvider.shared.startIfNeeded(with: batterySnapshot)
+            BatteryLiveActivityProvider.shared.update(with: batterySnapshot)
+        }
         SharedModelContainer.write(appFontThemeID: appFontThemeID)
         SharedModelContainer.write(storage: await storageTask.value)
 

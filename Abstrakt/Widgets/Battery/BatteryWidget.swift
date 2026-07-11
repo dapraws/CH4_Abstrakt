@@ -25,15 +25,16 @@ struct BatterySnapshotViewData: Codable, Hashable {
     }
 
     var timeRemainingLabel: String {
-        if isCharging {
-            return "Charging"
-        }
-
         guard let estimatedMinutesRemaining else {
-            return "Estimating"
+            return isCharging ? "Charging" : "Estimating"
         }
-
-        return Self.durationLabel(for: estimatedMinutesRemaining)
+        
+        let duration = Self.durationLabel(for: estimatedMinutesRemaining)
+        if isCharging {
+            return level == 100 ? "Full" : "\(duration) to full"
+        }
+        
+        return duration
     }
 
     static func durationLabel(for minutes: Int) -> String {
@@ -158,7 +159,7 @@ struct BatteryWidget: View {
 
 // MARK: - Level Bar
 
-private struct BatteryLevelBar: View {
+struct BatteryLevelBar: View {
     let fillFraction: Double
     let fillColor: Color
     let backgroundColor: Color

@@ -7,5 +7,7 @@ struct AbstraktWidgetsBundle: WidgetBundle {
         SmallSolidWidget()
         MediumSolidWidget()
         LargeSolidWidget()
+        BatteryChargingLiveActivity()
+        CompactModeLiveActivity()
     }
 }
