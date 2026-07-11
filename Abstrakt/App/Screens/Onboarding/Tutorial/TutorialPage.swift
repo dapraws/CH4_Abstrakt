@@ -11,9 +11,6 @@ struct TutorialPage: View {
     @Binding var jiggleActive: Bool
     @Binding var jigglePhase: Bool
 
-    private let titleBlockWidth: CGFloat = 300
-    private let titleHeight: CGFloat = 64
-    private let bodyHeight: CGFloat = 62
     private let artworkWidth: CGFloat = 286
     private let artworkHeight: CGFloat = 259
 
@@ -57,7 +54,8 @@ struct TutorialPage: View {
                     .frame(width: 24, height: 24)
 
                 Text(step.eyebrow)
-                    .font(AppFonts.font(.caption, theme: .quicksand))
+                    .font(AppFonts.font(.caption, theme: .fusionPixel))
+                    .lineSpacing(AppFonts.lineSpacing(.caption, theme: .fusionPixel))
                     .foregroundStyle(AppColors.secondaryText)
                     .tracking(0.2)
             }
@@ -70,7 +68,7 @@ struct TutorialPage: View {
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .minimumScaleFactor(0.85)
-                    .frame(width: titleBlockWidth, height: titleHeight, alignment: .top)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Text(step.subtitle)
                     .font(AppFonts.font(.body, theme: .quicksand))
@@ -79,7 +77,7 @@ struct TutorialPage: View {
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
                     .minimumScaleFactor(0.84)
-                    .frame(width: titleBlockWidth, height: bodyHeight, alignment: .top)
+                    .frame(maxWidth: 300)
             }
         }
         .frame(maxWidth: .infinity)
@@ -87,6 +85,8 @@ struct TutorialPage: View {
 }
 
 private struct TutorialArtwork: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let step: TutorialStep
     let editButtonPhase: Bool
     let deletePhase: Bool
@@ -131,6 +131,22 @@ private struct TutorialArtwork: View {
                 if step == .tapAndHold {
                     transaction.animation = nil
                 }
+            }
+        }
+        .compositingGroup()
+        .saturation(colorScheme == .dark ? 0.92 : 1)
+        .contrast(colorScheme == .dark ? 0.97 : 1)
+        .brightness(colorScheme == .dark ? -0.02 : 0)
+        .overlay {
+            if colorScheme == .dark {
+                darkModeTone
+                    .blendMode(.multiply)
+            }
+        }
+        .overlay {
+            if colorScheme == .dark {
+                darkModeLift
+                    .blendMode(.screen)
             }
         }
         .frame(width: artworkSize.width, height: artworkSize.height)
@@ -257,6 +273,31 @@ private struct TutorialArtwork: View {
             .frame(width: artworkSize.width, height: artworkSize.height)
     }
 
+    private var darkModeTone: some View {
+        LinearGradient(
+            colors: [
+                Color(red: 0.27, green: 0.28, blue: 0.36).opacity(0.34),
+                Color(red: 0.18, green: 0.19, blue: 0.26).opacity(0.22)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+    }
+
+    private var darkModeLift: some View {
+        RadialGradient(
+            colors: [
+                Color(red: 0.52, green: 0.54, blue: 0.76).opacity(0.36),
+                Color.clear
+            ],
+            center: .top,
+            startRadius: 10,
+            endRadius: 180
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+    }
+
     private var jiggleAngle: Double {
         guard jiggleActive, !reduceMotion else { return 0 }
         return jigglePhase ? 4 : -2
@@ -336,26 +377,26 @@ enum TutorialStep: CaseIterable {
     var title: String {
         switch self {
         case .tapAndHold:
-            "Touch and hold\nyour Home Screen"
+            "Hold an empty spot"
         case .edit:
-            "Open the edit\nmenu"
+            "Open the edit menu"
         case .addWidget:
             "Tap Add Widget"
         case .findAbstrakt:
-            "Find Abstrakt\nand place it"
+            "Find Abstrakt"
         }
     }
 
     var subtitle: String {
         switch self {
         case .tapAndHold:
-            "Press on an empty area until the apps start jiggling and the Home Screen enters edit mode."
+            "Press and hold until the apps start jiggling on the Home Screen."
         case .edit:
-            "Tap the Edit button in the corner to open the Home Screen options."
+            "Tap Edit in the corner to open the Home Screen editing menu."
         case .addWidget:
-            "Choose Add Widget, then scroll or search until you see Abstrakt in the widget gallery."
+            "Choose Add Widget, then scroll or search for the Abstrakt widget."
         case .findAbstrakt:
-            "Pick a size, add the widget, then choose one of your saved presets from the widget editor."
+            "Pick a size, add it, then choose one of your saved presets to display."
         }
     }
 
