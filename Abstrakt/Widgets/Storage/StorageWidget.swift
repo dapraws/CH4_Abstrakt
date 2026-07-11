@@ -165,8 +165,8 @@ struct StorageWidget: View {
 
     private var widgetContent: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("DEVICE STORAGE")
-                .font(AbstraktWidgetFonts.font(.bodyBold, theme: fontTheme))
+            Text("Storage")
+                .font(AbstraktWidgetFonts.font(.heading, theme: fontTheme))
                 .foregroundStyle(palette.foreground)
 
             Spacer().frame(height: 10)

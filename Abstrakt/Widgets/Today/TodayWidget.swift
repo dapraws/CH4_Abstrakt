@@ -84,6 +84,7 @@ struct TodaySnapshot: Codable, Hashable {
 
 struct TodayWidget: View {
     private static let widgetCornerRadius: CGFloat = 30
+    private static let activeCalendarFill = Color(red: 1, green: 0.35, blue: 0.22)
 
     let snapshot: TodaySnapshot
     let fontTheme: AbstraktWidgetFontTheme
@@ -249,7 +250,7 @@ struct TodayWidget: View {
                             .background {
                                 if value == highlightedDay {
                                     RoundedRectangle(cornerRadius: metrics.highlightCornerRadius, style: .continuous)
-                                        .fill(Color(red: 0.55, green: 0.63, blue: 1.0))
+                                        .fill(Self.activeCalendarFill)
                                 }
                             }
                     }

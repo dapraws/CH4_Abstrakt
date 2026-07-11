@@ -11,7 +11,7 @@ struct CalendarMonthSnapshot: Codable, Hashable {
 
 struct CalendarWidget: View {
     private static let widgetCornerRadius: CGFloat = 22
-    private static let activeFill = Color(red: 0.55, green: 0.63, blue: 1.0)
+    private static let activeFill = Color(red: 1, green: 0.35, blue: 0.22)
     private static let weekdayTint = Color(red: 1, green: 0.36, blue: 0.42)
 
     let snapshot: CalendarMonthSnapshot
