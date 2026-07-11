@@ -102,6 +102,7 @@ struct GalleryScreen: View {
                     HStack(spacing: AppSpacing.chipGap) {
                         ForEach(featuredCategories) { category in
                             Button {
+                                Haptics.selection.play()
                                 selectedCategory = category
                             } label: {
                                 CategoryChip(category: category, isSelected: selectedCategory == category)
@@ -147,6 +148,7 @@ private struct GalleryRowView: View {
             let previewWidth = previewWidth(for: entry.size, availableWidth: availableWidth)
 
             Button {
+                Haptics.primary.play()
                 onSelectItem(entry)
             } label: {
                 WidgetCard(item: entry, maximumPreviewWidth: previewWidth, maximumPreviewScale: maximumScale(for: entry.size))
@@ -160,6 +162,7 @@ private struct GalleryRowView: View {
 
             HStack(alignment: .top, spacing: spacing) {
                 Button {
+                    Haptics.primary.play()
                     onSelectItem(first)
                 } label: {
                     WidgetCard(item: first, maximumPreviewWidth: previewWidth, maximumPreviewScale: maximumScale(for: first.size))
@@ -168,6 +171,7 @@ private struct GalleryRowView: View {
 
                 if let second {
                     Button {
+                        Haptics.primary.play()
                         onSelectItem(second)
                     } label: {
                         WidgetCard(item: second, maximumPreviewWidth: previewWidth, maximumPreviewScale: maximumScale(for: second.size))

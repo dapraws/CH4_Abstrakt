@@ -38,6 +38,7 @@ struct AppsPickerSheet: View {
             Spacer()
 
             Button {
+                Haptics.primary.play()
                 selectedApps = draftApps
                 WidgetTimelineReloadScheduler.schedule()
                 dismiss()
@@ -60,6 +61,7 @@ struct AppsPickerSheet: View {
         HStack(spacing: -8) {
             ForEach(draftApps.prefix(6), id: \.rawValue) { app in
                 Button {
+                    Haptics.selection.play()
                     toggle(app)
                 } label: {
                     Image(app.assetName)
@@ -110,6 +112,7 @@ struct AppsPickerSheet: View {
         let canSelect = isSelected || draftApps.count < 6
 
         return Button {
+            Haptics.selection.play()
             toggle(app)
         } label: {
             VStack(spacing: 9) {

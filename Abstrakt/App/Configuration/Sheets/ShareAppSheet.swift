@@ -55,6 +55,7 @@ struct ShareAppSheet: View {
             Spacer()
 
             Button {
+                Haptics.selection.play()
                 dismiss()
             } label: {
                 Image(systemName: "xmark")
@@ -81,6 +82,7 @@ struct ShareAppSheet: View {
 
     private var shareButton: some View {
         Button {
+            Haptics.primary.play()
             isPresentingActivitySheet = true
         } label: {
             ShareAppButtonContent()

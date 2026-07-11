@@ -104,6 +104,7 @@ struct LibraryScreen: View {
         HStack(spacing: 12) {
             ForEach(WidgetSize.allCases) { size in
                 Button {
+                    Haptics.selection.play()
                     selectedSize = size
                 } label: {
                     Text(
@@ -424,6 +425,7 @@ private struct LibraryWidgetRow: View {
         .frame(height: rowHeight)
         .contentShape(Rectangle())
         .onTapGesture {
+            Haptics.primary.play()
             onSelect(preset)
         }
         .clipped()
@@ -436,6 +438,7 @@ private struct LibraryWidgetRow: View {
         #if targetEnvironment(simulator)
             .contextMenu {
                 Button {
+                    Haptics.selection.play()
                     onRenderToHomeScreen(preset)
                 } label: {
                     Label(

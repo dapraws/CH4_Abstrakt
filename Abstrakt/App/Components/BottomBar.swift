@@ -66,6 +66,7 @@ struct BottomBar: View {
 
             staggeredItem(5) {
                 Button {
+                    Haptics.selection.play()
                     selectedTab = .library
                 } label: {
                     ZStack {
@@ -90,6 +91,7 @@ struct BottomBar: View {
 
     private var backButton: some View {
         Button {
+            Haptics.selection.play()
             onLibraryBack?()
         } label: {
             HStack(spacing: 8) {
@@ -107,6 +109,7 @@ struct BottomBar: View {
 
     private func tabButton(_ tab: BottomBarTab) -> some View {
         Button {
+            Haptics.selection.play()
             selectedTab = tab
         } label: {
             tabIcon(for: tab)

@@ -23,6 +23,7 @@ struct FontPickerSheet: View {
                 Spacer()
 
                 Button {
+                    Haptics.selection.play()
                     dismiss()
                 } label: {
                     Image(systemName: "xmark")
@@ -54,6 +55,7 @@ struct FontPickerSheet: View {
         let isSelected = appFontThemeID == theme.id
 
         return Button {
+            Haptics.selection.play()
             withAnimation(.smooth(duration: 0.18)) {
                 appFontThemeID = theme.id
                 sharedAppFontThemeID = theme.id

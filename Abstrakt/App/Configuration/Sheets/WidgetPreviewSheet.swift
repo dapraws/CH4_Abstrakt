@@ -452,6 +452,7 @@ private struct WidgetPreviewSheetContent: View {
             return
         }
 
+        Haptics.primary.play()
         isPerformingPrimaryAction = true
         Task { @MainActor in
             var shouldResetActionState = true
@@ -467,6 +468,7 @@ private struct WidgetPreviewSheetContent: View {
                     return
                 }
                 savePreset()
+                Haptics.success.play()
                 await refreshSavedWidgetData()
                 shouldResetActionState = false
                 onDismiss?()
@@ -476,9 +478,11 @@ private struct WidgetPreviewSheetContent: View {
                         return
                     }
                     savePreset()
+                    Haptics.success.play()
                     await refreshSavedWidgetData()
                 } else {
                     removePreset(preset)
+                    Haptics.success.play()
                 }
                 shouldResetActionState = false
                 onDismiss?()
@@ -493,6 +497,7 @@ private struct WidgetPreviewSheetContent: View {
             case .healthKit:
                 let state = HealthSummaryProvider.shared.authorizationState()
                 if state == .unavailable {
+                    Haptics.warning.play()
                     permissionAlertMessage = L("permission.health.unavailable")
                     showingPermissionAlert = true
                     return false
@@ -509,6 +514,7 @@ private struct WidgetPreviewSheetContent: View {
                     if finalStatus != .authorizedWhenInUse
                         && finalStatus != .authorizedAlways
                     {
+                        Haptics.warning.play()
                         permissionAlertMessage = L(
                             "permission.location.required"
                         )
@@ -516,6 +522,7 @@ private struct WidgetPreviewSheetContent: View {
                         return false
                     }
                 } else if status == .denied || status == .restricted {
+                    Haptics.warning.play()
                     permissionAlertMessage = L("permission.location.denied")
                     showingPermissionAlert = true
                     return false
@@ -525,6 +532,7 @@ private struct WidgetPreviewSheetContent: View {
                 if state == .notDetermined {
                     let granted = await EventKitProvider.requestCalendarAccess()
                     if !granted {
+                        Haptics.warning.play()
                         permissionAlertMessage = L(
                             "permission.calendar.required"
                         )
@@ -532,6 +540,7 @@ private struct WidgetPreviewSheetContent: View {
                         return false
                     }
                 } else if state == .denied || state == .restricted {
+                    Haptics.warning.play()
                     permissionAlertMessage = L("permission.calendar.denied")
                     showingPermissionAlert = true
                     return false
@@ -793,6 +802,7 @@ private struct WidgetAppearanceControls: View {
                 HStack(spacing: 0) {
                     ForEach(options) { option in
                         Button {
+                            Haptics.selection.play()
                             mode = option
                         } label: {
                             Label(option.title, systemImage: option.systemImage)
@@ -821,7 +831,10 @@ private struct WidgetFontCustomizationRow: View {
     let openFontPicker: () -> Void
 
     var body: some View {
-        Button(action: openFontPicker) {
+        Button {
+            Haptics.selection.play()
+            openFontPicker()
+        } label: {
             HStack(spacing: 16) {
                 Image(systemName: "t.square.fill")
                     .font(AppFonts.font(.title))
@@ -888,6 +901,7 @@ private struct WidgetFontPickerSheet: View {
                 Spacer()
 
                 Button {
+                    Haptics.selection.play()
                     dismiss()
                 } label: {
                     Image(systemName: "xmark")
@@ -933,6 +947,7 @@ private struct WidgetFontPickerSheet: View {
             || (selectedThemeID == nil && themeID == activeAppFontTheme.id)
 
         return Button {
+            Haptics.selection.play()
             withAnimation(.smooth(duration: 0.18)) {
                 selectedThemeID = themeID
             }
@@ -1002,7 +1017,10 @@ private struct PortalCustomizationControls: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Button(action: openAppsPicker) {
+            Button {
+                Haptics.selection.play()
+                openAppsPicker()
+            } label: {
                 HStack(spacing: -9) {
                     ForEach(selectedApps.prefix(6), id: \.rawValue) { app in
                         Image(app.assetName)
@@ -1041,6 +1059,7 @@ private struct PortalClipStyleMenu: View {
         Menu {
             ForEach(PortalIconClipStyle.allCases) { style in
                 Button {
+                    Haptics.selection.play()
                     withAnimation(.smooth(duration: 0.18)) {
                         clipStyle = style
                     }
@@ -1124,6 +1143,7 @@ private struct WidgetSegmentedControl<Option: WidgetSegmentedOption>: View {
                 HStack(spacing: 0) {
                     ForEach(options) { option in
                         Button {
+                            Haptics.selection.play()
                             selection = option
                         } label: {
                             Label(
