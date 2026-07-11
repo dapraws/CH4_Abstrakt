@@ -41,7 +41,8 @@ This file is the canonical mapping between widget features and Apple-native fram
 
 ## Permission Expectations
 
-- **Permission-on-Save**: The host app requests framework permissions the first time the user saves a dependent widget, not at launch. For most frameworks (like CoreLocation or EventKit), if the user declines the system prompt, saving is blocked and an alert is shown; a later Save tap shows the alert again and offers to open Settings, since iOS will not re-show the system prompt after a denial.
+- **Onboarding-first requests**: The first-launch onboarding flow now includes an optional permissions page with explicit request actions for Health, Weather/Location, and Calendar access.
+- **Save-time fallback**: The preview sheet still requests any required permission that remains undetermined when the user saves a dependent widget. For most frameworks (like CoreLocation or EventKit), if the user declines the system prompt, saving is blocked and an alert is shown; a later Save tap shows the alert again and offers to open Settings, since iOS will not re-show the system prompt after a denial.
 - **HealthKit Privacy Exception**: Due to Apple privacy rules, the system never exposes whether a user granted or denied read access to Health data. HealthKit read queries only return `.notDetermined`. Because of this, Health widgets treat `.requested` as the highest verifiable permission state and allow saving if the prompt was requested. Blocking `.requested` would permanently prevent all users from saving Health widgets.
 
 | Widget Family | Permission |
@@ -62,7 +63,7 @@ This file is the canonical mapping between widget features and Apple-native fram
 The host app refreshes widget-facing data on a just-in-time basis:
 
 - **Gated refresh**: Data fetches are gated by the saved widget presets. On scene-active, `ContentView` computes which framework categories are needed by saved presets and refreshes only those providers. A fresh install with no presets does not start HealthKit observers, WeatherKit fetches, calendar fetches, or the always-on refresh loops.
-- **Permission-on-save**: HealthKit, CoreLocation, and EventKit permission requests happen when the user saves the first widget that requires them, not at launch. After a successful save, the relevant provider runs immediately to populate the shared store.
+- **Hybrid permission flow**: HealthKit, CoreLocation, and EventKit permission requests can happen during onboarding or, if skipped there, when the user saves the first widget that requires them. After a successful save, the relevant provider runs immediately to populate the shared store.
 - **Lazy loops**: The 1-second clock loop and 60-second battery/storage loop only run while the scene is active and at least one preset exists; they stop when the library is empty.
 - **Pre-warming**: App Groups, custom fonts, `HKHealthStore`, and `EKEventStore` are pre-warmed at app launch to avoid first-tap stalls in the Gallery and save sheets.
 

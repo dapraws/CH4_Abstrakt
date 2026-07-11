@@ -93,14 +93,15 @@ Abstrakt/
 
 ## App Flow
 
-The intended main-app flow is:
+The current main-app flow is:
 
-1. Browse the widget gallery.
-2. Choose a widget and open a customization sheet.
-3. Preview the chosen widget size on-device style.
-4. Adjust flexible options such as theme mode, font, font weight, gradient, icon set, counters, or per-widget settings.
-5. Save that configured widget preset into the Library page.
-6. From the Home Screen, the user adds a system widget and selects the saved preset through the widget configuration flow.
+1. Complete onboarding the first time the app launches.
+2. Land in the main app shell and browse the widget gallery.
+3. Choose a widget and open a customization sheet.
+4. Preview the chosen widget size on-device style.
+5. Adjust flexible options such as appearance mode, font, or widget-specific settings.
+6. Save that configured widget preset into the Library page.
+7. From the Home Screen, add a system widget and select the saved preset through the widget configuration flow.
 
 This means the app library is the source of truth for saved widget presets, while WidgetKit is the renderer on the Home Screen.
 
@@ -114,10 +115,13 @@ The current app foundation includes:
 
 | Area | Details |
 |---|---|
+| Onboarding | First-launch flow with welcome, widget tutorial, and a permissions page for Health, Weather/Location, and Calendar access. |
+| Home | Present in the tab shell as a lightweight placeholder screen. |
 | Gallery | Widget cards with catalog-backed category chips and a preview sheet for the selected widget. |
 | Preview sheet | Renders the selected widget, shows its display title, and keeps the bottom save action in a separate control layer. |
 | Library | Grouped by `Small`, `Medium`, and `Large`, with swipeable size tabs, empty states, and cropped/scaled preview rows that hint at the saved widget surface. |
 | Settings | App language, app font, alternate app icon, temperature unit, temperature display, distance unit, access/permissions, FAQ, share sheet, and release notes. |
+| Widgets tab | Present in the tab shell but currently routed to a work-in-progress placeholder. |
 
 ### Widget rendering
 
@@ -141,7 +145,8 @@ The current app foundation includes:
 ### Data & permissions
 
 - Just-in-time data fetching: providers refresh only when at least one saved widget needs them, and always-on refresh loops stop when the Library is empty.
-- Permission-on-save: the Gallery requests framework permissions the first time you save a widget, blocks the save if you decline, and lets you retry or open Settings. (Note: due to Apple privacy limits, HealthKit permissions are considered valid once they have been `.requested`, since read access cannot be explicitly verified).
+- Hybrid permission flow: onboarding now includes an optional permissions step with explicit request buttons for Health, Weather/Location, and Calendar access.
+- Save-time fallback: if a required permission was skipped during onboarding or is still undetermined, the preview sheet requests it when the user saves a dependent widget, blocks the save on denial, and lets the user retry or open Settings. (Note: due to Apple privacy limits, HealthKit permissions are considered valid once they have been `.requested`, since read access cannot be explicitly verified).
 
 The app font preference is written to shared storage so Home Screen widgets and in-app previews can render with matching typography. Widget views must stay extension-safe because the WidgetKit target also compiles the shared files under `Abstrakt/Widgets/`.
 

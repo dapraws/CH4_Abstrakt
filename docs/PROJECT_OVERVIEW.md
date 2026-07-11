@@ -2,11 +2,12 @@
 
 ## Summary
 
-Abstrakt is a SwiftUI iOS app that helps users build a personal library of saved widget presets. Users browse a gallery, open a widget detail/customization flow, preview the widget in a selected Home Screen size, then save that preset into a Library page that later feeds WidgetKit configuration.
+Abstrakt is a SwiftUI iOS app that helps users build a personal library of saved widget presets. On first launch, users move through onboarding, then browse a gallery, open a widget detail/customization flow, preview the widget in a selected Home Screen size, and save that preset into a Library page that later feeds WidgetKit configuration.
 
 ## Product Shape
 
 - Host app: discovery, previews, configuration sheets, saved library, permissions, and settings
+- First-launch onboarding: welcome, widget tutorial, and an optional permissions step before entering the main app shell
 - Widget extension: exposes three size-based `Solid Widget` renderers and renders saved presets on the Home Screen
 - Shared render layer: widget visuals live under `Abstrakt/Widgets/` and are compiled into both the host app and WidgetKit extension
 - Runtime data flow: host-app providers refresh battery, Health, calendar/date, time, storage, and WeatherKit data into App Group storage for WidgetKit; in-app previews use provider/cache values instead of sample numbers
@@ -30,10 +31,12 @@ Abstrakt is a SwiftUI iOS app that helps users build a personal library of saved
 
 ## Core User Experience
 
-The core flow should look like this:
+The current core flow looks like this:
 
 ```text
-Gallery
+Onboarding (first launch)
+  ↓
+Gallery / Main App Shell
   ↓
 Widget Detail / Preview Sheet
   ↓
@@ -46,6 +49,7 @@ WidgetKit Selection On Home Screen
 
 Important UX constraints:
 
+- First launch is gated by onboarding through `hasCompletedOnboarding`.
 - Users choose between `Small`, `Medium`, and `Large` for Home Screen placement.
 - The iOS widget gallery exposes `Solid Widget` with `Small Widget`, `Medium Widget`, and `Large Widget` slots.
 - The system saved-widget picker must filter saved presets by the selected slot's size.
@@ -58,6 +62,7 @@ Important UX constraints:
 - Library rows should crop the widget preview under the row divider instead of shrinking the design into a tiny thumbnail.
 - Preview sheets should use a full-width bottom sheet treatment with a drag indicator, title metadata below the rendered widget, and a bottom save action separated from the widget preview layer.
 - Settings should expose app language, app font, alternate app icon, unit preferences, permissions, FAQ, sharing, and release notes without mixing those global preferences into per-widget configuration.
+- The main tab shell currently includes `Home`, `Gallery`, `Widgets`, `Settings`, and an overlaid `Library`; `Home` and `Widgets` are currently lightweight placeholder destinations while Gallery, Library, and Settings carry the primary product flow.
 - Unit preferences should use compact picker/menu controls from Settings and persist through shared storage for widget rendering.
 - App font changes should persist to shared storage and reload WidgetKit timelines so in-app previews and Home Screen widgets use the same selected typography.
 - App language changes should persist through shared settings, update visible strings, and reload timelines when widget-visible strings may change.
@@ -132,9 +137,10 @@ Not every widget needs a dedicated view model. Add one only when the widget has 
 
 ## Data & Permission Strategy
 
-- The host app does not fetch framework-backed data or request permissions until the user actually saves a widget that needs them.
-- `ContentView` refreshes only the providers whose frameworks appear in the saved widget presets, and only starts always-on refresh loops when at least one preset exists.
-- Permission prompts fire from the Save action in the preview sheet, not on app launch. Widgets are expected to render explicit empty, denied, and loading states while they wait for data.
+- The host app keeps framework-backed refresh work gated by saved presets. `ContentView` refreshes only the providers whose frameworks appear in the saved widget presets and starts always-on refresh loops only when at least one preset exists.
+- The first-launch onboarding flow now includes an optional permissions page with dedicated request actions for Health, Weather/Location, and Calendar access.
+- The preview sheet still acts as the save-time fallback. If a required permission was skipped during onboarding or remains undetermined, the Save action requests it before writing the preset.
+- Widgets are expected to render explicit empty, denied, and loading states while they wait for cached App Group data.
 
 ## Future Surface Direction
 
