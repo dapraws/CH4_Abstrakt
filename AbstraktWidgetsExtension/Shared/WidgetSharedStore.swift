@@ -63,6 +63,7 @@ enum WidgetSharedStore {
     private static let jsonCacheTTL: TimeInterval = 5
     private static var cachedEventSnapshot: (snapshot: EventsSnapshot, timestamp: Date)?
     private static var cachedReminderSnapshot: (snapshot: ReminderSnapshot, timestamp: Date)?
+    private static var cachedSleepSnapshot: (snapshot: SleepSnapshot, timestamp: Date)?
     private static var cachedWeather: (snapshot: WeatherSnapshot, timestamp: Date)?
     private static var cachedDaylight: (snapshot: DaylightSnapshot, timestamp: Date)?
     private static var cachedPresets: (presets: [SavedWidgetPreset], timestamp: Date)?
@@ -135,6 +136,24 @@ enum WidgetSharedStore {
         }
 
         cachedReminderSnapshot = (snapshot, Date())
+        return snapshot
+    }
+
+    static var sleep: SleepSnapshot {
+        if let cached = cachedSleepSnapshot,
+           now - cached.timestamp.timeIntervalSince1970 < jsonCacheTTL {
+            return cached.snapshot
+        }
+
+        let snapshot: SleepSnapshot
+        if let data = defaults?.data(forKey: "shared.health.sleep"),
+           let decoded = try? JSONDecoder().decode(SleepSnapshot.self, from: data) {
+            snapshot = decoded
+        } else {
+            snapshot = .placeholder
+        }
+
+        cachedSleepSnapshot = (snapshot, Date())
         return snapshot
     }
 

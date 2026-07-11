@@ -34,6 +34,7 @@ enum AppGroupConstants {
     static let sharedBatteryIsChargingKey = "shared.battery.isCharging"
     static let sharedHealthStepsKey = "shared.health.steps"
     static let sharedHealthDistanceKilometersKey = "shared.health.distanceKilometers"
+    static let sharedSleepKey = "shared.health.sleep"
     static let activityModeKey = "health.metrics.mode"
     static let sharedActivityTodayExerciseMinutesKey = "shared.activity.today.exerciseMinutes"
     static let sharedActivityTodayActiveEnergyKey = "shared.activity.today.activeEnergy"

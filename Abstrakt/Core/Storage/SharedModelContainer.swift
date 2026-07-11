@@ -58,6 +58,14 @@ enum SharedModelContainer {
         defaults?.set(health.distanceKilometers, forKey: AppGroupConstants.sharedHealthDistanceKilometersKey)
     }
 
+    static func write(sleep: SleepSnapshot) {
+        guard let data = try? JSONEncoder().encode(sleep) else {
+            return
+        }
+
+        defaults?.set(data, forKey: AppGroupConstants.sharedSleepKey)
+    }
+
     static func write(activity snapshots: [ActivityMode: ActivitySnapshot]) {
         writeActivity(snapshots[.today], prefix: "today")
         writeActivity(snapshots[.weekly], prefix: "weekly")

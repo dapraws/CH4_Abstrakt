@@ -282,20 +282,24 @@ struct ContentView: View {
             async let heartRate = HealthSummaryProvider.shared.latestHeartRate()
             async let health = HealthSummaryProvider.shared.todaySnapshot()
             async let activity = HealthSummaryProvider.shared.activitySnapshots()
+            async let sleep = HealthSummaryProvider.shared.sleepSnapshot()
 
             let (
                 heartRateSnapshot,
                 healthSnapshot,
-                activitySnapshots
+                activitySnapshots,
+                sleepSnapshot
             ) = await (
                 heartRate,
                 health,
-                activity
+                activity,
+                sleep
             )
 
             SharedModelContainer.write(heartRate: heartRateSnapshot)
             SharedModelContainer.write(health: healthSnapshot)
             SharedModelContainer.write(activity: activitySnapshots)
+            SharedModelContainer.write(sleep: sleepSnapshot)
         }
 
         WidgetTimelineReloadScheduler.reloadNow()
@@ -333,8 +337,10 @@ struct ContentView: View {
     private func refreshHealthWidgetData() async {
         let health = await HealthSummaryProvider.shared.todaySnapshot()
         let activity = await HealthSummaryProvider.shared.activitySnapshots()
+        let sleep = await HealthSummaryProvider.shared.sleepSnapshot()
         SharedModelContainer.write(health: health)
         SharedModelContainer.write(activity: activity)
+        SharedModelContainer.write(sleep: sleep)
     }
 
     private func savedWidgetCategories() -> Set<WidgetCategory> {

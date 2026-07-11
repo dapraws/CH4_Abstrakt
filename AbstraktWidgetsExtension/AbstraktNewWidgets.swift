@@ -9,6 +9,7 @@ struct SmallSolidWidgetEntry: TimelineEntry {
     let selectedPreset: SavedWidgetPreset?
     let calendar: CalendarMonthSnapshot
     let reminders: ReminderSnapshot
+    let sleep: SleepSnapshot
     let battery: BatteryWidgetEntry
     let health: StepWidgetEntry
     let activity: ActivitySnapshot
@@ -200,6 +201,7 @@ private extension SmallSolidWidgetEntry {
             selectedPreset: resolvedPreset(from: selectedWidget, size: "small"),
             calendar: CalendarMonthSnapshot(date: date),
             reminders: WidgetSharedStore.reminders,
+            sleep: WidgetSharedStore.sleep,
             battery: BatteryWidgetEntry(
                 date: date,
                 level: WidgetSharedStore.batteryLevel,
@@ -482,6 +484,12 @@ private struct SmallSolidWidgetView: View {
                 fontTheme: entry.fontTheme,
                 clipsToWidgetShape: false
             )
+        case "sleep":
+            SleepWidget(
+                snapshot: entry.sleep,
+                fontTheme: entry.fontTheme,
+                clipsToWidgetShape: false
+            )
         case "steps":
             StepsWidget(
                 snapshot: entry.health.renderSnapshot,
@@ -684,6 +692,7 @@ private extension SmallSolidWidgetEntry {
             selectedPreset: previewPreset(widgetID: selectedWidgetID, size: "small"),
             calendar: CalendarMonthSnapshot(date: .widgetPreviewDate),
             reminders: .placeholder,
+            sleep: .placeholder,
             battery: BatteryWidgetEntry(
                 date: .widgetPreviewDate,
                 level: 76,
@@ -806,6 +815,12 @@ private extension Date {
     SmallSolidWidget()
 } timeline: {
     SmallSolidWidgetEntry.preview(selectedWidgetID: "reminder")
+}
+
+#Preview("Small - Sleep", as: .systemSmall) {
+    SmallSolidWidget()
+} timeline: {
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "sleep")
 }
 
 #Preview("Small - Steps", as: .systemSmall) {

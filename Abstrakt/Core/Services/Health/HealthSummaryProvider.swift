@@ -30,6 +30,13 @@ struct HeartRateSnapshot: Codable, Hashable {
     static let placeholder = HeartRateSnapshot(bpm: 0, timestamp: .now)
 }
 
+private struct SleepSession {
+    let anchorDate: Date
+    let bedtime: Date
+    let asleepDuration: TimeInterval
+    let inBedDuration: TimeInterval
+}
+
 final class HealthSummaryProvider {
     static let shared = HealthSummaryProvider()
 
@@ -116,6 +123,53 @@ final class HealthSummaryProvider {
             .today: await today,
             .weekly: await weekly,
         ]
+    }
+
+    func sleepSnapshot() async -> SleepSnapshot {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            return .permissionNeeded
+        }
+
+        let end = Date.now
+        let start = Calendar.current.date(byAdding: .day, value: -21, to: end) ?? end
+        let interval = DateInterval(start: start, end: end)
+        let sessions = await sleepSessions(interval: interval)
+            .sorted { $0.anchorDate > $1.anchorDate }
+            .filter { $0.asleepDuration > 0 }
+
+        guard !sessions.isEmpty else {
+            return .empty
+        }
+
+        let samples = Array(sessions.prefix(7))
+        let bedtimeValues = samples.map(\.bedtime).map(Self.bedtimeMinuteValue)
+        let averageBedtime = Int((Double(bedtimeValues.reduce(0, +)) / Double(bedtimeValues.count)).rounded()) % (24 * 60)
+        let averageSleepMinutes = Int(
+            (
+                samples.map(\.asleepDuration).reduce(0, +)
+                / Double(max(samples.count, 1))
+                / 60
+            ).rounded()
+        )
+        let averageEfficiency = Int(
+            (
+                samples.map { session in
+                    let denominator = max(max(session.inBedDuration, session.asleepDuration), 1)
+                    return session.asleepDuration / denominator
+                }
+                .reduce(0, +)
+                / Double(max(samples.count, 1))
+                * 100
+            ).rounded()
+        )
+
+        return SleepSnapshot(
+            date: end,
+            accessAuthorized: true,
+            targetBedtimeMinutes: averageBedtime,
+            recommendedSleepMinutes: averageSleepMinutes,
+            efficiencyPercent: averageEfficiency
+        )
     }
 
     func startObservingTodayMetrics(onChange: @escaping @Sendable () -> Void) {
@@ -314,11 +368,109 @@ final class HealthSummaryProvider {
         }
     }
 
+    private func sleepSessions(interval: DateInterval) async -> [SleepSession] {
+        let samples = await sleepCategorySamples(interval: interval)
+        let grouped = Dictionary(grouping: samples) { sample in
+            Self.sleepAnchorDate(for: sample.startDate)
+        }
+
+        return grouped.compactMap { anchorDate, samples in
+            let bedIntervals = samples.map {
+                DateInterval(start: max($0.startDate, interval.start), end: min($0.endDate, interval.end))
+            }
+            let asleepIntervals = samples
+                .filter { Self.isAsleepValue($0.value) }
+                .map { DateInterval(start: max($0.startDate, interval.start), end: min($0.endDate, interval.end)) }
+
+            let mergedBedIntervals = Self.mergedIntervals(from: bedIntervals)
+            let mergedAsleepIntervals = Self.mergedIntervals(from: asleepIntervals)
+            let asleepDuration = mergedAsleepIntervals.reduce(0.0) { $0 + $1.duration }
+            let inBedDuration = mergedBedIntervals.reduce(0.0) { $0 + $1.duration }
+
+            guard
+                let bedtime = mergedBedIntervals.first?.start ?? mergedAsleepIntervals.first?.start,
+                asleepDuration > 0
+            else {
+                return nil
+            }
+
+            return SleepSession(
+                anchorDate: anchorDate,
+                bedtime: bedtime,
+                asleepDuration: asleepDuration,
+                inBedDuration: max(inBedDuration, asleepDuration)
+            )
+        }
+    }
+
+    private func sleepCategorySamples(interval: DateInterval) async -> [HKCategorySample] {
+        await withCheckedContinuation { continuation in
+            let sampleType = HKCategoryType(.sleepAnalysis)
+            let predicate = HKQuery.predicateForSamples(
+                withStart: interval.start,
+                end: interval.end,
+                options: []
+            )
+
+            let query = HKSampleQuery(
+                sampleType: sampleType,
+                predicate: predicate,
+                limit: HKObjectQueryNoLimit,
+                sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]
+            ) { _, samples, _ in
+                continuation.resume(
+                    returning: samples?.compactMap { $0 as? HKCategorySample } ?? []
+                )
+            }
+
+            store.execute(query)
+        }
+    }
+
     private static func isAsleepValue(_ value: Int) -> Bool {
         value == HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue ||
             value == HKCategoryValueSleepAnalysis.asleepCore.rawValue ||
             value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue ||
             value == HKCategoryValueSleepAnalysis.asleepREM.rawValue
+    }
+
+    private static func sleepAnchorDate(for date: Date) -> Date {
+        let calendar = Calendar.current
+        let shiftedDate = calendar.date(byAdding: .hour, value: -12, to: date) ?? date
+        return calendar.startOfDay(for: shiftedDate)
+    }
+
+    private static func bedtimeMinuteValue(for date: Date) -> Int {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.hour, .minute], from: date)
+        let hour = components.hour ?? 0
+        let minute = components.minute ?? 0
+        let total = hour * 60 + minute
+        return hour < 12 ? total + (24 * 60) : total
+    }
+
+    private static func mergedIntervals(from intervals: [DateInterval]) -> [DateInterval] {
+        let sortedIntervals = intervals
+            .filter { $0.duration > 0 }
+            .sorted { $0.start < $1.start }
+
+        guard var current = sortedIntervals.first else {
+            return []
+        }
+
+        var merged: [DateInterval] = []
+
+        for interval in sortedIntervals.dropFirst() {
+            if interval.start <= current.end {
+                current = DateInterval(start: current.start, end: max(current.end, interval.end))
+            } else {
+                merged.append(current)
+                current = interval
+            }
+        }
+
+        merged.append(current)
+        return merged
     }
 
     static let empty = HealthSummarySnapshot(steps: 0, distanceKilometers: 0)

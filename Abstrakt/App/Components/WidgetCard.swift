@@ -187,6 +187,11 @@ struct WidgetPreview: View {
                         snapshot: activitySnapshot,
                         fontTheme: widgetFontTheme
                     )
+                case "sleep":
+                    SleepWidget(
+                        snapshot: sleepSnapshot,
+                        fontTheme: widgetFontTheme
+                    )
                 case "events":
                     EventsWidget(
                         snapshot: eventSnapshot,
@@ -310,6 +315,15 @@ struct WidgetPreview: View {
     private var reminderSnapshot: ReminderSnapshot {
         guard let data = AppGroupConstants.sharedDefaults?.data(forKey: AppGroupConstants.sharedRemindersKey),
               let snapshot = try? JSONDecoder().decode(ReminderSnapshot.self, from: data) else {
+            return .placeholder
+        }
+
+        return snapshot
+    }
+
+    private var sleepSnapshot: SleepSnapshot {
+        guard let data = AppGroupConstants.sharedDefaults?.data(forKey: AppGroupConstants.sharedSleepKey),
+              let snapshot = try? JSONDecoder().decode(SleepSnapshot.self, from: data) else {
             return .placeholder
         }
 
