@@ -91,6 +91,11 @@ struct OnboardingPermissionRow: View {
             Button(action: action) {
                 OnboardingPermissionToggle(isOn: isOn, isEnabled: isEnabled)
             }
+            .simultaneousGesture(
+                TapGesture().onEnded {
+                    Haptics.selection.play()
+                }
+            )
             .buttonStyle(.plain)
             .disabled(!isEnabled)
             .accessibilityLabel(title)
