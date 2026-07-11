@@ -275,10 +275,11 @@ struct SettingsScreen: View {
                 .font(AppFonts.font(.heading2))
                 .foregroundStyle(AppColors.accentPink)
 
-            Text(L("settings.footer.made_by", "1.0", "01")).font(
-                AppFonts.font(.caption)
+            BrandCreditFooter(
+                fontRole: .caption,
+                fontTheme: selectedTheme,
+                secondaryColor: AppColors.tertiaryText
             )
-            .foregroundStyle(AppColors.tertiaryText)
         }
         .padding(.top, 6)
         .padding(.bottom, 24)

@@ -79,15 +79,7 @@ struct WelcomePage: View {
                         .multilineTextAlignment(.center)
                         .padding(.bottom, metrics.subtitleBottomSpacing)
 
-                    HStack(spacing: 0) {
-                        Text(L("onboarding.made_by_prefix"))
-                            .foregroundStyle(AppColors.tertiaryText.opacity(0.78))
-                        Text("SSJ")
-                            .foregroundStyle(AppColors.primaryText)
-                        Text(" · \(appVersion)")
-                            .foregroundStyle(AppColors.tertiaryText.opacity(0.78))
-                    }
-                    .font(AppFonts.font(.meta, theme: .quicksand))
+                    BrandCreditFooter()
 
                     Spacer(minLength: metrics.bottomContentSpacing)
                 }
@@ -162,13 +154,6 @@ struct WelcomePage: View {
             startPoint: .top,
             endPoint: .bottom
         )
-    }
-
-    private var appVersion: String {
-        let version = Bundle.main.object(
-            forInfoDictionaryKey: "CFBundleShortVersionString"
-        ) as? String ?? "1.0"
-        return "v\(version)"
     }
 }
 
