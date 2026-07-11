@@ -12,6 +12,14 @@ struct BatterySnapshotViewData: Codable, Hashable {
         Double(max(0, min(100, level))) / 100.0
     }
 
+    var levelLabel: String {
+        normalizedLevel.formatted(
+            .percent
+                .precision(.fractionLength(0))
+                .locale(Locale(identifier: "en_US_POSIX"))
+        )
+    }
+
     func barFillFraction(at index: Int) -> Double {
         min(max((normalizedLevel * 5.0) - Double(index), 0), 1)
     }
@@ -121,7 +129,7 @@ struct BatteryWidget: View {
                     .font(AbstraktWidgetFonts.font(.caption, theme: fontTheme))
                     .foregroundStyle(Color(red: 1, green: 0.35, blue: 0.22))
 
-                Text("\(snapshot.level)%")
+                Text(verbatim: snapshot.levelLabel)
                     .font(AbstraktWidgetFonts.font(.heading, theme: fontTheme))
                     .foregroundStyle(palette.foreground)
             }
