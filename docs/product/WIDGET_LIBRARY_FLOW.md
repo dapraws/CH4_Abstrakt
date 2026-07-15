@@ -66,3 +66,12 @@ Live Activities are configured outside the saved Home Screen widget library.
 5. If a state has no selected item while the toggle is on, that state renders the explicit add/empty activity instead of borrowing another state's selected item.
 
 Live Activity selections should not create Library presets, and saved Home Screen widgets should not automatically affect ActivityKit state.
+
+Live Activity configuration rules:
+
+- Changing mode between Smart Pills, Expanded, and Live Activity should animate with fade/blur movement and fire selection haptics.
+- Selecting or clearing an item should update the preview immediately and update a running ActivityKit activity without requiring the user to toggle Dynamic Island off and on.
+- Smart Pills selection can choose left or right placement; one side stays selected until the user changes sides or taps the selected item again to clear.
+- Expanded and Lock Screen Live Activity items stay selected until the selected item is tapped again.
+- The Lock Screen Live Activity visual menu defaults to `Glass`; `Solid` is the fallback for users who prefer a black surface.
+- In the phone-frame preview, an unselected expanded or lockscreen state shows only the black/add island surface. The richer "Add Activity" copy is reserved for the actual phone ActivityKit surface when Dynamic Island is on.

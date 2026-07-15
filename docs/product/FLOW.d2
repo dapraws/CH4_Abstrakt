@@ -61,6 +61,8 @@ activity_state: "Live Activity state\nselected items + visual mode" {
   shape: document
 }
 
+activity_empty: "Add / empty state\nwhen state has no item"
+
 activitykit: "ActivityKit updates\nDynamic Island + Lock Screen"
 
 activity_render: "Render activity\nSmart Pills / Expanded / Live Activity"
@@ -94,7 +96,9 @@ app_group -> edit_widget: "saved presets"
 app_group -> timeline_entry: "latest snapshots"
 app_group -> activity_state: "latest snapshots"
 live_activity_screen -> activity_state: "selection + toggle"
-activity_state -> activitykit
+activity_state -> activity_empty: "state unselected"
+activity_state -> activitykit: "state selected"
+activity_empty -> activitykit
 activitykit -> activity_render
 
 add_widget -> choose_size

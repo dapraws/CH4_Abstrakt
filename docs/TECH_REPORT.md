@@ -158,3 +158,13 @@ Abstrakt should only ask for data needed by the widgets the user chooses. If the
 The Dynamic Island work confirmed a similar rule to WidgetKit: the extension surface should render prepared data, not invent business logic. Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity renderers live under `Abstrakt/LiveActivities/`, while selected state and provider mapping live under `Core/Services/LiveActivities/`.
 
 Live Activity previews should look like the real ActivityKit output as closely as possible. The app can scale the preview surface down for browsing, but the renderer should keep the same proportions, typography intent, corner-radius language, and glass/solid styling as the actual phone surface.
+
+The biggest ActivityKit lesson is that one Live Activity owns multiple system presentations. Abstrakt can let users choose different content for Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity, but it cannot truly enable those system presentations independently. The honest design answer is a clear add/empty state for any unselected presentation, not a hidden fallback that copies another state.
+
+The current implementation direction is therefore:
+
+- provider snapshots are mapped once through `Core/Services/LiveActivities`;
+- state renderers live under `LiveActivities/SmartPills`, `LiveActivities/Expanded`, and `LiveActivities/LiveActivity`;
+- shared typography, item rendering, and empty states live under `LiveActivities/Shared`;
+- app previews live in the Live Activity screen and configuration sheet, but should call the same renderers the real ActivityKit extension uses;
+- glass/solid is a Lock Screen Live Activity visual choice only.

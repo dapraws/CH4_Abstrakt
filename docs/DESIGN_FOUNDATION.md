@@ -300,3 +300,12 @@ Each widget preview should be validated in:
 - `System`, `Light`, and `Dark` appearance variants where supported
 - Empty and permission-denied states for framework-backed widgets
 - At least one saved-library card presentation
+
+ActivityKit preview validation adds:
+
+- Smart Pills left, right, both-selected, and cleared states.
+- Expanded Dynamic Island selected and add/empty states.
+- Lock Screen Live Activity selected and add/empty states in both `Glass` and `Solid`.
+- Light-mode glass readability, where text and icons inside the preview island and actual Lock Screen Live Activity can use primary text color when glass is active.
+- Phone-frame preview parity with actual ActivityKit output: same renderer, same typography proportions, same content-driven height, and no extra nested background that creates double borders.
+- Badge transitions using fade, blur, and subtle rotation rather than scale pops.

@@ -94,6 +94,14 @@ For active development, the app keeps a one-second clock refresh loop while the 
 
 Live Activities use a single ActivityKit activity for Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity states. The app can choose different content for each state, but iOS does not provide independent enable toggles per state. If a state has no selected item while Dynamic Island is enabled, render the explicit add/empty state instead of an accidental empty capsule.
 
+ActivityKit implementation notes:
+
+- Smart Pill data is compact-only and should never populate expanded or Lock Screen surfaces by fallback.
+- Expanded and Lock Screen items should reuse feature-provider snapshots through `Core/Services/LiveActivities/LiveActivityWidgetDataProvider.swift`.
+- `Glass` mode should use Liquid Glass/native material where supported and avoid opaque inner containers that obscure the system material.
+- `Solid` mode may use a black activity surface, but should still avoid an extra native-background-looking wrapper around the renderer.
+- Updating selections should update the running ActivityKit activity immediately; users should not need to toggle Dynamic Island off and on to refresh content.
+
 ## Suggested Service Layout
 
 ```text

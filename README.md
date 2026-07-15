@@ -276,6 +276,16 @@ ActivityKit visuals should follow the same "implement once, reuse everywhere" ru
 
 Activity files should use `Activity` naming, screen files should use `Screen`, and configuration sheets should stay under `App/Configuration/Sheets/`.
 
+Live Activity implementation contract:
+
+- `SmartPills` renders only compact Dynamic Island left/right regions. It must never leak a selected compact item into expanded Dynamic Island or Lock Screen Live Activity state.
+- `Expanded` renders only expanded Dynamic Island items. If Dynamic Island is enabled and no expanded item is selected, render the explicit add/empty state rather than borrowing another state.
+- `LiveActivity` renders only Lock Screen and notification Live Activity items. It owns the `Glass`/`Solid` visual mode and should not inherit the host app Appearance setting.
+- `Core/Services/LiveActivities/LiveActivitiesState.swift` is the source of truth for selected activity items, side selection, visual mode, haptics, and ActivityKit start/update/end behavior.
+- Activity previews in the app should use the same renderer, typography, sizing intent, and corner-radius language as ActivityKit. If a preview needs to fit a sheet, scale the preview container instead of changing internal layout math.
+- Runtime activity data must come from provider/cache-backed snapshots or a deliberate add/empty state. Static fixtures belong only in Xcode previews.
+- `Edit | Delete`, `Glass/Solid`, selected badges, and side badges are controls around the preview. Selected badges (`checkmark.seal.fill`, `L`, `R`) should overlay sheet preview items only, not the actual island or lockscreen activity.
+
 ---
 
 ## Core Model Direction
@@ -337,6 +347,7 @@ Start here when making architecture or product changes:
 | 3 | [docs/DESIGN_FOUNDATION.md](./docs/DESIGN_FOUNDATION.md) | Design tokens, appearance modes, layout rules, typography |
 | 4 | [docs/architecture/FOLDER_STRUCTURE.md](./docs/architecture/FOLDER_STRUCTURE.md) | Canonical folder blueprint, naming rules |
 | 5 | [docs/product/WIDGET_LIBRARY_FLOW.md](./docs/product/WIDGET_LIBRARY_FLOW.md) | User flow, customization rules, library rules |
+| 6 | [.codex/skills/abstrakt-codebase/SKILL.md](./.codex/skills/abstrakt-codebase/SKILL.md) | Repo-local working skill for agents touching Abstrakt |
 
 ---
 

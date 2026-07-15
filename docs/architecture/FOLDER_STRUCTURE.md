@@ -116,3 +116,12 @@ Abstrakt/
 - Keep shared widget renderers extension-safe. Guard app-only provider adapters with `#if !WIDGET_EXTENSION`.
 - Share app font preferences with WidgetKit through App Group storage; use explicit saved-preset configuration only when a widget needs its own override.
 - Keep UIKit-only app personalization, such as alternate icon switching, inside app screens/models and out of widget-extension targets.
+
+## Extension Surface Rules
+
+- Widget folders own Home Screen widget visuals. They should not contain ActivityKit-specific layout.
+- Live Activity folders own ActivityKit visuals. They should not contain app screen state, provider fetches, or WidgetKit timeline logic.
+- `Core/Services/LiveActivities/` owns selected activity state and provider-to-activity mapping. Keep ActivityKit lifecycle calls there rather than inside SwiftUI renderers.
+- `App/Configuration/Sheets/LiveActivityPreviewSheet.swift` owns the picker sheet. It can present preview items, badges, and controls, but should not define the activity renderer itself.
+- `App/Screens/LiveActivity/Components/LiveActivityFrame.swift` owns the phone-frame preview composition and should keep frame assets, island content, stepper, and edit/delete controls aligned.
+- Do not reintroduce duplicate names such as `SmartPillsActivity`, `SmartPillActivity`, `CompactSmartPillActivity`, and `CompactDynamicIslandPill`. Use the state folder plus one clear activity renderer name.

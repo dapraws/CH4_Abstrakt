@@ -115,6 +115,16 @@ Abstrakt/
 - Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity can choose different items, but they share one ActivityKit activity and one enabled toggle because iOS does not expose independent enablement per ActivityKit state.
 - Interactive widget buttons should use App Intents available to the widget extension. Framework-backed data such as WeatherKit still flows through the host app and App Group storage.
 
+## Implementation Contract
+
+- Provider-backed data is the default. The app should map framework snapshots into render-safe widget and activity data before extension surfaces consume it.
+- Preview and runtime surfaces should share renderers. If the app preview and the actual phone surface drift, fix the shared renderer/metrics rather than adding one-off preview-only values.
+- ActivityKit has three user-visible states: Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity. These states can choose different items, but unselected states render the explicit add/empty state instead of falling back to another state's chosen item.
+- Lock Screen Live Activity visual mode is either `Glass` or `Solid`. That mode is independent from Settings Appearance and should not affect Smart Pills, expanded Dynamic Island, or Home Screen widgets.
+- Settings Appearance controls the host app's preferred color scheme. Home Screen widget appearance remains widget/preset specific, and ActivityKit surfaces keep their own black/glass treatment.
+- Haptics are part of the interaction contract for primary buttons, bottom navigation, library/gallery sheets, Live Activity mode changes, and item selection.
+- Onboarding/tutorial illustration fades should use `AppColors.appBackground` so light and dark modes blend into the real app canvas.
+
 ## MVVM Architecture
 
 ### Model

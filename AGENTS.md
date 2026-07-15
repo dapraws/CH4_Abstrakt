@@ -24,6 +24,7 @@ This repository is a native SwiftUI app, not a reusable library. The product goa
 3. [docs/FEATURE_FRAMEWORK_MATRIX.md](/Users/msafdev/Code/swift/Abstrakt/docs/FEATURE_FRAMEWORK_MATRIX.md)
 4. [docs/DESIGN_FOUNDATION.md](/Users/msafdev/Code/swift/Abstrakt/docs/DESIGN_FOUNDATION.md)
 5. [docs/architecture/FOLDER_STRUCTURE.md](/Users/msafdev/Code/swift/Abstrakt/docs/architecture/FOLDER_STRUCTURE.md)
+6. [.codex/skills/abstrakt-codebase/SKILL.md](/Users/msafdev/Code/swift/Abstrakt/.codex/skills/abstrakt-codebase/SKILL.md)
 
 ## Product Direction
 
@@ -62,6 +63,8 @@ Use the feature matrix in `docs/FEATURE_FRAMEWORK_MATRIX.md` as the canonical ma
 - Runtime Live Activities should use `Core/Services/LiveActivities` view data or explicit add/empty states. Keep static ActivityKit sample metrics limited to Xcode canvas previews.
 - Live Activity files use `Activity` naming; app screens use `Screen`; bottom-sheet pickers live in `App/Configuration/Sheets`.
 - Signing and App Group setup is config-driven. Keep `APP_GROUP_ID` in `Signing.xcconfig`/local overrides aligned with both app and widget extension entitlements.
+- Do not solve preview/phone mismatches with one-off per-device constants. Prefer shared metrics, content-driven heights, and renderer reuse.
+- If a widget or activity item needs a new metric, put the rule near the renderer or shared metrics type, then update docs so future work does not rediscover the same constraint.
 
 ## MVVM Rules
 
@@ -133,6 +136,15 @@ LiveActivities/
 
 `SmartPills`, `Expanded`, and `LiveActivity` represent ActivityKit states, not generic screens. Avoid names like `WIP`, `Page`, or `View` for these renderers when `Screen` or `Activity` is the real role.
 
+Live Activity state rules:
+
+- Smart Pill selections affect compact Dynamic Island only.
+- Expanded selections affect expanded Dynamic Island only.
+- Lock Screen Live Activity selections affect lockscreen/notification only.
+- The single Dynamic Island toggle may start/update/end one ActivityKit activity, but each state should render its own selected item or its explicit add/empty state.
+- `Glass`/`Solid` belongs only to the Lock Screen Live Activity surface.
+- Selected badges belong to sheet preview items only; never show `checkmark.seal.fill`, `L`, or `R` inside the actual island/lockscreen renderer.
+
 ## Documentation Rule
 
 When adding a new feature or extension surface, update:
@@ -142,3 +154,4 @@ When adding a new feature or extension surface, update:
 3. `docs/DESIGN_FOUNDATION.md` if the feature introduces a new size, layout rule, or styling pattern
 4. `docs/architecture/FOLDER_STRUCTURE.md` if files, folders, or naming rules changed
 5. `docs/PROJECT_OVERVIEW.md` when product flow or supported surfaces change
+6. `.codex/skills/abstrakt-codebase/SKILL.md` when agent-facing workflow, naming, flow, or style rules change
