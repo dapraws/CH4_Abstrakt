@@ -12,6 +12,7 @@ Abstrakt/
 │   ├── Screens/
 │   │   ├── Gallery/
 │   │   ├── Library/
+│   │   ├── LiveActivity/
 │   │   ├── Onboarding/
 │   │   ├── Settings/
 │   │   │   ├── AppIcon/
@@ -19,8 +20,7 @@ Abstrakt/
 │   │   │   ├── Language/
 │   │   │   ├── Permissions/
 │   │   │   └── WhatsNew/
-│   │   ├── Home/
-│   │   └── WIP/
+│   │   └── Home/
 │   ├── Components/
 │   └── Configuration/
 │       ├── Components/
@@ -31,6 +31,8 @@ Abstrakt/
 │   │   ├── Calendar/
 │   │   ├── Clock/
 │   │   ├── Health/
+│   │   ├── LiveActivities/
+│   │   ├── Reminder/
 │   │   ├── System/
 │   │   └── Weather/
 │   ├── Settings/
@@ -48,13 +50,30 @@ Abstrakt/
 │   ├── Battery/
 │   ├── Steps/
 │   ├── Activity/
+│   ├── Calendar/
 │   ├── Events/
 │   ├── Portal/
+│   ├── Reminder/
+│   ├── Sleep/
 │   ├── Storage/
 │   ├── Today/
 │   ├── Weather/
 │   ├── Daylight/
 │   └── HeartRate/
+├── LiveActivities/
+│   ├── DynamicIslandActivity.swift
+│   ├── SmartPills/
+│   │   └── SmartPillIslandRegion.swift
+│   ├── Expanded/
+│   │   └── ExpandedActivity.swift
+│   ├── LiveActivity/
+│   │   └── LockScreenActivity.swift
+│   └── Shared/
+│       ├── DynamicIslandActivityAttributes.swift
+│       ├── LiveActivityEmptyState.swift
+│       ├── LiveActivityItemRenderer.swift
+│       ├── LiveActivityTypography.swift
+│       └── LiveActivityWidget.swift
 └── AbstraktWidgetsExtension/
     ├── AbstraktWidgetsBundle.swift
     ├── AbstraktNewWidgets.swift
@@ -76,12 +95,18 @@ Abstrakt/
 - `DesignSystem/` holds app-wide design tokens without burying them under another shared layer.
 - `DesignSystem/Fonts/` stores host-app custom font files and should mirror any extension-needed font files under `AbstraktWidgetsExtension/Fonts/`.
 - `Widgets/` owns widget-entry-specific UI, extension-safe render snapshots, and shared widget styling used by both the app and WidgetKit extension.
+- `LiveActivities/` owns ActivityKit renderers, attributes, activity typography, and state-specific surfaces for Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity.
+- `Core/Services/LiveActivities/` owns ActivityKit lifecycle/state coordination and provider-to-activity mapping. Activity renderers should not fetch framework data directly.
 - `AbstraktWidgetsExtension/` stays focused on WidgetKit registration, timeline entries, App Intents, AppEntity picker data, and size-slot routing. It should not duplicate widget visual implementations.
 
 ## Naming Rules
 
 - Put app screens in `App/Screens/`, not in a top-level `Features/` bucket.
-- Name widget folders after concise user-facing widget entries such as `Battery`, `Steps`, `Activity`, `Events`, `Portal`, `Storage`, `Today`, `Weather`, `Daylight`, and `HeartRate`.
+- Name widget folders after concise user-facing widget entries such as `Battery`, `Steps`, `Activity`, `Calendar`, `Events`, `Portal`, `Reminder`, `Sleep`, `Storage`, `Today`, `Weather`, `Daylight`, and `HeartRate`.
+- Name Live Activity folders after ActivityKit states: `SmartPills`, `Expanded`, `LiveActivity`, and `Shared`.
+- ActivityKit renderer files should use `Activity` when they render an activity surface, not `View`. App screens should use `Screen`, and app configuration bottom sheets should use `Sheet`.
+- Keep the Live Activity app screen at `App/Screens/LiveActivity/LiveActivityScreen.swift`; keep picker/preview bottom sheets under `App/Configuration/Sheets/`.
+- Do not reintroduce `WIP`, `Page`, or placeholder-style naming for shipped surfaces.
 - Avoid style-only names, and avoid baking Home Screen size labels into feature names.
 - Keep per-widget files flat inside each widget folder until a widget becomes large enough to need subfolders.
 - Put shared domain/config/catalog types in `Core/Models/`, not in every widget folder.

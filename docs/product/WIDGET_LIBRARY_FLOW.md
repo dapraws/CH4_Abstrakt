@@ -54,3 +54,15 @@ The Home Screen still uses the native iOS widget placement flow:
 Abstrakt therefore needs to manage saved preset identity and extension-readable configuration cleanly.
 
 The WidgetKit extension should not expose one system widget per feature such as Battery, Steps, or Dashboard. Feature widgets are saved as library presets inside the app; WidgetKit exposes size-based Solid Widget renderers that consume those presets.
+
+## Live Activity Relationship
+
+Live Activities are configured outside the saved Home Screen widget library.
+
+1. User opens the Live Activity tab/screen.
+2. User chooses the ActivityKit state they want to configure: Smart Pills, expanded Dynamic Island, or Lock Screen Live Activity.
+3. User selects an activity item backed by existing widget/provider data.
+4. The Dynamic Island toggle starts or updates the single ActivityKit activity.
+5. If a state has no selected item while the toggle is on, that state renders the explicit add/empty activity instead of borrowing another state's selected item.
+
+Live Activity selections should not create Library presets, and saved Home Screen widgets should not automatically affect ActivityKit state.

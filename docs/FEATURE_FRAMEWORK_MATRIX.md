@@ -1,6 +1,6 @@
 # Feature Framework Matrix
 
-This file is the canonical mapping between widget features and Apple-native frameworks.
+This file is the canonical mapping between Abstrakt feature surfaces and Apple-native frameworks.
 
 ## Principles
 
@@ -8,6 +8,7 @@ This file is the canonical mapping between widget features and Apple-native fram
 - Secondary frameworks may support permissions, formatting, caching, or rendering.
 - Widgets must degrade gracefully when permissions are missing or data is stale.
 - Configuration capabilities belong to the app experience even when the data itself comes from system frameworks.
+- ActivityKit surfaces should reuse the same provider-backed feature data as widgets whenever possible.
 
 ## Widget Family Map
 
@@ -20,9 +21,11 @@ This file is the canonical mapping between widget features and Apple-native fram
 | Location | Place, commute, daylight, or contextual location widgets | `CoreLocation` | `MapKit`, `Foundation`, `WidgetKit` | Should minimize refresh frequency and clearly explain permission use. |
 | Portal | App-icon launcher widgets with contextual date and place weather | `AppIntents` | `WeatherKit`, `CoreLocation`, `MapKit`, `Foundation`, `WidgetKit` | Portal uses App Intent buttons to open selected apps and host-app WeatherKit/CoreLocation data for current-place temperature and display name. |
 | Reminders | Task and completion widgets | `EventKit` | `Foundation`, `WidgetKit` | User-facing family stays separate from Calendar even though the API owner overlaps. |
-| Battery | Device battery status widgets and Live Activities | `UIKit` (`UIDevice`), `ActivityKit` | `WidgetKit`, `Foundation` | Uses `UIDevice` battery monitoring in the host app and writes level/charging state to shared widget storage. Updates Live Activities directly from the app. No explicit permission required. |
+| Battery | Device battery status widgets | `UIKit` (`UIDevice`) | `WidgetKit`, `Foundation` | Uses `UIDevice` battery monitoring in the host app and writes level/charging state to shared widget storage. No explicit permission required. |
 | Storage | Device storage widgets | `Foundation` (`FileManager`) | `WidgetKit` | Reads file-system capacity and available bytes from the host app and writes them to shared widget storage. |
-| App Preferences | App language, app font, app icon, temperature unit, temperature display, distance unit | `Foundation` | `SwiftUI`, `UIKit`, `WidgetKit` | Stored through app/shared preferences where extension-safe. App language, app font, and unit preferences are shared; alternate app icons are app-only UIKit customization. |
+| Sleep | Target bedtime, sleep duration, and sleep progress widgets | `HealthKit` | `WidgetKit`, `Foundation` | Uses sleep-analysis/Health snapshots when available and renders explicit empty states when Health data is unavailable. |
+| App Preferences | Appearance, app language, app font, app icon, temperature unit, temperature display, distance unit | `Foundation` | `SwiftUI`, `UIKit`, `WidgetKit` | Stored through app/shared preferences where extension-safe. Appearance controls host-app theme; app language, app font, and unit preferences are shared; alternate app icons are app-only UIKit customization. |
+| Live Activities | Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity states | `ActivityKit` | `WidgetKit`, `Foundation`, feature providers | Uses `Core/Services/LiveActivities` to map provider/widget snapshots into ActivityKit-safe view data. Live Activity glass/solid styling does not follow the app Appearance setting. |
 
 ## Customization Expectations By Family
 
@@ -37,7 +40,9 @@ This file is the canonical mapping between widget features and Apple-native fram
 | Reminders | Count style, completion focus, category filter, typography |
 | Battery | Style preset, threshold emphasis, accent color, compact/full presentation |
 | Storage | Compact/full storage presentation, actual used/available emphasis |
+| Sleep | Target bedtime emphasis, duration pill style, sleep progress metric |
 | App Preferences | App language, app font theme, alternate app icon, temperature unit, temperature display mode, distance unit |
+| Live Activities | Smart Pill left/right placement, expanded item, Lock Screen Live Activity item, glass/solid Lock Screen treatment |
 
 ## Permission Expectations
 
@@ -56,7 +61,9 @@ This file is the canonical mapping between widget features and Apple-native fram
 | Reminders | Reminders access via `EventKit` |
 | Battery | No explicit user permission for device battery state |
 | Storage | No explicit user permission for aggregate file-system capacity |
+| Sleep | Health data authorization via `HealthKit` |
 | App Preferences | No permission required. Alternate app icons use `UIApplication.setAlternateIconName` and stay in the host app only. |
+| Live Activities | No separate data permission. It inherits the permission requirements of the selected activity item and requires ActivityKit availability. |
 
 ## Current Live Data Refresh
 
@@ -85,6 +92,8 @@ Localization strings live in `Abstrakt/Resources/Localizable.xcstrings`. Runtime
 
 For active development, the app keeps a one-second clock refresh loop while the scene is active, refreshes slower-changing battery and storage data about once per minute, and registers HealthKit observer queries for step/distance changes. The WidgetKit extension currently requests timeline refreshes about once per minute, but iOS may still throttle normal Home Screen widget reloads. True per-second background behavior should move to Live Activities or another system surface designed for live updates.
 
+Live Activities use a single ActivityKit activity for Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity states. The app can choose different content for each state, but iOS does not provide independent enable toggles per state. If a state has no selected item while Dynamic Island is enabled, render the explicit add/empty state instead of an accidental empty capsule.
+
 ## Suggested Service Layout
 
 ```text
@@ -92,6 +101,7 @@ Core/Services/
 ├── Calendar/
 ├── Clock/
 ├── Health/
+├── LiveActivities/
 ├── Location/
 ├── Reminder/
 ├── Weather/
@@ -127,5 +137,19 @@ App Library + WidgetKit Slots
 ```
 
 The host app should be where preset composition happens. Saving from the gallery writes App Group preset data and a thumbnail image for the system picker. WidgetKit should mostly route timeline data and saved configuration into shared renderers under `Abstrakt/Widgets/`.
+
+ActivityKit should route selected state and provider-backed snapshots into shared renderers under `Abstrakt/LiveActivities/`:
+
+```text
+Feature Provider / App Group Cache
+    ↓
+Core/Services/LiveActivities
+    ↓
+DynamicIslandActivityAttributes.ContentState
+    ↓
+LiveActivities/<State> renderer
+    ↓
+ActivityKit Smart Pills / Expanded / Lock Screen Live Activity
+```
 
 For the current iOS Home Screen scope, WidgetKit exposes only three system-visible `Solid Widget` slots: `Small Widget`, `Medium Widget`, and `Large Widget`. Individual feature presets such as Battery, Health, or Dashboard should appear in the app library and in the WidgetKit saved-widget picker only when their saved size matches the selected slot.

@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  Abstrakt is a native SwiftUI app for discovering, configuring, previewing, and saving widget presets before users place them on the iPhone Home Screen. The product is inspired by widget-first apps such as Koco, but it is built around Apple-native frameworks, a simple data layer, and an extension-safe architecture that can grow into Live Activities later.
+  Abstrakt is a native SwiftUI app for discovering, configuring, previewing, and saving widget presets before users place them on the iPhone Home Screen. It also explores ActivityKit-powered Dynamic Island and Lock Screen Live Activity surfaces, using the same provider-backed data and design-system foundations as the widget library.
 </p>
 
 <p align="center">
@@ -44,6 +44,7 @@
 |---|---|
 | Host app first | gallery, widget detail, customization sheets, saved library, and settings |
 | WidgetKit first | iOS Home Screen widget experiences for `small`, `medium`, and `large` |
+| ActivityKit ready | Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity previews backed by shared activity data |
 | Native framework features | `HealthKit`, `WeatherKit`, `CoreLocation`, `EventKit`, `Foundation`, and related Apple APIs |
 | Design-system-first | semantic light/dark theming, typography roles, spacing, surface styling, and widget size tokens |
 | Localized experience | user-selectable app language backed by the string catalog and shared settings |
@@ -73,13 +74,22 @@ Abstrakt/
 │   ├── Battery/
 │   ├── Steps/
 │   ├── Activity/
+│   ├── Calendar/
 │   ├── Events/
 │   ├── Portal/
+│   ├── Reminder/
+│   ├── Sleep/
 │   ├── Storage/
 │   ├── Today/
 │   ├── Weather/
 │   ├── Daylight/
 │   └── HeartRate/
+├── LiveActivities/
+│   ├── DynamicIslandActivity.swift
+│   ├── SmartPills/
+│   ├── Expanded/
+│   ├── LiveActivity/
+│   └── Shared/
 └── AbstraktWidgetsExtension/
     ├── AbstraktWidgetsBundle.swift
     ├── AbstraktNewWidgets.swift
@@ -120,14 +130,15 @@ The current app foundation includes:
 | Gallery | Widget cards with catalog-backed category chips and a preview sheet for the selected widget. |
 | Preview sheet | Renders the selected widget, shows its display title, and keeps the bottom save action in a separate control layer. |
 | Library | Grouped by `Small`, `Medium`, and `Large`, with swipeable size tabs, empty states, and cropped/scaled preview rows that hint at the saved widget surface. |
-| Settings | App language, app font, alternate app icon, temperature unit, temperature display, distance unit, access/permissions, FAQ, share sheet, and release notes. |
-| Widgets tab | Present in the tab shell but currently routed to a work-in-progress placeholder. |
+| Settings | Appearance, app language, app font, alternate app icon, temperature unit, temperature display, distance unit, access/permissions, FAQ, share sheet, and release notes. |
+| Live Activity | Dynamic Island builder for Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity selections. |
 
 ### Widget rendering
 
 - Shared widget renderers under `Abstrakt/Widgets/` that are compiled into both the host app and the WidgetKit extension.
 - Runtime widget previews and WidgetKit timelines consume live provider data or App Group cached values for battery, Health, calendar/date, time, storage, and WeatherKit-backed weather. Sample numbers are reserved for Xcode canvas previews.
 - Shared settings storage for widget-facing unit preferences and the selected widget font through the App Group.
+- Shared appearance storage for `System`, `Light`, and `Dark` app theme preferences. Home Screen widgets follow widget appearance configuration and shared font settings; ActivityKit surfaces stay visually independent from the app theme.
 - Shared localization storage for `System`, `English`, `Bahasa Indonesia`, `Español`, and `Português (Brasil)` language choices.
 - Seamless rendering on iOS 17+ StandBy and iPad Lock Screens via the `containerBackground` API.
 
@@ -136,11 +147,23 @@ The current app foundation includes:
 | Widget | Behavior |
 |---|---|
 | Activity | Shows either today or weekly exercise minutes, active energy, and sleep totals, with the mode shared to WidgetKit through App Group storage. |
+| Calendar | Shows a compact month grid with today's date highlighted and responsive five/six-week month layout. |
 | Events | Can prioritize upcoming events or currently running events, backed by EventKit refreshes cached into App Group storage. |
 | Portal | Combines calendar date context, current-location WeatherKit temperature, configurable MiniApp launchers, and App Intent buttons for launching selected system apps. |
+| Reminder | Reads Apple Reminders through EventKit, renders pending and completed tasks, supports empty state, and opens Reminders from the placed widget. |
+| Sleep | Renders target bedtime, sleep duration, and sleep progress using Health-backed snapshots when available. |
 | Weather & Daylight | Backed by host-app WeatherKit/CoreLocation refreshes and shared weather condition assets. |
 | Storage | Device storage widgets using base-10 calculation math to perfectly match the iPhone's Settings > General > iPhone Storage metrics. |
 | Heart Rate | Reads live background BPM data from the user's HealthKit datastore. |
+
+### Live Activity rendering
+
+- ActivityKit code lives under `Abstrakt/LiveActivities/` and is split by rendered state: `SmartPills`, `Expanded`, `LiveActivity`, and shared renderer/attribute files.
+- The main app screen lives under `Abstrakt/App/Screens/LiveActivity/`, while the preview picker sheet lives in `Abstrakt/App/Configuration/Sheets/LiveActivityPreviewSheet.swift`.
+- `Core/Services/LiveActivities/` owns selected activity state and maps provider/widget data into ActivityKit-safe view data.
+- Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity can choose different activity items, but they are driven by one ActivityKit activity and one Dynamic Island enable toggle.
+- Runtime ActivityKit rendering should use provider/cache values or the explicit add/empty state. Static demo numbers belong only in Xcode previews.
+- Lock Screen Live Activity supports `Glass` and `Solid` visual modes. Live Activity surfaces intentionally do not inherit the app Appearance setting.
 
 ### Data & permissions
 
@@ -184,7 +207,7 @@ For now the app should focus on iPhone Home Screen sizes only:
 
 These values are measured fallback sizes and aspect-ratio baselines, not a device-by-device sizing table. In-app previews should fit the available container width while preserving the widget family's measured aspect ratio; WidgetKit widgets should render into the size supplied by the system.
 
-Lock Screen widgets, StandBy layouts, and Dynamic Island remain planned follow-up surfaces. Live Activities are currently supported for specific metrics (e.g., Battery Charging).
+Lock Screen widgets and richer StandBy variants remain follow-up surfaces. Dynamic Island and Lock Screen Live Activity previews are active product surfaces and should continue to reuse provider-backed data instead of static fixtures.
 
 ---
 
@@ -209,6 +232,8 @@ Because of that, customization belongs to `App/Configuration/` plus widget-speci
 
 Global settings such as temperature unit, temperature display, and distance unit belong to `Core/Settings/` and should be read by both the host app and WidgetKit through extension-safe shared storage. Widget-specific visual choices remain part of the saved preset configuration.
 
+Appearance is also a global app setting. It controls the host app's preferred color scheme and should be persisted through shared settings. Home Screen widget previews still honor each widget's saved appearance behavior, and Live Activity/Dynamic Island surfaces keep their own glass/solid styling.
+
 Language selection is also a global app setting. The string catalog lives at `Abstrakt/Resources/Localizable.xcstrings`, runtime language switching is coordinated by `Core/Localization/LocalizationManager.swift`, and the selected language is persisted with the other shared settings so app text can update without hard-coding strings in screens.
 
 Alternate app icons are app-only customization. The picker uses `Core/Models/AppIconOption.swift`, preview images under `Assets.xcassets/AppIcons/`, and the alternate icon entries registered in `Info.plist`; widget extension code should not call app-icon APIs.
@@ -218,7 +243,7 @@ Alternate app icons are app-only customization. The picker uses `Core/Models/App
 ## Widget Naming Direction
 
 - Widget folders should be named after the actual widget entry users browse in the gallery.
-- Use concise feature names such as `Battery`, `Steps`, `Activity`, `Events`, `Portal`, `Storage`, `Today`, `Weather`, `Daylight`, and `HeartRate`.
+- Use concise feature names such as `Battery`, `Steps`, `Activity`, `Calendar`, `Events`, `Portal`, `Reminder`, `Sleep`, `Storage`, `Today`, `Weather`, `Daylight`, and `HeartRate`.
 - Avoid style-only names or names that only describe the Home Screen size.
 
 The underlying data source still belongs in `Core/Services/`, but the widget itself should be named by the user-facing design/preset identity.
@@ -236,6 +261,20 @@ Widget visuals should be implemented once under `Abstrakt/Widgets/` and reused b
 | `AbstraktWidgetsExtension/AbstraktNewWidgets.swift` | WidgetKit timelines, entries, size-slot routing, and App Intent configuration only. |
 
 App-only provider adapters or preview conveniences inside shared widget files must be guarded with `#if !WIDGET_EXTENSION`.
+
+## Shared Live Activity Rendering
+
+ActivityKit visuals should follow the same "implement once, reuse everywhere" rule as widgets.
+
+| Location | Owns |
+|---|---|
+| `Abstrakt/LiveActivities/SmartPills/` | Compact Dynamic Island Smart Pill regions only. |
+| `Abstrakt/LiveActivities/Expanded/` | Expanded Dynamic Island activity surfaces. |
+| `Abstrakt/LiveActivities/LiveActivity/` | Lock Screen and notification Live Activity surfaces. |
+| `Abstrakt/LiveActivities/Shared/` | Activity attributes, typography, empty states, and reusable item renderers. |
+| `Abstrakt/Core/Services/LiveActivities/` | Selection state, ActivityKit lifecycle coordination, and provider-to-activity mapping. |
+
+Activity files should use `Activity` naming, screen files should use `Screen`, and configuration sheets should stay under `App/Configuration/Sheets/`.
 
 ---
 

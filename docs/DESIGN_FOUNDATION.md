@@ -1,6 +1,6 @@
 # Design Foundation
 
-This document defines the UI foundation for Abstrakt across the main app, widget previews, and the Home Screen widget extension.
+This document defines the UI foundation for Abstrakt across the main app, widget previews, the Home Screen widget extension, and ActivityKit surfaces.
 
 ## Design Goals
 
@@ -10,6 +10,7 @@ This document defines the UI foundation for Abstrakt across the main app, widget
 - Consistent between app previews and actual WidgetKit rendering
 - Strong enough to support a library of saved presets rather than one-off widget screens
 - Localized enough that screen copy, picker labels, permission messages, and settings rows can switch language without layout breakage
+- Predictable enough that in-app ActivityKit previews match the actual Dynamic Island and Lock Screen Live Activity output
 
 ## Appearance Modes
 
@@ -24,6 +25,7 @@ Rules:
 - `System` follows the current device context.
 - `Light` and `Dark` must preview deterministically inside the app sheet even if the app itself is running in another appearance.
 - Saved presets should persist the appearance choice as part of widget configuration when the widget supports it.
+- The Settings Appearance control changes the host app's preferred color scheme. ActivityKit surfaces do not follow this preference; Smart Pills, expanded Dynamic Island, and Lock Screen Live Activities keep their own black/glass system-surface treatment.
 
 ## Color Tokens
 
@@ -109,6 +111,17 @@ Rules:
 - App font changes should update visible app rows immediately without requiring a screen refresh.
 - App font changes should also be written to App Group storage and trigger a WidgetKit timeline reload.
 
+### Live Activity Roles
+
+Live Activity typography is separate from app and Home Screen widget typography. ActivityKit surfaces are physically smaller, use different system containers, and must preview at a scaled activity size without changing the real ActivityKit renderer.
+
+Rules:
+
+- Use `LiveActivityTypography` for Smart Pills, expanded Dynamic Island, Lock Screen Live Activity, and their in-app previews.
+- Do not reuse `AbstraktWidgetFonts` directly inside ActivityKit renderers unless a shared renderer explicitly maps through Live Activity typography.
+- ActivityKit previews may scale the whole activity surface down for the sheet, but the renderer should keep the same internal proportions as the actual phone surface.
+- Haptics should fire when users change Live Activity state or select/unselect activity items in the app.
+
 ## Localization Roles
 
 The app supports a user-selectable language setting with these options:
@@ -149,9 +162,25 @@ Rules:
 - Activity widgets may use a minimal title, one SF Symbol status mark, and stacked metric rows with lighter unit labels. The Today/Weekly choice belongs in the preview sheet and must stay shared with WidgetKit.
 - Events widgets use compact date context, a status badge such as `Starts soon` or `Now`, and stacked event text. The Upcoming/Current priority choice belongs in the preview sheet and must stay shared with WidgetKit.
 - Weather widgets may use custom condition assets when the asset name maps directly from the WeatherKit condition snapshot, while still rendering a legible fallback for unknown conditions.
+- Calendar widgets use orange accent state consistent with Battery/Storage accents, not the old blue active date color.
+- Reminder widgets keep fixed readable text sizing rather than shrinking body copy to fit long items; overflow should use line limits, truncation, or a `+n more` row.
+- Sleep widgets use the shared widget header treatment and keep bottom metric pills balanced across half-width cells.
 - Storage widgets should render used and available portions inside a quiet rounded container. Use `widgetStroke` only when separation cannot be achieved with fill, spacing, or contrast.
 - Lock Screen `Circular`, `Rectangular`, and `Inline` dimensions are documented here for future iOS widget expansion, but the shipping app flow remains Home Screen first.
 - Do not invent custom preview aspect ratios when one of these rows applies.
+
+### ActivityKit Preview Sizes
+
+ActivityKit surfaces use their own sizing rules:
+
+- The Dynamic Island frame preview uses the image assets under `Assets.xcassets/Illustrations/LiveActivities/` and keeps the island content anchored inside that frame.
+- Smart Pills preview only represents the compact Dynamic Island regions. Left and right selected pills should stay selected until changed or tapped again to clear.
+- Expanded and Lock Screen Live Activity items should use a consistent activity width and activity corner-radius language. The in-app preview sheet must not impose a fixed item height that clips taller activity designs.
+- The Lock Screen Live Activity surface supports `Glass` and `Solid`. `Glass` should use Apple's Liquid Glass APIs where available and should not stack an opaque black activity container on top of the native material. In light system mode, text/icons inside the glass preview island and actual Lock Screen Live Activity may switch to primary text color for legibility.
+- `Glass`/`Solid` is only for the Lock Screen Live Activity preview and actual Lock Screen Live Activity, not for normal Home Screen widget previews or the item list cards.
+- Expanded and Lock Screen item titles in preview sheets use primary text color so they remain readable in light mode.
+- Selected-state badges (`checkmark.seal.fill`, `L`, and `R`) are overlay badges on preview items only. Do not show those badges inside the Dynamic Island frame preview or the actual ActivityKit surface.
+- Badge transitions should use fade, blur, and gentle rotation rather than scale pops.
 
 ### Home Screen Sizes
 

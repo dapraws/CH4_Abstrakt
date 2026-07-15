@@ -88,6 +88,7 @@ What we actually tried in code:
 - A bottom-sheet preview where the user can inspect a widget and change a few real options, like Portal apps, Activity range, Events priority, font, and units.
 - A Settings area for app language, app font, alternate app icons, unit preferences, permissions, sharing, FAQ, and release notes.
 - Shared widget renderers, so the preview inside the app and the actual WidgetKit extension are not two totally separate designs.
+- ActivityKit renderers for Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity states, using the same provider-backed data direction as widgets.
 - A save toggle that writes and removes widget presets from App Group storage, then shows those saved widgets in the Library.
 - Thumbnail generation for saved widgets, so the system widget picker can show a more visual preset choice.
 - Real data snapshots for battery, steps, activity, heart rate, weather, daylight, events, and storage instead of only fake preview numbers.
@@ -100,7 +101,7 @@ The app now works by letting the main app do most of the work: checking permissi
   <img width="720" alt="Abstrakt app and widget data flow" src="https://github.com/user-attachments/assets/a9e5cb71-5953-420b-ae8c-7869877c8180" />
 </p>
 
-We also learned that "live data" sounds simple until each feature asks for something different. Weather needs location, Health needs permission, calendar needs access, storage needs filesystem readings, and WidgetKit can still refresh later than expected.
+We also learned that "live data" sounds simple until each feature asks for something different. Weather needs location, Health needs permission, calendar needs access, storage needs filesystem readings, WidgetKit can still refresh later than expected, and ActivityKit has its own fixed surfaces instead of arbitrary per-state toggles.
 
 ## 4. What We Tried and Dropped
 
@@ -114,7 +115,7 @@ The direction that held up was simpler: let the app handle customization and sav
 
 ## 5. Real Limitations Hit
 
-WidgetKit refresh timing was the clearest limitation. We could ask for updates, but iOS can still throttle normal Home Screen widgets. That meant Abstrakt could not promise second-by-second animation in the regular widget area.
+WidgetKit refresh timing was the clearest limitation. We could ask for updates, but iOS can still throttle normal Home Screen widgets. That meant Abstrakt could not promise second-by-second animation in the regular widget area. For truly live surfaces, ActivityKit is the better fit, but it still requires a clear empty/add state because one Live Activity owns compact, expanded, and Lock Screen presentations together.
 
 Permissions also changed the design. A user might deny Health, Calendar, or Location access, and the widget still has to look intentional. We could not just hide that behind fake data.
 
@@ -151,3 +152,9 @@ We want the app to support readable text, dark mode, clear contrast, and permiss
 ### About Privacy
 
 Abstrakt should only ask for data needed by the widgets the user chooses. If the user says no, the app should show a clear empty or denied state. The widget extension should read cached shared data instead of requesting sensitive access on its own.
+
+### About Live Activities
+
+The Dynamic Island work confirmed a similar rule to WidgetKit: the extension surface should render prepared data, not invent business logic. Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity renderers live under `Abstrakt/LiveActivities/`, while selected state and provider mapping live under `Core/Services/LiveActivities/`.
+
+Live Activity previews should look like the real ActivityKit output as closely as possible. The app can scale the preview surface down for browsing, but the renderer should keep the same proportions, typography intent, corner-radius language, and glass/solid styling as the actual phone surface.

@@ -17,13 +17,15 @@ onboarding: "Finished\nonboarding?" {
 
 onboard: "Show onboarding\nthen save state"
 
-app: "Main app shell\nGallery / Library / Settings"
+app: "Main app shell\nGallery / Library / Live Activity / Settings"
 
 gallery: "Gallery shows\nwidget cards"
 
 preview: "Preview sheet\ncustomize widget"
 
 settings: "Settings\nfont, units, permissions"
+
+live_activity_screen: "Live Activity screen\nSmart Pills / Expanded / Lock Screen"
 
 presets: "Save / remove\nwidget preset" {
   shape: document
@@ -55,6 +57,14 @@ timeline_entry: "Timeline entry\nselected preset + latest data" {
 
 render: "Render widget\non Home Screen"
 
+activity_state: "Live Activity state\nselected items + visual mode" {
+  shape: document
+}
+
+activitykit: "ActivityKit updates\nDynamic Island + Lock Screen"
+
+activity_render: "Render activity\nSmart Pills / Expanded / Live Activity"
+
 ios_refresh: "iOS allows\nrefresh now?" {
   shape: diamond
   style.fill: "#ffffff"
@@ -71,6 +81,7 @@ app -> gallery
 gallery -> preview
 preview -> presets: "save toggle"
 app -> settings
+app -> live_activity_screen
 settings -> app_group: "font + units"
 presets -> app_group: "preset + thumbnail"
 
@@ -81,6 +92,10 @@ snapshots -> app_group: "latest values"
 
 app_group -> edit_widget: "saved presets"
 app_group -> timeline_entry: "latest snapshots"
+app_group -> activity_state: "latest snapshots"
+live_activity_screen -> activity_state: "selection + toggle"
+activity_state -> activitykit
+activitykit -> activity_render
 
 add_widget -> choose_size
 choose_size -> edit_widget
