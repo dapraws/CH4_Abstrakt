@@ -286,17 +286,6 @@ private struct LibraryEmptyState: View {
         .padding(.horizontal, AppSpacing.screenHorizontal)
         .padding(.top, 258)
     }
-
-    private var emptyIcon: String {
-        switch size {
-        case .small:
-            "square"
-        case .medium:
-            "rectangle"
-        case .large:
-            "rectangle.grid.1x2"
-        }
-    }
 }
 
 // MARK: - Widget Row

@@ -142,14 +142,14 @@ struct WelcomeScreen: View {
     private var widgetIllustrationFade: some View {
         LinearGradient(
             stops: [
-                .init(color: .black.opacity(0.08), location: 0),
-                .init(color: .black.opacity(0.12), location: 0.08),
-                .init(color: .black.opacity(0.2), location: 0.18),
-                .init(color: .black.opacity(0.36), location: 0.32),
-                .init(color: .black.opacity(0.58), location: 0.48),
-                .init(color: .black.opacity(0.82), location: 0.66),
-                .init(color: .black.opacity(0.96), location: 0.82),
-                .init(color: .black, location: 1),
+                .init(color: AppColors.appBackground.opacity(0.08), location: 0),
+                .init(color: AppColors.appBackground.opacity(0.12), location: 0.08),
+                .init(color: AppColors.appBackground.opacity(0.2), location: 0.18),
+                .init(color: AppColors.appBackground.opacity(0.36), location: 0.32),
+                .init(color: AppColors.appBackground.opacity(0.58), location: 0.48),
+                .init(color: AppColors.appBackground.opacity(0.82), location: 0.66),
+                .init(color: AppColors.appBackground.opacity(0.96), location: 0.82),
+                .init(color: AppColors.appBackground, location: 1),
             ],
             startPoint: .top,
             endPoint: .bottom

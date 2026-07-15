@@ -2,7 +2,7 @@ import SwiftUI
 
 struct TutorialScreen: View {
     let step: TutorialStep
-
+    
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var editButtonPhase: Bool
     @Binding var deletePhase: Bool
@@ -10,10 +10,10 @@ struct TutorialScreen: View {
     @Binding var sheetPhase: Bool
     @Binding var jiggleActive: Bool
     @Binding var jigglePhase: Bool
-
+    
     private let artworkWidth: CGFloat = 286
     private let artworkHeight: CGFloat = 259
-
+    
     var body: some View {
         VStack(spacing: 0) {
             tutorialTextBlock
@@ -22,9 +22,9 @@ struct TutorialScreen: View {
                 .animation(.smooth(duration: 0.3, extraBounce: 0), value: step)
                 .padding(.horizontal, 28)
                 .zIndex(2)
-
+            
             Spacer(minLength: 54)
-
+            
             TutorialArtwork(
                 step: step,
                 editButtonPhase: editButtonPhase,
@@ -44,7 +44,7 @@ struct TutorialScreen: View {
         .frame(maxWidth: .infinity)
         .frame(height: 446, alignment: .top)
     }
-
+    
     private var tutorialTextBlock: some View {
         VStack(alignment: .center, spacing: 14) {
             HStack(spacing: 8) {
@@ -52,14 +52,14 @@ struct TutorialScreen: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 24, height: 24)
-
+                
                 Text(step.eyebrow)
                     .font(AppFonts.font(.caption, theme: .fusionPixel))
                     .lineSpacing(AppFonts.lineSpacing(.caption, theme: .fusionPixel))
                     .foregroundStyle(AppColors.secondaryText)
                     .tracking(0.2)
             }
-
+            
             VStack(spacing: 10) {
                 Text(step.title)
                     .font(AppFonts.font(.title, theme: .quicksand))
@@ -69,7 +69,7 @@ struct TutorialScreen: View {
                     .lineLimit(2)
                     .minimumScaleFactor(0.85)
                     .fixedSize(horizontal: false, vertical: true)
-
+                
                 Text(step.subtitle)
                     .font(AppFonts.font(.body, theme: .quicksand))
                     .lineSpacing(AppFonts.lineSpacing(.body, theme: .quicksand) + 1)
@@ -86,7 +86,7 @@ struct TutorialScreen: View {
 
 private struct TutorialArtwork: View {
     @Environment(\.colorScheme) private var colorScheme
-
+    
     let step: TutorialStep
     let editButtonPhase: Bool
     let deletePhase: Bool
@@ -95,7 +95,7 @@ private struct TutorialArtwork: View {
     let jiggleActive: Bool
     let jigglePhase: Bool
     let reduceMotion: Bool
-
+    
     private let artworkSize = CGSize(width: 250.8, height: 259)
     private let appSize: CGFloat = 37.5
     private let appHorizontalInset: CGFloat = 25
@@ -105,7 +105,7 @@ private struct TutorialArtwork: View {
     private let editButtonSize = CGSize(width: 35, height: 15)
     private let editPopoverSize = CGSize(width: 94, height: 54)
     private let sheetSize = CGSize(width: 241, height: 216)
-
+    
     var body: some View {
         ZStack {
             ZStack {
@@ -113,16 +113,16 @@ private struct TutorialArtwork: View {
                     .transaction { transaction in
                         transaction.animation = nil
                     }
-
+                
                 appLayer
                     .opacity(1)
-
+                
                 editButtonLayer
                     .allowsHitTesting(false)
-
+                
                 editPopoverLayer
                     .allowsHitTesting(false)
-
+                
                 widgetSearchLayer
                     .allowsHitTesting(false)
             }
@@ -151,7 +151,7 @@ private struct TutorialArtwork: View {
         }
         .frame(width: artworkSize.width, height: artworkSize.height)
     }
-
+    
     private var widgetSearchLayer: some View {
         Image("tutorial_sheet")
             .resizable()
@@ -162,7 +162,7 @@ private struct TutorialArtwork: View {
             .animation(.easeOut(duration: 0.34), value: sheetPhase)
             .mask(sheetInteriorFade)
     }
-
+    
     private var appLayer: some View {
         VStack(spacing: appRowSpacing) {
             ForEach(0..<4, id: \.self) { row in
@@ -177,7 +177,7 @@ private struct TutorialArtwork: View {
         .position(x: artworkSize.width / 2, y: appGridTop + appGridHeight / 2)
         .mask(phoneInteriorFade)
     }
-
+    
     private func appCell(index: Int, row: Int) -> some View {
         ZStack(alignment: .topLeading) {
             Image("tutorial_app")
@@ -185,7 +185,7 @@ private struct TutorialArtwork: View {
                 .scaledToFit()
                 .frame(width: appSize, height: appSize)
                 .opacity(appOpacity(row: row))
-
+            
             Image("tutorial_delete_app")
                 .resizable()
                 .scaledToFit()
@@ -195,7 +195,7 @@ private struct TutorialArtwork: View {
                 .blur(radius: deletePhase ? 0 : 8)
                 .animation(
                     .spring(duration: deletePhase ? 0.34 : 0.28, bounce: deletePhase ? 0.2 : 0.16)
-                        .delay(deletePhase ? 0.04 + Double(index) * 0.012 : 0),
+                    .delay(deletePhase ? 0.04 + Double(index) * 0.012 : 0),
                     value: deletePhase
                 )
                 .offset(x: -deleteBadgeSize / 2 + 1, y: -deleteBadgeSize / 2 + 1)
@@ -204,7 +204,7 @@ private struct TutorialArtwork: View {
         .rotationEffect(.degrees(jiggleAngle), anchor: .center)
         .scaleEffect(jiggleActive ? 1.015 : 1, anchor: .center)
     }
-
+    
     private var editButtonLayer: some View {
         Image("tutorial_edit_button")
             .resizable()
@@ -216,7 +216,7 @@ private struct TutorialArtwork: View {
             .animation(.spring(duration: 0.32, bounce: 0.18), value: editButtonPhase)
             .position(editButtonPosition)
     }
-
+    
     private var editPopoverLayer: some View {
         Image("tutorial_edit_popover")
             .resizable()
@@ -228,34 +228,34 @@ private struct TutorialArtwork: View {
             .animation(.spring(duration: 0.34, bounce: 0.18), value: popoverPhase)
             .position(editPopoverPosition)
     }
-
+    
     private var containerFadeMask: some View {
         halfHeightFadeMask
     }
-
+    
     private var sheetInteriorFade: some View {
         halfHeightFadeMask
     }
-
+    
     private var phoneInteriorFade: some View {
         halfHeightFadeMask
     }
-
+    
     private var halfHeightFadeMask: some View {
         VStack(spacing: 0) {
             Rectangle()
-                .fill(.white)
+                .fill(AppColors.appBackground)
                 .frame(height: artworkSize.height / 2)
-
+            
             Rectangle()
                 .fill(
                     LinearGradient(
                         stops: [
-                            .init(color: .white, location: 0),
-                            .init(color: .white.opacity(0.82), location: 0.24),
-                            .init(color: .white.opacity(0.48), location: 0.55),
-                            .init(color: .white.opacity(0.16), location: 0.82),
-                            .init(color: .clear, location: 1),
+                            .init(color: AppColors.appBackground, location: 0),
+                            .init(color: AppColors.appBackground.opacity(0.82), location: 0.24),
+                            .init(color: AppColors.appBackground.opacity(0.48), location: 0.55),
+                            .init(color: AppColors.appBackground.opacity(0.16), location: 0.82),
+                            .init(color: AppColors.appBackground.opacity(0), location: 1),
                         ],
                         startPoint: .top,
                         endPoint: .bottom
@@ -265,14 +265,14 @@ private struct TutorialArtwork: View {
         }
         .frame(width: artworkSize.width, height: artworkSize.height)
     }
-
+    
     private var tutorialBackground: some View {
         Image("tutorial_bg")
             .resizable()
             .scaledToFit()
             .frame(width: artworkSize.width, height: artworkSize.height)
     }
-
+    
     private var darkModeTone: some View {
         LinearGradient(
             colors: [
@@ -282,9 +282,15 @@ private struct TutorialArtwork: View {
             startPoint: .top,
             endPoint: .bottom
         )
-        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+        .clipShape(UnevenRoundedRectangle(
+            topLeadingRadius: 48,
+            bottomLeadingRadius: 0,
+            bottomTrailingRadius: 0,
+            topTrailingRadius: 48,
+            style: .continuous)
+        )
     }
-
+    
     private var darkModeLift: some View {
         RadialGradient(
             colors: [
@@ -295,30 +301,30 @@ private struct TutorialArtwork: View {
             startRadius: 10,
             endRadius: 180
         )
-        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 48, style: .continuous))
     }
-
+    
     private var jiggleAngle: Double {
         guard jiggleActive, !reduceMotion else { return 0 }
         return jigglePhase ? 4 : -2
     }
-
+    
     private var appGridWidth: CGFloat {
         artworkSize.width - appHorizontalInset * 2
     }
-
+    
     private var appGridHeight: CGFloat {
         appSize * 4 + appRowSpacing * 3
     }
-
+    
     private var appGridLeft: CGFloat {
         appHorizontalInset
     }
-
+    
     private var editButtonPosition: CGPoint {
         CGPoint(x: appGridLeft + appSize / 2, y: appGridTop - 28)
     }
-
+    
     private var editPopoverPosition: CGPoint {
         let popoverLeft = editButtonPosition.x - editButtonSize.width / 2
         return CGPoint(
@@ -326,11 +332,11 @@ private struct TutorialArtwork: View {
             y: editButtonPosition.y + editButtonSize.height / 2 + editPopoverSize.height / 2 + 16
         )
     }
-
+    
     private var appColumnSpacing: CGFloat {
         (appGridWidth - appSize * 4) / 3
     }
-
+    
     private func appOpacity(row: Int) -> Double {
         switch row {
         case 0:
@@ -343,7 +349,7 @@ private struct TutorialArtwork: View {
             0.2
         }
     }
-
+    
     private func deleteOpacity(row: Int) -> Double {
         switch row {
         case 0:
@@ -356,7 +362,7 @@ private struct TutorialArtwork: View {
             0.22
         }
     }
-
+    
 }
 
 enum TutorialStep: CaseIterable {
@@ -364,7 +370,7 @@ enum TutorialStep: CaseIterable {
     case edit
     case addWidget
     case findAbstrakt
-
+    
     var showsEditButton: Bool {
         switch self {
         case .edit, .addWidget:
@@ -373,7 +379,7 @@ enum TutorialStep: CaseIterable {
             false
         }
     }
-
+    
     var title: String {
         switch self {
         case .tapAndHold:
@@ -386,7 +392,7 @@ enum TutorialStep: CaseIterable {
             "Find Abstrakt"
         }
     }
-
+    
     var subtitle: String {
         switch self {
         case .tapAndHold:
@@ -399,7 +405,7 @@ enum TutorialStep: CaseIterable {
             "Pick a size, add it, then choose one of your saved presets to display."
         }
     }
-
+    
     var eyebrow: String {
         switch self {
         case .tapAndHold:
@@ -412,7 +418,7 @@ enum TutorialStep: CaseIterable {
             "STEP 4"
         }
     }
-
+    
     var stickerAssetName: String {
         switch self {
         case .tapAndHold:
@@ -439,7 +445,7 @@ enum TutorialStep: CaseIterable {
                 jiggleActive: .constant(true),
                 jigglePhase: .constant(false)
             )
-                .padding(.top, 24)
+            .padding(.top, 24)
         }
         .environment(LocalizationManager.shared)
         .environment(\.locale, LocalizationManager.shared.locale)

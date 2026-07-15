@@ -87,7 +87,7 @@ enum AbstraktAppearancePreference: String, CaseIterable, Identifiable {
         case .dark:
             "moon.fill"
         case .system:
-            "rectangle.portrait.fill"
+            "rectangle.lefthalf.filled"
         }
     }
 
