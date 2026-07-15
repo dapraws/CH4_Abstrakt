@@ -48,6 +48,10 @@ struct LiveActivityItemRenderer: View {
     private var lightPrimaryTextColor: Color {
         Color(red: 20 / 255, green: 20 / 255, blue: 20 / 255)
     }
+
+    private var surfaceLayout: LiveActivitySurfaceLayout {
+        item.layout.surfaceLayout(isLiveActivity: isLiveActivity)
+    }
     
     @ViewBuilder
     private func iconView(size: CGFloat) -> some View {
@@ -219,7 +223,7 @@ struct LiveActivityItemRenderer: View {
     }
 
     private var todayInfo: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: surfaceLayout.titleSpacing) {
             VStack(spacing: 12) {
                 HStack(spacing: 5) {
                     Text("It's")
@@ -259,9 +263,9 @@ struct LiveActivityItemRenderer: View {
             .minimumScaleFactor(0.72)
             .lineLimit(1)
             .liveActivityTextFormatting()
-            .padding(.horizontal, 16)
-            .padding(.vertical, 24)
-            .frame(height: item.layout.activityPreviewHeight(isLiveActivity: isLiveActivity))
+            .padding(.horizontal, surfaceLayout.horizontalPadding)
+            .padding(.vertical, surfaceLayout.verticalPadding)
+            .frame(height: surfaceLayout.height)
             .frame(maxWidth: .infinity)
             .background {
                 activitySurfaceBackground(cornerRadius: activityCornerRadius)
@@ -273,15 +277,15 @@ struct LiveActivityItemRenderer: View {
     }
 
     private var weatherInfo: some View {
-        VStack(spacing: 8) {
-            VStack(spacing: 14) {
-                HStack(spacing: 13) {
+        VStack(spacing: surfaceLayout.titleSpacing) {
+            VStack(spacing: 10) {
+                HStack(spacing: 11) {
                     Image(systemName: metadataValue("weatherIcon", fallback: item.iconName))
-                        .font(.system(size: 26 * fontScale, weight: .semibold))
+                        .font(.system(size: 23 * fontScale, weight: .semibold))
                         .symbolRenderingMode(.multicolor)
-                        .frame(width: 34, height: 34)
+                        .frame(width: 30, height: 30)
 
-                    VStack(alignment: .leading, spacing: 1) {
+                    VStack(alignment: .leading, spacing: 0) {
                         Text(metadataValue("conditionLabel", fallback: item.primaryText ?? "Weather"))
                             .font(LiveActivityTypography.islandFont(.body, scale: fontScale))
                             .foregroundStyle(primaryContentColor)
@@ -301,7 +305,7 @@ struct LiveActivityItemRenderer: View {
                         .liveActivityTextFormatting()
                 }
 
-                HStack(spacing: 8) {
+                HStack(spacing: 7) {
                     weatherMetricChip(
                         systemName: "arrow.up",
                         value: metadataValue("highTemperature", fallback: "--°"),
@@ -319,9 +323,9 @@ struct LiveActivityItemRenderer: View {
                     )
                 }
             }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 15)
-            .frame(height: item.layout.activityPreviewHeight(isLiveActivity: isLiveActivity))
+            .padding(.horizontal, surfaceLayout.horizontalPadding)
+            .padding(.vertical, surfaceLayout.verticalPadding)
+            .frame(height: surfaceLayout.height)
             .frame(maxWidth: .infinity)
             .background {
                 activitySurfaceBackground(cornerRadius: activityCornerRadius)
@@ -333,15 +337,15 @@ struct LiveActivityItemRenderer: View {
     }
 
     private var calendarInfo: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: surfaceLayout.titleSpacing) {
             HStack(spacing: 8) {
                 ForEach(calendarDays, id: \.date) { day in
                     calendarDayView(day)
                 }
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 15)
-            .frame(height: item.layout.activityPreviewHeight(isLiveActivity: isLiveActivity))
+            .padding(.horizontal, surfaceLayout.horizontalPadding)
+            .padding(.vertical, surfaceLayout.verticalPadding)
+            .frame(height: surfaceLayout.height)
             .frame(maxWidth: .infinity)
             .background {
                 activitySurfaceBackground(cornerRadius: activityCornerRadius)
@@ -398,14 +402,14 @@ struct LiveActivityItemRenderer: View {
                 .padding(.top, 6)
                 .padding(.bottom, 3)
             }
-            .frame(width: 46, height: 66)
+            .frame(width: 46, height: 62)
             .overlay {
                 activeShape
                     .stroke(.white.opacity(0.16), lineWidth: 1)
             }
             .shadow(color: .orange.opacity(0.22), radius: 9, x: 0, y: 4)
         } else {
-            VStack(spacing: 6) {
+            VStack(spacing: 5) {
                 Text(day.weekday)
                     .font(LiveActivityTypography.islandFont(.label, scale: fontScale))
                     .foregroundStyle(secondaryContentColor)
@@ -413,7 +417,7 @@ struct LiveActivityItemRenderer: View {
                     .font(LiveActivityTypography.islandFont(.number, scale: fontScale).monospacedDigit())
                     .foregroundStyle(primaryContentColor)
             }
-            .frame(width: 29, height: 60)
+            .frame(width: 29, height: 56)
         }
     }
 

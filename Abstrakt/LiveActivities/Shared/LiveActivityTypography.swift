@@ -72,11 +72,11 @@ enum LiveActivityWidgetMetrics {
     static let lockScreenEmptyStateHeight: CGFloat = 118
     static let expandedSurfaceHeight: CGFloat = 96
     static let expandedTodayInfoSurfaceHeight: CGFloat = 102
-    static let expandedWeatherInfoSurfaceHeight: CGFloat = 122
-    static let expandedCalendarInfoSurfaceHeight: CGFloat = 94
+    static let expandedWeatherInfoSurfaceHeight: CGFloat = 108
+    static let expandedCalendarInfoSurfaceHeight: CGFloat = 96
     static let liveActivityTodayInfoSurfaceHeight: CGFloat = 110
-    static let liveActivityWeatherInfoSurfaceHeight: CGFloat = 122
-    static let liveActivityCalendarInfoSurfaceHeight: CGFloat = 100
+    static let liveActivityWeatherInfoSurfaceHeight: CGFloat = 110
+    static let liveActivityCalendarInfoSurfaceHeight: CGFloat = 96
 }
 
 extension View {

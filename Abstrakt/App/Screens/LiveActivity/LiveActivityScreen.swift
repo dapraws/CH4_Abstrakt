@@ -14,7 +14,7 @@ struct LiveActivityScreen: View {
     
     private enum SheetOffset {
         static let control: CGFloat = 230
-        static let collapsed: CGFloat = 392
+        static let collapsed: CGFloat = 380
         
         static func expanded(for mode: LiveActivityMode) -> CGFloat {
             switch mode {

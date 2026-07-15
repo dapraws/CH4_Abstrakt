@@ -248,8 +248,7 @@ struct LiveActivityFrame: View {
             .foregroundStyle(.white)
             .padding(.horizontal, 15)
             .padding(.vertical, 8)
-            .background(Color.black.opacity(0.78))
-            .clipShape(Capsule(style: .continuous))
+            .liveActivityControlGlass(cornerRadius: 20)
         }
         .buttonStyle(.plain)
     }
@@ -350,8 +349,7 @@ struct LiveActivityFrame: View {
         .foregroundStyle(.white)
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
-        .background(Color.black)
-        .clipShape(Capsule())
+        .liveActivityControlGlass(cornerRadius: 20)
     }
     
     private func previewCanvas<Content: View>(
@@ -394,6 +392,25 @@ struct LiveActivityFrame: View {
                     )
                     .animation(.smooth(duration: 0.2, extraBounce: 0), value: state.selectedMode)
             }
+        }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func liveActivityControlGlass(cornerRadius: CGFloat) -> some View {
+        if #available(iOS 26.0, *) {
+            self.glassEffect(
+                .regular
+                    .tint(Color.black.opacity(0.24))
+                    .interactive(),
+                in: .rect(cornerRadius: cornerRadius)
+            )
+        } else {
+            self
+                .background(.ultraThinMaterial)
+                .background(Color.black.opacity(0.72))
+                .clipShape(.rect(cornerRadius: cornerRadius, style: .continuous))
         }
     }
 }

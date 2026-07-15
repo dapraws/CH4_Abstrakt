@@ -56,6 +56,13 @@ enum LiveActivitySurface: String, Codable, Hashable {
     case liveActivity
 }
 
+struct LiveActivitySurfaceLayout: Hashable {
+    var height: CGFloat
+    var horizontalPadding: CGFloat
+    var verticalPadding: CGFloat
+    var titleSpacing: CGFloat = 8
+}
+
 struct LiveActivityWidget: Codable, Hashable, Identifiable {
     var id: String
     var name: String
@@ -160,23 +167,43 @@ extension LiveActivityWidgetLayout {
     }
 
     func activityPreviewHeight(isLiveActivity: Bool) -> CGFloat {
-        switch (self, isLiveActivity) {
-        case (.todayInfo, true):
-            LiveActivityWidgetMetrics.liveActivityTodayInfoSurfaceHeight
-        case (.weatherInfo, true):
-            LiveActivityWidgetMetrics.liveActivityWeatherInfoSurfaceHeight
-        case (.calendarInfo, true):
-            LiveActivityWidgetMetrics.liveActivityCalendarInfoSurfaceHeight
-        case (.todayInfo, false):
-            LiveActivityWidgetMetrics.expandedTodayInfoSurfaceHeight
-        case (.weatherInfo, false):
-            LiveActivityWidgetMetrics.expandedWeatherInfoSurfaceHeight
-        case (.calendarInfo, false):
-            LiveActivityWidgetMetrics.expandedCalendarInfoSurfaceHeight
+        surfaceLayout(isLiveActivity: isLiveActivity).height
+    }
+
+    func surfaceLayout(isLiveActivity: Bool) -> LiveActivitySurfaceLayout {
+        switch self {
+        case .todayInfo:
+            LiveActivitySurfaceLayout(
+                height: isLiveActivity
+                    ? LiveActivityWidgetMetrics.liveActivityTodayInfoSurfaceHeight
+                    : LiveActivityWidgetMetrics.expandedTodayInfoSurfaceHeight,
+                horizontalPadding: 16,
+                verticalPadding: isLiveActivity ? 20 : 18
+            )
+        case .weatherInfo:
+            LiveActivitySurfaceLayout(
+                height: isLiveActivity
+                    ? LiveActivityWidgetMetrics.liveActivityWeatherInfoSurfaceHeight
+                    : LiveActivityWidgetMetrics.expandedWeatherInfoSurfaceHeight,
+                horizontalPadding: 18,
+                verticalPadding: 12
+            )
+        case .calendarInfo:
+            LiveActivitySurfaceLayout(
+                height: isLiveActivity
+                    ? LiveActivityWidgetMetrics.liveActivityCalendarInfoSurfaceHeight
+                    : LiveActivityWidgetMetrics.expandedCalendarInfoSurfaceHeight,
+                horizontalPadding: 14,
+                verticalPadding: 12
+            )
         default:
-            isLiveActivity
-                ? LiveActivityWidgetMetrics.lockScreenIslandHeight
-                : LiveActivityWidgetMetrics.expandedIslandHeight
+            LiveActivitySurfaceLayout(
+                height: isLiveActivity
+                    ? LiveActivityWidgetMetrics.lockScreenIslandHeight
+                    : LiveActivityWidgetMetrics.expandedIslandHeight,
+                horizontalPadding: 0,
+                verticalPadding: 0
+            )
         }
     }
 }

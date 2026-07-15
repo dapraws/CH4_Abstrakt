@@ -20,7 +20,7 @@ struct LiveActivityPreviewSheet: View {
         static let labelSpacing: CGFloat = 9
         static let previewSheetHorizontalPadding: CGFloat = 16
         static let previewSheetVerticalPadding: CGFloat = 24
-        static let expandedScrollBottomPadding: CGFloat = 320
+        static let expandedScrollBottomPadding: CGFloat = 160
         static let previewRowSpacing: CGFloat = 24
         static let activityPreviewWidth: CGFloat = LiveActivityWidgetMetrics.islandWidth
         static let activityPreviewCornerRadius: CGFloat = 30
@@ -28,13 +28,14 @@ struct LiveActivityPreviewSheet: View {
         static let sheetHeaderSpacing: CGFloat = 8
         static let sheetHeaderTopPadding: CGFloat = 24
         static let sheetHeaderBottomPadding: CGFloat = 14
+        static let sheetSeparatorPadding: CGFloat = 12
         static let expandedScrollTopAnchor = "live-activity-expanded-scroll-top"
     }
-
+    
     @Environment(LiveActivitiesState.self) private var state
     let availableWidth: CGFloat
     var animationNamespace: Namespace.ID
-
+    
     private let baseContainerWidth: CGFloat = 352
     private var containerWidth: CGFloat {
         max(availableWidth, 0)
@@ -43,32 +44,32 @@ struct LiveActivityPreviewSheet: View {
         guard baseContainerWidth > 0 else { return 1 }
         return max(containerWidth / baseContainerWidth, 0)
     }
-
+    
     private let columns = [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
     ]
-
+    
     private var isActivityPreviewMode: Bool {
         state.selectedMode != .compact
     }
-
+    
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
                 sheetHeader
-
+                
                 ScrollViewReader { scrollProxy in
                     ScrollView(showsIndicators: false) {
                         Color.clear
                             .frame(height: 1)
                             .id(Metrics.expandedScrollTopAnchor)
-
+                        
                         VStack(spacing: 0) {
                             pickerContent(items: state.currentWidgets)
-
+                            
                             if state.isPickerExpanded {
                                 Color.clear
                                     .frame(height: Metrics.expandedScrollBottomPadding)
@@ -111,7 +112,7 @@ struct LiveActivityPreviewSheet: View {
         .frame(width: baseContainerWidth, alignment: .top)
         .frame(width: containerWidth, alignment: .top)
     }
-
+    
     private var sheetHeader: some View {
         VStack(spacing: Metrics.sheetHeaderBottomPadding) {
             HStack(spacing: Metrics.sheetHeaderSpacing) {
@@ -122,7 +123,7 @@ struct LiveActivityPreviewSheet: View {
                         width: Metrics.sheetHeaderIconSize,
                         height: Metrics.sheetHeaderIconSize
                     )
-
+                
                 Text(state.selectedMode.previewSheetTitle)
                     .font(AppFonts.font(.liveActivitySection))
             }
@@ -143,27 +144,31 @@ struct LiveActivityPreviewSheet: View {
                         }
                     }
             )
-
-            if isActivityPreviewMode {
-                appSeparator
-                    .padding(.horizontal, Metrics.previewSheetHorizontalPadding)
-            }
+            
+            appSeparator
+                .padding(.horizontal, Metrics.previewSheetHorizontalPadding)
+                .padding(.top, Metrics.sheetSeparatorPadding)
         }
-        .padding(.bottom, Metrics.sheetHeaderBottomPadding)
     }
-
+    
     private func scrollToTop(_ proxy: ScrollViewProxy) {
         DispatchQueue.main.async {
             proxy.scrollTo(Metrics.expandedScrollTopAnchor, anchor: .top)
         }
     }
-
+    
     private var appSeparator: some View {
-        Capsule(style: .continuous)
-            .fill(AppColors.primaryText.opacity(0.07))
-            .frame(height: 1)
+        GeometryReader { geo in
+            Path { path in
+                path.move(to: CGPoint(x: 0, y: 0))
+                path.addLine(to: CGPoint(x: geo.size.width, y: 0))
+            }
+            .stroke(style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+            .foregroundColor(AppColors.primaryText.opacity(0.07))
+        }
+        .frame(height: 1)
     }
-
+    
     @ViewBuilder
     private func pickerContent(items: [LiveActivityWidget]) -> some View {
         Group {
@@ -171,6 +176,7 @@ struct LiveActivityPreviewSheet: View {
                 activityPreviewList(items: items)
                     .padding(.horizontal, Metrics.previewSheetHorizontalPadding)
                     .padding(.bottom, Metrics.previewSheetVerticalPadding)
+                    .padding(.top, Metrics.sectionVerticalPadding)
             } else {
                 compactWidgetGrid(items: items)
                     .padding(.horizontal, Metrics.sectionHorizontalPadding)
@@ -181,7 +187,7 @@ struct LiveActivityPreviewSheet: View {
         .transition(.activityModeBlurFade)
         .animation(.smooth(duration: 0.32, extraBounce: 0), value: state.selectedMode)
     }
-
+    
     private func activityPreviewList(items: [LiveActivityWidget]) -> some View {
         LazyVStack(spacing: Metrics.previewRowSpacing) {
             ForEach(Array(items.enumerated()), id: \.offset) { index, item in
@@ -196,39 +202,39 @@ struct LiveActivityPreviewSheet: View {
                         activityCornerRadius: activityPreviewCornerRadius,
                         activityTitleColor: AppColors.primaryText
                     )
-                        .frame(
-                            width: Metrics.activityPreviewWidth,
-                            alignment: .top
+                    .frame(
+                        width: Metrics.activityPreviewWidth,
+                        alignment: .top
+                    )
+                    .fixedSize(horizontal: false, vertical: true)
+                    .clipShape(
+                        RoundedRectangle(
+                            cornerRadius: activityPreviewCornerRadius,
+                            style: .continuous
                         )
-                        .fixedSize(horizontal: false, vertical: true)
-                        .clipShape(
-                            RoundedRectangle(
-                                cornerRadius: activityPreviewCornerRadius,
-                                style: .continuous
-                            )
-                        )
-                        .overlay(alignment: .topLeading) {
-                            if isSelected(item) {
-                                Image(systemName: "checkmark.seal.fill")
-                                    .font(.system(size: 20, weight: .semibold))
-                                    .symbolRenderingMode(.palette)
-                                    .foregroundStyle(.white, .green)
-                                    .offset(x: -3, y: -3)
-                                    .transition(.selectedActivityBadge)
-                            }
+                    )
+                    .overlay(alignment: .topLeading) {
+                        if isSelected(item) {
+                            Image(systemName: "checkmark.seal.fill")
+                                .font(.system(size: 20, weight: .semibold))
+                                .symbolRenderingMode(.palette)
+                                .foregroundStyle(.white, .green)
+                                .offset(x: -3, y: -3)
+                                .transition(.selectedActivityBadge)
                         }
+                    }
                 }
                 .frame(maxWidth: .infinity)
                 .buttonStyle(.plain)
                 .animation(
                     .smooth(duration: 0.34, extraBounce: 0.04)
-                        .delay(Double(index) * 0.018),
+                    .delay(Double(index) * 0.018),
                     value: state.selectedMode
                 )
             }
         }
     }
-
+    
     private func isSelected(_ item: LiveActivityWidget) -> Bool {
         switch state.selectedMode {
         case .compact:
@@ -239,11 +245,11 @@ struct LiveActivityPreviewSheet: View {
             state.selectedLockScreenWidget?.id == item.id
         }
     }
-
+    
     private var activityPreviewCornerRadius: CGFloat {
         Metrics.activityPreviewCornerRadius
     }
-
+    
     private func compactWidgetGrid(items: [LiveActivityWidget]) -> some View {
         LazyVGrid(columns: columns, spacing: Metrics.gridSpacing) {
             ForEach(Array(items.enumerated()), id: \.offset) { index, item in
@@ -251,7 +257,7 @@ struct LiveActivityPreviewSheet: View {
                 let isTrailing = state.selectedTrailingWidget?.id == item.id
                 let isExpandedSelected = state.selectedExpandedWidget?.id == item.id
                 let isLockScreenSelected = state.selectedLockScreenWidget?.id == item.id
-
+                
                 let isSelected: Bool = {
                     switch state.selectedMode {
                     case .compact:
@@ -273,12 +279,12 @@ struct LiveActivityPreviewSheet: View {
                                 cornerRadius: Metrics.tileCornerRadius,
                                 style: .continuous
                             )
-                                .fill(Color.black)
-                                .frame(
-                                    width: Metrics.tileSize,
-                                    height: Metrics.tileSize
-                                )
-
+                            .fill(Color.black)
+                            .frame(
+                                width: Metrics.tileSize,
+                                height: Metrics.tileSize
+                            )
+                            
                             if item.layout.usesFullActivityPreview {
                                 Image(systemName: item.iconName)
                                     .font(.system(size: 22, weight: .bold))
@@ -293,31 +299,31 @@ struct LiveActivityPreviewSheet: View {
                                     isLiveActivity: false,
                                     showsActivityTitle: false
                                 )
-                                    .fixedSize()
-                                    .scaleEffect(0.60)
-                                    .frame(
-                                        width: Metrics.tileSize,
-                                        height: Metrics.tileSize
-                                    )
+                                .fixedSize()
+                                .scaleEffect(0.60)
+                                .frame(
+                                    width: Metrics.tileSize,
+                                    height: Metrics.tileSize
+                                )
                             }
-
+                            
                             if isSelected {
                                 VStack {
                                     HStack {
                                         selectedItemBadge(isLeading: isLeading, isTrailing: isTrailing)
                                             .transition(.selectedActivityBadge)
-
+                                        
                                         Spacer(minLength: 0)
                                     }
                                     .offset(x: -2, y: -4)
-
+                                    
                                     Spacer()
                                 }
                             }
                         }
                     }
                     .buttonStyle(.plain)
-
+                    
                     Text(item.name)
                         .font(AppFonts.font(.liveActivityLabel))
                         .foregroundStyle(.primary)
@@ -329,19 +335,19 @@ struct LiveActivityPreviewSheet: View {
                 }
                 .animation(
                     .smooth(duration: 0.34, extraBounce: 0.05)
-                        .delay(Double(index) * 0.018),
+                    .delay(Double(index) * 0.018),
                     value: state.selectedMode
                 )
                 .animation(
                     .smooth(duration: 0.34, extraBounce: 0.04)
-                        .delay(Double(index) * 0.01),
+                    .delay(Double(index) * 0.01),
                     value: state.isPickerExpanded
                 )
                 .animation(.smooth(duration: 0.26, extraBounce: 0), value: isSelected)
             }
         }
     }
-
+    
     @ViewBuilder
     private func selectedItemBadge(
         isLeading: Bool,
@@ -360,14 +366,14 @@ struct LiveActivityPreviewSheet: View {
                 .foregroundStyle(.white, .green)
         }
     }
-
+    
     private func selectionBadge(_ label: String) -> some View {
         ZStack {
             Image(systemName: "checkmark.seal.fill")
                 .font(.system(size: 20, weight: .semibold))
                 .symbolRenderingMode(.palette)
                 .foregroundStyle(.green, .green)
-
+            
             Text(label)
                 .font(.system(size: 10, weight: .black, design: .rounded))
                 .foregroundStyle(.white)
@@ -380,7 +386,7 @@ private struct SelectedActivityBadgeModifier: ViewModifier {
     let opacity: Double
     let blurRadius: CGFloat
     let rotation: Angle
-
+    
     func body(content: Content) -> some View {
         content
             .opacity(opacity)
@@ -392,7 +398,7 @@ private struct SelectedActivityBadgeModifier: ViewModifier {
 private struct ActivityModeBlurFadeModifier: ViewModifier {
     let opacity: Double
     let blurRadius: CGFloat
-
+    
     func body(content: Content) -> some View {
         content
             .opacity(opacity)
@@ -429,7 +435,7 @@ private extension AnyTransition {
             )
         )
     }
-
+    
     static var activityModeBlurFade: AnyTransition {
         .asymmetric(
             insertion: .modifier(
