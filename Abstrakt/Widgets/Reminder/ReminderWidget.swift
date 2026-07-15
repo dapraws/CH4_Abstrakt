@@ -52,7 +52,6 @@ struct ReminderWidget: View {
                 .font(AbstraktWidgetFonts.font(.heading, theme: fontTheme))
                 .foregroundStyle(headerText)
                 .lineLimit(1)
-                .minimumScaleFactor(0.72)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .padding(.bottom, metrics.headerTitleLift)
         }
@@ -96,7 +95,6 @@ struct ReminderWidget: View {
                         .strikethrough(item.isCompleted, color: palette.tertiaryForeground)
                         .lineLimit(1)
                         .truncationMode(.tail)
-                        .minimumScaleFactor(0.74)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
@@ -151,14 +149,12 @@ struct ReminderWidget: View {
                     .font(AbstraktWidgetFonts.font(.bodyBold, theme: fontTheme))
                     .foregroundStyle(palette.foreground)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.72)
 
                 Text(subtitle)
                     .font(AbstraktWidgetFonts.font(.caption, theme: fontTheme))
                     .foregroundStyle(palette.secondaryForeground)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
-                    .minimumScaleFactor(0.76)
             }
         }
         .padding(.horizontal, metrics.bodyHorizontalPadding)

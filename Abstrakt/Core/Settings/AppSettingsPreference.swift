@@ -175,6 +175,7 @@ enum AppSettingsPreference {
     static let temperatureDisplayKey = "settings.temperatureDisplay"
     static let distanceUnitKey = "settings.distanceUnit"
     static let appLanguageKey = "settings.appLanguage"
+    static let appearanceKey = AbstraktAppearancePreference.storageKey
 }
 
 // MARK: - Localized Names

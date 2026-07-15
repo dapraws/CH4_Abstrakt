@@ -23,7 +23,8 @@ struct ContentView: View {
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
-    @AppStorage(AppGroupConstants.liveActivityBatteryEnabledKey, store: AppGroupConstants.sharedDefaults) private var isBatteryLiveActivityEnabled = false
+    @AppStorage(AppSettingsPreference.appearanceKey, store: AppGroupConstants.sharedDefaults)
+    private var appearanceID = AbstraktAppearancePreference.system.id
     @State private var selectedTab: BottomBarTab = .gallery
     @State private var showsLibrary = false
     @State private var selectedGalleryItem: WidgetCatalogItem?
@@ -70,29 +71,23 @@ struct ContentView: View {
                 }
             }
         }
+        .preferredColorScheme(AbstraktAppearancePreference.from(id: appearanceID).colorSchemeOverride)
         .onAppear {
             UIDevice.current.isBatteryMonitoringEnabled = true
-            if isBatteryLiveActivityEnabled {
-                let batterySnapshot = BatteryStatusProvider.currentSnapshot()
-                SharedModelContainer.write(battery: batterySnapshot)
-                BatteryLiveActivityProvider.shared.startIfNeeded(with: batterySnapshot)
-                BatteryLiveActivityProvider.shared.update(with: batterySnapshot)
-            }
+            SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
         }
         .onChange(of: appFontThemeID) { _, newValue in
             SharedModelContainer.write(appFontThemeID: newValue)
+            WidgetTimelineReloadScheduler.schedule()
+        }
+        .onChange(of: appearanceID) { _, _ in
             WidgetTimelineReloadScheduler.schedule()
         }
         .onReceive(NotificationCenter.default.publisher(for: SharedModelContainer.widgetPresetsDidChangeNotification)) { _ in
             reloadWidgetPresets()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIDevice.batteryStateDidChangeNotification)) { _ in
-            if isBatteryLiveActivityEnabled {
-                let batterySnapshot = BatteryStatusProvider.currentSnapshot()
-                SharedModelContainer.write(battery: batterySnapshot)
-                BatteryLiveActivityProvider.shared.startIfNeeded(with: batterySnapshot)
-                BatteryLiveActivityProvider.shared.update(with: batterySnapshot)
-            }
+            SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
         }
         .task(id: shouldObserveHealth) {
             guard shouldObserveHealth else {
@@ -253,10 +248,6 @@ struct ContentView: View {
         SharedModelContainer.write(clock: ClockDataProvider.currentSnapshot())
         let batterySnapshot = BatteryStatusProvider.currentSnapshot()
         SharedModelContainer.write(battery: batterySnapshot)
-        if isBatteryLiveActivityEnabled {
-            BatteryLiveActivityProvider.shared.startIfNeeded(with: batterySnapshot)
-            BatteryLiveActivityProvider.shared.update(with: batterySnapshot)
-        }
         SharedModelContainer.write(appFontThemeID: appFontThemeID)
         SharedModelContainer.write(storage: await storageTask.value)
 

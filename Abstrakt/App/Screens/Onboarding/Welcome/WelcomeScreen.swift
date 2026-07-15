@@ -1,11 +1,11 @@
 import SwiftUI
 
-struct WelcomePage: View {
+struct WelcomeScreen: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         GeometryReader { proxy in
-            let metrics = WelcomePageMetrics(size: proxy.size)
+            let metrics = WelcomeScreenMetrics(size: proxy.size)
 
             ZStack(alignment: .bottom) {
                 widgetIllustration
@@ -157,7 +157,7 @@ struct WelcomePage: View {
     }
 }
 
-private struct WelcomePageMetrics {
+private struct WelcomeScreenMetrics {
     let size: CGSize
 
     private var height: CGFloat {
@@ -252,7 +252,7 @@ private struct WelcomePageMetrics {
 #Preview("Welcome") {
     AppColors.appBackground
         .overlay {
-            WelcomePage()
+            WelcomeScreen()
         }
         .environment(LocalizationManager.shared)
         .environment(\.locale, LocalizationManager.shared.locale)
@@ -261,7 +261,7 @@ private struct WelcomePageMetrics {
 #Preview("Welcome Dark") {
     AppColors.appBackground
         .overlay {
-            WelcomePage()
+            WelcomeScreen()
         }
         .environment(LocalizationManager.shared)
         .environment(\.locale, LocalizationManager.shared.locale)

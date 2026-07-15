@@ -3,6 +3,18 @@ import Foundation
 import OSLog
 import WeatherKit
 
+struct SmartPillWeatherSnapshot {
+    let temperature: Int
+    let high: Int
+    let low: Int
+    let conditionIcon: String
+    let uvIndex: Int
+    let rainChance: Int
+    let sunrise: Date?
+    let sunset: Date?
+    let windDirection: String
+}
+
 // MARK: - Provider
 
 @MainActor
@@ -113,6 +125,38 @@ final class WeatherProvider {
             conditionIcon: info.icon,
             conditionLabel: info.label,
             locationName: locationName
+        )
+    }
+
+    func smartPillSnapshot() async -> SmartPillWeatherSnapshot {
+        guard let bundle = await fetchWeatherBundle(context: "smartPillSnapshot") else {
+            return SmartPillWeatherSnapshot(
+                temperature: WeatherSnapshot.placeholder.displayTemperature,
+                high: WeatherSnapshot.placeholder.displayHigh,
+                low: WeatherSnapshot.placeholder.displayLow,
+                conditionIcon: WeatherSnapshot.placeholder.conditionIcon,
+                uvIndex: 1,
+                rainChance: 30,
+                sunrise: nil,
+                sunset: nil,
+                windDirection: "NE"
+            )
+        }
+
+        let current = bundle.weather.currentWeather
+        let today = bundle.weather.dailyForecast.forecast.first
+        let condition = conditionInfo(for: current.condition, isDaytime: current.isDaylight)
+
+        return SmartPillWeatherSnapshot(
+            temperature: Int(current.temperature.converted(to: .celsius).value.rounded()),
+            high: Int((today?.highTemperature ?? current.temperature).converted(to: .celsius).value.rounded()),
+            low: Int((today?.lowTemperature ?? current.temperature).converted(to: .celsius).value.rounded()),
+            conditionIcon: condition.icon,
+            uvIndex: current.uvIndex.value,
+            rainChance: Int(((today?.precipitationChance ?? 0) * 100).rounded()),
+            sunrise: today?.sun.sunrise,
+            sunset: today?.sun.sunset,
+            windDirection: current.wind.compassDirection.abbreviation
         )
     }
 

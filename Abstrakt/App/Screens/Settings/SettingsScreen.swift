@@ -20,6 +20,8 @@ struct SettingsScreen: View {
     ) private var temperatureDisplayID = TemperatureDisplayPreference.actual.id
     @AppStorage(AppSettingsPreference.distanceUnitKey, store: settingsStore)
     private var distanceUnitID = DistanceUnitPreference.kilometers.id
+    @AppStorage(AppSettingsPreference.appearanceKey, store: settingsStore)
+    private var appearanceID = AbstraktAppearancePreference.system.id
     @Environment(\.scenePhase) private var scenePhase
     @State private var permissionSnapshot = PermissionAccessSnapshot.loading
     @State private var showsFontPicker = false
@@ -46,6 +48,10 @@ struct SettingsScreen: View {
 
     private var distanceUnit: DistanceUnitPreference {
         DistanceUnitPreference.from(id: distanceUnitID)
+    }
+
+    private var appearancePreference: AbstraktAppearancePreference {
+        AbstraktAppearancePreference.from(id: appearanceID)
     }
 
     // MARK: - Body
@@ -135,6 +141,7 @@ struct SettingsScreen: View {
         .sensoryFeedback(.selection, trigger: temperatureUnitID)
         .sensoryFeedback(.selection, trigger: temperatureDisplayID)
         .sensoryFeedback(.selection, trigger: distanceUnitID)
+        .sensoryFeedback(.selection, trigger: appearanceID)
     }
 
     // MARK: - Sections
@@ -160,6 +167,8 @@ struct SettingsScreen: View {
             title: L("settings.section.display_appearance"),
             fontTheme: selectedTheme
         ) {
+            appearanceRow
+
             settingsButtonRow(
                 icon: "textformat",
                 iconColor: .white,
@@ -179,6 +188,34 @@ struct SettingsScreen: View {
                 route: .changeIcon
             )
         }
+    }
+
+    private var appearanceRow: some View {
+        HStack(spacing: 16) {
+            Image(systemName: "circle.lefthalf.filled")
+                .font(AppFonts.font(.caption, theme: selectedTheme))
+                .foregroundStyle(.white)
+                .frame(width: 34, height: 34)
+                .background(Color(red: 0.45, green: 0.43, blue: 1))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+            Text(L("settings.row.appearance"))
+                .font(AppFonts.font(.subHeading, theme: selectedTheme))
+                .foregroundStyle(AppColors.primaryText)
+                .lineLimit(1)
+
+            Spacer(minLength: 10)
+
+            AppearanceSegmentedControl(
+                selection: Binding(
+                    get: { appearancePreference },
+                    set: { setAppearance($0) }
+                ),
+                fontTheme: selectedTheme
+            )
+        }
+        .padding(.horizontal, 22)
+        .frame(height: 58)
     }
 
     private var temperatureSection: some View {
@@ -492,6 +529,15 @@ struct SettingsScreen: View {
     private func setDistanceUnit(_ unit: DistanceUnitPreference) {
         withAnimation(.smooth(duration: 0.18)) {
             distanceUnitID = unit.id
+        }
+        reloadWidgetTimelines()
+    }
+
+    private func setAppearance(_ appearance: AbstraktAppearancePreference) {
+        guard appearancePreference != appearance else { return }
+
+        withAnimation(.smooth(duration: 0.18)) {
+            appearanceID = appearance.id
         }
         reloadWidgetTimelines()
     }
@@ -884,6 +930,56 @@ private struct SettingsRowContent: View {
             .frame(height: 32)
             .background(Color(red: 1, green: 0.42, blue: 0.32))
             .clipShape(Capsule())
+        }
+    }
+}
+
+private struct AppearanceSegmentedControl: View {
+    @Binding var selection: AbstraktAppearancePreference
+    let fontTheme: AppFontTheme
+
+    var body: some View {
+        HStack(spacing: 6) {
+            ForEach(AbstraktAppearancePreference.allCases) { appearance in
+                Button {
+                    selection = appearance
+                } label: {
+                    Image(systemName: appearance.iconName)
+                        .font(AppFonts.font(.caption, theme: fontTheme))
+                        .foregroundStyle(selection == appearance ? AppColors.primaryText : AppColors.tertiaryText)
+                        .frame(width: 38, height: 34)
+                        .background {
+                            if selection == appearance {
+                                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                                    .fill(AppColors.card)
+                                    .shadow(
+                                        color: AppColors.primaryText.opacity(0.05),
+                                        radius: 8,
+                                        x: 0,
+                                        y: 3
+                                    )
+                            }
+                        }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(appearance.localizedSettingsName)
+            }
+        }
+        .padding(4)
+        .background(AppColors.appBackground.opacity(0.68))
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+}
+
+private extension AbstraktAppearancePreference {
+    var localizedSettingsName: String {
+        switch self {
+        case .light:
+            L("settings.appearance.light")
+        case .dark:
+            L("settings.appearance.dark")
+        case .system:
+            L("settings.appearance.system")
         }
     }
 }

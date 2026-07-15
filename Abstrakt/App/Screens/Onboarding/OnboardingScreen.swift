@@ -19,8 +19,8 @@ struct OnboardingScreen: View {
     @State private var isTopBarVisible = false
     @State private var isCompleting = false
     @State private var tutorialStep: TutorialStep = .tapAndHold
-    @State private var pageStageVisible = true
-    @State private var pageStageUsesBlur = true
+    @State private var screenStageVisible = true
+    @State private var screenStageUsesBlur = true
     @State private var tutorialEditButtonPhase = false
     @State private var tutorialDeletePhase = false
     @State private var tutorialPopoverPhase = false
@@ -40,22 +40,22 @@ struct OnboardingScreen: View {
             ZStack(alignment: .bottom) {
                 VStack(spacing: 0) {
                     if renderedStep == 0 {
-                        page(for: renderedStep)
+                        screen(for: renderedStep)
                             .id(renderedStep)
                             .transition(contentTransition)
                             .animation(.smooth(duration: 0.3), value: renderedStep)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .ignoresSafeArea(.container, edges: .bottom)
                     } else {
-                        pagedContent
-                            .id("paged-content")
+                        screenContent
+                            .id("screen-content")
                             .transition(contentTransition)
                     }
                 }
-                .opacity(pageStageVisible ? 1 : 0)
-                .scaleEffect(pageStageVisible || !pageStageUsesBlur ? 1 : 0.975, anchor: .center)
-                .blur(radius: pageStageVisible || !pageStageUsesBlur ? 0 : 9)
-                .animation(reduceMotion ? nil : .smooth(duration: 0.3, extraBounce: 0), value: pageStageVisible)
+                .opacity(screenStageVisible ? 1 : 0)
+                .scaleEffect(screenStageVisible || !screenStageUsesBlur ? 1 : 0.975, anchor: .center)
+                .blur(radius: screenStageVisible || !screenStageUsesBlur ? 0 : 9)
+                .animation(reduceMotion ? nil : .smooth(duration: 0.3, extraBounce: 0), value: screenStageVisible)
 
                 if isTopBarVisible {
                     topContentFade
@@ -184,11 +184,11 @@ struct OnboardingScreen: View {
     }
 
     @ViewBuilder
-    private var pagedContent: some View {
+    private var screenContent: some View {
         GeometryReader { proxy in
-            let contentTopPadding = pagedContentTopPadding(for: proxy.safeAreaInsets.top)
+            let contentTopPadding = screenContentTopPadding(for: proxy.safeAreaInsets.top)
 
-            pagedPage(
+            screenContainer(
                 for: renderedStep,
                 topPadding: contentTopPadding
             )
@@ -198,40 +198,40 @@ struct OnboardingScreen: View {
         .clipped()
     }
 
-    private func pagedContentTopPadding(for _: CGFloat) -> CGFloat {
+    private func screenContentTopPadding(for _: CGFloat) -> CGFloat {
         72
     }
 
     @ViewBuilder
-    private func pagedPage(for index: Int, topPadding: CGFloat) -> some View {
+    private func screenContainer(for index: Int, topPadding: CGFloat) -> some View {
         if steps[index] == .tutorial {
-            pageContent(for: index, topPadding: topPadding, bottomPadding: 112)
+            screenLayout(for: index, topPadding: topPadding, bottomPadding: 112)
         } else {
             ViewThatFits(in: .vertical) {
-                pageContent(for: index, topPadding: topPadding, bottomPadding: 112)
+                screenLayout(for: index, topPadding: topPadding, bottomPadding: 112)
 
                 ScrollView(showsIndicators: false) {
-                    pageContent(for: index, topPadding: topPadding, bottomPadding: 36)
+                    screenLayout(for: index, topPadding: topPadding, bottomPadding: 36)
                 }
             }
         }
     }
 
     @ViewBuilder
-    private func pageContent(for index: Int, topPadding: CGFloat, bottomPadding: CGFloat) -> some View {
-        page(for: index)
+    private func screenLayout(for index: Int, topPadding: CGFloat, bottomPadding: CGFloat) -> some View {
+        screen(for: index)
             .frame(maxWidth: .infinity)
             .padding(.top, topPadding)
             .padding(.bottom, bottomPadding)
     }
 
     @ViewBuilder
-    private func page(for step: Int) -> some View {
+    private func screen(for step: Int) -> some View {
         switch steps[step] {
         case .welcome:
-            WelcomePage()
+            WelcomeScreen()
         case .tutorial:
-            TutorialPage(
+            TutorialScreen(
                 step: tutorialStep,
                 editButtonPhase: $tutorialEditButtonPhase,
                 deletePhase: $tutorialDeletePhase,
@@ -241,7 +241,7 @@ struct OnboardingScreen: View {
                 jigglePhase: $tutorialJigglePhase
             )
         case .permissions:
-            PermissionsPage(
+            OnboardingPermissionScreen(
                 healthState: healthState,
                 locationStatus: locationStatus,
                 calendarState: calendarState,
@@ -488,7 +488,7 @@ struct OnboardingScreen: View {
             return
         }
 
-        withAnimation(pageAnimation(isMovingBackward: isMovingBackward)) {
+        withAnimation(screenAnimation(isMovingBackward: isMovingBackward)) {
             tutorialStep = step
         }
 
@@ -702,7 +702,7 @@ struct OnboardingScreen: View {
         let sourceStep = currentStep
         previousStep = sourceStep
         let isMovingBackward = step < currentStep
-        let animation = pageAnimation(isMovingBackward: isMovingBackward)
+        let animation = screenAnimation(isMovingBackward: isMovingBackward)
 
         if currentStep == 0, step > 0 {
             withAnimation(topBarShowAnimation.delay(0.1)) {
@@ -714,8 +714,8 @@ struct OnboardingScreen: View {
             }
         }
 
-        if shouldCrossfadePagedMove(from: sourceStep, to: step) {
-            fadePagedMove(to: step)
+        if shouldCrossfadeScreenMove(from: sourceStep, to: step) {
+            fadeScreenMove(to: step)
             return
         }
 
@@ -725,33 +725,33 @@ struct OnboardingScreen: View {
         }
 
         if !reduceMotion {
-            pageStageUsesBlur = true
-            pageStageVisible = false
+            screenStageUsesBlur = true
+            screenStageVisible = false
             withAnimation(.smooth(duration: 0.34, extraBounce: 0).delay(0.04)) {
-                pageStageVisible = true
+                screenStageVisible = true
             }
         }
     }
 
-    private func shouldCrossfadePagedMove(from sourceStep: Int, to destinationStep: Int) -> Bool {
+    private func shouldCrossfadeScreenMove(from sourceStep: Int, to destinationStep: Int) -> Bool {
         guard steps.indices.contains(sourceStep), steps.indices.contains(destinationStep) else { return false }
 
         return (steps[sourceStep] == .tutorial && steps[destinationStep] == .permissions)
             || (steps[sourceStep] == .permissions && steps[destinationStep] == .tutorial)
     }
 
-    private func fadePagedMove(to step: Int) {
+    private func fadeScreenMove(to step: Int) {
         guard !reduceMotion else {
             currentStep = step
             renderedStep = step
             return
         }
 
-        pageStageUsesBlur = true
+        screenStageUsesBlur = true
         currentStep = step
 
         withAnimation(.smooth(duration: 0.3, extraBounce: 0)) {
-            pageStageVisible = false
+            screenStageVisible = false
         }
 
         Task { @MainActor in
@@ -767,12 +767,12 @@ struct OnboardingScreen: View {
             await nextFrame()
 
             withAnimation(.smooth(duration: 0.34, extraBounce: 0).delay(0.04)) {
-                pageStageVisible = true
+                screenStageVisible = true
             }
         }
     }
 
-    private func pageAnimation(isMovingBackward: Bool) -> Animation? {
+    private func screenAnimation(isMovingBackward: Bool) -> Animation? {
         guard !reduceMotion else { return nil }
 
         if isMovingBackward {

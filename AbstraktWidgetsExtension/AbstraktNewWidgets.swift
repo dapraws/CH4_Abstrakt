@@ -451,6 +451,14 @@ private extension SavedWidgetPreset {
     }
 }
 
+private extension Optional where Wrapped == SavedWidgetPreset {
+    func resolvedColorScheme(fallback colorScheme: ColorScheme) -> ColorScheme {
+        self?.colorSchemeOverride
+            ?? AbstraktAppearancePreference.sharedAppPreference.colorSchemeOverride
+            ?? colorScheme
+    }
+}
+
 // MARK: - Widget Views
 
 private struct SmallSolidWidgetView: View {
@@ -459,7 +467,7 @@ private struct SmallSolidWidgetView: View {
 
     var body: some View {
         content
-            .environment(\.colorScheme, entry.selectedPreset?.colorSchemeOverride ?? colorScheme)
+            .environment(\.colorScheme, entry.selectedPreset.resolvedColorScheme(fallback: colorScheme))
     }
 
     @ViewBuilder
@@ -554,7 +562,7 @@ private struct MediumSolidWidgetView: View {
 
     var body: some View {
         content
-            .environment(\.colorScheme, entry.selectedPreset?.colorSchemeOverride ?? colorScheme)
+            .environment(\.colorScheme, entry.selectedPreset.resolvedColorScheme(fallback: colorScheme))
     }
 
     @ViewBuilder
@@ -578,7 +586,7 @@ private struct LargeSolidWidgetView: View {
 
     var body: some View {
         content
-            .environment(\.colorScheme, entry.selectedPreset?.colorSchemeOverride ?? colorScheme)
+            .environment(\.colorScheme, entry.selectedPreset.resolvedColorScheme(fallback: colorScheme))
     }
 
     @ViewBuilder

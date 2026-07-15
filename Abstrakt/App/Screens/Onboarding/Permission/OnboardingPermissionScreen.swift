@@ -1,7 +1,7 @@
 import CoreLocation
 import SwiftUI
 
-struct PermissionsPage: View {
+struct OnboardingPermissionScreen: View {
     @Environment(\.colorScheme) private var colorScheme
 
     let healthState: HealthPermissionState

@@ -5,6 +5,7 @@ enum AppColors {
     static let topFade = dynamicColor(light: 0xF0F2FC, dark: 0x17171D)
     static let card = dynamicColor(light: 0xF7F8FD, dark: 0x1D1D24)
     static let cardSoft = dynamicColor(light: 0xECEEF7, dark: 0x22222B)
+    static let liveActivityCard = dynamicColor(light: 0xFAFAFC, dark: 0x22222B)
     static let miniAppEmptySlot = dynamicColor(light: 0xE2E5EF, dark: 0x30303A)
     static let miniAppEmptySlotBorder = dynamicColor(light: 0xC9CEDC, dark: 0x3B3B46)
     static let chip = dynamicColor(light: 0xFCFCFC, dark: 0x070707)

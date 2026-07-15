@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct TutorialPage: View {
+struct TutorialScreen: View {
     let step: TutorialStep
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -430,7 +430,7 @@ enum TutorialStep: CaseIterable {
 #Preview("Tutorial Step") {
     AppColors.appBackground
         .overlay {
-            TutorialPage(
+            TutorialScreen(
                 step: .edit,
                 editButtonPhase: .constant(true),
                 deletePhase: .constant(true),

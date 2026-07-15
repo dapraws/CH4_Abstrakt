@@ -23,6 +23,11 @@ enum AppFontRole {
     case widgetBody
     case widgetCaption
     case widgetMeta
+    case liveActivityTitle
+    case liveActivitySection
+    case liveActivityLabel
+    case liveActivityHelper
+    case liveActivityControl
 }
 
 enum AppFontTheme: String, CaseIterable, Identifiable {
@@ -265,6 +270,26 @@ private struct BaseFontToken {
             size = 9
             weight = .semibold
             lineSpacing = 0
+        case .liveActivityTitle:
+            size = 18
+            weight = .bold
+            lineSpacing = 0
+        case .liveActivitySection:
+            size = 16
+            weight = .bold
+            lineSpacing = 0
+        case .liveActivityLabel:
+            size = 9
+            weight = .semibold
+            lineSpacing = 0
+        case .liveActivityHelper:
+            size = 11
+            weight = .medium
+            lineSpacing = 0
+        case .liveActivityControl:
+            size = 10
+            weight = .semibold
+            lineSpacing = 0
         }
     }
 }
@@ -276,9 +301,9 @@ private extension AppFontTheme {
             switch role {
             case .homeDisplay, .display, .title, .heading1, .widgetDisplay, .widgetTitle:
                 return 0.89
-            case .heading2, .heading3, .heading4, .body, .subBody, .subHeading, .widgetHeading, .widgetBody:
+            case .heading2, .heading3, .heading4, .body, .subBody, .subHeading, .widgetHeading, .widgetBody, .liveActivityTitle, .liveActivitySection, .liveActivityHelper:
                 return 0.91
-            case .caption, .meta, .chip, .tab, .iconBadge, .widgetCaption, .widgetMeta:
+            case .caption, .meta, .chip, .tab, .iconBadge, .widgetCaption, .widgetMeta, .liveActivityLabel, .liveActivityControl:
                 return 0.92
             }
         case .quicksand:
@@ -287,9 +312,9 @@ private extension AppFontTheme {
             switch role {
             case .homeDisplay, .display, .title, .heading1, .widgetDisplay, .widgetTitle:
                 return 0.74
-            case .heading2, .heading3, .heading4, .body, .subBody, .subHeading, .widgetHeading, .widgetBody:
+            case .heading2, .heading3, .heading4, .body, .subBody, .subHeading, .widgetHeading, .widgetBody, .liveActivityTitle, .liveActivitySection, .liveActivityHelper:
                 return 0.78
-            case .caption, .meta, .chip, .tab, .iconBadge, .widgetCaption, .widgetMeta:
+            case .caption, .meta, .chip, .tab, .iconBadge, .widgetCaption, .widgetMeta, .liveActivityLabel, .liveActivityControl:
                 return 0.82
             }
         }
@@ -305,9 +330,9 @@ private extension AppFontTheme {
             switch role {
             case .homeDisplay, .display, .title, .heading1, .widgetDisplay, .widgetTitle:
                 return -6
-            case .heading2, .heading3, .heading4, .body, .subBody, .subHeading, .widgetHeading, .widgetBody:
+            case .heading2, .heading3, .heading4, .body, .subBody, .subHeading, .widgetHeading, .widgetBody, .liveActivityTitle, .liveActivitySection, .liveActivityHelper:
                 return -5
-            case .caption, .meta, .chip, .tab, .iconBadge, .widgetCaption, .widgetMeta:
+            case .caption, .meta, .chip, .tab, .iconBadge, .widgetCaption, .widgetMeta, .liveActivityLabel, .liveActivityControl:
                 return -3
             }
         }

@@ -69,6 +69,56 @@ enum AbstraktWidgetFontTheme: String, CaseIterable, Identifiable {
     private static let storageKey = "appFontTheme"
 }
 
+// MARK: - Appearance
+
+enum AbstraktAppearancePreference: String, CaseIterable, Identifiable {
+    case light
+    case dark
+    case system
+
+    static let storageKey = "settings.appearance"
+
+    var id: String { rawValue }
+
+    var iconName: String {
+        switch self {
+        case .light:
+            "sun.max.fill"
+        case .dark:
+            "moon.fill"
+        case .system:
+            "rectangle.portrait.fill"
+        }
+    }
+
+    var colorSchemeOverride: ColorScheme? {
+        switch self {
+        case .light:
+            .light
+        case .dark:
+            .dark
+        case .system:
+            nil
+        }
+    }
+
+    static var sharedAppPreference: AbstraktAppearancePreference {
+        from(
+            id: AbstraktAppGroup.defaults?.string(forKey: storageKey)
+                ?? UserDefaults.standard.string(forKey: storageKey)
+                ?? system.id
+        )
+    }
+
+    static func from(id: String) -> AbstraktAppearancePreference {
+        Self(rawValue: id) ?? .system
+    }
+
+    func resolvedColorScheme(fallback: ColorScheme) -> ColorScheme {
+        colorSchemeOverride ?? fallback
+    }
+}
+
 // MARK: - Font Factory
 
 enum AbstraktWidgetFonts {

@@ -51,10 +51,15 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Core/Services/Location/LocationProvider.swift,
-				LiveActivities/Battery/BatteryActivityAttributes.swift,
-				LiveActivities/Battery/BatteryChargingLiveActivity.swift,
-				LiveActivities/CompactModeActivity.swift,
-				LiveActivities/LiveActivityTypography.swift,
+				LiveActivities/DynamicIslandActivity.swift,
+				LiveActivities/Expanded/ExpandedActivity.swift,
+				LiveActivities/LiveActivity/LockScreenActivity.swift,
+					LiveActivities/Shared/DynamicIslandActivityAttributes.swift,
+					LiveActivities/Shared/LiveActivityEmptyState.swift,
+					LiveActivities/Shared/LiveActivityItemRenderer.swift,
+				LiveActivities/Shared/LiveActivityTypography.swift,
+				LiveActivities/Shared/LiveActivityWidget.swift,
+				LiveActivities/SmartPills/SmartPillIslandRegion.swift,
 			);
 			target = 2A4000023FE959D7004BC514 /* AbstraktWidgetsExtension */;
 		};
