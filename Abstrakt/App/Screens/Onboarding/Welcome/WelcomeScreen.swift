@@ -126,7 +126,9 @@ struct WelcomeScreen: View {
             onboardingWidgetImage("widgets_dark")
                 .opacity(colorScheme == .dark ? 1 : 0)
         }
-        .animation(.smooth(duration: 0.25), value: colorScheme)
+        .transaction { transaction in
+            transaction.animation = nil
+        }
         .opacity(0.64)
         .mask {
             widgetIllustrationFade

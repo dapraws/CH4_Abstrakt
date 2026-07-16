@@ -126,7 +126,6 @@ private struct TutorialArtwork: View {
                 widgetSearchLayer
                     .allowsHitTesting(false)
             }
-            .mask(containerFadeMask)
             .transaction { transaction in
                 if step == .tapAndHold {
                     transaction.animation = nil
@@ -134,22 +133,24 @@ private struct TutorialArtwork: View {
             }
         }
         .compositingGroup()
-        .saturation(colorScheme == .dark ? 0.92 : 1)
-        .contrast(colorScheme == .dark ? 0.97 : 1)
-        .brightness(colorScheme == .dark ? -0.02 : 0)
+        .saturation(colorScheme == .dark ? 0.96 : 1)
+        .contrast(colorScheme == .dark ? 1.03 : 1)
+        .brightness(colorScheme == .dark ? 0.04 : 0)
         .overlay {
-            if colorScheme == .dark {
-                darkModeTone
-                    .blendMode(.multiply)
-            }
+            darkModeTone
+                .opacity(colorScheme == .dark ? 1 : 0)
+                .blendMode(.screen)
         }
         .overlay {
-            if colorScheme == .dark {
-                darkModeLift
-                    .blendMode(.screen)
-            }
+            darkModeLift
+                .opacity(colorScheme == .dark ? 1 : 0)
+                .blendMode(.screen)
         }
         .frame(width: artworkSize.width, height: artworkSize.height)
+        .mask(artworkFadeMask)
+        .transaction { transaction in
+            transaction.animation = nil
+        }
     }
     
     private var widgetSearchLayer: some View {
@@ -229,10 +230,6 @@ private struct TutorialArtwork: View {
             .position(editPopoverPosition)
     }
     
-    private var containerFadeMask: some View {
-        halfHeightFadeMask
-    }
-    
     private var sheetInteriorFade: some View {
         halfHeightFadeMask
     }
@@ -266,6 +263,28 @@ private struct TutorialArtwork: View {
         .frame(width: artworkSize.width, height: artworkSize.height)
     }
     
+    private var artworkFadeMask: some View {
+        VStack(spacing: 0) {
+            Rectangle()
+                .fill(.black)
+                .frame(height: artworkSize.height * 0.43)
+
+            LinearGradient(
+                stops: [
+                    .init(color: .black, location: 0),
+                    .init(color: .black.opacity(0.95), location: 0.16),
+                    .init(color: .black.opacity(0.76), location: 0.4),
+                    .init(color: .black.opacity(0.42), location: 0.68),
+                    .init(color: .black.opacity(0.14), location: 0.88),
+                    .init(color: .clear, location: 1),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+        .frame(width: artworkSize.width, height: artworkSize.height)
+    }
+    
     private var tutorialBackground: some View {
         Image("tutorial_bg")
             .resizable()
@@ -276,8 +295,8 @@ private struct TutorialArtwork: View {
     private var darkModeTone: some View {
         LinearGradient(
             colors: [
-                Color(red: 0.27, green: 0.28, blue: 0.36).opacity(0.34),
-                Color(red: 0.18, green: 0.19, blue: 0.26).opacity(0.22)
+                Color(red: 0.42, green: 0.43, blue: 0.68).opacity(0.22),
+                Color(red: 0.34, green: 0.35, blue: 0.54).opacity(0.12)
             ],
             startPoint: .top,
             endPoint: .bottom
@@ -294,7 +313,7 @@ private struct TutorialArtwork: View {
     private var darkModeLift: some View {
         RadialGradient(
             colors: [
-                Color(red: 0.52, green: 0.54, blue: 0.76).opacity(0.36),
+                Color(red: 0.66, green: 0.68, blue: 0.96).opacity(0.2),
                 Color.clear
             ],
             center: .top,
