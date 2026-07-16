@@ -145,7 +145,8 @@ private struct LiveActivityPreviewControlCard: View {
                 } label: {
                     OnboardingPermissionToggle(
                         isOn: state.isLiveActivityEnabled,
-                        isEnabled: !state.isUpdatingLiveActivity
+                        isEnabled: !state.isUpdatingLiveActivity,
+                        inactiveTrackColor: AppColors.controlInactive
                     )
                     .scaleEffect(0.88)
                     .frame(width: 54, height: 34)

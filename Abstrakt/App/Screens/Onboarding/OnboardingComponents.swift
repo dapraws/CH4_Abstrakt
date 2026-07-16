@@ -113,6 +113,7 @@ struct OnboardingPermissionRow: View {
 struct OnboardingPermissionToggle: View {
     let isOn: Bool
     let isEnabled: Bool
+    var inactiveTrackColor: Color = AppColors.cardSoft
 
     var body: some View {
         ZStack(alignment: isOn ? .trailing : .leading) {
@@ -151,7 +152,7 @@ struct OnboardingPermissionToggle: View {
         if isOn {
             return AppColors.accentPurple
         }
-        return isEnabled ? AppColors.cardSoft : AppColors.cardSoft.opacity(0.7)
+        return isEnabled ? inactiveTrackColor : inactiveTrackColor.opacity(0.7)
     }
 }
 

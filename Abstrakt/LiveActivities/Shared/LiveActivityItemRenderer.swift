@@ -361,7 +361,7 @@ struct LiveActivityItemRenderer: View {
         _ day: (weekday: String, date: String, isToday: Bool)
     ) -> some View {
         if day.isToday {
-            let activeShape = RoundedRectangle(cornerRadius: 17, style: .continuous)
+            let activeShape = RoundedRectangle(cornerRadius: 15, style: .continuous)
 
             ZStack(alignment: .bottom) {
                     LinearGradient(
@@ -407,7 +407,7 @@ struct LiveActivityItemRenderer: View {
                 activeShape
                     .stroke(.white.opacity(0.16), lineWidth: 1)
             }
-            .shadow(color: .orange.opacity(0.22), radius: 9, x: 0, y: 4)
+            .shadow(color: .orange.opacity(0.16), radius: 9, x: 0, y: 3)
         } else {
             VStack(spacing: 5) {
                 Text(day.weekday)

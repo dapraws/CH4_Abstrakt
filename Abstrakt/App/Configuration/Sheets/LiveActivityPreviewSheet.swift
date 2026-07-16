@@ -30,9 +30,14 @@ struct LiveActivityPreviewSheet: View {
         static let sheetHeaderBottomPadding: CGFloat = 14
         static let sheetSeparatorPadding: CGFloat = 12
         static let expandedScrollTopAnchor = "live-activity-expanded-scroll-top"
+        static let topScrollTolerance: CGFloat = 0.5
+        static let collapsedOpenDragThreshold: CGFloat = -24
     }
     
     @Environment(LiveActivitiesState.self) private var state
+    @State private var isContentScrolledToTop = true
+    @State private var isTrackingContentDrag = false
+    @State private var didStartContentDragAtTop = false
     let availableWidth: CGFloat
     var animationNamespace: Namespace.ID
     
@@ -77,14 +82,19 @@ struct LiveActivityPreviewSheet: View {
                         }
                     }
                     .scrollDisabled(!state.isPickerExpanded)
-                    .coordinateSpace(.named("SCROLL"))
+                    .onScrollGeometryChange(for: Bool.self) { geometry in
+                        geometry.contentOffset.y <= geometry.contentInsets.top + Metrics.topScrollTolerance
+                    } action: { _, isAtTop in
+                        isContentScrolledToTop = isAtTop
+                    }
                     .contentShape(Rectangle())
                     .simultaneousGesture(
-                        DragGesture(minimumDistance: 10)
+                        DragGesture(minimumDistance: 1)
+                            .onChanged { value in
+                                handleContentDragChanged(value)
+                            }
                             .onEnded { value in
-                                if !state.isPickerExpanded && value.translation.height < -15 {
-                                    state.setPickerExpanded(true)
-                                }
+                                handleContentDragEnded(value)
                             }
                     )
                     .onChange(of: state.isPickerExpanded, initial: true) {
@@ -157,6 +167,59 @@ struct LiveActivityPreviewSheet: View {
         }
     }
     
+    private func handleContentDragChanged(_ value: DragGesture.Value) {
+        captureContentDragStartIfNeeded()
+        collapseExpandedSheetFromTopDrag(value)
+    }
+    
+    private func captureContentDragStartIfNeeded() {
+        guard !isTrackingContentDrag else { return }
+        
+        isTrackingContentDrag = true
+        didStartContentDragAtTop = isScrollAtTop
+    }
+    
+    private func handleContentDragEnded(_ value: DragGesture.Value) {
+        defer {
+            resetContentDragTracking()
+        }
+        
+        guard !state.isPickerExpanded else { return }
+        
+        expandCollapsedSheetFromContentDrag(value)
+    }
+    
+    private func collapseExpandedSheetFromTopDrag(_ value: DragGesture.Value) {
+        guard state.isPickerExpanded,
+              isTrackingContentDrag,
+              didStartContentDragAtTop,
+              isVerticalDrag(value),
+              value.translation.height > 0 else { return }
+        
+        resetContentDragTracking()
+        state.setPickerExpanded(false)
+    }
+    
+    private func expandCollapsedSheetFromContentDrag(_ value: DragGesture.Value) {
+        guard isVerticalDrag(value),
+              value.translation.height < Metrics.collapsedOpenDragThreshold else { return }
+        
+        state.setPickerExpanded(true)
+    }
+    
+    private func resetContentDragTracking() {
+        isTrackingContentDrag = false
+        didStartContentDragAtTop = false
+    }
+    
+    private var isScrollAtTop: Bool {
+        isContentScrolledToTop
+    }
+    
+    private func isVerticalDrag(_ value: DragGesture.Value) -> Bool {
+        abs(value.translation.height) > abs(value.translation.width)
+    }
+    
     private var appSeparator: some View {
         GeometryReader { geo in
             Path { path in
@@ -207,12 +270,6 @@ struct LiveActivityPreviewSheet: View {
                         alignment: .top
                     )
                     .fixedSize(horizontal: false, vertical: true)
-                    .clipShape(
-                        RoundedRectangle(
-                            cornerRadius: activityPreviewCornerRadius,
-                            style: .continuous
-                        )
-                    )
                     .overlay(alignment: .topLeading) {
                         if isSelected(item) {
                             Image(systemName: "checkmark.seal.fill")

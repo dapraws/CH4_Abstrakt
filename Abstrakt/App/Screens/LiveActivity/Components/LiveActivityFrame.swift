@@ -29,12 +29,19 @@ struct LiveActivityFrame: View {
         static let liveActivityTopControlPadding: CGFloat = 24
         static let actionTopPadding: CGFloat = 6
         static let liveActivityControlsTopPadding: CGFloat = 8
-        static let slotButtonSize: CGFloat = 34
+        static let slotButtonSize: CGFloat = 40
         static let compactWidgetScale: CGFloat = 0.58
         static let previewWidgetScale: CGFloat = 0.56
+        static let activeSlotBorderOutset: CGFloat = 4
+        static let activeSlotBorderCornerRadius: CGFloat = 27
+        static let activeSlotBorderLineWidth: CGFloat = 2
+        static let activeSlotBorderDash: [CGFloat] = [28, 400]
+        static let activeSlotBorderLeftPhase: CGFloat = -164
+        static let activeSlotBorderRightPhase: CGFloat = -4
     }
     
     @Environment(LiveActivitiesState.self) private var state
+    @Environment(\.colorScheme) private var colorScheme
     @State private var dragOffset: CGFloat = 0
     let availableWidth: CGFloat
     var animationNamespace: Namespace.ID
@@ -53,6 +60,10 @@ struct LiveActivityFrame: View {
     
     private var pageStride: CGFloat {
         Metrics.baseWidth + Metrics.pageSpacing
+    }
+    
+    private var controlForegroundStyle: Color {
+        colorScheme == .dark ? .white : AppColors.primaryText
     }
     
     var body: some View {
@@ -201,14 +212,14 @@ struct LiveActivityFrame: View {
                 if isLiveActivity {
                     liveActivityControlRow(hasSelection: state.hasSelection(for: mode))
                         .padding(.top, Metrics.liveActivityControlsTopPadding)
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .transition(.liveActivityControl)
                 } else if state.hasSelection(for: mode) {
                     actionPill(for: mode)
                         .padding(.top, Metrics.actionTopPadding)
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .transition(.liveActivityControl)
                 }
             }
-            .animation(.smooth(duration: 0.26, extraBounce: 0.02), value: selectedWidget?.id)
+            .animation(.smooth(duration: 0.3, extraBounce: 0), value: selectedWidget?.id)
             .padding(.top, isLiveActivity ? Metrics.liveActivityTopControlPadding : Metrics.topControlPadding)
         }
     }
@@ -219,9 +230,10 @@ struct LiveActivityFrame: View {
 
             if hasSelection {
                 actionPill(for: .lockScreen)
+                    .transition(.liveActivityControl)
             }
         }
-        .animation(.smooth(duration: 0.22, extraBounce: 0.01), value: hasSelection)
+        .animation(.smooth(duration: 0.28, extraBounce: 0), value: hasSelection)
     }
 
     private var liveActivityStyleMenu: some View {
@@ -245,12 +257,13 @@ struct LiveActivityFrame: View {
                     .font(.system(size: 10, weight: .black, design: .rounded))
             }
             .font(AppFonts.font(.liveActivityControl))
-            .foregroundStyle(.white)
+            .foregroundStyle(controlForegroundStyle)
             .padding(.horizontal, 15)
             .padding(.vertical, 8)
             .liveActivityControlGlass(cornerRadius: 20)
         }
         .buttonStyle(.plain)
+        .contentShape(.rect(cornerRadius: 20, style: .continuous))
     }
     
     private func surfacePreviewHeight(
@@ -267,35 +280,61 @@ struct LiveActivityFrame: View {
     }
     
     private var compactSlotBar: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: Metrics.slotBarCornerRadius, style: .continuous)
-                .fill(Color.black)
-            
-            HStack {
-                slotButton(
-                    widget: state.selectedLeadingWidget,
-                    isActive: state.activeSelectionSlot == .leading
-                ) {
-                    state.toggleSelection(for: .leading)
-                }
-                
-                Spacer(minLength: 24)
-                
-                slotButton(
-                    widget: state.selectedTrailingWidget,
-                    isActive: state.activeSelectionSlot == .trailing
-                ) {
-                    state.toggleSelection(for: .trailing)
-                }
+        RoundedRectangle(cornerRadius: Metrics.slotBarCornerRadius, style: .continuous)
+            .fill(Color.black)
+            .frame(width: Metrics.slotBarWidth, height: Metrics.slotBarHeight)
+            .overlay {
+                activeSlotBorder
             }
-            .padding(.horizontal, 9)
-        }
-        .frame(width: Metrics.slotBarWidth, height: Metrics.slotBarHeight)
+            .overlay {
+                HStack {
+                    slotButton(
+                        widget: state.selectedLeadingWidget
+                    ) {
+                        state.toggleSelection(for: .leading)
+                    }
+                    
+                    Spacer(minLength: 24)
+                    
+                    slotButton(
+                        widget: state.selectedTrailingWidget
+                    ) {
+                        state.toggleSelection(for: .trailing)
+                    }
+                }
+                .padding(.horizontal, 0)
+            }
+    }
+    
+    private var activeSlotBorder: some View {
+        RoundedRectangle(cornerRadius: Metrics.activeSlotBorderCornerRadius, style: .continuous)
+            .strokeBorder(
+                style: StrokeStyle(
+                    lineWidth: Metrics.activeSlotBorderLineWidth,
+                    lineCap: .round,
+                    lineJoin: .round,
+                    dash: Metrics.activeSlotBorderDash,
+                    dashPhase: activeSlotBorderDashPhase
+                )
+            )
+            .foregroundStyle(Color.black)
+            .frame(
+                width: Metrics.slotBarWidth + Metrics.activeSlotBorderOutset * 2,
+                height: Metrics.slotBarHeight + Metrics.activeSlotBorderOutset * 2
+            )
+            .shadow(color: .black.opacity(0.14), radius: 2, x: 0, y: 1)
+            .animation(.spring(response: 0.48, dampingFraction: 0.76, blendDuration: 0.08), value: state.activeSelectionSlot)
+            .allowsHitTesting(false)
+    }
+    
+    private var activeSlotBorderDashPhase: CGFloat {
+        state.activeSelectionSlot == .leading
+            ? Metrics.activeSlotBorderLeftPhase
+            : Metrics.activeSlotBorderRightPhase
     }
     
     private func slotButton(
         widget: LiveActivityWidget?,
-        isActive: Bool,
         action: @escaping () -> Void
     ) -> some View {
         Button {
@@ -320,10 +359,6 @@ struct LiveActivityFrame: View {
                 }
             }
             .frame(width: Metrics.slotButtonSize, height: Metrics.slotButtonSize)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(isActive ? Color.white.opacity(0.08) : Color.clear)
-            )
         }
         .buttonStyle(.plain)
     }
@@ -337,7 +372,7 @@ struct LiveActivityFrame: View {
             }
             
             Text("|")
-                .foregroundStyle(.white.opacity(0.55))
+                .foregroundStyle(controlForegroundStyle.opacity(0.55))
             
             Button("Delete") {
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
@@ -346,10 +381,11 @@ struct LiveActivityFrame: View {
             }
         }
         .font(AppFonts.font(.liveActivityControl))
-        .foregroundStyle(.white)
-        .padding(.horizontal, 14)
+        .foregroundStyle(controlForegroundStyle)
+        .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .liveActivityControlGlass(cornerRadius: 20)
+        .liveActivityControlGlass(cornerRadius: 18)
+        .contentShape(.rect(cornerRadius: 18, style: .continuous))
     }
     
     private func previewCanvas<Content: View>(
@@ -396,21 +432,85 @@ struct LiveActivityFrame: View {
     }
 }
 
+private struct LiveActivityControlTransitionModifier: ViewModifier {
+    let isVisible: Bool
+    
+    func body(content: Content) -> some View {
+        content
+            .opacity(isVisible ? 1 : 0)
+            .scaleEffect(isVisible ? 1 : 0.96)
+            .blur(radius: isVisible ? 0 : 4)
+            .offset(y: isVisible ? 0 : 6)
+    }
+}
+
+private struct LiveActivityControlGlassModifier: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+    
+    let cornerRadius: CGFloat
+    
+    func body(content: Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        
+        content
+            .background {
+                shape
+                    .fill(baseFill)
+                    .overlay {
+                        shape
+                            .fill(
+                                LinearGradient(
+                                    colors: highlightColors,
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    }
+                    .overlay {
+                        shape
+                            .strokeBorder(strokeColor, lineWidth: 0.8)
+                    }
+            }
+    }
+    
+    private var baseFill: Color {
+        colorScheme == .dark
+            ? Color.black.opacity(0.62)
+            : Color.white.opacity(0.46)
+    }
+    
+    private var highlightColors: [Color] {
+        colorScheme == .dark
+            ? [
+                .white.opacity(0.08),
+                .white.opacity(0.02),
+                .white.opacity(0.05)
+            ]
+            : [
+                .white.opacity(0.40),
+                .white.opacity(0.12),
+                .black.opacity(0.02)
+            ]
+    }
+    
+    private var strokeColor: Color {
+        colorScheme == .dark
+            ? .white.opacity(0.08)
+            : .white.opacity(0.40)
+    }
+}
+
 private extension View {
-    @ViewBuilder
     func liveActivityControlGlass(cornerRadius: CGFloat) -> some View {
-        if #available(iOS 26.0, *) {
-            self.glassEffect(
-                .regular
-                    .tint(Color.black.opacity(0.24))
-                    .interactive(),
-                in: .rect(cornerRadius: cornerRadius)
-            )
-        } else {
-            self
-                .background(.ultraThinMaterial)
-                .background(Color.black.opacity(0.72))
-                .clipShape(.rect(cornerRadius: cornerRadius, style: .continuous))
-        }
+        modifier(LiveActivityControlGlassModifier(cornerRadius: cornerRadius))
+    }
+}
+
+private extension AnyTransition {
+    static var liveActivityControl: AnyTransition {
+        .modifier(
+            active: LiveActivityControlTransitionModifier(isVisible: false),
+            identity: LiveActivityControlTransitionModifier(isVisible: true)
+        )
     }
 }
