@@ -124,6 +124,8 @@ Abstrakt/
 - Settings Appearance controls the host app's preferred color scheme. Home Screen widget appearance remains widget/preset specific, and ActivityKit surfaces keep their own black/glass treatment.
 - Haptics are part of the interaction contract for primary buttons, bottom navigation, library/gallery sheets, Live Activity mode changes, and item selection.
 - Onboarding/tutorial illustration fades should use `AppColors.appBackground` so light and dark modes blend into the real app canvas.
+- Live Activity frame previews own shared interaction chrome: Smart Pills side contours, the stepper, `Glass`/`Solid`, and `Edit | Delete`. Keep those controls centralized so every ActivityKit state behaves consistently across device sizes.
+- Live Activity preview sheets should derive item height from the renderer and keep ordinary list scrolling. Sheet expand/collapse gestures should not steal scroll events unless the list is already at its top.
 
 ## MVVM Architecture
 

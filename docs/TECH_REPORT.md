@@ -167,4 +167,7 @@ The current implementation direction is therefore:
 - state renderers live under `LiveActivities/SmartPills`, `LiveActivities/Expanded`, and `LiveActivities/LiveActivity`;
 - shared typography, item rendering, and empty states live under `LiveActivities/Shared`;
 - app previews live in the Live Activity screen and configuration sheet, but should call the same renderers the real ActivityKit extension uses;
-- glass/solid is a Lock Screen Live Activity visual choice only.
+- glass/solid is a Lock Screen Live Activity visual choice only;
+- shared interaction chrome such as Smart Pills side contours, the stepper, `Glass`/`Solid`, and `Edit | Delete` should be centralized in the app preview frame rather than duplicated inside each renderer.
+
+The main UI lesson from the Dynamic Island work was that scroll and preview chrome need to feel boringly predictable. Preview sheets should scroll like normal lists, expand before list scrolling when collapsed, and collapse from a pull only when the list is already at its top. Anything more clever tends to feel janky quickly.

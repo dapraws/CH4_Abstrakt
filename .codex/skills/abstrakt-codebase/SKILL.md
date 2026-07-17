@@ -57,6 +57,9 @@ Abstrakt is a SwiftUI iOS app for discovering, configuring, saving, and previewi
 - Glass should use Apple's Liquid Glass APIs where available and should not stack an opaque internal background over the native material.
 - Preview items in sheets can show selected overlays (`checkmark.seal.fill`, `L`, `R`); frame previews and actual ActivityKit surfaces should not.
 - Keep preview and actual ActivityKit dimensions aligned by using shared renderer sizing, not per-device magic numbers.
+- Smart Pills active-side feedback is a contour overlay on the phone-frame island. It should animate left/right with a soft spring, not resize the island or use a heavy selected pill fill.
+- `Glass`/`Solid` and `Edit | Delete` controls share the same subtle glass styling. Avoid square clipping around materials, shadows, or menu transitions.
+- Expanded Live Activity sheets should scroll like normal lists. Collapse only from a downward pull when the list is already at its top; do not use broad drag thresholds that steal normal scroll gestures.
 
 ## Flow Rules
 

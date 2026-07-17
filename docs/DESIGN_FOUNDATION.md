@@ -181,6 +181,9 @@ ActivityKit surfaces use their own sizing rules:
 - Expanded and Lock Screen item titles in preview sheets use primary text color so they remain readable in light mode.
 - Selected-state badges (`checkmark.seal.fill`, `L`, and `R`) are overlay badges on preview items only. Do not show those badges inside the Dynamic Island frame preview or the actual ActivityKit surface.
 - Badge transitions should use fade, blur, and gentle rotation rather than scale pops.
+- Compact Smart Pills use a subtle contour indicator around the selected left/right slot in the phone-frame preview. The indicator is an overlay on the island, not a resized island, and should animate its dash phase with a soft spring when the selected side changes.
+- Shared Live Activity controls such as `Glass`/`Solid` and `Edit | Delete` should use the same quiet glass control treatment: subtle material, low-contrast boundary, no harsh square clipping, and smooth fade/slide/blur transitions.
+- Keep ActivityKit preview item heights content-driven. The preview sheet can scale the rendered item for browsing, but it should not clip the bottom radius, hide labels, or require per-device height tweaks when a renderer changes.
 
 ### Home Screen Sizes
 
@@ -212,6 +215,7 @@ Preview sheet rules:
 - The widget render, future form controls, and bottom save button live in separate visual layers.
 - The bottom save button should sit above the phone bottom with padding comparable to the app bottom bar.
 - Opening and closing should use subtle movement and backdrop fading without a visible dark band following the sheet.
+- Live Activity preview sheets should scroll normally. If the sheet is collapsed and the user scrolls down, expand the sheet before consuming list scroll. If the sheet is expanded and the list is already at its top, a downward pull may collapse the sheet; otherwise, scrolling should remain regular list scrolling.
 
 ### Settings Picker Pattern
 

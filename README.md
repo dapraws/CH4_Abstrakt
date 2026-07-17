@@ -164,6 +164,7 @@ The current app foundation includes:
 - Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity can choose different activity items, but they are driven by one ActivityKit activity and one Dynamic Island enable toggle.
 - Runtime ActivityKit rendering should use provider/cache values or the explicit add/empty state. Static demo numbers belong only in Xcode previews.
 - Lock Screen Live Activity supports `Glass` and `Solid` visual modes. Live Activity surfaces intentionally do not inherit the app Appearance setting.
+- Smart Pills active-side feedback, Live Activity glass controls, and preview-sheet scroll/collapse behavior are part of the interaction contract. Keep these shared through the existing Live Activity frame/sheet components instead of reimplementing them per state.
 
 ### Data & permissions
 
@@ -283,6 +284,7 @@ Live Activity implementation contract:
 - `LiveActivity` renders only Lock Screen and notification Live Activity items. It owns the `Glass`/`Solid` visual mode and should not inherit the host app Appearance setting.
 - `Core/Services/LiveActivities/LiveActivitiesState.swift` is the source of truth for selected activity items, side selection, visual mode, haptics, and ActivityKit start/update/end behavior.
 - Activity previews in the app should use the same renderer, typography, sizing intent, and corner-radius language as ActivityKit. If a preview needs to fit a sheet, scale the preview container instead of changing internal layout math.
+- Shared controls such as `Glass`/`Solid` and `Edit | Delete` should use the same subtle glass treatment across Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity previews.
 - Runtime activity data must come from provider/cache-backed snapshots or a deliberate add/empty state. Static fixtures belong only in Xcode previews.
 - `Edit | Delete`, `Glass/Solid`, selected badges, and side badges are controls around the preview. Selected badges (`checkmark.seal.fill`, `L`, `R`) should overlay sheet preview items only, not the actual island or lockscreen activity.
 

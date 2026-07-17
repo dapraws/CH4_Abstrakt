@@ -144,6 +144,9 @@ Live Activity state rules:
 - The single Dynamic Island toggle may start/update/end one ActivityKit activity, but each state should render its own selected item or its explicit add/empty state.
 - `Glass`/`Solid` belongs only to the Lock Screen Live Activity surface.
 - Selected badges belong to sheet preview items only; never show `checkmark.seal.fill`, `L`, or `R` inside the actual island/lockscreen renderer.
+- Smart Pills active-side feedback belongs to the phone-frame preview as a contour overlay around the island. Do not resize the island or use a heavy selected background for that state.
+- `Glass`/`Solid` and `Edit | Delete` controls should share one subtle glass control style, with no visible square clipping around material or shadow.
+- Live Activity preview sheet scrolling should stay simple: collapsed sheets expand before list scrolling, and expanded sheets collapse only when the list is already at its top and the user pulls down.
 
 ## Documentation Rule
 

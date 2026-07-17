@@ -72,6 +72,9 @@ Live Activity configuration rules:
 - Changing mode between Smart Pills, Expanded, and Live Activity should animate with fade/blur movement and fire selection haptics.
 - Selecting or clearing an item should update the preview immediately and update a running ActivityKit activity without requiring the user to toggle Dynamic Island off and on.
 - Smart Pills selection can choose left or right placement; one side stays selected until the user changes sides or taps the selected item again to clear.
+- Smart Pills active state in the phone-frame preview is a subtle contour overlay around the selected side of the island. It should not resize the island, draw a heavy pill background, or appear as a selected badge inside the actual ActivityKit region.
 - Expanded and Lock Screen Live Activity items stay selected until the selected item is tapped again.
 - The Lock Screen Live Activity visual menu defaults to `Glass`; `Solid` is the fallback for users who prefer a black surface.
+- `Glass`/`Solid` and `Edit | Delete` controls should share the same subtle glass control styling and stay close to the selected island content.
 - In the phone-frame preview, an unselected expanded or lockscreen state shows only the black/add island surface. The richer "Add Activity" copy is reserved for the actual phone ActivityKit surface when Dynamic Island is on.
+- Preview sheets should scroll normally. Collapsed sheets expand on upward content intent before list scrolling; expanded sheets collapse only from a downward pull when the preview list is already at its top.

@@ -101,6 +101,7 @@ ActivityKit implementation notes:
 - `Glass` mode should use Liquid Glass/native material where supported and avoid opaque inner containers that obscure the system material.
 - `Solid` mode may use a black activity surface, but should still avoid an extra native-background-looking wrapper around the renderer.
 - Updating selections should update the running ActivityKit activity immediately; users should not need to toggle Dynamic Island off and on to refresh content.
+- Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity should share provider-backed render data but keep state-specific selection. Preview chrome such as side contours, glass menus, and edit/delete controls belongs in the app preview layer, not in the provider or ActivityKit data model.
 
 ## Suggested Service Layout
 
