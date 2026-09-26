@@ -271,7 +271,7 @@ struct GradientWidget: View {
     @ViewBuilder
     private func fractalPrismBackground(width w: CGFloat, height h: CGFloat) -> some View {
         // Wide fluted glass / prism texture (approx 18pt width per panel)
-        let slatCount = max(8, Int((w / 18.0).rounded()))
+        let slatCount = max(8, Int((w / 16.0).rounded()))
         let slatWidth = w / CGFloat(slatCount)
 
         ZStack {
@@ -308,11 +308,10 @@ struct GradientWidget: View {
                     // Fluted 3D cylinder bevel: Shadow crease on left, luminous highlight ridge on right
                     LinearGradient(
                         stops: [
-                            .init(color: Color.black.opacity(0.24), location: 0.0),
-                            .init(color: Color.black.opacity(0.06), location: 0.20),
-                            .init(color: Color.clear, location: 0.45),
-                            .init(color: Color.white.opacity(0.08), location: 0.80),
-                            .init(color: Color.white.opacity(0.24), location: 1.0)
+                            .init(color: Color.black.opacity(0.06), location: 0.0),
+                            .init(color: Color.clear, location: 0.24),
+                            .init(color: Color.white.opacity(0.04), location: 0.80),
+                            .init(color: Color.white.opacity(0.1), location: 1.0)
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
@@ -478,6 +477,11 @@ private enum GrainTextureGenerator {
     }()
 }
 
+#Preview("Gradient Small - Fractal") {
+    GradientWidget(gradientTheme: .fractalPrism)
+        .frame(width: 170, height: 170)
+}
+
 #Preview("Gradient Small - Ruby") {
     GradientWidget(gradientTheme: .rubyAurora)
         .frame(width: 170, height: 170)
@@ -485,6 +489,11 @@ private enum GrainTextureGenerator {
 
 #Preview("Gradient Small - Cyan") {
     GradientWidget(gradientTheme: .midnightCyan)
+        .frame(width: 170, height: 170)
+}
+
+#Preview("Gradient Small - Amber") {
+    GradientWidget(gradientTheme: .sunsetAmber)
         .frame(width: 170, height: 170)
 }
 

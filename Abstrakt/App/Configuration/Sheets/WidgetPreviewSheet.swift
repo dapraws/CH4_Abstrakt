@@ -1685,9 +1685,10 @@ private struct GradientPickerRow: View {
                                         ForEach(0..<4, id: \.self) { _ in
                                             LinearGradient(
                                                 stops: [
-                                                    .init(color: Color.black.opacity(0.24), location: 0.0),
-                                                    .init(color: Color.clear, location: 0.45),
-                                                    .init(color: Color.white.opacity(0.24), location: 1.0)
+                                                    .init(color: Color.black.opacity(0.06), location: 0.0),
+                                                    .init(color: Color.clear, location: 0.24),
+                                                    .init(color: Color.white.opacity(0.04), location: 0.80),
+                                                    .init(color: Color.white.opacity(0.10), location: 1.0)
                                                 ],
                                                 startPoint: .leading,
                                                 endPoint: .trailing
@@ -1762,6 +1763,26 @@ private struct GradientPickerRow: View {
         .background(AppColors.cardSoft)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .frame(maxWidth: 360)
+    }
+}
+
+#Preview("Widget Preview Sheet — Gradient Small") {
+    if let item = WidgetCatalog.item(withID: "gradient") {
+        WidgetPreviewSheetPresentation(
+            item: item,
+            actionStyle: .saveToLibrary,
+            onDismiss: {}
+        )
+    }
+}
+
+#Preview("Widget Preview Sheet — Gradient Medium") {
+    if let item = WidgetCatalog.item(withID: "gradient-medium") {
+        WidgetPreviewSheetPresentation(
+            item: item,
+            actionStyle: .saveToLibrary,
+            onDismiss: {}
+        )
     }
 }
 
