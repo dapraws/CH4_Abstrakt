@@ -12,7 +12,7 @@ This repository is a native SwiftUI app, not a reusable library. The product goa
 ## Current State
 
 - The codebase is in active product iteration.
-- Existing widget folders include `Battery`, `Steps`, `Activity`, `Calendar`, `Events`, `Portal`, `Reminder`, `Sleep`, `Storage`, `Today`, `Weather`, `Daylight`, and `HeartRate`.
+- Existing widget folders include `Battery`, `Steps`, `Activity`, `Calendar`, `Events`, `Portal`, `Reminder`, `Sleep`, `Storage`, `Today`, `Weather`, `Daylight`, `HeartRate`, `Clock`, and `Gradient`.
 - Live Activity code is split by ActivityKit state under `Abstrakt/LiveActivities/SmartPills`, `Expanded`, `LiveActivity`, and `Shared`.
 - Shared theme, persistence, constants, services, widget-size tokens, and activity typography are part of the product contract.
 - Documentation should stay current with implementation whenever a feature or structure changes.

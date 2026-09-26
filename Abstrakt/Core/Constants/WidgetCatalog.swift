@@ -14,7 +14,10 @@ nonisolated enum WidgetCatalog {
         "calendar",
         "storage",
         "weather",
-        "daylight"
+        "daylight",
+        "clock",
+        "gradient",
+        "gradient-medium"
     ]
 
     private static let chipOrder: [WidgetCategory] = [
@@ -123,6 +126,29 @@ nonisolated enum WidgetCatalog {
             categories: [.healthKit],
             isPro: false
         ),
+        WidgetCatalogItem(
+            id: "clock",
+            name: "Clock",
+            size: .small,
+            categories: [.foundation],
+            isPro: false
+        ),
+        WidgetCatalogItem(
+            id: "gradient",
+            name: "Gradient",
+            size: .small,
+            categories: [.weatherKit],
+            customizations: [.gradientVariation],
+            isPro: false
+        ),
+        WidgetCatalogItem(
+            id: "gradient-medium",
+            name: "Gradient",
+            size: .medium,
+            categories: [.weatherKit],
+            customizations: [.gradientVariation],
+            isPro: false
+        ),
     ]
 
     static var featuredCategories: [WidgetCategory] {
@@ -142,7 +168,16 @@ nonisolated enum WidgetCatalog {
     }
 
     static func item(withID id: String) -> WidgetCatalogItem? {
-        items.first { $0.id == id }
+        if let exact = items.first(where: { $0.id == id }) {
+            return exact
+        }
+        if id == "weather-editorial" {
+            return items.first { $0.id == "gradient" }
+        }
+        if id == "weather-editorial-medium" {
+            return items.first { $0.id == "gradient-medium" }
+        }
+        return nil
     }
 
     static func sortPresets(_ presets: [WidgetPreset]) -> [WidgetPreset] {
@@ -177,6 +212,9 @@ nonisolated enum WidgetCatalog {
             "storage",
             "weather",
             "daylight",
+            "clock",
+            "gradient",
+            "gradient-medium",
         ],
         .portal: [
             "portal",
@@ -191,6 +229,8 @@ nonisolated enum WidgetCatalog {
             "today",
             "daylight",
             "weather",
+            "gradient",
+            "gradient-medium",
         ],
         .eventKit: [
             "reminder",
@@ -202,6 +242,7 @@ nonisolated enum WidgetCatalog {
             "today",
             "calendar",
             "storage",
+            "clock",
         ],
         .uiKit: [
             "battery",

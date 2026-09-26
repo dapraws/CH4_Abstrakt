@@ -2,8 +2,8 @@ import AppIntents
 import Foundation
 
 struct SmallSolidWidgetIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Solid Small Widget"
-    static var description = IntentDescription("Displays a small solid color widget.")
+    static var title: LocalizedStringResource = "Abstrakt Small Widget"
+    static var description = IntentDescription("Displays a small Abstrakt widget.")
     
     @Parameter(title: "Widget", query: SmallSavedWidgetQuery())
     var preset: SavedWidgetEntity?
@@ -20,8 +20,8 @@ struct SmallSolidWidgetIntent: WidgetConfigurationIntent {
 }
 
 struct MediumSolidWidgetIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Solid Medium Widget"
-    static var description = IntentDescription("Displays a medium solid color widget.")
+    static var title: LocalizedStringResource = "Abstrakt Medium Widget"
+    static var description = IntentDescription("Displays a medium Abstrakt widget.")
     
     @Parameter(title: "Widget", query: MediumSavedWidgetQuery())
     var preset: SavedWidgetEntity?
@@ -38,8 +38,8 @@ struct MediumSolidWidgetIntent: WidgetConfigurationIntent {
 }
 
 struct LargeSolidWidgetIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Solid Large Widget"
-    static var description = IntentDescription("Displays a large solid color widget.")
+    static var title: LocalizedStringResource = "Abstrakt Large Widget"
+    static var description = IntentDescription("Displays a large Abstrakt widget.")
     
     @Parameter(title: "Widget", query: LargeSavedWidgetQuery())
     var preset: SavedWidgetEntity?

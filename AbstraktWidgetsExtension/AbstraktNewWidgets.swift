@@ -157,7 +157,7 @@ struct SmallSolidWidget: Widget {
         AppIntentConfiguration(kind: kind, intent: SmallSolidWidgetIntent.self, provider: SmallSolidWidgetProvider()) { entry in
             SmallSolidWidgetView(entry: entry)
         }
-        .configurationDisplayName("Solid Widget")
+        .configurationDisplayName("Abstrakt Widget")
         .description("Small Widget")
         .supportedFamilies([.systemSmall])
         .contentMarginsDisabled()
@@ -171,7 +171,7 @@ struct MediumSolidWidget: Widget {
         AppIntentConfiguration(kind: kind, intent: MediumSolidWidgetIntent.self, provider: MediumSolidWidgetProvider()) { entry in
             MediumSolidWidgetView(entry: entry)
         }
-        .configurationDisplayName("Solid Widget")
+        .configurationDisplayName("Abstrakt Widget")
         .description("Medium Widget")
         .supportedFamilies([.systemMedium])
         .contentMarginsDisabled()
@@ -185,7 +185,7 @@ struct LargeSolidWidget: Widget {
         AppIntentConfiguration(kind: kind, intent: LargeSolidWidgetIntent.self, provider: LargeSolidWidgetProvider()) { entry in
             LargeSolidWidgetView(entry: entry)
         }
-        .configurationDisplayName("Solid Widget")
+        .configurationDisplayName("Abstrakt Widget")
         .description("Large Widget")
         .supportedFamilies([.systemLarge])
         .contentMarginsDisabled()
@@ -550,6 +550,27 @@ private struct SmallSolidWidgetView: View {
                 fontTheme: entry.fontTheme,
                 clipsToWidgetShape: false
             )
+        case "clock":
+            ClockWidget(
+                snapshot: ClockSnapshot(date: entry.date),
+                fontTheme: entry.fontTheme,
+                clipsToWidgetShape: false
+            )
+        case "gradient", "weather-editorial":
+            GradientWidget(
+                snapshot: GradientSnapshot(
+                    date: entry.date,
+                    cityName: WidgetSharedStore.portalWeatherPlaceName,
+                    temperature: WidgetSharedStore.weatherTemperatureCelsius,
+                    highTemperature: WidgetSharedStore.weatherHighCelsius,
+                    lowTemperature: WidgetSharedStore.weatherLowCelsius,
+                    conditionCode: "weather",
+                    conditionDescription: "\(WidgetSharedStore.weatherConditionLabel.lowercased()) weather ahead."
+                ),
+                fontTheme: entry.fontTheme,
+                gradientTheme: WidgetSharedStore.gradientTheme(isMedium: false),
+                clipsToWidgetShape: false
+            )
         default:
             InstructionSolidWidgetView()
         }
@@ -572,6 +593,21 @@ private struct MediumSolidWidgetView: View {
             TodayWidget(
                 snapshot: entry.today.renderSnapshot,
                 fontTheme: entry.fontTheme,
+                clipsToWidgetShape: false
+            )
+        case "gradient", "gradient-medium", "weather-editorial", "weather-editorial-medium":
+            GradientWidget(
+                snapshot: GradientSnapshot(
+                    date: entry.date,
+                    cityName: WidgetSharedStore.portalWeatherPlaceName,
+                    temperature: WidgetSharedStore.weatherTemperatureCelsius,
+                    highTemperature: WidgetSharedStore.weatherHighCelsius,
+                    lowTemperature: WidgetSharedStore.weatherLowCelsius,
+                    conditionCode: "weather",
+                    conditionDescription: "\(WidgetSharedStore.weatherConditionLabel.lowercased()) weather ahead."
+                ),
+                fontTheme: entry.fontTheme,
+                gradientTheme: WidgetSharedStore.gradientTheme(isMedium: true),
                 clipsToWidgetShape: false
             )
         default:
@@ -861,10 +897,28 @@ private extension Date {
     SmallSolidWidgetEntry.preview(selectedWidgetID: "storage")
 }
 
+#Preview("Small - Clock", as: .systemSmall) {
+    SmallSolidWidget()
+} timeline: {
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "clock")
+}
+
+#Preview("Small - Gradient", as: .systemSmall) {
+    SmallSolidWidget()
+} timeline: {
+    SmallSolidWidgetEntry.preview(selectedWidgetID: "gradient")
+}
+
 #Preview("Medium - Today", as: .systemMedium) {
     MediumSolidWidget()
 } timeline: {
     MediumSolidWidgetEntry.preview(selectedWidgetID: "today")
+}
+
+#Preview("Medium - Gradient", as: .systemMedium) {
+    MediumSolidWidget()
+} timeline: {
+    MediumSolidWidgetEntry.preview(selectedWidgetID: "gradient-medium")
 }
 
 #Preview("Large - Choose Widget", as: .systemLarge) {

@@ -88,6 +88,7 @@ Abstrakt/
 │   ├── Activity/
 │   ├── Battery/
 │   ├── Calendar/
+│   ├── Clock/
 │   ├── Daylight/
 │   ├── Events/
 │   ├── HeartRate/
@@ -97,7 +98,8 @@ Abstrakt/
 │   ├── Steps/
 │   ├── Storage/
 │   ├── Today/
-│   └── Weather/
+│   ├── Weather/
+│   └── Gradient/
 ├── LiveActivities/
 │   ├── DynamicIslandActivity.swift
 │   ├── SmartPills/
@@ -232,6 +234,7 @@ Per-widget customization examples:
 | Portal | Six-app MiniApps picker and icon clip styles, shared with WidgetKit through App Group storage. |
 | Activity | Today/Weekly display mode, shared with WidgetKit through App Group storage. |
 | Events | Upcoming/Current priority mode, shared with WidgetKit through App Group storage. |
+| Gradient | 4 Selectable Themes (`Ruby`, `Cyan`, `Fractal`, `Amber`) with unified dark atmospheric contrast. |
 
 Because of that, customization belongs to `App/Configuration/` plus widget-specific configuration sheets inside each widget folder.
 

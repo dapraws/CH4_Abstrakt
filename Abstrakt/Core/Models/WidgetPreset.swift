@@ -118,5 +118,26 @@ extension WidgetPreset {
             size: .small,
             appearanceMode: .system
         ),
+        WidgetPreset(
+            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0014") ?? UUID(),
+            widgetID: "clock",
+            name: "Clock",
+            size: .small,
+            appearanceMode: .system
+        ),
+        WidgetPreset(
+            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0015") ?? UUID(),
+            widgetID: "gradient",
+            name: "Gradient",
+            size: .small,
+            appearanceMode: .system
+        ),
+        WidgetPreset(
+            id: UUID(uuidString: "2E0F6F8A-0EF8-4F0D-A63E-70F7EF7A0016") ?? UUID(),
+            widgetID: "gradient-medium",
+            name: "Gradient",
+            size: .medium,
+            appearanceMode: .system
+        ),
     ]
 }

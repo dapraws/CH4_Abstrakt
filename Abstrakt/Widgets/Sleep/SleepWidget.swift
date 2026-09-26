@@ -184,8 +184,8 @@ struct SleepWidget: View {
                     }
                 }
             }
-            .padding(.vertical, 15)
-            .padding(.horizontal, 17)
+            .padding(.top, 18)
+            .padding(.horizontal, 18)
 
             Spacer(minLength: 0)
 
@@ -206,8 +206,8 @@ struct SleepWidget: View {
                 )
                 .frame(maxWidth: .infinity)
             }
-            .padding(.horizontal, 10)
-            .padding(.bottom, 10)
+            .padding(.horizontal, 14)
+            .padding(.bottom, 14)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -230,7 +230,7 @@ struct SleepWidget: View {
                 .minimumScaleFactor(0.78)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 7)
+        .padding(.horizontal, 8)
         .frame(height: 32)
         .background(palette.cardBackground)
         .clipShape(
@@ -266,7 +266,7 @@ struct SleepWidget: View {
                 .lineLimit(2)
                 .minimumScaleFactor(0.76)
         }
-        .padding(12)
+        .padding(18)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 

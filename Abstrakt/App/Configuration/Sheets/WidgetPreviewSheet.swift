@@ -168,6 +168,16 @@ private struct WidgetPreviewSheetContent: View {
         AppGroupConstants.reminderSelectedTitleKey,
         store: settingsStore
     ) private var reminderSelectedTitle = ""
+    @AppStorage(
+        AppGroupConstants.gradientSmallThemeKey,
+        store: settingsStore
+    ) private var gradientSmallThemeID =
+        GradientTheme.defaultTheme.id
+    @AppStorage(
+        AppGroupConstants.gradientMediumThemeKey,
+        store: settingsStore
+    ) private var gradientMediumThemeID =
+        GradientTheme.defaultTheme.id
     @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID =
         AppFonts.defaultTheme.id
     @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore)
@@ -182,6 +192,32 @@ private struct WidgetPreviewSheetContent: View {
     @State private var appearanceMode: WidgetAppearanceMode = .system
     @State private var fontThemeID: String?
     @State private var initialConfiguration: WidgetSheetConfigurationSnapshot?
+
+    private var activeGradientThemeID: String {
+        item.size == .medium ? gradientMediumThemeID : gradientSmallThemeID
+    }
+
+    private var gradientTheme: GradientTheme {
+        get {
+            GradientTheme.from(id: activeGradientThemeID)
+        }
+        nonmutating set {
+            if item.size == .medium {
+                gradientMediumThemeID = newValue.id
+            } else {
+                gradientSmallThemeID = newValue.id
+            }
+            WidgetTimelineReloadScheduler.schedule()
+        }
+    }
+
+    private var gradientThemeBinding: Binding<GradientTheme> {
+        Binding {
+            gradientTheme
+        } set: { newValue in
+            gradientTheme = newValue
+        }
+    }
 
     private var portalSelectedApps: [PortalApp] {
         get {
@@ -423,6 +459,12 @@ private struct WidgetPreviewSheetContent: View {
                 ) {
                     showsReminderPicker = true
                 }
+            }
+        case .gradientVariation:
+            WidgetCustomizationSection(title: "Gradient Theme") {
+                GradientPickerRow(
+                    selection: gradientThemeBinding
+                )
             }
         }
     }
@@ -697,6 +739,7 @@ private struct WidgetPreviewSheetContent: View {
             supports(.activityMode) ? activityModeID : nil,
             supports(.eventMode) ? eventModeID : nil,
             supports(.reminderItem) ? reminderSelectedIdentifier : nil,
+            supports(.gradientVariation) ? activeGradientThemeID : nil,
         ].compactMap { $0 }
     }
 
@@ -714,7 +757,9 @@ private struct WidgetPreviewSheetContent: View {
                 ? portalIconClipStyle : nil,
             activityModeOverride: supports(.activityMode) ? activityMode : nil,
             eventModeOverride: supports(.eventMode) ? eventMode : nil,
-            fontThemeOverride: selectedWidgetFontTheme
+            fontThemeOverride: selectedWidgetFontTheme,
+            gradientThemeOverride: supports(.gradientVariation)
+                ? gradientTheme : nil
         )
     }
 
@@ -754,7 +799,8 @@ private struct WidgetPreviewSheetContent: View {
             portalIconClipStyleID: portalIconClipStyleID,
             activityModeID: activityModeID,
             eventModeID: eventModeID,
-            reminderSelectedIdentifier: reminderSelectedIdentifier
+            reminderSelectedIdentifier: reminderSelectedIdentifier,
+            gradientThemeID: activeGradientThemeID
         )
     }
 
@@ -789,7 +835,8 @@ private struct WidgetPreviewSheetContent: View {
             portalIconClipStyleID: portalIconClipStyleID,
             activityModeID: activityModeID,
             eventModeID: eventModeID,
-            reminderSelectedIdentifier: reminderSelectedIdentifier
+            reminderSelectedIdentifier: reminderSelectedIdentifier,
+            gradientThemeID: activeGradientThemeID
         )
     }
 
@@ -810,6 +857,7 @@ private struct WidgetSheetConfigurationSnapshot: Equatable {
     let activityModeID: String
     let eventModeID: String
     let reminderSelectedIdentifier: String
+    let gradientThemeID: String
 }
 
 private struct WidgetCustomizationSection<Content: View>: View {
@@ -1542,3 +1590,178 @@ private struct WidgetPreviewPrimaryButtonContent: View {
         }
     }
 }
+
+private struct GradientPickerRow: View {
+    @Binding var selection: GradientTheme
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(GradientTheme.allCases) { theme in
+                let isSelected = selection == theme
+
+                Button {
+                    Haptics.selection.play()
+                    withAnimation(.smooth(duration: 0.20)) {
+                        selection = theme
+                    }
+                } label: {
+                    VStack(spacing: 5) {
+                        ZStack {
+                            if theme == .sunsetAmber {
+                                // Dark obsidian with organic cascading falling amber blobs
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .fill(Color(red: 0.05, green: 0.05, blue: 0.06))
+                                    .overlay {
+                                        GeometryReader { swatchProxy in
+                                            let sw = swatchProxy.size.width
+                                            let sh = swatchProxy.size.height
+                                            ZStack {
+                                                // Ambient Base Floor Light
+                                                Ellipse()
+                                                    .fill(Color(red: 0.70, green: 0.22, blue: 0.03).opacity(0.70))
+                                                    .frame(width: sw * 1.5, height: sh * 0.9)
+                                                    .position(x: sw * 0.50, y: sh * 1.05)
+                                                    .blur(radius: 6)
+
+                                                // Left spill
+                                                Ellipse()
+                                                    .fill(Color(red: 0.85, green: 0.28, blue: 0.04).opacity(0.65))
+                                                    .frame(width: sw * 0.80, height: sh * 0.55)
+                                                    .position(x: sw * 0.15, y: sh * 0.95)
+                                                    .blur(radius: 5)
+
+                                                // Rising cascade blob
+                                                Ellipse()
+                                                    .fill(Color(red: 0.95, green: 0.38, blue: 0.06).opacity(0.90))
+                                                    .frame(width: sw * 0.95, height: sh * 0.75)
+                                                    .rotationEffect(.degrees(-15))
+                                                    .position(x: sw * 0.78, y: sh * 0.82)
+                                                    .blur(radius: 5)
+
+                                                // Hot radiant flare
+                                                Ellipse()
+                                                    .fill(
+                                                        RadialGradient(
+                                                            colors: [
+                                                                Color(red: 1.00, green: 0.68, blue: 0.20),
+                                                                Color(red: 0.98, green: 0.42, blue: 0.08).opacity(0.90),
+                                                                Color.clear
+                                                            ],
+                                                            center: .center,
+                                                            startRadius: 0,
+                                                            endRadius: 18
+                                                        )
+                                                    )
+                                                    .frame(width: sw * 0.85, height: sh * 0.65)
+                                                    .position(x: sw * 0.80, y: sh * 0.90)
+                                                    .blur(radius: 4)
+
+                                                // Specular spark
+                                                Circle()
+                                                    .fill(Color(red: 1.00, green: 0.84, blue: 0.48).opacity(0.95))
+                                                    .frame(width: sw * 0.36, height: sw * 0.36)
+                                                    .position(x: sw * 0.82, y: sh * 0.94)
+                                                    .blur(radius: 3)
+                                            }
+                                        }
+                                    }
+                                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                    .frame(width: 44, height: 44)
+                            } else if theme == .fractalPrism {
+                                // Fluted Reeded Glass / Fractal Prism Swatch
+                                ZStack {
+                                    LinearGradient(
+                                        stops: [
+                                            .init(color: Color(red: 0.14, green: 0.03, blue: 0.18), location: 0.0),
+                                            .init(color: Color(red: 0.56, green: 0.06, blue: 0.28), location: 0.35),
+                                            .init(color: Color(red: 0.90, green: 0.20, blue: 0.20), location: 0.65),
+                                            .init(color: Color(red: 0.98, green: 0.68, blue: 0.28), location: 1.0)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+
+                                    HStack(spacing: 0) {
+                                        ForEach(0..<12, id: \.self) { _ in
+                                            LinearGradient(
+                                                stops: [
+                                                    .init(color: Color.black.opacity(0.20), location: 0.0),
+                                                    .init(color: Color.clear, location: 0.50),
+                                                    .init(color: Color.white.opacity(0.22), location: 1.0)
+                                                ],
+                                                startPoint: .leading,
+                                                endPoint: .trailing
+                                            )
+                                        }
+                                    }
+                                }
+                                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                .frame(width: 44, height: 44)
+                            } else {
+                                // Planetary Aurora Gradient Swatch
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: theme.baseGradient,
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .overlay(alignment: .topLeading) {
+                                        Circle()
+                                            .fill(theme.topLeftGlow)
+                                            .frame(width: 18, height: 18)
+                                            .blur(radius: 4)
+                                            .offset(x: 1, y: 1)
+                                    }
+                                    .overlay(alignment: .center) {
+                                        Circle()
+                                            .fill(theme.midFieldGlow)
+                                            .frame(width: 22, height: 22)
+                                            .blur(radius: 5)
+                                    }
+                                    .overlay(alignment: .bottomTrailing) {
+                                        Circle()
+                                            .fill(theme.bottomRightDome)
+                                            .frame(width: 22, height: 22)
+                                            .blur(radius: 4)
+                                            .offset(x: 2, y: 2)
+                                    }
+                                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                    .frame(width: 44, height: 44)
+                            }
+
+                            if isSelected {
+                                RoundedRectangle(cornerRadius: 23, style: .continuous)
+                                    .stroke(AppColors.primaryText, lineWidth: 2)
+                                    .frame(width: 50, height: 50)
+                                    .transition(.scale.combined(with: .opacity))
+                            }
+                        }
+                        .frame(width: 52, height: 52)
+
+                        Text(theme.displayName)
+                            .font(AppFonts.font(.caption))
+                            .foregroundStyle(
+                                isSelected
+                                    ? AppColors.primaryText
+                                    : AppColors.secondaryText
+                            )
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("\(theme.displayName) gradient theme")
+            }
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 6)
+        .background(AppColors.cardSoft)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .frame(maxWidth: 360)
+    }
+}
+

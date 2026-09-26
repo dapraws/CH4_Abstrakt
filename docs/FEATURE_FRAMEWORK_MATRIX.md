@@ -31,6 +31,8 @@ The catalog contains **13 widgets** spanning 5 distinct catalog categories:
 | **Daylight** | `.weather` | `WeatherKit` | `CoreLocation`, `Foundation`, `WidgetKit` | `WeatherProvider`, `LocationProvider` | `Small` | Computes sunrise and sunset times from solar events; shows next daylight event time, icon, and temperature bounds. |
 | **Weather** | `.weather` | `WeatherKit` | `CoreLocation`, `MapKit`, `Foundation`, `WidgetKit` | `WeatherProvider`, `LocationProvider` | `Small` | Reverse geocoded city name, WeatherKit temperature, high/low, and customized weather condition iconography. |
 | **Heart Rate** | `.health` | `HealthKit` | `WidgetKit`, `Foundation` | `HealthSummaryProvider` | `Small` | Queries the latest heart rate sample (`HKQuantityTypeIdentifier.heartRate`); displays BPM, heart icon, and relative timestamp (e.g. `47s ago`). |
+| **Clock** | `.foundation` | `Foundation` | `WidgetKit` | `ClockDataProvider` | `Small` | Analog Roman numeral dial with center hour watermark, accurate hour/minute hands, and red second needle with Dark/Light theme support. |
+| **Gradient** | `.weather` | `WeatherKit` | `CoreLocation`, `Foundation`, `WidgetKit` | `WeatherProvider`, `LocationProvider` | `Small`, `Medium` | Natural editorial weather summary sentences on 4 selectable styles (Ruby aurora, Cyan aurora, Fractal pleated prism, and Amber bottom contour light) with unified dark atmospheric contrast across light/dark appearances. |
 
 ---
 

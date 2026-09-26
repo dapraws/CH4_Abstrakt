@@ -43,6 +43,7 @@ enum WidgetCustomization: String, CaseIterable, Codable, Hashable, Identifiable 
     case activityMode
     case eventMode
     case reminderItem
+    case gradientVariation
 
     var id: String { rawValue }
 }

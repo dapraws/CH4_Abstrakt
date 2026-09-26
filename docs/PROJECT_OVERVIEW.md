@@ -53,7 +53,7 @@ Main App Shell (BottomBar Navigation)
 
 ---
 
-## The 13 Widgets in Abstrakt
+## The Widgets in Abstrakt
 
 | # | Widget | Category | Size | Primary Framework | Key Capabilities |
 |---|---|---|---|---|---|
@@ -70,6 +70,8 @@ Main App Shell (BottomBar Navigation)
 | 11 | **Daylight** | `.weather` | `Small` | `WeatherKit` | Solar event calculations (sunrise/sunset time and icon), temperature range. |
 | 12 | **Weather** | `.weather` | `Small` | `WeatherKit` | Reverse-geocoded place name, current condition symbol, temperature & bounds. |
 | 13 | **Heart Rate** | `.health` | `Small` | `HealthKit` | Live background BPM reading from HealthKit, relative sample timestamp. |
+| 14 | **Clock** | `.foundation` | `Small` | `Foundation` | Analog Roman numeral dial with center hour watermark, accurate hour/minute hands, and red second needle with Dark/Light theme support. |
+| 15 | **Gradient** | `.weather` | `Small`, `Medium` | `WeatherKit` | Natural editorial weather summary sentences on 4 selectable styles (Ruby aurora, Cyan aurora, Fractal pleated prism, and Amber bottom contour light) with unified dark atmospheric contrast across light/dark appearances. |
 
 ---
 

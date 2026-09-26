@@ -32,6 +32,12 @@ enum WidgetSharedStore {
     }
     private static let sharedWidgetPresetsKey = "shared.widget.presets"
     private static let appFontThemeKey = "appFontTheme"
+    private static let gradientSmallThemeKey = "gradient.small.theme"
+    private static let gradientMediumThemeKey = "gradient.medium.theme"
+    private static let gradientThemeKey = "gradient.theme"
+    private static let weatherEditorialSmallGradientKey = "weather.editorial.small.gradientTheme"
+    private static let weatherEditorialMediumGradientKey = "weather.editorial.medium.gradientTheme"
+    private static let weatherEditorialGradientKey = "weather.editorial.gradientTheme"
     private static let temperatureUnitKey = "settings.temperatureUnit"
     private static let distanceUnitKey = "settings.distanceUnit"
     private static let weatherConditionLabelKey =
@@ -70,6 +76,29 @@ enum WidgetSharedStore {
     private static var cachedFallbackStorage: (totalBytes: Int64, availableBytes: Int64, timestamp: Date)?
 
     private static var now: TimeInterval { Date().timeIntervalSince1970 }
+
+    static func gradientTheme(isMedium: Bool = false) -> GradientTheme {
+        let key = isMedium ? gradientMediumThemeKey : gradientSmallThemeKey
+        let legacyKey = isMedium ? weatherEditorialMediumGradientKey : weatherEditorialSmallGradientKey
+        let id = defaults?.string(forKey: key)
+            ?? defaults?.string(forKey: legacyKey)
+            ?? defaults?.string(forKey: gradientThemeKey)
+            ?? defaults?.string(forKey: weatherEditorialGradientKey)
+        return GradientTheme.from(id: id)
+    }
+
+    static var gradientTheme: GradientTheme {
+        gradientTheme(isMedium: false)
+    }
+
+    // Backward-compatibility aliases
+    static func weatherEditorialGradientTheme(isMedium: Bool = false) -> GradientTheme {
+        gradientTheme(isMedium: isMedium)
+    }
+
+    static var weatherEditorialGradientTheme: GradientTheme {
+        gradientTheme(isMedium: false)
+    }
 
     static var appFontTheme: AbstraktWidgetFontTheme {
         AbstraktWidgetFontTheme.from(

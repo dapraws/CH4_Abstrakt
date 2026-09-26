@@ -80,8 +80,11 @@ struct WidgetPreview: View {
     var activityModeOverride: ActivityMode?
     var eventModeOverride: EventDisplayMode?
     var fontThemeOverride: AbstraktWidgetFontTheme?
+    var gradientThemeOverride: GradientTheme?
     @AppStorage(AppFonts.appFontStorageKey) private var appFontThemeID = AppFonts.defaultTheme.id
     @AppStorage(AppGroupConstants.settingsAppFontThemeKey, store: settingsStore) private var sharedAppFontThemeID = AppFonts.defaultTheme.id
+    @AppStorage(AppGroupConstants.gradientSmallThemeKey, store: settingsStore) private var gradientSmallThemeID = GradientTheme.defaultTheme.id
+    @AppStorage(AppGroupConstants.gradientMediumThemeKey, store: settingsStore) private var gradientMediumThemeID = GradientTheme.defaultTheme.id
     @AppStorage(AppGroupConstants.portalSelectedAppsKey, store: settingsStore) private var portalSelectedAppsValue = PortalApp.storageValue(for: PortalApp.defaultSelection)
     @AppStorage(AppGroupConstants.portalIconClipStyleKey, store: settingsStore) private var portalIconClipStyleID = PortalIconClipStyle.default.id
     @AppStorage(AppGroupConstants.sharedHealthStepsKey, store: settingsStore) private var healthSteps = 0
@@ -137,6 +140,14 @@ struct WidgetPreview: View {
         }
 
         return AbstraktWidgetFontTheme.from(id: sharedAppFontThemeID.isEmpty ? appFontThemeID : sharedAppFontThemeID)
+    }
+
+    private var gradientTheme: GradientTheme {
+        if let gradientThemeOverride {
+            return gradientThemeOverride
+        }
+        let storedID = item.size == .medium ? gradientMediumThemeID : gradientSmallThemeID
+        return GradientTheme.from(id: storedID)
     }
 
     private var portalSelectedApps: [PortalApp] {
@@ -244,6 +255,17 @@ struct WidgetPreview: View {
                         snapshot: heartRateSnapshot,
                         fontTheme: widgetFontTheme
                     )
+                case "clock":
+                    ClockWidget(
+                        snapshot: ClockSnapshot(date: date),
+                        fontTheme: widgetFontTheme
+                    )
+                case "gradient", "gradient-medium", "weather-editorial", "weather-editorial-medium":
+                    GradientWidget(
+                        snapshot: gradientSnapshot,
+                        fontTheme: widgetFontTheme,
+                        gradientTheme: gradientTheme
+                    )
                 default:
                     widgetBackground
                         .overlay(alignment: .topLeading) {
@@ -260,6 +282,18 @@ struct WidgetPreview: View {
                 }
             }
         }
+
+    private var gradientSnapshot: GradientSnapshot {
+        GradientSnapshot(
+            date: Date(),
+            cityName: portalWeatherPlaceName.isEmpty ? "London" : portalWeatherPlaceName,
+            temperature: weatherTemperature,
+            highTemperature: weatherHigh,
+            lowTemperature: weatherLow,
+            conditionCode: "weather",
+            conditionDescription: "\(weatherConditionLabel.lowercased()) weather ahead."
+        )
+    }
 
     private var stepsSnapshot: StepsSnapshot {
         let unit = DistanceUnitPreference.from(id: distanceUnitID)

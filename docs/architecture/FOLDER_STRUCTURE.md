@@ -116,6 +116,8 @@ Abstrakt/
 │   │   └── BatteryWidget.swift
 │   ├── Calendar/
 │   │   └── CalendarWidget.swift
+│   ├── Clock/
+│   │   └── ClockWidget.swift
 │   ├── Daylight/
 │   │   └── DaylightWidget.swift
 │   ├── Events/
@@ -135,8 +137,11 @@ Abstrakt/
 │   │   └── StorageWidget.swift
 │   ├── Today/
 │   │   └── TodayWidget.swift
-│   └── Weather/
-│       └── WeatherWidget.swift
+│   ├── Weather/
+│   │   └── WeatherWidget.swift
+│   └── Gradient/
+│       ├── GradientTheme.swift
+│       └── GradientWidget.swift
 ├── LiveActivities/
 │   ├── DynamicIslandActivity.swift
 │   ├── SmartPills/
