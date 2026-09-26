@@ -1668,14 +1668,14 @@ private struct GradientPickerRow: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                                     .frame(width: 44, height: 44)
                             } else if theme == .fractalPrism {
-                                // Wide Fluted Reeded Glass / Fractal Prism Swatch
+                                // Monochromatic Wide Fluted Reeded Glass Swatch
                                 ZStack {
                                     LinearGradient(
                                         stops: [
-                                            .init(color: Color(red: 0.14, green: 0.03, blue: 0.18), location: 0.0),
-                                            .init(color: Color(red: 0.56, green: 0.06, blue: 0.28), location: 0.35),
-                                            .init(color: Color(red: 0.90, green: 0.20, blue: 0.20), location: 0.65),
-                                            .init(color: Color(red: 0.98, green: 0.68, blue: 0.28), location: 1.0)
+                                            .init(color: Color(white: 0.08), location: 0.0),
+                                            .init(color: Color(white: 0.22), location: 0.35),
+                                            .init(color: Color(white: 0.48), location: 0.70),
+                                            .init(color: Color(white: 0.80), location: 1.0)
                                         ],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
@@ -1685,10 +1685,10 @@ private struct GradientPickerRow: View {
                                         ForEach(0..<4, id: \.self) { _ in
                                             LinearGradient(
                                                 stops: [
-                                                    .init(color: Color.black.opacity(0.06), location: 0.0),
+                                                    .init(color: Color.black.opacity(0.10), location: 0.0),
                                                     .init(color: Color.clear, location: 0.24),
-                                                    .init(color: Color.white.opacity(0.04), location: 0.80),
-                                                    .init(color: Color.white.opacity(0.10), location: 1.0)
+                                                    .init(color: Color.white.opacity(0.08), location: 0.80),
+                                                    .init(color: Color.white.opacity(0.20), location: 1.0)
                                                 ],
                                                 startPoint: .leading,
                                                 endPoint: .trailing

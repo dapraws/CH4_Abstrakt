@@ -270,31 +270,31 @@ struct GradientWidget: View {
 
     @ViewBuilder
     private func fractalPrismBackground(width w: CGFloat, height h: CGFloat) -> some View {
-        // Wide fluted glass / prism texture (approx 18pt width per panel)
+        // Monochromatic wide fluted glass / prism texture
         let slatCount = max(8, Int((w / 16.0).rounded()))
         let slatWidth = w / CGFloat(slatCount)
 
         ZStack {
-            // Layer 1: Smooth atmospheric base gradient with our rich signature palette
+            // Layer 1: Smooth atmospheric monochromatic base gradient
             LinearGradient(
                 stops: [
-                    .init(color: Color(red: 0.14, green: 0.03, blue: 0.18), location: 0.0),   // Deep plum/wine
-                    .init(color: Color(red: 0.32, green: 0.04, blue: 0.25), location: 0.18),  // Dark magenta
-                    .init(color: Color(red: 0.60, green: 0.06, blue: 0.28), location: 0.36),  // Rich ruby
-                    .init(color: Color(red: 0.84, green: 0.10, blue: 0.26), location: 0.52),  // Crimson
-                    .init(color: Color(red: 0.94, green: 0.24, blue: 0.20), location: 0.68),  // Radiant coral
-                    .init(color: Color(red: 0.98, green: 0.48, blue: 0.18), location: 0.84),  // Fiery orange
-                    .init(color: Color(red: 0.98, green: 0.68, blue: 0.28), location: 1.0)    // Golden amber
+                    .init(color: Color(red: 0.06, green: 0.06, blue: 0.07), location: 0.0),   // Deep obsidian
+                    .init(color: Color(red: 0.12, green: 0.12, blue: 0.14), location: 0.18),  // Charcoal
+                    .init(color: Color(red: 0.22, green: 0.22, blue: 0.25), location: 0.36),  // Dark graphite
+                    .init(color: Color(red: 0.34, green: 0.34, blue: 0.38), location: 0.52),  // Titanium slate
+                    .init(color: Color(red: 0.48, green: 0.48, blue: 0.54), location: 0.68),  // Cool steel
+                    .init(color: Color(red: 0.64, green: 0.64, blue: 0.70), location: 0.84),  // Silver
+                    .init(color: Color(red: 0.80, green: 0.80, blue: 0.86), location: 1.0)    // Platinum sheen
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
 
-            // Layer 2: Radiant bottom-center warm bloom (reproducing the reference lighting)
+            // Layer 2: Radiant bottom-center soft silver bloom
             RadialGradient(
                 colors: [
-                    Color(red: 0.98, green: 0.46, blue: 0.16).opacity(0.38),
-                    Color(red: 0.88, green: 0.12, blue: 0.24).opacity(0.20),
+                    Color.white.opacity(0.18),
+                    Color(white: 0.70).opacity(0.08),
                     Color.clear
                 ],
                 center: .init(x: 0.55, y: 0.85),
@@ -302,16 +302,16 @@ struct GradientWidget: View {
                 endRadius: max(w, h) * 0.75
             )
 
-            // Layer 3: Wide 3D Fluted Glass / Reeded Prism Texture
+            // Layer 3: 3D Fluted Glass / Reeded Prism Texture
             HStack(spacing: 0) {
                 ForEach(0..<slatCount, id: \.self) { _ in
                     // Fluted 3D cylinder bevel: Shadow crease on left, luminous highlight ridge on right
                     LinearGradient(
                         stops: [
-                            .init(color: Color.black.opacity(0.06), location: 0.0),
+                            .init(color: Color.black.opacity(0.10), location: 0.0),
                             .init(color: Color.clear, location: 0.24),
-                            .init(color: Color.white.opacity(0.04), location: 0.80),
-                            .init(color: Color.white.opacity(0.1), location: 1.0)
+                            .init(color: Color.white.opacity(0.08), location: 0.80),
+                            .init(color: Color.white.opacity(0.20), location: 1.0)
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
@@ -321,39 +321,6 @@ struct GradientWidget: View {
             }
         }
         .frame(width: w, height: h)
-    }
-
-    private func fractalColor(at t: CGFloat) -> Color {
-        let clamped = max(0, min(1, t))
-        if clamped <= 0.15 {
-            let localT = clamped / 0.15
-            return interpolateColor(from: (0.16, 0.04, 0.20), to: (0.32, 0.05, 0.26), t: localT)
-        } else if clamped <= 0.30 {
-            let localT = (clamped - 0.15) / 0.15
-            return interpolateColor(from: (0.32, 0.05, 0.26), to: (0.56, 0.06, 0.28), t: localT)
-        } else if clamped <= 0.45 {
-            let localT = (clamped - 0.30) / 0.15
-            return interpolateColor(from: (0.56, 0.06, 0.28), to: (0.78, 0.08, 0.28), t: localT)
-        } else if clamped <= 0.60 {
-            let localT = (clamped - 0.45) / 0.15
-            return interpolateColor(from: (0.78, 0.08, 0.28), to: (0.90, 0.16, 0.24), t: localT)
-        } else if clamped <= 0.75 {
-            let localT = (clamped - 0.60) / 0.15
-            return interpolateColor(from: (0.90, 0.16, 0.24), to: (0.96, 0.36, 0.18), t: localT)
-        } else if clamped <= 0.90 {
-            let localT = (clamped - 0.75) / 0.15
-            return interpolateColor(from: (0.96, 0.36, 0.18), to: (0.98, 0.54, 0.20), t: localT)
-        } else {
-            let localT = (clamped - 0.90) / 0.10
-            return interpolateColor(from: (0.98, 0.54, 0.20), to: (0.96, 0.66, 0.32), t: localT)
-        }
-    }
-
-    private func interpolateColor(from: (r: Double, g: Double, b: Double), to: (r: Double, g: Double, b: Double), t: CGFloat) -> Color {
-        let r = from.r + (to.r - from.r) * Double(t)
-        let g = from.g + (to.g - from.g) * Double(t)
-        let b = from.b + (to.b - from.b) * Double(t)
-        return Color(red: r, green: g, blue: b)
     }
 
     @ViewBuilder

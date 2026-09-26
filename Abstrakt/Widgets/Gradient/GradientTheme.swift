@@ -36,7 +36,7 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
         case .midnightCyan:
             [Color(red: 0.04, green: 0.14, blue: 0.20), Color(red: 0.02, green: 0.06, blue: 0.10)]
         case .fractalPrism:
-            [Color(red: 0.72, green: 0.06, blue: 0.24), Color(red: 0.92, green: 0.68, blue: 0.46)]
+            [Color(white: 0.08), Color(white: 0.50)]
         case .sunsetAmber:
             [Color(red: 0.08, green: 0.08, blue: 0.09), Color(red: 0.14, green: 0.06, blue: 0.02)]
         }
@@ -49,7 +49,7 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
         case .midnightCyan:
             Color(red: 0.08, green: 0.32, blue: 0.44)
         case .fractalPrism:
-            Color(red: 0.88, green: 0.12, blue: 0.28)
+            Color(white: 0.15)
         case .sunsetAmber:
             Color(red: 0.06, green: 0.06, blue: 0.07)
         }
@@ -62,7 +62,7 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
         case .midnightCyan:
             Color(red: 0.10, green: 0.68, blue: 0.80)
         case .fractalPrism:
-            Color(red: 0.95, green: 0.46, blue: 0.16)
+            Color(white: 0.38)
         case .sunsetAmber:
             Color(red: 0.22, green: 0.08, blue: 0.02).opacity(0.80)
         }
@@ -75,7 +75,7 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
         case .midnightCyan:
             Color(red: 0.48, green: 0.90, blue: 0.95).opacity(0.35)
         case .fractalPrism:
-            Color(red: 0.98, green: 0.70, blue: 0.40).opacity(0.35)
+            Color(white: 0.88).opacity(0.35)
         case .sunsetAmber:
             Color(red: 0.98, green: 0.55, blue: 0.18).opacity(0.25)
         }
@@ -88,7 +88,7 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
         case .midnightCyan:
             Color(red: 0.08, green: 0.48, blue: 0.60).opacity(0.85)
         case .fractalPrism:
-            Color(red: 0.92, green: 0.35, blue: 0.12).opacity(0.85)
+            Color(white: 0.45).opacity(0.85)
         case .sunsetAmber:
             Color(red: 0.88, green: 0.34, blue: 0.05).opacity(0.88)
         }
@@ -101,7 +101,7 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
         case .midnightCyan:
             Color(red: 0.03, green: 0.08, blue: 0.12)
         case .fractalPrism:
-            Color(red: 0.92, green: 0.68, blue: 0.46)
+            Color(white: 0.70)
         case .sunsetAmber:
             Color(red: 1.00, green: 0.50, blue: 0.10)
         }
