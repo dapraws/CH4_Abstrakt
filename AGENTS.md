@@ -24,7 +24,9 @@ This repository is a native SwiftUI app, not a reusable library. The product goa
 3. [docs/FEATURE_FRAMEWORK_MATRIX.md](/Users/msafdev/Code/swift/Abstrakt/docs/FEATURE_FRAMEWORK_MATRIX.md)
 4. [docs/DESIGN_FOUNDATION.md](/Users/msafdev/Code/swift/Abstrakt/docs/DESIGN_FOUNDATION.md)
 5. [docs/architecture/FOLDER_STRUCTURE.md](/Users/msafdev/Code/swift/Abstrakt/docs/architecture/FOLDER_STRUCTURE.md)
-6. [.codex/skills/abstrakt-codebase/SKILL.md](/Users/msafdev/Code/swift/Abstrakt/.codex/skills/abstrakt-codebase/SKILL.md)
+6. [docs/product/WIDGET_LIBRARY_FLOW.md](/Users/msafdev/Code/swift/Abstrakt/docs/product/WIDGET_LIBRARY_FLOW.md)
+7. [docs/TECH_REPORT.md](/Users/msafdev/Code/swift/Abstrakt/docs/TECH_REPORT.md)
+8. [.codex/skills/abstrakt-codebase/SKILL.md](/Users/msafdev/Code/swift/Abstrakt/.codex/skills/abstrakt-codebase/SKILL.md)
 
 ## Product Direction
 

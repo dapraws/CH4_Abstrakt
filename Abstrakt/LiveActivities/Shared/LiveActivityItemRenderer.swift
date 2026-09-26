@@ -16,6 +16,7 @@ struct LiveActivityItemRenderer: View {
     var drawsActivitySurface = true
     var adaptsContentColorForGlass = false
     var activityTitleColor: Color? = nil
+    var isTest = false
 
     private var fontScale: CGFloat {
         if item.layout.usesFullActivityPreview {
@@ -435,7 +436,9 @@ struct LiveActivityItemRenderer: View {
     private func activitySurfaceBackground(cornerRadius: CGFloat) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
 
-        if !drawsActivitySurface || usesGlassSurface {
+        if isTest {
+            shape.fill(Color.yellow.opacity(0.82))
+        } else if !drawsActivitySurface || usesGlassSurface {
             shape.fill(.clear)
         } else {
             shape.fill(Color.black)

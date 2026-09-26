@@ -14,10 +14,19 @@ Read these files before planning or editing:
 - `docs/architecture/FOLDER_STRUCTURE.md`
 - `docs/product/WIDGET_LIBRARY_FLOW.md`
 - `docs/product/FLOW.d2`
+- `docs/TECH_REPORT.md`
 
 ## Product Model
 
 Abstrakt is a SwiftUI iOS app for discovering, configuring, saving, and previewing custom iPhone widget presets. The host app owns browsing, permission prompts, settings, saved presets, previews, and ActivityKit configuration. WidgetKit and ActivityKit extensions render prepared data; they should not become separate business-logic silos.
+
+## Key Architectural Highlights
+
+- **Intent-Driven Routing**: `AbstraktWidgetsExtension` exposes 3 generic size slots (`SmallSolidWidget`, `MediumSolidWidget`, `LargeSolidWidget`). `SavedWidgetEntity` dynamic queries resolve saved presets from App Group storage.
+- **Simulator Testing Bypass**: `SharedModelContainer.setSimulatorActivePreset` and `WidgetSharedStore.simulatorActivePresetID` allow testing on iOS Simulators when system AppIntent pickers fail to populate.
+- **HealthKit Privacy Exception**: HealthKit read-access cannot be checked programmatically after prompting (always returns `.notDetermined`). The app treats `.requested` as verifiable completion so users can save Health widgets without being permanently blocked.
+- **WeatherKit Coalescing**: `WeatherProvider` deduplicates in-flight async tasks and caches responses for 30s to prevent token exhaustion.
+- **Debounced Timeline Invalidation**: `WidgetTimelineReloadScheduler` debounces timeline reload requests by 450ms.
 
 ## Codebase Map
 

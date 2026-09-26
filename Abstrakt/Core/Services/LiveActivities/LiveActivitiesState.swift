@@ -25,6 +25,7 @@ final class LiveActivitiesState {
     var selectedExpandedWidget: LiveActivityWidget?
     var selectedLockScreenWidget: LiveActivityWidget?
     var lockScreenBackgroundStyle: LiveActivityBackgroundStyle = .glass
+    var isTest = false
 
     var compactWidgets = LiveActivityWidgetCatalog.placeholderCompactWidgets
     var expandedWidgets = LiveActivityWidgetCatalog.placeholderExpandedWidgets
@@ -72,6 +73,15 @@ final class LiveActivitiesState {
 
         Haptics.selection.play()
         lockScreenBackgroundStyle = style
+        Task {
+            await updateLiveActivityIfNeeded()
+        }
+    }
+
+    func setTestMode(_ isEnabled: Bool) {
+        guard isTest != isEnabled else { return }
+
+        isTest = isEnabled
         Task {
             await updateLiveActivityIfNeeded()
         }
@@ -370,6 +380,7 @@ final class LiveActivitiesState {
         selectedLockScreenWidget = selectedLockScreenWidget
             ?? refreshedSelection(state.lockScreenWidget, in: lockScreenWidgets, surface: .liveActivity)
         lockScreenBackgroundStyle = state.lockScreenBackgroundStyle
+        isTest = state.isTest
     }
 
     private func updateLiveActivityIfNeeded() async {
@@ -400,7 +411,8 @@ final class LiveActivitiesState {
             trailingWidget: selectedTrailingWidget,
             expandedWidget: selectedExpandedWidget,
             lockScreenWidget: selectedLockScreenWidget,
-            lockScreenBackgroundStyle: lockScreenBackgroundStyle
+            lockScreenBackgroundStyle: lockScreenBackgroundStyle,
+            isTest: isTest
         )
     }
 }

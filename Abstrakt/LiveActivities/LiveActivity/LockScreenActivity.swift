@@ -8,11 +8,12 @@ import SwiftUI
 struct LockScreenActivity: View {
     let widget: LiveActivityWidget
     var backgroundStyle: LiveActivityBackgroundStyle = .glass
+    var isTest = false
 
     var body: some View {
         selectedSurface
             .frame(
-                maxWidth: .infinity,
+                width: LiveActivityWidgetMetrics.lockScreenActivityWidth,
                 alignment: .center
             )
             .frame(height: activityHeight)
@@ -36,10 +37,11 @@ struct LockScreenActivity: View {
                 activityCornerRadius: LiveActivityWidgetMetrics.lockScreenActivityCornerRadius,
                 activityBackgroundStyle: backgroundStyle,
                 drawsActivitySurface: false,
-                adaptsContentColorForGlass: true
+                adaptsContentColorForGlass: true,
+                isTest: isTest
             )
             .frame(
-                maxWidth: .infinity,
+                width: LiveActivityWidgetMetrics.lockScreenActivityWidth,
                 alignment: .top
             )
             .frame(height: activityHeight)
@@ -56,17 +58,18 @@ struct LockScreenActivity: View {
                     cornerRadius: LiveActivityWidgetMetrics.lockScreenActivityCornerRadius,
                     style: .continuous
                 )
-                .fill(Color.black)
+                .fill(isTest ? Color.yellow.opacity(0.82) : Color.black)
 
                 LiveActivityItemRenderer(
                     item: widget,
                     isLiveActivity: true,
-                    showsActivityTitle: false
+                    showsActivityTitle: false,
+                    isTest: isTest
                 )
                     .fixedSize()
                     .scaleEffect(0.86)
             }
-            .frame(maxWidth: .infinity)
+            .frame(width: LiveActivityWidgetMetrics.lockScreenActivityWidth)
             .frame(height: activityHeight)
         }
     }
@@ -77,21 +80,29 @@ struct LockScreenActivity: View {
 
     @ViewBuilder
     private var activityBackground: some View {
-        switch backgroundStyle {
-        case .glass:
-            let shape = RoundedRectangle(
+        if isTest {
+            RoundedRectangle(
                 cornerRadius: LiveActivityWidgetMetrics.lockScreenActivityCornerRadius,
                 style: .continuous
             )
-
-            shape
-                .fill(.clear)
-                .glassEffect(
-                    .regular,
-                    in: shape
+            .fill(Color.yellow.opacity(0.82))
+        } else {
+            switch backgroundStyle {
+            case .glass:
+                let shape = RoundedRectangle(
+                    cornerRadius: LiveActivityWidgetMetrics.lockScreenActivityCornerRadius,
+                    style: .continuous
                 )
-        case .solid:
-            Color.black
+
+                shape
+                    .fill(.clear)
+                    .glassEffect(
+                        .regular,
+                        in: shape
+                    )
+            case .solid:
+                Color.black
+            }
         }
     }
 

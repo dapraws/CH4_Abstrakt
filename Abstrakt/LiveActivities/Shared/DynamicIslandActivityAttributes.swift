@@ -29,6 +29,7 @@ struct DynamicIslandActivityAttributes: ActivityAttributes {
         var expandedWidget: LiveActivityWidget?
         var lockScreenWidget: LiveActivityWidget?
         var lockScreenBackgroundStyle: LiveActivityBackgroundStyle
+        var isTest: Bool
 
         enum CodingKeys: String, CodingKey {
             case leadingWidget
@@ -36,6 +37,7 @@ struct DynamicIslandActivityAttributes: ActivityAttributes {
             case expandedWidget
             case lockScreenWidget
             case lockScreenBackgroundStyle
+            case isTest
         }
 
         init(
@@ -43,13 +45,15 @@ struct DynamicIslandActivityAttributes: ActivityAttributes {
             trailingWidget: LiveActivityWidget? = nil,
             expandedWidget: LiveActivityWidget? = nil,
             lockScreenWidget: LiveActivityWidget? = nil,
-            lockScreenBackgroundStyle: LiveActivityBackgroundStyle = .glass
+            lockScreenBackgroundStyle: LiveActivityBackgroundStyle = .glass,
+            isTest: Bool = false
         ) {
             self.leadingWidget = leadingWidget
             self.trailingWidget = trailingWidget
             self.expandedWidget = expandedWidget
             self.lockScreenWidget = lockScreenWidget
             self.lockScreenBackgroundStyle = lockScreenBackgroundStyle
+            self.isTest = isTest
         }
 
         public init(from decoder: Decoder) throws {
@@ -62,6 +66,7 @@ struct DynamicIslandActivityAttributes: ActivityAttributes {
                 LiveActivityBackgroundStyle.self,
                 forKey: .lockScreenBackgroundStyle
             ) ?? .glass
+            isTest = try container.decodeIfPresent(Bool.self, forKey: .isTest) ?? false
         }
     }
 

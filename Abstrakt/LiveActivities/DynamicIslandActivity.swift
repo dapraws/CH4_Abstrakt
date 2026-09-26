@@ -16,7 +16,8 @@ struct DynamicIslandActivity: Widget {
                 if let widget = context.state.lockScreenWidget {
                     LockScreenActivity(
                         widget: widget,
-                        backgroundStyle: context.state.lockScreenBackgroundStyle
+                        backgroundStyle: context.state.lockScreenBackgroundStyle,
+                        isTest: context.state.isTest
                     )
                 } else {
                     LiveActivityEmptyState(
@@ -34,7 +35,10 @@ struct DynamicIslandActivity: Widget {
             DynamicIsland {
                 DynamicIslandExpandedRegion(.center) {
                     if let widget = context.state.expandedWidget {
-                        ExpandedActivity(widget: widget)
+                        ExpandedActivity(
+                            widget: widget,
+                            isTest: context.state.isTest
+                        )
                     } else {
                         LiveActivityEmptyState()
                             .frame(

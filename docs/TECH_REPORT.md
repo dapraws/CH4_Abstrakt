@@ -91,7 +91,7 @@ What we actually tried in code:
 - ActivityKit renderers for Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity states, using the same provider-backed data direction as widgets.
 - A save toggle that writes and removes widget presets from App Group storage, then shows those saved widgets in the Library.
 - Thumbnail generation for saved widgets, so the system widget picker can show a more visual preset choice.
-- Real data snapshots for battery, steps, activity, heart rate, weather, daylight, events, and storage instead of only fake preview numbers.
+- Real data snapshots across 13 native widgets (Activity, Battery, Calendar, Daylight, Events, Heart Rate, Portal, Reminder, Sleep, Steps, Storage, Today, Weather) instead of only fake preview numbers.
 
 The main thing we learned was that WidgetKit is closer to a snapshot than a tiny app. After that clicked, Abstrakt started to make more sense as a customization and preview tool, not a way to force widgets to behave like fully interactive surfaces.
 
@@ -136,6 +136,17 @@ What changed from our starting assumption:
 - We treated permissions and empty states as part of the product.
 - We made styling and preview consistency the main value.
 - We changed the architecture so shared data moves through App Groups instead of making the widget extension fetch everything itself.
+
+## 7. Key Architectural & Engineering Highlights
+
+To overcome platform constraints while keeping performance and user experience top-tier, we engineered several key solutions:
+
+1. **Generic Slot Intent Routing & Presets**: Rather than registering dozens of static WidgetKit entries, `AbstraktWidgetsExtension` declares three clean size slots (`Small`, `Medium`, `Large`). An `AppIntent` query (`SavedWidgetEntity`) inspects `WidgetSharedStore.allSavedPresets` in App Group storage, dynamically binding user-configured presets to the active Home Screen widget instance.
+2. **HealthKit Privacy Exception Mitigation**: iOS enforces privacy rules where reading `authorizationStatus` for HealthKit read-types always returns `.notDetermined` unless requested. We established a `.requested` state in `HealthSummaryProvider` that tracks prompt presentation, allowing users to save Health widgets without being permanently blocked by platform privacy opacity.
+3. **WeatherKit Request Coalescing & Throttling**: Rapid previewing in the gallery or simultaneous background timeline requests could trigger Apple WeatherKit JWT rate-limiting. `WeatherProvider` implements async task coalescing (deduplicating concurrent in-flight tasks) and a 30-second memory cache TTL.
+4. **Debounced Widget Timeline Reloads**: Frequent preset edits or theme adjustments are coalesced through `WidgetTimelineReloadScheduler.schedule(after: .milliseconds(450))`, preventing WidgetKit reload budget exhaustion.
+5. **Cross-Process Simulator Testing Bypass**: When testing on Xcode iOS Simulators where AppIntent configuration sheets fail to present saved entity pickers, `SharedModelContainer.setSimulatorActivePreset` and `WidgetSharedStore.simulatorActivePresetID` allow automated direct routing to the active preset under test.
+6. **ActivityKit Tri-State Lifecycle Management**: `LiveActivitiesState` coordinates a unified `DynamicIslandActivityAttributes` activity while isolating state selections across Smart Pills (25 compact layouts), Expanded Dynamic Island (centered 291x112pt canvas), and Lock Screen Live Activity (Liquid Glass or Solid mode), with deliberate add/empty fallbacks when a slot is unassigned.
 
 ## App Track Addendum
 

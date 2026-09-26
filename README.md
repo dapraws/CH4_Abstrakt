@@ -42,10 +42,10 @@
 
 | Pillar | Direction |
 |---|---|
-| Host app first | gallery, widget detail, customization sheets, saved library, and settings |
-| WidgetKit first | iOS Home Screen widget experiences for `small`, `medium`, and `large` |
+| Host app first | gallery, widget detail, customization sheets, saved library, Live Activities studio, and settings |
+| WidgetKit first | iOS Home Screen widget experiences for `small`, `medium`, and `large` slots |
 | ActivityKit ready | Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity previews backed by shared activity data |
-| Native framework features | `HealthKit`, `WeatherKit`, `CoreLocation`, `EventKit`, `Foundation`, and related Apple APIs |
+| Native framework features | `HealthKit`, `WeatherKit`, `CoreLocation`, `EventKit`, `Foundation`, `UIKit`, `AppIntents` |
 | Design-system-first | semantic light/dark theming, typography roles, spacing, surface styling, and widget size tokens |
 | Localized experience | user-selectable app language backed by the string catalog and shared settings |
 
@@ -57,33 +57,47 @@
 Abstrakt/
 ├── App/
 │   ├── AbstraktApp.swift
-│   ├── Screens/
-│   ├── Components/
 │   ├── ContentView.swift
+│   ├── Screens/
+│   │   ├── Gallery/
+│   │   ├── Home/
+│   │   ├── Library/
+│   │   ├── LiveActivity/
+│   │   ├── Onboarding/
+│   │   └── Settings/
+│   ├── Components/
 │   └── Configuration/
+│       ├── Components/
+│       └── Sheets/
 ├── Core/
-│   ├── Models/
-│   ├── Services/
-│   ├── Storage/
 │   ├── Constants/
 │   ├── Localization/
-│   └── Extensions/
+│   ├── Models/
+│   ├── Services/
+│   ├── Settings/
+│   └── Storage/
 ├── DesignSystem/
+│   ├── AppColors.swift
+│   ├── AppFonts.swift
+│   ├── AppRadius.swift
+│   ├── AppSpacing.swift
+│   ├── WidgetSizeTokens.swift
+│   └── Fonts/
 ├── Widgets/
 │   ├── SharedWidgetStyle.swift
-│   ├── Battery/
-│   ├── Steps/
 │   ├── Activity/
+│   ├── Battery/
 │   ├── Calendar/
+│   ├── Daylight/
 │   ├── Events/
+│   ├── HeartRate/
 │   ├── Portal/
 │   ├── Reminder/
 │   ├── Sleep/
+│   ├── Steps/
 │   ├── Storage/
 │   ├── Today/
-│   ├── Weather/
-│   ├── Daylight/
-│   └── HeartRate/
+│   └── Weather/
 ├── LiveActivities/
 │   ├── DynamicIslandActivity.swift
 │   ├── SmartPills/
@@ -105,74 +119,64 @@ Abstrakt/
 
 The current main-app flow is:
 
-1. Complete onboarding the first time the app launches.
+1. Complete onboarding on first launch (`WelcomeScreen` -> `TutorialScreen` -> `OnboardingPermissionScreen`).
 2. Land in the main app shell and browse the widget gallery.
-3. Choose a widget and open a customization sheet.
-4. Preview the chosen widget size on-device style.
-5. Adjust flexible options such as appearance mode, font, or widget-specific settings.
-6. Save that configured widget preset into the Library page.
-7. From the Home Screen, add a system widget and select the saved preset through the widget configuration flow.
-
-This means the app library is the source of truth for saved widget presets, while WidgetKit is the renderer on the Home Screen.
+3. Choose a widget card and open its interactive preview sheet.
+4. Preview the chosen widget in real-time with on-device styling and actual provider data.
+5. Adjust flexible options such as appearance mode (`System`, `Light`, `Dark`), font theme, or widget-specific options (e.g. Portal mini-apps).
+6. Tap **Save** to persist the configured preset into the Library. If a framework permission is needed, the system prompt triggers automatically.
+7. From the iOS Home Screen, add an Abstrakt `Solid Widget` and select the saved preset from the `Edit Widget` picker.
 
 ---
 
 ## Current Implementation Snapshot
 
-The current app foundation includes:
-
 ### Screens & UI
 
 | Area | Details |
 |---|---|
-| Onboarding | First-launch flow with welcome, widget tutorial, and a permissions page for Health, Weather/Location, and Calendar access. |
-| Home | Present in the tab shell as a lightweight placeholder screen. |
-| Gallery | Widget cards with catalog-backed category chips and a preview sheet for the selected widget. |
-| Preview sheet | Renders the selected widget, shows its display title, and keeps the bottom save action in a separate control layer. |
-| Library | Grouped by `Small`, `Medium`, and `Large`, with swipeable size tabs, empty states, and cropped/scaled preview rows that hint at the saved widget surface. |
-| Settings | Appearance, app language, app font, alternate app icon, temperature unit, temperature display, distance unit, access/permissions, FAQ, share sheet, and release notes. |
-| Live Activity | Dynamic Island builder for Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity selections. |
+| Onboarding | Multi-stage flow with welcome, widget tutorial, and permissions page for Health, Weather/Location, and Calendar. |
+| Home | Lightweight placeholder screen in the bottom tab shell. |
+| Gallery | Widget cards with catalog-backed category chips (`HealthKit`, `WeatherKit`, `EventKit`, `Foundation`, `UIKit`, `Portal`) and preview sheets. |
+| Preview sheet | Renders the selected widget, display title, inline segmented controls, nested picker buttons, and pinned bottom save action. |
+| Library | Grouped by `Small`, `Medium`, and `Large`, with swipeable size tabs, size counts, empty states, and cropped preview strips. |
+| Settings | Appearance, app language, app font, alternate app icons, temperature unit, temperature display, distance unit, access/permissions, FAQ, share sheet, and release notes. |
+| Live Activity | Dynamic Island studio for Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity configurations with Glass/Solid styling. |
 
-### Widget rendering
+### Widget Catalog (13 Widgets)
 
-- Shared widget renderers under `Abstrakt/Widgets/` that are compiled into both the host app and the WidgetKit extension.
-- Runtime widget previews and WidgetKit timelines consume live provider data or App Group cached values for battery, Health, calendar/date, time, storage, and WeatherKit-backed weather. Sample numbers are reserved for Xcode canvas previews.
-- Shared settings storage for widget-facing unit preferences and the selected widget font through the App Group.
-- Shared appearance storage for `System`, `Light`, and `Dark` app theme preferences. Home Screen widgets follow widget appearance configuration and shared font settings; ActivityKit surfaces stay visually independent from the app theme.
-- Shared localization storage for `System`, `English`, `Bahasa Indonesia`, `Español`, and `Português (Brasil)` language choices.
-- Seamless rendering on iOS 17+ StandBy and iPad Lock Screens via the `containerBackground` API.
+| Widget | Primary Framework | Size | Behavior |
+|---|---|---|---|
+| **Reminder** | `EventKit` | `Small` | Reads Reminders via EventKit; displays top 3 tasks with strike-through completion, plus `+N more` count. Deep-links to Reminders list. |
+| **Battery** | `UIKit` (`UIDevice`) | `Small` | Reads live battery percentage, charging state, and remaining time calculation. Renders a 5-bar visual gauge. |
+| **Steps** | `HealthKit` | `Small` | Queries step count and distance from HealthKit; converts distance to km or miles based on user preference. |
+| **Activity** | `HealthKit` | `Small` | Displays exercise minutes, active calories, and sleep time for either `Today` or `Weekly` period. |
+| **Sleep** | `HealthKit` | `Small` | Queries sleep analysis categories (`asleepUnspecified`, `asleepCore`, `asleepDeep`, `asleepREM`); shows target bedtime, duration, and efficiency. |
+| **Events** | `EventKit` | `Small` | Queries calendar events; configurable for `Upcoming` (starts soon) or `Current` (in progress) priority mode. |
+| **Portal** | `AppIntents` | `Small` | 6-app quick launcher with custom icon clip styles (`Default`, `Circle`, `Bloom`), accompanied by live date context and local weather. |
+| **Today** | `Foundation` | `Medium` | Multi-card layout: live time & condition header, temp with high/low, full month calendar grid. |
+| **Calendar** | `EventKit` | `Small` | Compact month grid with weekday headers, responsive 5/6-week rows, and prominent today highlight. |
+| **Storage** | `Foundation` | `Small` | Computes aggregate disk space using base-10 math (1 GB = 10^9 B) matching iOS Settings > General > iPhone Storage. Renders striped progress bar. |
+| **Daylight** | `WeatherKit` | `Small` | Computes sunrise and sunset times from solar events; shows next daylight event time, icon, and temperature bounds. |
+| **Weather** | `WeatherKit` | `Small` | Reverse geocoded city name, WeatherKit temperature, high/low, and customized weather condition iconography. |
+| **Heart Rate** | `HealthKit` | `Small` | Queries the latest heart rate sample (`HKQuantityTypeIdentifier.heartRate`); displays BPM, heart icon, and relative timestamp. |
 
-### Widget behavior
-
-| Widget | Behavior |
-|---|---|
-| Activity | Shows either today or weekly exercise minutes, active energy, and sleep totals, with the mode shared to WidgetKit through App Group storage. |
-| Calendar | Shows a compact month grid with today's date highlighted and responsive five/six-week month layout. |
-| Events | Can prioritize upcoming events or currently running events, backed by EventKit refreshes cached into App Group storage. |
-| Portal | Combines calendar date context, current-location WeatherKit temperature, configurable MiniApp launchers, and App Intent buttons for launching selected system apps. |
-| Reminder | Reads Apple Reminders through EventKit, renders pending and completed tasks, supports empty state, and opens Reminders from the placed widget. |
-| Sleep | Renders target bedtime, sleep duration, and sleep progress using Health-backed snapshots when available. |
-| Weather & Daylight | Backed by host-app WeatherKit/CoreLocation refreshes and shared weather condition assets. |
-| Storage | Device storage widgets using base-10 calculation math to perfectly match the iPhone's Settings > General > iPhone Storage metrics. |
-| Heart Rate | Reads live background BPM data from the user's HealthKit datastore. |
-
-### Live Activity rendering
+### Live Activity Rendering
 
 - ActivityKit code lives under `Abstrakt/LiveActivities/` and is split by rendered state: `SmartPills`, `Expanded`, `LiveActivity`, and shared renderer/attribute files.
 - The main app screen lives under `Abstrakt/App/Screens/LiveActivity/`, while the preview picker sheet lives in `Abstrakt/App/Configuration/Sheets/LiveActivityPreviewSheet.swift`.
-- `Core/Services/LiveActivities/` owns selected activity state and maps provider/widget data into ActivityKit-safe view data.
-- Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity can choose different activity items, but they are driven by one ActivityKit activity and one Dynamic Island enable toggle.
-- Runtime ActivityKit rendering should use provider/cache values or the explicit add/empty state. Static demo numbers belong only in Xcode previews.
-- Lock Screen Live Activity supports `Glass` and `Solid` visual modes. Live Activity surfaces intentionally do not inherit the app Appearance setting.
-- Smart Pills active-side feedback, Live Activity glass controls, and preview-sheet scroll/collapse behavior are part of the interaction contract. Keep these shared through the existing Live Activity frame/sheet components instead of reimplementing them per state.
+- `Core/Services/LiveActivitiesState.swift` and `LiveActivityWidgetDataProvider.swift` own selected activity state and map provider/widget data into ActivityKit-safe view data.
+- Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity can choose different activity items, driven by one ActivityKit activity and one Dynamic Island enable toggle.
+- Lock Screen Live Activity supports `Glass` (Liquid Glass / native material with light/dark adaptive text) and `Solid` (pure black with specular border) visual modes.
+- Smart Pills active-side feedback is an overlay contour on the phone-frame island preview that animates smoothly when switching slots.
 
-### Data & permissions
+### Data & Permissions
 
-- Just-in-time data fetching: providers refresh only when at least one saved widget needs them, and always-on refresh loops stop when the Library is empty.
-- Hybrid permission flow: onboarding now includes an optional permissions step with explicit request buttons for Health, Weather/Location, and Calendar access.
-- Save-time fallback: if a required permission was skipped during onboarding or is still undetermined, the preview sheet requests it when the user saves a dependent widget, blocks the save on denial, and lets the user retry or open Settings. (Note: due to Apple privacy limits, HealthKit permissions are considered valid once they have been `.requested`, since read access cannot be explicitly verified).
-
-The app font preference is written to shared storage so Home Screen widgets and in-app previews can render with matching typography. Widget views must stay extension-safe because the WidgetKit target also compiles the shared files under `Abstrakt/Widgets/`.
+- **Just-in-time data fetching**: Providers refresh only when at least one saved widget requires them; always-on refresh loops stop when the Library is empty.
+- **Hybrid permission flow**: Onboarding includes an optional permissions step with explicit request buttons for Health, Weather/Location, and Calendar.
+- **Save-time fallback**: If a required permission was skipped or undetermined, saving a dependent widget requests it, blocking the save on denial.
+- **HealthKit privacy exception**: Health widgets treat `.requested` as the highest verifiable permission state and permit saving once requested.
+- **WeatherKit coalescing**: `WeatherProvider` coalesces concurrent fetches and caches results for 30s to prevent token rejection.
 
 ---
 
@@ -349,7 +353,9 @@ Start here when making architecture or product changes:
 | 3 | [docs/DESIGN_FOUNDATION.md](./docs/DESIGN_FOUNDATION.md) | Design tokens, appearance modes, layout rules, typography |
 | 4 | [docs/architecture/FOLDER_STRUCTURE.md](./docs/architecture/FOLDER_STRUCTURE.md) | Canonical folder blueprint, naming rules |
 | 5 | [docs/product/WIDGET_LIBRARY_FLOW.md](./docs/product/WIDGET_LIBRARY_FLOW.md) | User flow, customization rules, library rules |
-| 6 | [.codex/skills/abstrakt-codebase/SKILL.md](./.codex/skills/abstrakt-codebase/SKILL.md) | Repo-local working skill for agents touching Abstrakt |
+| 6 | [docs/product/FLOW.d2](./docs/product/FLOW.d2) | Architecture and user/data flow diagram |
+| 7 | [docs/TECH_REPORT.md](./docs/TECH_REPORT.md) | Engineering highlights, team, decisions, platform learnings |
+| 8 | [.codex/skills/abstrakt-codebase/SKILL.md](./.codex/skills/abstrakt-codebase/SKILL.md) | Repo-local working skill for agents touching Abstrakt |
 
 ---
 

@@ -7,6 +7,7 @@ import SwiftUI
 
 struct ExpandedActivity: View {
     let widget: LiveActivityWidget
+    var isTest = false
 
     var body: some View {
         if widget.layout.usesFullActivityPreview {
@@ -14,10 +15,11 @@ struct ExpandedActivity: View {
                 item: widget,
                 isLiveActivity: false,
                 showsActivityTitle: false,
-                activityCornerRadius: LiveActivityWidgetMetrics.expandedIslandCornerRadius
+                activityCornerRadius: LiveActivityWidgetMetrics.expandedIslandCornerRadius,
+                isTest: isTest
             )
             .frame(
-                width: LiveActivityWidgetMetrics.islandWidth,
+                width: LiveActivityWidgetMetrics.activitySurfaceWidth,
                 height: widget.layout.activityPreviewHeight(isLiveActivity: false),
                 alignment: .top
             )
@@ -34,18 +36,19 @@ struct ExpandedActivity: View {
                     cornerRadius: LiveActivityWidgetMetrics.expandedIslandCornerRadius,
                     style: .continuous
                 )
-                .fill(Color.black)
+                .fill(isTest ? Color.yellow.opacity(0.82) : Color.black)
 
                 LiveActivityItemRenderer(
                     item: widget,
                     isLiveActivity: true,
-                    showsActivityTitle: false
+                    showsActivityTitle: false,
+                    isTest: isTest
                 )
                     .fixedSize()
                     .scaleEffect(0.86)
             }
             .frame(
-                width: LiveActivityWidgetMetrics.islandWidth,
+                width: LiveActivityWidgetMetrics.activitySurfaceWidth,
                 height: LiveActivityWidgetMetrics.expandedIslandHeight
             )
         }

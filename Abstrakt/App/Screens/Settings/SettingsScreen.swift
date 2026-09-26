@@ -952,12 +952,6 @@ private struct AppearanceSegmentedControl: View {
                             if selection == appearance {
                                 RoundedRectangle(cornerRadius: 15, style: .continuous)
                                     .fill(AppColors.card)
-                                    .shadow(
-                                        color: AppColors.primaryText.opacity(0.05),
-                                        radius: 8,
-                                        x: 0,
-                                        y: 3
-                                    )
                             }
                         }
                 }

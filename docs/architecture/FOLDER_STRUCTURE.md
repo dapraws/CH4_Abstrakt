@@ -11,55 +11,132 @@ Abstrakt/
 │   ├── ContentView.swift
 │   ├── Screens/
 │   │   ├── Gallery/
+│   │   │   └── GalleryScreen.swift
+│   │   ├── Home/
+│   │   │   └── HomeScreen.swift
 │   │   ├── Library/
+│   │   │   └── LibraryScreen.swift
 │   │   ├── LiveActivity/
+│   │   │   ├── Components/
+│   │   │   │   ├── LiveActivityFrame.swift
+│   │   │   │   └── LiveActivitySlot.swift
+│   │   │   └── LiveActivityScreen.swift
 │   │   ├── Onboarding/
-│   │   ├── Settings/
-│   │   │   ├── AppIcon/
-│   │   │   ├── FAQ/
-│   │   │   ├── Language/
-│   │   │   ├── Permissions/
-│   │   │   └── WhatsNew/
-│   │   └── Home/
+│   │   │   ├── OnboardingComponents.swift
+│   │   │   ├── OnboardingScreen.swift
+│   │   │   ├── Welcome/
+│   │   │   │   └── WelcomeScreen.swift
+│   │   │   ├── Tutorial/
+│   │   │   │   └── TutorialScreen.swift
+│   │   │   └── Permission/
+│   │   │       └── OnboardingPermissionScreen.swift
+│   │   └── Settings/
+│   │       ├── SettingsScreen.swift
+│   │       ├── SettingsSubscreenSupport.swift
+│   │       ├── AppIcon/
+│   │       │   └── AppIconScreen.swift
+│   │       ├── FAQ/
+│   │       │   └── FAQScreen.swift
+│   │       ├── Language/
+│   │       │   └── LanguageScreen.swift
+│   │       ├── Permissions/
+│   │       │   └── PermissionsScreen.swift
+│   │       └── WhatsNew/
+│   │           └── WhatsNewScreen.swift
 │   ├── Components/
+│   │   ├── BottomBar.swift
+│   │   ├── BottomBarTab.swift
+│   │   ├── BrandCreditFooter.swift
+│   │   ├── CategoryChip.swift
+│   │   ├── CenterTextScreen.swift
+│   │   ├── FadingNavigationBar.swift
+│   │   ├── ScreenSectionTitle.swift
+│   │   ├── ScrollFadeView.swift
+│   │   └── WidgetCard.swift
 │   └── Configuration/
 │       ├── Components/
+│       │   └── ConfigRow.swift
 │       └── Sheets/
+│           ├── AppsPickerSheet.swift
+│           ├── FontPickerSheet.swift
+│           ├── LiveActivityPreviewSheet.swift
+│           ├── ShareAppSheet.swift
+│           └── WidgetPreviewSheet.swift
 ├── Core/
-│   ├── Models/
-│   ├── Services/
-│   │   ├── Calendar/
-│   │   ├── Clock/
-│   │   ├── Health/
-│   │   ├── LiveActivities/
-│   │   ├── Reminder/
-│   │   ├── System/
-│   │   └── Weather/
-│   ├── Settings/
-│   ├── Storage/
 │   ├── Constants/
+│   │   ├── AppGroupConstants.swift
+│   │   ├── AppShareContent.swift
+│   │   └── WidgetCatalog.swift
 │   ├── Localization/
-│   └── Extensions/
+│   │   ├── Bundle+Localized.swift
+│   │   ├── LocalizationManager.swift
+│   │   └── String+L10n.swift
+│   ├── Models/
+│   │   ├── AppIconOption.swift
+│   │   ├── WidgetAppearanceMode.swift
+│   │   ├── WidgetCatalogItem.swift
+│   │   ├── WidgetCategory.swift
+│   │   ├── WidgetPreset.swift
+│   │   └── WidgetSize.swift
+│   ├── Services/
+│   │   ├── BatteryStatusProvider.swift
+│   │   ├── ClockDataProvider.swift
+│   │   ├── EventKitManager.swift
+│   │   ├── EventKitProvider.swift
+│   │   ├── Haptics.swift
+│   │   ├── HealthSummaryProvider.swift
+│   │   ├── LiveActivitiesState.swift
+│   │   ├── LiveActivityWidgetDataProvider.swift
+│   │   ├── LocationProvider.swift
+│   │   ├── ReminderProvider.swift
+│   │   ├── StorageProvider.swift
+│   │   └── WeatherProvider.swift
+│   ├── Settings/
+│   │   └── AppSettingsPreference.swift
+│   └── Storage/
+│       └── SharedModelContainer.swift
 ├── DesignSystem/
 │   ├── AppColors.swift
 │   ├── AppFonts.swift
-│   ├── Fonts/
-│   └── WidgetSizeTokens.swift
+│   ├── AppRadius.swift
+│   ├── AppSpacing.swift
+│   ├── WidgetSizeTokens.swift
+│   └── Fonts/
+│       ├── Quicksand-Light.ttf
+│       ├── Quicksand-Regular.ttf
+│       ├── Quicksand-Medium.ttf
+│       ├── Quicksand-SemiBold.ttf
+│       ├── Quicksand-Bold.ttf
+│       └── Fusion-Pixel-Regular.ttf
 ├── Widgets/
 │   ├── SharedWidgetStyle.swift
-│   ├── Battery/
-│   ├── Steps/
 │   ├── Activity/
+│   │   └── ActivityWidget.swift
+│   ├── Battery/
+│   │   └── BatteryWidget.swift
 │   ├── Calendar/
-│   ├── Events/
-│   ├── Portal/
-│   ├── Reminder/
-│   ├── Sleep/
-│   ├── Storage/
-│   ├── Today/
-│   ├── Weather/
+│   │   └── CalendarWidget.swift
 │   ├── Daylight/
-│   └── HeartRate/
+│   │   └── DaylightWidget.swift
+│   ├── Events/
+│   │   └── EventsWidget.swift
+│   ├── HeartRate/
+│   │   └── HeartRateWidget.swift
+│   ├── Portal/
+│   │   └── Portal.swift
+│   ├── Reminder/
+│   │   ├── ReminderModels.swift
+│   │   └── ReminderWidget.swift
+│   ├── Sleep/
+│   │   └── SleepWidget.swift
+│   ├── Steps/
+│   │   └── StepsWidget.swift
+│   ├── Storage/
+│   │   └── StorageWidget.swift
+│   ├── Today/
+│   │   └── TodayWidget.swift
+│   └── Weather/
+│       └── WeatherWidget.swift
 ├── LiveActivities/
 │   ├── DynamicIslandActivity.swift
 │   ├── SmartPills/
@@ -74,12 +151,26 @@ Abstrakt/
 │       ├── LiveActivityItemRenderer.swift
 │       ├── LiveActivityTypography.swift
 │       └── LiveActivityWidget.swift
+├── Config/
+│   ├── Signing.xcconfig
+│   ├── Signing.local.xcconfig.example
+│   └── Signing.local.xcconfig (optional, gitignored)
+├── Resources/
+│   └── Localizable.xcstrings
 └── AbstraktWidgetsExtension/
     ├── AbstraktWidgetsBundle.swift
     ├── AbstraktNewWidgets.swift
     ├── SavedWidgetEntity.swift
     ├── SolidWidgetIntents.swift
+    ├── Info.plist
+    ├── AbstraktWidgetsExtension.entitlements
     ├── Fonts/
+    │   ├── Quicksand-Light.ttf
+    │   ├── Quicksand-Regular.ttf
+    │   ├── Quicksand-Medium.ttf
+    │   ├── Quicksand-SemiBold.ttf
+    │   ├── Quicksand-Bold.ttf
+    │   └── Fusion-Pixel-Regular.ttf
     └── Shared/
         ├── SavedWidgetPreset.swift
         └── WidgetSharedStore.swift
@@ -87,41 +178,31 @@ Abstrakt/
 
 ## Why This Shape
 
-- `App/` stays small and owns only app entry/composition.
-- `App/` also owns app screens and shared configuration UI.
-- `Core/` owns data-facing concerns such as models, services, storage, constants, and extensions.
-- `Core/Settings/` owns shared preference enums and storage keys that both the app and widgets need.
-- `Core/Localization/` owns runtime language selection and localized bundle helpers for the host app.
-- `DesignSystem/` holds app-wide design tokens without burying them under another shared layer.
-- `DesignSystem/Fonts/` stores host-app custom font files and should mirror any extension-needed font files under `AbstraktWidgetsExtension/Fonts/`.
-- `Widgets/` owns widget-entry-specific UI, extension-safe render snapshots, and shared widget styling used by both the app and WidgetKit extension.
-- `LiveActivities/` owns ActivityKit renderers, attributes, activity typography, and state-specific surfaces for Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity.
-- `Core/Services/LiveActivities/` owns ActivityKit lifecycle/state coordination and provider-to-activity mapping. Activity renderers should not fetch framework data directly.
-- `AbstraktWidgetsExtension/` stays focused on WidgetKit registration, timeline entries, App Intents, AppEntity picker data, and size-slot routing. It should not duplicate widget visual implementations.
+- `App/` stays focused on the main iOS app shell, screens, navigation, and modal configuration sheets.
+- `Core/` owns all data-facing architecture: models, providers/services, shared storage abstractions, constants, settings enums, and localization engine.
+- `Core/Services/` encapsulates all Apple system frameworks (`HealthKit`, `WeatherKit`, `CoreLocation`, `EventKit`, `UIKit`, `Foundation`).
+- `Core/Settings/` owns shared preference types (`TemperatureUnitPreference`, `TemperatureDisplayPreference`, `DistanceUnitPreference`, `AppLanguage`, `AppSettingsPreference`) used by both the app and widgets.
+- `Core/Storage/SharedModelContainer.swift` provides atomic serialization and deserialization of snapshots and widget presets to App Group `UserDefaults`, plus thumbnail disk persistence and `WidgetTimelineReloadScheduler`.
+- `Core/Localization/` coordinates in-app runtime language switching via `LocalizationManager` without needing an app restart.
+- `DesignSystem/` defines shared semantic tokens for colors (`AppColors`), fonts (`AppFonts`), radii (`AppRadius`), spacings (`AppSpacing`), and widget sizes (`WidgetSizeTokens`).
+- `Widgets/` houses the 13 feature widget renderers and `SharedWidgetStyle.swift`. Renderers are compiled into both the host app target and the `AbstraktWidgetsExtension` target.
+- `LiveActivities/` hosts ActivityKit widgets divided by presentation state: `SmartPills` (compact Dynamic Island), `Expanded` (expanded Dynamic Island), `LiveActivity` (Lock Screen / notification Live Activity), and `Shared` (attributes, typography, item renderer, empty state).
+- `AbstraktWidgetsExtension/` handles WidgetKit timeline providers, entries, App Intents (`SmallSolidWidgetIntent`, `MediumSolidWidgetIntent`, `LargeSolidWidgetIntent`), and `AppEntity` query resolvers (`SavedWidgetEntity`).
 
 ## Naming Rules
 
-- Put app screens in `App/Screens/`, not in a top-level `Features/` bucket.
-- Name widget folders after concise user-facing widget entries such as `Battery`, `Steps`, `Activity`, `Calendar`, `Events`, `Portal`, `Reminder`, `Sleep`, `Storage`, `Today`, `Weather`, `Daylight`, and `HeartRate`.
-- Name Live Activity folders after ActivityKit states: `SmartPills`, `Expanded`, `LiveActivity`, and `Shared`.
-- ActivityKit renderer files should use `Activity` when they render an activity surface, not `View`. App screens should use `Screen`, and app configuration bottom sheets should use `Sheet`.
-- Keep the Live Activity app screen at `App/Screens/LiveActivity/LiveActivityScreen.swift`; keep picker/preview bottom sheets under `App/Configuration/Sheets/`.
-- Do not reintroduce `WIP`, `Page`, or placeholder-style naming for shipped surfaces.
-- Avoid style-only names, and avoid baking Home Screen size labels into feature names.
-- Keep per-widget files flat inside each widget folder until a widget becomes large enough to need subfolders.
-- Put shared domain/config/catalog types in `Core/Models/`, not in every widget folder.
-- Put shared app/widget preference types in `Core/Settings/`, not in screen files.
-- Put runtime localization helpers in `Core/Localization/`, and put translated strings in `Abstrakt/Resources/Localizable.xcstrings`.
-- Add a widget-local view model only when that widget has truly unique presentation logic.
-- Keep shared widget renderers extension-safe. Guard app-only provider adapters with `#if !WIDGET_EXTENSION`.
-- Share app font preferences with WidgetKit through App Group storage; use explicit saved-preset configuration only when a widget needs its own override.
-- Keep UIKit-only app personalization, such as alternate icon switching, inside app screens/models and out of widget-extension targets.
+- App screens belong in `App/Screens/` and end in `Screen.swift` (e.g. `GalleryScreen.swift`, `LibraryScreen.swift`, `LiveActivityScreen.swift`).
+- Configuration sheets belong in `App/Configuration/Sheets/` and end in `Sheet.swift` (e.g. `WidgetPreviewSheet.swift`, `LiveActivityPreviewSheet.swift`).
+- Widget folders correspond 1:1 with catalog entries: `Activity`, `Battery`, `Calendar`, `Daylight`, `Events`, `HeartRate`, `Portal`, `Reminder`, `Sleep`, `Steps`, `Storage`, `Today`, `Weather`.
+- ActivityKit renderer files use `Activity` naming (`DynamicIslandActivity.swift`, `ExpandedActivity.swift`, `LockScreenActivity.swift`), reflecting ActivityKit state rather than generic screens.
+- Shared domain/catalog models belong in `Core/Models/`.
+- App-only code paths in shared widget files must be wrapped with `#if !WIDGET_EXTENSION`.
+- Extension-only code paths (e.g. AppIntents in Portal) must be wrapped with `#if WIDGET_EXTENSION`.
 
 ## Extension Surface Rules
 
-- Widget folders own Home Screen widget visuals. They should not contain ActivityKit-specific layout.
-- Live Activity folders own ActivityKit visuals. They should not contain app screen state, provider fetches, or WidgetKit timeline logic.
-- `Core/Services/LiveActivities/` owns selected activity state and provider-to-activity mapping. Keep ActivityKit lifecycle calls there rather than inside SwiftUI renderers.
-- `App/Configuration/Sheets/LiveActivityPreviewSheet.swift` owns the picker sheet. It can present preview items, badges, and controls, but should not define the activity renderer itself.
-- `App/Screens/LiveActivity/Components/LiveActivityFrame.swift` owns the phone-frame preview composition and should keep frame assets, island content, Smart Pills side contours, stepper, glass/solid menu, and edit/delete controls aligned.
-- Do not reintroduce duplicate names such as `SmartPillsActivity`, `SmartPillActivity`, `CompactSmartPillActivity`, and `CompactDynamicIslandPill`. Use the state folder plus one clear activity renderer name.
+- Widget folders own Home Screen and StandBy widget visuals. They must not contain ActivityKit layout code.
+- Live Activity folders own ActivityKit visuals. They must not contain app screen state, provider fetches, or WidgetKit timeline logic.
+- `Core/Services/LiveActivities/LiveActivitiesState.swift` is the source of truth for ActivityKit lifecycle management (`Activity<DynamicIslandActivityAttributes>.request` / `update` / `end`) and slot assignments.
+- `App/Configuration/Sheets/LiveActivityPreviewSheet.swift` renders preview cards and item badges, delegating presentation rendering to `LiveActivityItemRenderer`.
+- `App/Screens/LiveActivity/Components/LiveActivityFrame.swift` coordinates the phone frame preview, island contours, stepper, glass/solid picker, and item removal actions.

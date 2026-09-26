@@ -18,28 +18,35 @@ This document captures the intended user flow for widget selection, customizatio
 ## Customization Rules
 
 - Not all widgets need the same fields.
-- A widget may support only appearance mode and size.
-- Another widget may support font family, font weight, icon set, and gradient styles.
-- Health widgets may additionally support a goal, counter, metric, or progress style.
-- Gallery categories should support framework-backed discovery such as `HealthKit`, `WeatherKit`, `EventKit`, `Foundation`, `UIKit`, and `Portal`.
-- Gallery category chips should be generated from catalog categories that have at least one widget, and filtering should use the same catalog metadata that drives widget cards.
-- The preview sheet should show the rendered widget and its display title before any future form controls.
-- The save action stays pinned in its own bottom layer, separate from both the rendered widget and future form content.
-- App-wide settings such as temperature unit, temperature display, and distance unit should live in Settings rather than inside every widget customization sheet unless a widget explicitly supports an override.
-- App language, app font, and alternate app icon choices should also live in Settings. Language and font changes can affect widget-visible text or typography through shared storage; alternate icons are host-app-only personalization.
-- Saving should be blocked when a widget's required permission is unavailable, with HealthKit treated specially because iOS does not expose read-authorization status after the prompt.
+- Appearance mode (`System`, `Light`, `Dark`) is universally available across all configurable widgets.
+- Specific widgets support bespoke configuration options:
+  - **Portal**: 6-slot app launcher configuration via `AppsPickerSheet`, plus icon clip styles (`Default`, `Circle`, `Bloom`).
+  - **Activity**: Time scope toggle (`Today` vs `Weekly`).
+  - **Events**: Event prioritization mode (`Upcoming` vs `Current`).
+- Gallery categories support framework-backed discovery: `HealthKit`, `WeatherKit`, `EventKit`, `Foundation`, `UIKit`, and `Portal`.
+- Gallery category chips are generated from catalog categories that have at least one widget, and filtering uses the same catalog metadata that drives widget cards.
+- The preview sheet displays the rendered widget and its display title before any form controls.
+- The save action stays pinned in its own bottom layer, separate from both the rendered widget and form content.
+- App-wide settings such as temperature unit (`Celsius` / `Fahrenheit`), temperature display (`Standard` / `Feels Like`), distance unit (`Kilometers` / `Miles`), typography theme (`Quicksand`, `SF Pro`, `SF Rounded`, `Fusion Pixel`), app language, and alternate app icons live in Settings.
+- Saving is blocked when a widget's required framework permission is unavailable, with HealthKit treated specially via `.requested` state verification because iOS does not expose read-authorization status after prompting.
+
+## Preset Persistence & Thumbnail Architecture
+
+- **App Group JSON Store**: When saved, presets are serialized to App Group storage under `presets.json` and in `UserDefaults` (`savedWidgetPresets`).
+- **Disk Thumbnails**: A rendered snapshot of the widget is captured and saved as `<presetID>.png` in the shared App Group container directory, allowing the iOS system widget picker to render visual preview cards for each preset.
+- **Debounced Timeline Invalidation**: Saving or removing a preset schedules a debounced timeline reload (`WidgetTimelineReloadScheduler.schedule(after: .milliseconds(450))`) to notify WidgetKit without exhausting reload budgets.
+- **Simulator Testing Bypass**: In Xcode iOS Simulator environments where AppIntent configuration sheets fail to deliver entity pickers, `SharedModelContainer.setSimulatorActivePreset(presetID)` and `WidgetSharedStore.simulatorActivePresetID` ensure the active preset automatically renders in simulator widgets.
 
 ## Library Rules
 
-- The Library page should group presets by size tab.
-- The count shown in each tab should reflect saved presets in that size.
-- A library card should show a realistic preview and enough metadata to distinguish one preset from another.
-- The app library should represent saved presets, not the system-installed widget instances themselves.
-- Saved presets should be written to the App Group so the WidgetKit extension and AppEntity picker can read them.
-- Saved widget thumbnails should be written beside shared preset data when available, so the system picker can display visual choices.
-- Size tabs should support both direct chip taps and horizontal swiping.
-- Empty states should communicate when a size has no saved presets.
-- Library row previews should preserve widget aspect ratio, scale down to fit the row, and may crop the bottom under the divider to keep the list dense and preview-like.
+- The Library page groups presets by size tab (`Small`, `Medium`, `Large`).
+- The count badge shown in each tab reflects saved presets in that size.
+- A library card shows a realistic preview and enough metadata to distinguish one preset from another.
+- The app library represents saved presets, not system-installed widget instances.
+- Saved presets are written to the App Group so the WidgetKit extension and `SavedWidgetEntity` AppIntent query can read them.
+- Size tabs support both direct chip taps and horizontal swiping gestures.
+- Empty states communicate clearly when a size has no saved presets.
+- Library row previews preserve widget aspect ratio, scale down to fit the row, and crop the bottom under the divider to keep the list dense and preview-like.
 
 ## System Widget Relationship
 

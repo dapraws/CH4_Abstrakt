@@ -174,33 +174,25 @@ extension LiveActivityWidgetLayout {
         switch self {
         case .todayInfo:
             LiveActivitySurfaceLayout(
-                height: isLiveActivity
-                    ? LiveActivityWidgetMetrics.liveActivityTodayInfoSurfaceHeight
-                    : LiveActivityWidgetMetrics.expandedTodayInfoSurfaceHeight,
+                height: LiveActivityWidgetMetrics.liveActivityTodayInfoSurfaceHeight,
                 horizontalPadding: 16,
-                verticalPadding: isLiveActivity ? 20 : 18
+                verticalPadding: 20
             )
         case .weatherInfo:
             LiveActivitySurfaceLayout(
-                height: isLiveActivity
-                    ? LiveActivityWidgetMetrics.liveActivityWeatherInfoSurfaceHeight
-                    : LiveActivityWidgetMetrics.expandedWeatherInfoSurfaceHeight,
+                height: LiveActivityWidgetMetrics.liveActivityWeatherInfoSurfaceHeight,
                 horizontalPadding: 18,
                 verticalPadding: 12
             )
         case .calendarInfo:
             LiveActivitySurfaceLayout(
-                height: isLiveActivity
-                    ? LiveActivityWidgetMetrics.liveActivityCalendarInfoSurfaceHeight
-                    : LiveActivityWidgetMetrics.expandedCalendarInfoSurfaceHeight,
+                height: LiveActivityWidgetMetrics.liveActivityCalendarInfoSurfaceHeight,
                 horizontalPadding: 14,
                 verticalPadding: 12
             )
         default:
             LiveActivitySurfaceLayout(
-                height: isLiveActivity
-                    ? LiveActivityWidgetMetrics.lockScreenIslandHeight
-                    : LiveActivityWidgetMetrics.expandedIslandHeight,
+                height: LiveActivityWidgetMetrics.expandedIslandHeight,
                 horizontalPadding: 0,
                 verticalPadding: 0
             )

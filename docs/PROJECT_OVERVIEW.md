@@ -2,182 +2,104 @@
 
 ## Summary
 
-Abstrakt is a SwiftUI iOS app that helps users build a personal library of saved widget presets and configure ActivityKit-based Dynamic Island surfaces. On first launch, users move through onboarding, then browse a gallery, preview and save Home Screen widget presets, or open the Live Activity screen to choose Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity items.
+Abstrakt is a native SwiftUI iOS app designed to configure, preview, and manage custom widgets and ActivityKit surfaces. Users discover widget concepts across Apple frameworks, preview on-device styles, customize options, and save presets into their personal Library. On the Home Screen, WidgetKit's `Solid Widget` slots render those saved presets using live data cached in shared App Group storage. In parallel, Abstrakt provides a Dynamic Island & Lock Screen Live Activity control system featuring Smart Pills, expanded Dynamic Island widgets, and Glass/Solid Lock Screen presentations.
+
+---
 
 ## Product Shape
 
-- Host app: discovery, previews, configuration sheets, saved library, permissions, and settings
-- First-launch onboarding: welcome, widget tutorial, and an optional permissions step before entering the main app shell
-- Widget extension: exposes three size-based `Solid Widget` renderers and renders saved presets on the Home Screen
-- Shared render layer: widget visuals live under `Abstrakt/Widgets/` and are compiled into both the host app and WidgetKit extension
-- ActivityKit layer: Live Activity visuals live under `Abstrakt/LiveActivities/` and are split by `SmartPills`, `Expanded`, `LiveActivity`, and `Shared`
-- Runtime data flow: host-app providers refresh battery, Health, calendar/date, time, storage, and WeatherKit data into App Group storage for WidgetKit; in-app previews use provider/cache values instead of sample numbers
-- Design system: app surfaces use the concrete `AppColors` roles documented in `DESIGN_FOUNDATION.md`, including filled `card`/`cardSoft` surfaces, app appearance preferences, and `accentPurple` (`#615FFF`) for primary branded actions
-- Localization flow: app strings live in `Localizable.xcstrings`, while `LocalizationManager` lets users choose System, English, Indonesian, Spanish, or Portuguese-Brazil from Settings
-- Future surfaces: richer Lock Screen widgets and StandBy variants once the core widget and ActivityKit flows are stable
+- **Host App**: Discovery gallery, interactive customization sheets, saved library, Live Activity studio, permissions dashboard, and global settings.
+- **Onboarding Gate**: Multi-stage first-launch experience (`WelcomeScreen` -> `TutorialScreen` -> `OnboardingPermissionScreen`) persisted via `hasCompletedOnboarding`.
+- **WidgetKit Extension**: Exposes three generic size slots (`Small Widget`, `Medium Widget`, `Large Widget`) driven by App Intents (`SmallSolidWidgetIntent`, `MediumSolidWidgetIntent`, `LargeSolidWidgetIntent`) and dynamic queries (`SmallSavedWidgetQuery`, `MediumSavedWidgetQuery`, `LargeSavedWidgetQuery`).
+- **Shared Render Architecture**: 13 widget renderers live in `Abstrakt/Widgets/` and are compiled directly into both the main app and `AbstraktWidgetsExtension`.
+- **ActivityKit Architecture**: ActivityKit presentation code is partitioned under `Abstrakt/LiveActivities/` into `SmartPills` (compact leading/trailing), `Expanded` (expanded island), `LiveActivity` (Lock Screen banner), and `Shared` (renderers and typography).
+- **App Group Store**: Live snapshots (`BatterySnapshot`, `HealthSummarySnapshot`, `SleepSnapshot`, `EventsSnapshot`, `WeatherSnapshot`, `DaylightSnapshot`, `PortalSnapshot`, `StorageSnapshot`, `HeartRateSnapshot`) are serialized by `SharedModelContainer` in the host app and read by `WidgetSharedStore` in extensions.
+- **Simulator Compatibility**: Includes an automated fallback (`setSimulatorActivePreset` / `simulatorActivePresetID`) that routes active presets on iOS Simulators where system AppIntent pickers are broken.
+- **Design System Tokens**: Semantic tokens in `DesignSystem/` (`AppColors`, `AppFonts`, `AppRadius`, `AppSpacing`, `WidgetSizeTokens`) ensure cohesive visual presentation.
+- **Localization Support**: User-selectable in-app languages (`System`, `English`, `Bahasa Indonesia`, `Español`, `Português (Brasil)`) backed by `Localizable.xcstrings` and `LocalizationManager`.
 
-## Near-Term Priorities
-
-- Continue refining the app structure around screens under `App/Screens/`
-- Keep widget entries cleanly separated under `Widgets/`
-- Keep ActivityKit renderers cleanly separated under `LiveActivities/` by state, not by temporary UI implementation names
-- Keep app-owned core models for saved widget presets and per-widget configuration
-- Build service boundaries around Apple-native frameworks
-- Keep static fixture values out of runtime widget rendering; use provider data, cached App Group values, or explicit empty/permission states instead
-- Keep static fixture values out of runtime Live Activities; use `Core/Services/LiveActivities` data or explicit add/empty states instead
-- Keep portal-style app launchers configurable through the host app, backed by App Intents, with framework data still fetched by host-app providers and cached for WidgetKit.
-- Keep Weather and Daylight backed by WeatherKit/CoreLocation in the host app, with widget-safe snapshots cached into the shared App Group.
-- Keep light, dark, and system appearance modes first-class in both previews and saved configuration
-- Keep global app preferences, such as units and app font, separate from widget-specific saved preset styling
-- Keep localization keys in the string catalog and route user-facing strings through the localization helpers rather than hard-coding screen copy
-- Keep app-only personalization, such as alternate app icons, out of widget-extension code paths
+---
 
 ## Core User Experience
 
-The current core flow looks like this:
-
 ```text
-Onboarding (first launch)
-  ↓
-Gallery / Main App Shell
-  ↓
-Widget Detail / Preview Sheet
-  ↓
-Optional Nested Customization Sheet(s)
-  ↓
-Save Preset To Library
-  ↓
-WidgetKit Selection On Home Screen
+Onboarding (First Launch)
+   │
+   ▼
+Main App Shell (BottomBar Navigation)
+   ├─► Gallery Screen ──► Tap Widget Card ──► WidgetPreviewSheet
+   │                                               │
+   │                                               ├─► Appearance (System / Light / Dark)
+   │                                               ├─► Widget-Specific Options (Mode, Font, Apps)
+   │                                               ▼
+   │                                          Save Preset (Validates/Prompts Permissions)
+   │                                               │
+   │                                               ▼
+   │                                          SharedModelContainer (App Group Disk/Defaults)
+   │                                               │
+   │                                               ▼
+   ├─► Library Screen ◄────────────────────────────┘
+   │     (Grouped by Small, Medium, Large tabs; Edit / Delete presets)
+   │
+   ├─► Live Activity Screen ──► Smart Pills / Expanded / Live Activity Selector
+   │                             │
+   │                             ├─► LiveActivityPreviewSheet (Browse & Assign Widgets)
+   │                             ├─► Glass / Solid Style Picker
+   │                             ▼
+   │                         LiveActivitiesState (ActivityKit start / update / end)
+   │
+   └─► Settings Screen (Appearance, Language, Fonts, Alternate Icons, Units, FAQ, Permissions)
 ```
 
-Important UX constraints:
+---
 
-- First launch is gated by onboarding through `hasCompletedOnboarding`.
-- Users choose between `Small`, `Medium`, and `Large` for Home Screen placement.
-- The iOS widget gallery exposes `Solid Widget` with `Small Widget`, `Medium Widget`, and `Large Widget` slots.
-- The system saved-widget picker must filter saved presets by the selected slot's size.
-- Not every widget needs the same settings.
-- Some settings should be inline in the first sheet.
-- Some settings should push or open a second sheet, such as font selection.
-- The saved Library should group presets by widget size so users understand what is ready to place.
-- Library tabs should be swipeable as well as tappable, with size counts kept visible in the tab chips.
-- Gallery category chips should come from active `WidgetCatalog` categories, so framework-backed groups such as `HealthKit`, `WeatherKit`, `EventKit`, `Foundation`, `UIKit`, and `Portal` are discoverable without maintaining a separate chip list.
-- Library rows should crop the widget preview under the row divider instead of shrinking the design into a tiny thumbnail.
-- Preview sheets should use a full-width bottom sheet treatment with a drag indicator, title metadata below the rendered widget, and a bottom save action separated from the widget preview layer.
-- Settings should expose app language, app font, alternate app icon, unit preferences, permissions, FAQ, sharing, and release notes without mixing those global preferences into per-widget configuration.
-- Settings should expose Appearance as a first-class app preference, while Home Screen widget appearance and Live Activity glass/solid styling remain surface-specific.
-- The main tab shell currently includes `Home`, `Gallery`, `Live Activity`, `Settings`, and an overlaid `Library`; Gallery, Library, Settings, and Live Activity carry the primary product flow.
-- Unit preferences should use compact picker/menu controls from Settings and persist through shared storage for widget rendering.
-- App font changes should persist to shared storage and reload WidgetKit timelines so in-app previews and Home Screen widgets use the same selected typography.
-- App language changes should persist through shared settings, update visible strings, and reload timelines when widget-visible strings may change.
-- Portal launcher MiniApp selection and icon clip style should persist to shared storage and reload WidgetKit timelines so the Home Screen renderer matches the in-app preview.
-- Signing and App Group setup should remain config-driven through `Signing.xcconfig` plus optional local overrides, with app and extension entitlements sharing the same `APP_GROUP_ID`.
+## The 13 Widgets in Abstrakt
 
-## Recommended Module Direction
+| # | Widget | Category | Size | Primary Framework | Key Capabilities |
+|---|---|---|---|---|---|
+| 1 | **Reminder** | `.calendar` | `Small` | `EventKit` | Top 3 tasks, completion strike-through, `+N more` counter, deep link URL. |
+| 2 | **Battery** | `.system` | `Small` | `UIKit` | Level percentage, charging state, remaining duration, 5-bar fill gauge. |
+| 3 | **Steps** | `.health` | `Small` | `HealthKit` | Daily step count, formatted distance with user-selected unit (km/mi). |
+| 4 | **Activity** | `.health` | `Small` | `HealthKit` | Exercise minutes, active calories, sleep time for Today or Weekly scope. |
+| 5 | **Sleep** | `.health` | `Small` | `HealthKit` | Target bedtime, sleep duration pill, sleep efficiency percentage. |
+| 6 | **Events** | `.calendar` | `Small` | `EventKit` | Upcoming or Current event prioritisation, time countdown, multi-event count. |
+| 7 | **Portal** | `.portal` | `Small` | `AppIntents` | 6 interactive app launcher buttons, custom icon clipping, local weather & date. |
+| 8 | **Today** | `.system` | `Medium` | `Foundation` | Multi-card layout: live time & condition header, temp with high/low, full month calendar grid. |
+| 9 | **Calendar** | `.calendar` | `Small` | `EventKit` | Responsive month grid, weekday header, highlight for current date. |
+| 10 | **Storage** | `.system` | `Small` | `Foundation` | Base-10 filesystem calculation (1 GB = 10^9 B), used/available striped gauge. |
+| 11 | **Daylight** | `.weather` | `Small` | `WeatherKit` | Solar event calculations (sunrise/sunset time and icon), temperature range. |
+| 12 | **Weather** | `.weather` | `Small` | `WeatherKit` | Reverse-geocoded place name, current condition symbol, temperature & bounds. |
+| 13 | **Heart Rate** | `.health` | `Small` | `HealthKit` | Live background BPM reading from HealthKit, relative sample timestamp. |
 
-```text
-Abstrakt/
-├── App/
-│   ├── AbstraktApp.swift
-│   └── ContentView.swift
-│   ├── Screens/
-│   ├── Components/
-│   └── Configuration/
-├── Core/
-│   ├── Models/
-│   ├── Services/
-│   ├── Storage/
-│   ├── Constants/
-│   ├── Localization/
-│   └── Extensions/
-├── DesignSystem/
-├── Widgets/
-│   ├── SharedWidgetStyle.swift
-│   └── <WidgetName>/
-├── LiveActivities/
-│   ├── DynamicIslandActivity.swift
-│   ├── SmartPills/
-│   ├── Expanded/
-│   ├── LiveActivity/
-│   └── Shared/
-└── AbstraktWidgetsExtension/
-```
+---
 
-## Shared Data Ownership
+## MVVM Architectural Layers
 
-- The host app owns gallery state, customization state, permission messaging, and saved widget presets.
-- `Core/Storage/` should hold saved preset storage abstractions.
-- `Core/Settings/` should hold shared preference types for app and widget surfaces, such as temperature unit, temperature display, and distance unit.
-- `Core/Localization/` should hold runtime localization helpers and language state; screens should use localized keys rather than hard-coded user-facing strings.
-- `AbstraktWidgetsExtension/` should consume saved configuration data and route WidgetKit entries into shared widget renderers rather than owning duplicate visual implementations.
-- Widget-specific folders should define their render snapshots and SwiftUI views in an extension-safe way. App-only provider adapters can live beside those views behind `#if !WIDGET_EXTENSION`.
-- `LiveActivities/` should consume activity view data from `Core/Services/LiveActivities/` and shared feature providers. ActivityKit views should not invent static runtime values.
-- Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity can choose different items, but they share one ActivityKit activity and one enabled toggle because iOS does not expose independent enablement per ActivityKit state.
-- Interactive widget buttons should use App Intents available to the widget extension. Framework-backed data such as WeatherKit still flows through the host app and App Group storage.
+### 1. Model Layer (`Core/Models/`, Feature Snapshots)
+- Domain data types (`WidgetCatalogItem`, `WidgetCategory`, `WidgetPreset`, `WidgetSize`, `WidgetAppearanceMode`, `AppIconOption`).
+- Immutable render snapshots (`BatterySnapshotViewData`, `StepsSnapshot`, `ActivitySnapshot`, `EventsSnapshot`, `ReminderSnapshot`, `SleepSnapshot`, `PortalSnapshot`, `StorageUsageSnapshot`, `TodaySnapshot`, `WeatherSnapshot`, `DaylightSnapshot`, `HeartRateRenderSnapshot`).
+- Shared ActivityKit models (`DynamicIslandActivityAttributes`, `LiveActivityWidget`, `LiveActivityWidgetLayout`).
 
-## Implementation Contract
+### 2. View Layer (`App/`, `Widgets/`, `LiveActivities/`)
+- Pure SwiftUI composition consuming pre-formatted view models or snapshots.
+- Views never make direct network, CoreLocation, HealthKit, or EventKit calls.
+- Extension renderers in `Widgets/` are lightweight and execute inside memory-constrained WidgetKit extension processes.
 
-- Provider-backed data is the default. The app should map framework snapshots into render-safe widget and activity data before extension surfaces consume it.
-- Preview and runtime surfaces should share renderers. If the app preview and the actual phone surface drift, fix the shared renderer/metrics rather than adding one-off preview-only values.
-- ActivityKit has three user-visible states: Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity. These states can choose different items, but unselected states render the explicit add/empty state instead of falling back to another state's chosen item.
-- Lock Screen Live Activity visual mode is either `Glass` or `Solid`. That mode is independent from Settings Appearance and should not affect Smart Pills, expanded Dynamic Island, or Home Screen widgets.
-- Settings Appearance controls the host app's preferred color scheme. Home Screen widget appearance remains widget/preset specific, and ActivityKit surfaces keep their own black/glass treatment.
-- Haptics are part of the interaction contract for primary buttons, bottom navigation, library/gallery sheets, Live Activity mode changes, and item selection.
-- Onboarding/tutorial illustration fades should use `AppColors.appBackground` so light and dark modes blend into the real app canvas.
-- Live Activity frame previews own shared interaction chrome: Smart Pills side contours, the stepper, `Glass`/`Solid`, and `Edit | Delete`. Keep those controls centralized so every ActivityKit state behaves consistently across device sizes.
-- Live Activity preview sheets should derive item height from the renderer and keep ordinary list scrolling. Sheet expand/collapse gestures should not steal scroll events unless the list is already at its top.
+### 3. Service & Provider Layer (`Core/Services/`)
+- Isolates system framework access behind clean, asynchronous interfaces.
+- Implements background query delivery, request throttling, task coalescing, and reverse geocoding.
+- Gated by active presets in `ContentView` to conserve battery and CPU resources.
 
-## MVVM Architecture
+### 4. Shared Storage Layer (`Core/Storage/`, `WidgetSharedStore.swift`)
+- `SharedModelContainer`: Writes JSON payloads, disk thumbnails (`<presetID>.png`), and triggers debounced timeline reloads via `WidgetTimelineReloadScheduler`.
+- `WidgetSharedStore`: Extension-safe reader with in-memory JSON decode caching (5-second TTL) to guarantee instantaneous WidgetKit timeline generation.
 
-### Model
+---
 
-- Widget metadata
-- Saved preset payloads
-- Per-widget configuration values
-- Permission and availability states
-- Preview payloads that are safe for both app and widget surfaces
+## Live Activity & Dynamic Island Matrix
 
-These shared types belong in `Core/Models/`. They are closer to TypeScript domain/types files than widget-local screen models.
+Abstrakt manages a unified `DynamicIslandActivityAttributes` instance that drives 3 distinct presentation contexts:
 
-### ViewModel
-
-- Coordinates services, configuration state, validation, formatting, and preview updates
-- Decides which customization controls are visible for a given widget
-- Maps framework-backed data into widget-preview-ready state
-
-Not every widget needs a dedicated view model. Add one only when the widget has enough unique state or transformation logic to justify it.
-
-### View
-
-- Renders the gallery, preview sheets, customization components, and library lists
-- Remains focused on layout, state rendering, and design tokens
-- Does not directly fetch `HealthKit`, `WeatherKit`, `CoreLocation`, or `EventKit`
-- Widget render views under `Abstrakt/Widgets/` must avoid app-only dependencies unless guarded, because the extension target compiles those files too.
-
-### Service Layer
-
-- Wraps Apple frameworks behind extension-safe models
-- Handles permissions, freshness, caching, and framework-specific translation
-
-## Data & Permission Strategy
-
-- The host app keeps framework-backed refresh work gated by saved presets. `ContentView` refreshes only the providers whose frameworks appear in the saved widget presets and starts always-on refresh loops only when at least one preset exists.
-- The first-launch onboarding flow now includes an optional permissions page with dedicated request actions for Health, Weather/Location, and Calendar access.
-- The preview sheet still acts as the save-time fallback. If a required permission was skipped during onboarding or remains undetermined, the Save action requests it before writing the preset.
-- Widgets are expected to render explicit empty, denied, and loading states while they wait for cached App Group data.
-
-## Surface Direction
-
-The same feature and provider system now supports:
-
-- Home Screen widgets through WidgetKit
-- Smart Pills through ActivityKit compact Dynamic Island regions
-- Expanded Dynamic Island activity surfaces
-- Lock Screen and notification Live Activities
-
-Future expansion should focus on:
-
-- Lock Screen widget variants
-- StandBy-appropriate layouts
-
-Every expansion should reuse the same preset, theme, and service foundations wherever possible.
+1. **Smart Pills (Compact Dynamic Island)**: Leading and trailing capsules render independent compact widgets selected from 25 available layouts (e.g. gauges, clocks, compasses, dials, progress rings).
+2. **Expanded Dynamic Island**: A centered 291x112pt canvas presenting rich cards such as `Today Info`, `Weather Info`, and `Calendar Info`.
+3. **Lock Screen Live Activity**: Prominent banner on Lock Screen and Notification Center supporting **Glass** (Liquid Glass with light/dark adaptive text) and **Solid** (pure black with specular border) styling.

@@ -1,315 +1,166 @@
 # Design Foundation
 
-This document defines the UI foundation for Abstrakt across the main app, widget previews, the Home Screen widget extension, and ActivityKit surfaces.
+This document defines the complete UI foundation for Abstrakt across the main iOS app, widget previews, the WidgetKit extension, and ActivityKit surfaces.
 
 ## Design Goals
 
-- Glanceable in widget sizes
-- High contrast in both light and dark environments
-- Flexible enough for widget-specific customization
-- Consistent between app previews and actual WidgetKit rendering
-- Strong enough to support a library of saved presets rather than one-off widget screens
-- Localized enough that screen copy, picker labels, permission messages, and settings rows can switch language without layout breakage
-- Predictable enough that in-app ActivityKit previews match the actual Dynamic Island and Lock Screen Live Activity output
+- **Glanceable Hierarchy**: Immediate clarity at small and medium Home Screen widget dimensions.
+- **Dynamic Contrast**: Seamless dark and light appearance adaptation using native SwiftUI semantics.
+- **Component Parity**: Visual identity and proportions match 1:1 between in-app previews, WidgetKit widgets, and ActivityKit presentations.
+- **Shared Tokens**: Semantic color roles, typography scales, layout metrics, and radii are shared between the app and extension targets.
+- **Multilingual Support**: Layout containers adapt gracefully to varying string lengths across English, Indonesian, Spanish, and Brazilian Portuguese.
+
+---
 
 ## Appearance Modes
 
-Every configurable widget should support appearance choices where relevant:
+Every configurable widget and preset supports three appearance modes:
 
-- `System`
-- `Light`
-- `Dark`
+- `System`: Matches the host device's active color scheme.
+- `Light`: Forces light-mode background and foreground styling.
+- `Dark`: Forces dark-mode background and foreground styling.
 
-Rules:
+### Rules
+- In-app preview sheets honor the widget preset's configured appearance mode even if the host app is running in a different mode.
+- Global app theme is managed in **Settings > Appearance** (`System`, `Light`, `Dark`).
+- ActivityKit surfaces (Smart Pills, Expanded, Lock Screen Live Activity) are visually independent from the app appearance preference, using system-native black or glass materials.
 
-- `System` follows the current device context.
-- `Light` and `Dark` must preview deterministically inside the app sheet even if the app itself is running in another appearance.
-- Saved presets should persist the appearance choice as part of widget configuration when the widget supports it.
-- The Settings Appearance control changes the host app's preferred color scheme. ActivityKit surfaces do not follow this preference; Smart Pills, expanded Dynamic Island, and Lock Screen Live Activities keep their own black/glass system-surface treatment.
+---
 
-## Color Tokens
+## Semantic Color Tokens (`AppColors`)
 
-`AppColors` is the canonical source for app color roles. Start from these roles instead of hard-coded values in feature code or docs.
+`DesignSystem/AppColors.swift` provides dynamic color definitions that automatically resolve light and dark interface traits:
 
-| Token | Light | Dark | Use |
+| Token Name | Light Hex | Dark Hex | Purpose / Placement |
 |---|---|---|---|
-| `appBackground` | `#F0F2FC` | `#17171D` | Main app background |
-| `topFade` | `#F0F2FC` | `#17171D` | Top navigation fade background |
-| `card` | `#F7F8FD` | `#1D1D24` | Primary grouped surface |
-| `cardSoft` | `#ECEEF7` | `#22222B` | Softer controls, empty slots, secondary grouped surfaces |
-| `miniAppEmptySlot` | `#E2E5EF` | `#30303A` | Empty Portal mini-app slots |
-| `miniAppEmptySlotBorder` | `#C9CEDC` | `#3B3B46` | Empty Portal slot boundary when a boundary is required |
-| `chip` | `#FCFCFC` | `#070707` | Unselected chips |
-| `chipSelected` | `#141414` | `#F4F4F4` | Selected chips |
-| `chipBorder` | `#141414` at 7% | `#F4F4F4` at 7% | Subtle chip boundary |
-| `chipBorderSelected` | `#141414` at 12% | `#F4F4F4` at 12% | Selected chip boundary |
-| `chipText` | `#141414` | `#F4F4F4` | Unselected chip text |
-| `chipTextSelected` | `#F0F2FC` | `#17171D` | Selected chip text |
-| `tabBar` | `#000000` | `#000000` | Bottom tab bar base |
-| `tabBarBorder` | `#161616` | `#161616` | Bottom tab bar divider |
-| `tabBarIcon` | `#FFFFFF` at 42% | `#FFFFFF` at 42% | Unselected tab icon |
-| `tabBarIconSelected` | `#FFFFFF` | `#FFFFFF` | Selected tab icon |
-| `separator` | `#FFFFFF` at 12% | `#FFFFFF` at 12% | Lightweight separators |
-| `primaryText` | `#141414` | `#F4F4F4` | Primary labels and headings |
-| `secondaryText` | `#141414` at 62% | `#F4F4F4` at 62% | Secondary copy |
-| `tertiaryText` | `#141414` at 42% | `#F4F4F4` at 42% | Metadata and low-emphasis copy |
-| `accentBlue` | `rgb(0.29, 0.63, 1.0)` | Same | Blue feature accents |
-| `accentGreen` | `rgb(0.32, 0.89, 0.48)` | Same | Green feature accents |
-| `accentPurple` | `#615FFF` | `#615FFF` | Primary brand/action purple |
-| `accentPink` | `rgb(0.97, 0.45, 0.63)` | Same | Pink feature accents |
-| `widgetBackground` | `#FDFDFD` | `#060606` | Widget canvas background |
-| `widgetPrimaryText` | `#0A0A0A` | `#F4F4F4` | Widget primary text |
-| `widgetSecondaryText` | `#0A0A0A` at 62% | `#F4F4F4` at 62% | Widget secondary text |
-| `widgetTertiaryText` | `#0A0A0A` at 42% | `#F4F4F4` at 42% | Widget metadata text |
-| `widgetStroke` | `#0A0A0A` at 8% | `#F4F4F4` at 8% | Widget boundaries when a stroke is needed |
-
-Rules:
-
-- Prefer `card` and `cardSoft` filled surfaces over visible borders. Borders should be rare and quiet.
-- Use `accentPurple` (`#615FFF`) for primary onboarding actions, selected permission toggles, and prominent branded controls.
-- Keep widget colors separate from app colors. Runtime widgets should use the `widget*` roles instead of app screen text/background roles.
-- Use opacity roles exactly as defined above; do not replace them with nearby opaque grays.
-
-## Typography Roles
-
-The app needs two kinds of typography tokens:
-
-### Semantic UI Roles
-
-- `display`
-- `homeDisplay`
-- `title`
-- `heading1`
-- `heading2`
-- `heading3`
-- `body`
-- `subBody`
-- `caption`
-- `meta`
-- `chip`
-- `tab`
-- `iconBadge`
-
-### Widget Style Roles
-
-Widgets use the same semantic sizing model, and the selected app font theme is shared with WidgetKit so Home Screen widgets and in-app previews stay visually aligned. Per-widget font overrides can still be added later as explicit saved-preset configuration.
-
-- `widgetDisplay`
-- `widgetTitle`
-- `widgetHeading`
-- `widgetBody`
-- `widgetCaption`
-- `widgetMeta`
-
-The app font picker currently exposes `SF Pro`, `SF Rounded`, `Quicksand`, and `Fusion Pixel`, with `Quicksand` as the default app font. Pixel fonts use smaller token sizes and tighter line spacing so multiline layouts remain visually comparable across font themes.
-
-Rules:
-
-- Use `AppFonts` token roles for host-app UI instead of static font sizes.
-- Use `AbstraktWidgetFonts` and `AbstraktWidgetFontTheme` for shared widget renderers that compile into both the app and WidgetKit extension.
-- Bottom bar icon sizing should stay stable and must not change based on the selected app font.
-- App font changes should update visible app rows immediately without requiring a screen refresh.
-- App font changes should also be written to App Group storage and trigger a WidgetKit timeline reload.
-
-### Live Activity Roles
-
-Live Activity typography is separate from app and Home Screen widget typography. ActivityKit surfaces are physically smaller, use different system containers, and must preview at a scaled activity size without changing the real ActivityKit renderer.
-
-Rules:
-
-- Use `LiveActivityTypography` for Smart Pills, expanded Dynamic Island, Lock Screen Live Activity, and their in-app previews.
-- Do not reuse `AbstraktWidgetFonts` directly inside ActivityKit renderers unless a shared renderer explicitly maps through Live Activity typography.
-- ActivityKit previews may scale the whole activity surface down for the sheet, but the renderer should keep the same internal proportions as the actual phone surface.
-- Haptics should fire when users change Live Activity state or select/unselect activity items in the app.
-
-## Localization Roles
-
-The app supports a user-selectable language setting with these options:
-
-- `System`
-- `English`
-- `Bahasa Indonesia`
-- `Español`
-- `Português (Brasil)`
-
-Rules:
-
-- User-facing strings belong in `Localizable.xcstrings`; SwiftUI screens should call the localization helpers instead of embedding fixed English text.
-- Language changes should visibly update Settings, onboarding, Gallery, Library, preview sheets, picker sheets, permission alerts, and other app copy.
-- Text containers should allow realistic expansion for Spanish, Portuguese-Brazil, and Indonesian strings through wrapping, line limits, or minimum scale factors where needed.
-- Widget-visible strings should be sourced from localized keys or prelocalized view data, then refreshed through WidgetKit when the language changes.
-
-## Layout Foundation
-
-### iOS Widget Size Baselines
-
-Abstrakt is currently focused on iPhone widget design. Use these point sizes as measured fallbacks and aspect-ratio baselines for app previews, WidgetKit rendering checks, and size-specific layout decisions. Do not maintain a device-by-device Apple hardware table in app code; WidgetKit supplies the real widget container size at render time, and in-app previews should fit available width while preserving the family ratio.
-
-| Family | Baseline Size (pt) | Ratio | Use |
-|---|---:|---:|---|
-| `Small` | 170x170 | 1.00 | One focal metric or compact message |
-| `Medium` | 364x170 | 2.14 | One main metric plus supporting context |
-| `Large` | 364x382 | 0.95 | Multi-block composition or richer supporting content |
-
-Rules:
-
-- The default app preview baseline is the modern large iPhone size: `Small` 170x170, `Medium` 364x170, and `Large` 364x382.
-- App preview cards must preserve the measured widget aspect ratio and fit the available container width instead of requiring a hardcoded table entry for every Apple device.
-- Widget preview titles should sit outside the widget surface with enough separation to read as metadata, not as part of the widget itself.
-- Widget layouts must remain responsive when preview width is constrained below the baseline width.
-- Small portal launcher widgets may use overlapping app-icon clusters when each tappable icon remains visually distinct and the header has a single-line fallback scale.
-- Portal launcher customization uses a compact MiniApps opener for the selected six apps and a menu-only icon clip control for `Default`, `Circle`, and `Bloom`.
-- Activity widgets may use a minimal title, one SF Symbol status mark, and stacked metric rows with lighter unit labels. The Today/Weekly choice belongs in the preview sheet and must stay shared with WidgetKit.
-- Events widgets use compact date context, a status badge such as `Starts soon` or `Now`, and stacked event text. The Upcoming/Current priority choice belongs in the preview sheet and must stay shared with WidgetKit.
-- Weather widgets may use custom condition assets when the asset name maps directly from the WeatherKit condition snapshot, while still rendering a legible fallback for unknown conditions.
-- Calendar widgets use orange accent state consistent with Battery/Storage accents, not the old blue active date color.
-- Reminder widgets keep fixed readable text sizing rather than shrinking body copy to fit long items; overflow should use line limits, truncation, or a `+n more` row.
-- Sleep widgets use the shared widget header treatment and keep bottom metric pills balanced across half-width cells.
-- Storage widgets should render used and available portions inside a quiet rounded container. Use `widgetStroke` only when separation cannot be achieved with fill, spacing, or contrast.
-- Lock Screen `Circular`, `Rectangular`, and `Inline` dimensions are documented here for future iOS widget expansion, but the shipping app flow remains Home Screen first.
-- Do not invent custom preview aspect ratios when one of these rows applies.
-
-### ActivityKit Preview Sizes
-
-ActivityKit surfaces use their own sizing rules:
-
-- The Dynamic Island frame preview uses the image assets under `Assets.xcassets/Illustrations/LiveActivities/` and keeps the island content anchored inside that frame.
-- Smart Pills preview only represents the compact Dynamic Island regions. Left and right selected pills should stay selected until changed or tapped again to clear.
-- Expanded and Lock Screen Live Activity items should use a consistent activity width and activity corner-radius language. The in-app preview sheet must not impose a fixed item height that clips taller activity designs.
-- The Lock Screen Live Activity surface supports `Glass` and `Solid`. `Glass` should use Apple's Liquid Glass APIs where available and should not stack an opaque black activity container on top of the native material. In light system mode, text/icons inside the glass preview island and actual Lock Screen Live Activity may switch to primary text color for legibility.
-- `Glass`/`Solid` is only for the Lock Screen Live Activity preview and actual Lock Screen Live Activity, not for normal Home Screen widget previews or the item list cards.
-- Expanded and Lock Screen item titles in preview sheets use primary text color so they remain readable in light mode.
-- Selected-state badges (`checkmark.seal.fill`, `L`, and `R`) are overlay badges on preview items only. Do not show those badges inside the Dynamic Island frame preview or the actual ActivityKit surface.
-- Badge transitions should use fade, blur, and gentle rotation rather than scale pops.
-- Compact Smart Pills use a subtle contour indicator around the selected left/right slot in the phone-frame preview. The indicator is an overlay on the island, not a resized island, and should animate its dash phase with a soft spring when the selected side changes.
-- Shared Live Activity controls such as `Glass`/`Solid` and `Edit | Delete` should use the same quiet glass control treatment: subtle material, low-contrast boundary, no harsh square clipping, and smooth fade/slide/blur transitions.
-- Keep ActivityKit preview item heights content-driven. The preview sheet can scale the rendered item for browsing, but it should not clip the bottom radius, hide labels, or require per-device height tweaks when a renderer changes.
-
-### Home Screen Sizes
-
-| Size | Use |
-|---|---|
-| `Small` | One focal metric or compact message |
-| `Medium` | One main metric plus supporting context |
-| `Large` | Multi-block composition or richer supporting content |
-
-For now these are the core shipping sizes for the app flow and library organization. The design default is `170x170`, `364x170`, and `364x382`, with smaller device rows handled through measured-ratio scaling and responsive layout.
-
-### Customization Sheet Pattern
-
-The app customization experience should support:
-
-- A top widget preview
-- A display title below the rendered widget preview
-- Inline segmented choices such as appearance mode
-- Tap-to-open rows for nested pickers such as font selection
-- Checkbox or tile-style choices for style presets
-- A primary save or try action at the bottom
-
-This is intentionally a flexible pattern, because not every widget needs the same control set.
-
-Preview sheet rules:
-
-- The sheet should read as a full-width bottom sheet with rounded top corners and no side or bottom gap.
-- The drag indicator sits at the top center.
-- The widget render, future form controls, and bottom save button live in separate visual layers.
-- The bottom save button should sit above the phone bottom with padding comparable to the app bottom bar.
-- Opening and closing should use subtle movement and backdrop fading without a visible dark band following the sheet.
-- Live Activity preview sheets should scroll normally. If the sheet is collapsed and the user scrolls down, expand the sheet before consuming list scroll. If the sheet is expanded and the list is already at its top, a downward pull may collapse the sheet; otherwise, scrolling should remain regular list scrolling.
-
-### Settings Picker Pattern
-
-Settings rows may use compact system menus/dropdowns for small value sets such as:
-
-- Temperature unit
-- Temperature display
-- Distance unit
-
-Rules:
-
-- The row title must remain visible while the picker is open.
-- Menus should be anchored near the tapped row/value, not centered on the screen.
-- App font selection uses a sheet because it is a visual tile picker, not a compact value menu.
-- The font picker sheet uses a compact header and two-column font tiles. The active tile should be visually distinct through selected fill, contrast, or a very quiet focus treatment rather than relying only on text.
-- Language selection uses a dedicated tile screen so each language can appear in its own display name.
-- App icon selection uses a dedicated two-column visual picker with preview art for `Default`, `Glass`, `Purple`, and `Blue` icons. This is app-only UI and should not be mirrored in the widget extension.
-
-## Library Page Pattern
-
-Saved presets should be grouped by widget size:
-
-- `Small`
-- `Medium`
-- `Large`
-
-Each library item should clearly communicate:
-
-- Widget family
-- Style or preset name
-- Optional badge such as `Pro`, category, or configuration variant
-- A preview that resembles the actual Home Screen widget
-
-Library layout rules:
-
-- Size tabs must be tappable and horizontally swipeable through `Small`, `Medium`, and `Large`.
-- Empty states should appear for sizes with no saved presets.
-- Row metadata should have a stable left column and the widget preview should occupy the right side.
-- Small and medium rows should scale the widget preview down while preserving its canonical aspect ratio.
-- Preview rows may intentionally crop the bottom of the widget under the row divider so the list reads like a preview strip instead of a fully shrunken gallery card.
-- Light and dark appearances must use matching overlay/fade behavior; dark overlays should not leak into light mode.
-
-## Widget State Rules
-
-Every widget family should plan for:
-
-- Loaded state
-- Empty state
-- Permission denied state
-- Stale-data state
-
-These should be designed at the same level as the happy path, especially for framework-backed widgets.
-
-Runtime widget surfaces should not use static sample metrics as fallbacks. Use provider data, App Group cached values, or explicit empty/permission-denied copy; keep fixed sample values limited to Xcode canvas previews.
-
-## Recommended Token Families
-
-```text
-DesignSystem/
-├── AppColors.swift
-├── AppFonts.swift
-├── AppSpacing.swift
-├── AppRadius.swift
-└── WidgetAppearanceTokens.swift
-```
-
-Likely concrete files over time:
-
-- `AppColors.swift`
-- `WidgetAppearanceTokens.swift`
-- `AppFonts.swift` owns app font roles and selectable app font themes. Current themes are `SF Pro`, `SF Rounded`, `Quicksand`, and `Fusion Pixel`; custom font files live in `DesignSystem/Fonts` and are registered at app launch.
-- `Core/Localization/LocalizationManager.swift` owns the selected app language and localized bundle.
-- `Abstrakt/Resources/Localizable.xcstrings` owns app copy for supported languages.
-- `Abstrakt/Widgets/SharedWidgetStyle.swift` owns extension-safe widget font roles, shared widget palettes, and custom font registration for both the host app and WidgetKit extension.
-- `WidgetFontCatalog.swift`
-- `AppSpacing.swift`
-- `AppRadius.swift`
-- `WidgetSizeTokens.swift`
-- `SurfaceStyles.swift`
-
-## Preview Requirements
-
-Each widget preview should be validated in:
-
-- `Small`, `Medium`, and `Large` where supported
-- `System`, `Light`, and `Dark` appearance variants where supported
-- Empty and permission-denied states for framework-backed widgets
-- At least one saved-library card presentation
-
-ActivityKit preview validation adds:
-
-- Smart Pills left, right, both-selected, and cleared states.
-- Expanded Dynamic Island selected and add/empty states.
-- Lock Screen Live Activity selected and add/empty states in both `Glass` and `Solid`.
-- Light-mode glass readability, where text and icons inside the preview island and actual Lock Screen Live Activity can use primary text color when glass is active.
-- Phone-frame preview parity with actual ActivityKit output: same renderer, same typography proportions, same content-driven height, and no extra nested background that creates double borders.
-- Badge transitions using fade, blur, and subtle rotation rather than scale pops.
+| `appBackground` | `#F0F2FC` | `#17171D` | Primary app canvas and screen background |
+| `topFade` | `#F0F2FC` | `#17171D` | Top navigation bar gradient overlay fade |
+| `card` | `#F7F8FD` | `#1D1D24` | Primary elevated grouped surface (cards, sheets) |
+| `cardSoft` | `#ECEEF7` | `#22222B` | Secondary soft surfaces, inactive controls, inner containers |
+| `controlInactive` | `#E3E6F2` | `#353542` | Inactive segmented controls and toggles |
+| `liveActivityCard` | `#FAFAFC` | `#22222B` | Live activity preview cards in sheets |
+| `miniAppEmptySlot` | `#E2E5EF` | `#30303A` | Unfilled Portal mini-app slots |
+| `miniAppEmptySlotBorder` | `#C9CEDC` | `#3B3B46` | Border for unfilled Portal mini-app slots |
+| `chip` | `#FCFCFC` | `#070707` | Unselected category / filter chips |
+| `chipSelected` | `#141414` | `#F4F4F4` | Selected category / filter chips |
+| `chipBorder` | `#141414` (7%) | `#F4F4F4` (7%) | Subtle border for unselected chips |
+| `chipBorderSelected` | `#141414` (12%) | `#F4F4F4` (12%) | Border for selected chips |
+| `chipText` | `#141414` | `#F4F4F4` | Unselected chip label text |
+| `chipTextSelected` | `#F0F2FC` | `#17171D` | Selected chip label text |
+| `tabBar` | `#000000` | `#000000` | Floating bottom navigation bar background |
+| `tabBarBorder` | `#161616` | `#161616` | Floating bottom navigation bar border stroke |
+| `tabBarIcon` | `#FFFFFF` (42%) | `#FFFFFF` (42%) | Unselected tab item icon tint |
+| `tabBarIconSelected` | `#FFFFFF` | `#FFFFFF` | Selected tab item icon tint |
+| `separator` | `#FFFFFF` (12%) | `#FFFFFF` (12%) | Subtle row divider |
+| `primaryText` | `#141414` | `#F4F4F4` | Primary titles, headlines, and prominent labels |
+| `secondaryText` | `#141414` (62%) | `#F4F4F4` (62%) | Secondary labels, descriptions, and subtitles |
+| `tertiaryText` | `#141414` (42%) | `#F4F4F4` (42%) | Captions, metadata, and timestamps |
+| `accentBlue` | `rgb(0.29, 0.63, 1.0)` | Same | Informational highlights and Weather tags |
+| `accentGreen` | `rgb(0.32, 0.89, 0.48)` | Same | Success badges, completion marks, step markers |
+| `accentPurple` | `#615FFF` | `#615FFF` | Primary brand accent, CTA buttons, active state |
+| `accentPink` | `rgb(0.97, 0.45, 0.63)` | Same | Portal ordinal highlights and special accents |
+| `widgetBackground` | `#FDFDFD` | `#060606` | Native Home Screen widget canvas background |
+| `widgetPrimaryText` | `#0A0A0A` | `#F4F4F4` | Primary widget metric and headline text |
+| `widgetSecondaryText` | `#0A0A0A` (62%) | `#F4F4F4` (62%) | Secondary widget metric and label text |
+| `widgetTertiaryText` | `#0A0A0A` (42%) | `#F4F4F4` (42%) | Low-emphasis widget metadata and units |
+| `widgetStroke` | `#0A0A0A` (8%) | `#F4F4F4` (8%) | Outer widget border when required |
+
+---
+
+## Radius & Spacing Tokens
+
+### `AppRadius` (`DesignSystem/AppRadius.swift`)
+- `AppRadius.card`: **22 pt** (Widget cards, library items, modal sheets)
+- `AppRadius.chip`: **13 pt** (Category chips, filter pills)
+- `AppRadius.bottomBar`: **30 pt** (Floating bottom tab bar)
+
+### `AppSpacing` (`DesignSystem/AppSpacing.swift`)
+- `AppSpacing.screenHorizontal`: **20 pt** (Standard horizontal screen margin)
+- `AppSpacing.sectionGap`: **24 pt** (Vertical spacing between major sections)
+- `AppSpacing.cardGap`: **16 pt** (Spacing between consecutive cards)
+- `AppSpacing.chipGap`: **10 pt** (Spacing between category chips)
+- `AppSpacing.bottomBarInset`: **30 pt** (Bottom inset for floating bar clearance)
+
+### `WidgetSizeTokens` (`DesignSystem/WidgetSizeTokens.swift`)
+- `WidgetSizeTokens.defaultHomeSmall`: **CGSize(170, 170)** (1:1 square)
+- `WidgetSizeTokens.defaultHomeMedium`: **CGSize(364, 170)** (2.14:1 ratio)
+- `WidgetSizeTokens.defaultHomeLarge`: **CGSize(364, 382)** (0.95:1 ratio)
+
+---
+
+## Typography System
+
+### 1. Host App Semantic Font Roles (`AppFonts.swift`)
+
+| Role | Base Size | Weight | Line Spacing |
+|---|---|---|---|
+| `homeDisplay` | 44 pt | Bold | -2 |
+| `display` | 34 pt | Bold | -1 |
+| `title` | 28 pt | Bold | -1 |
+| `heading1` | 24 pt | Black | -1 |
+| `heading2` | 20 pt | Bold | 0 |
+| `heading3` | 17 pt | Bold | 0 |
+| `heading4` | 15 pt | Bold | 0 |
+| `body` | 15 pt | Medium | +2 |
+| `subBody` | 14 pt | Medium | +2 |
+| `subHeading` | 15 pt | Bold | +2 |
+| `caption` | 13 pt | SemiBold | +1 |
+| `meta` | 10 pt | Bold | 0 |
+| `chip` | 12 pt | Bold | 0 |
+| `tab` | 14 pt | Bold | 0 |
+| `iconBadge` | 10 pt | Black | 0 |
+| `liveActivityTitle` | 18 pt | Bold | 0 |
+| `liveActivitySection` | 16 pt | Bold | 0 |
+| `liveActivityLabel` | 9 pt | SemiBold | 0 |
+| `liveActivityHelper` | 11 pt | Medium | 0 |
+| `liveActivityControl` | 10 pt | SemiBold | 0 |
+
+### 2. Shared Extension Widget Font Roles (`SharedWidgetStyle.swift`)
+
+Used by both host app widget previews and `AbstraktWidgetsExtension`:
+
+| Widget Role | Base Size | Weight | Line Spacing |
+|---|---|---|---|
+| `display` | 41 pt | Bold | -2 |
+| `displayCompact` | 32 pt | Bold | -2 |
+| `subDisplay` | 12 pt | SemiBold | -2 |
+| `title` | 30 pt | Bold | -1 |
+| `heading` | 18 pt | Bold | 0 |
+| `body` | 13 pt | Medium | +2 |
+| `bodyBold` | 12 pt | SemiBold | +2 |
+| `caption` | 10 pt | Medium | 0 |
+| `meta` | 9 pt | SemiBold | 0 |
+| `iconBadge` | 7 pt | Black | 0 |
+
+### 3. Selectable Font Themes (`AppFontTheme` / `AbstraktWidgetFontTheme`)
+
+Users can choose their active typography theme in **Settings > Font**:
+
+- **Quicksand** (Default): Bundled custom rounded sans-serif (`Quicksand-Light`, `Quicksand-Regular`, `Quicksand-Medium`, `Quicksand-SemiBold`, `Quicksand-Bold`). Scale: 1.0.
+- **SF Pro**: System clean sans-serif. Scale: 0.89 - 0.92 depending on role.
+- **SF Rounded**: System rounded design. Scale: 0.89 - 0.92.
+- **Fusion Pixel**: Bundled proportional pixel font (`Fusion-Pixel-Regular.ttf`). Scale: 0.74 - 0.82 with negative line spacing adjustments for balanced density.
+
+---
+
+## Live Activity & Dynamic Island Design Language
+
+### Sizing & Geometric Constants (`LiveActivityWidgetMetrics`)
+- `islandWidth`: **291 pt**
+- `expandedIslandCornerRadius`: **20 pt**
+- `lockScreenActivityCornerRadius`: **24 pt**
+- `expandedPreviewCornerRadius`: **38 pt**
+- `expandedIslandHeight`: **112 pt**
+- `lockScreenEmptyStateHeight`: **118 pt**
+- `liveActivityTodayInfoSurfaceHeight`: **110 pt**
+- `liveActivityWeatherInfoSurfaceHeight`: **110 pt**
+- `liveActivityCalendarInfoSurfaceHeight`: **96 pt**
+
+### Visual Modes for Lock Screen
+- **Glass**: Utilizes SwiftUI Liquid Glass (`glassEffect(.regular, in: shape)`) with a multi-stop specular gradient border. In light mode, text automatically shifts to dark primary text (`#141414`) for high-contrast readability.
+- **Solid**: High-contrast pure black background (`#000000`) with subtle specular stroke border.
+
+### Smart Pill Design Rules
+- Left and right pills render in compact Dynamic Island leading and trailing slots.
+- Active pill selection feedback is represented as a smooth contour highlight in the phone frame preview, not by expanding the island or using heavy badge overlays.
+- Minimal presentation (`minimal`) collapses to a single icon with the widget's thematic accent color.
