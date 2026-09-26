@@ -270,8 +270,8 @@ struct GradientWidget: View {
 
     @ViewBuilder
     private func fractalPrismBackground(width w: CGFloat, height h: CGFloat) -> some View {
-        // High-density fluted glass / prism texture (approx 4.2pt per flute)
-        let slatCount = max(36, Int((w / 4.2).rounded()))
+        // Wide fluted glass / prism texture (approx 18pt width per panel)
+        let slatCount = max(8, Int((w / 18.0).rounded()))
         let slatWidth = w / CGFloat(slatCount)
 
         ZStack {
@@ -302,17 +302,17 @@ struct GradientWidget: View {
                 endRadius: max(w, h) * 0.75
             )
 
-            // Layer 3: High-frequency 3D Fluted Glass / Reeded Prism Texture
+            // Layer 3: Wide 3D Fluted Glass / Reeded Prism Texture
             HStack(spacing: 0) {
                 ForEach(0..<slatCount, id: \.self) { _ in
                     // Fluted 3D cylinder bevel: Shadow crease on left, luminous highlight ridge on right
                     LinearGradient(
                         stops: [
-                            .init(color: Color.black.opacity(0.20), location: 0.0),
-                            .init(color: Color.black.opacity(0.04), location: 0.25),
-                            .init(color: Color.clear, location: 0.50),
-                            .init(color: Color.white.opacity(0.06), location: 0.80),
-                            .init(color: Color.white.opacity(0.22), location: 1.0)
+                            .init(color: Color.black.opacity(0.24), location: 0.0),
+                            .init(color: Color.black.opacity(0.06), location: 0.20),
+                            .init(color: Color.clear, location: 0.45),
+                            .init(color: Color.white.opacity(0.08), location: 0.80),
+                            .init(color: Color.white.opacity(0.24), location: 1.0)
                         ],
                         startPoint: .leading,
                         endPoint: .trailing

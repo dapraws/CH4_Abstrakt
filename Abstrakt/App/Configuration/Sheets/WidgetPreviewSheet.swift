@@ -1668,7 +1668,7 @@ private struct GradientPickerRow: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                                     .frame(width: 44, height: 44)
                             } else if theme == .fractalPrism {
-                                // Fluted Reeded Glass / Fractal Prism Swatch
+                                // Wide Fluted Reeded Glass / Fractal Prism Swatch
                                 ZStack {
                                     LinearGradient(
                                         stops: [
@@ -1682,12 +1682,12 @@ private struct GradientPickerRow: View {
                                     )
 
                                     HStack(spacing: 0) {
-                                        ForEach(0..<12, id: \.self) { _ in
+                                        ForEach(0..<4, id: \.self) { _ in
                                             LinearGradient(
                                                 stops: [
-                                                    .init(color: Color.black.opacity(0.20), location: 0.0),
-                                                    .init(color: Color.clear, location: 0.50),
-                                                    .init(color: Color.white.opacity(0.22), location: 1.0)
+                                                    .init(color: Color.black.opacity(0.24), location: 0.0),
+                                                    .init(color: Color.clear, location: 0.45),
+                                                    .init(color: Color.white.opacity(0.24), location: 1.0)
                                                 ],
                                                 startPoint: .leading,
                                                 endPoint: .trailing
