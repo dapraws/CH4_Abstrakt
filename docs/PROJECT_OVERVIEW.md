@@ -71,7 +71,7 @@ Main App Shell (BottomBar Navigation)
 | 12 | **Weather** | `.weather` | `Small` | `WeatherKit` | Reverse-geocoded place name, current condition symbol, temperature & bounds. |
 | 13 | **Heart Rate** | `.health` | `Small` | `HealthKit` | Live background BPM reading from HealthKit, relative sample timestamp. |
 | 14 | **Clock** | `.foundation` | `Small` | `Foundation` | Analog Roman numeral dial with center hour watermark, accurate hour/minute hands, and red second needle with Dark/Light theme support. |
-| 15 | **Gradient** | `.weather` | `Small`, `Medium` | `WeatherKit` | Natural editorial weather summary sentences on 5 selectable styles (Ruby planetary aurora, Amber volumetric light bleed, Fractal fluted glass prism, Cyan oceanic topographic contours, and Emerald cyber matrix grid) with unified dark atmospheric contrast across light/dark appearances. |
+| 15 | **Gradient** | `.weather` | `Small`, `Medium` | `WeatherKit` | Natural editorial weather summary sentences on 6 selectable styles (Ruby planetary aurora, Amber volumetric light bleed, Fractal fluted glass prism, Cyan oceanic topographic contours, Emerald cyber matrix grid, and Acid Bayer phosphor dither) with unified dark atmospheric contrast across light/dark appearances. |
 
 ---
 

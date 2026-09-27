@@ -23,7 +23,7 @@ Every configurable widget and preset supports three appearance modes:
 ### Rules
 - In-app preview sheets honor the widget preset's configured appearance mode even if the host app is running in a different mode.
 - Global app theme is managed in **Settings > Appearance** (`System`, `Light`, `Dark`).
-- `GradientWidget` uses dark atmospheric bases across all appearance modes (Ruby Aurora, Cyan Topographic Contours, Fractal Fluted Prism, Sunset Amber Bleed, and Emerald Cyber Matrix) to maintain glowing incandescent contrast with white editorial typography.
+- `GradientWidget` uses dark atmospheric bases across all appearance modes (Ruby Aurora, Cyan Topographic Contours, Fractal Fluted Prism, Sunset Amber Bleed, Emerald Cyber Matrix, and Acid Bayer Dither) to maintain glowing incandescent contrast with white editorial typography.
 - `ClockWidget` supports Light and Dark dial themes with Roman numeral indices, watermarked hour display, and accent red seconds needle.
 - ActivityKit surfaces (Smart Pills, Expanded, Lock Screen Live Activity) are visually independent from the app appearance preference, using system-native black or glass materials.
 

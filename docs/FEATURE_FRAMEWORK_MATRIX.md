@@ -32,7 +32,7 @@ The catalog contains **15 widgets** spanning 5 distinct catalog categories:
 | **Weather** | `.weather` | `WeatherKit` | `CoreLocation`, `MapKit`, `Foundation`, `WidgetKit` | `WeatherProvider`, `LocationProvider` | `Small` | Reverse geocoded city name, WeatherKit temperature, high/low, and customized weather condition iconography. |
 | **Heart Rate** | `.health` | `HealthKit` | `WidgetKit`, `Foundation` | `HealthSummaryProvider` | `Small` | Queries the latest heart rate sample (`HKQuantityTypeIdentifier.heartRate`); displays BPM, heart icon, and relative timestamp (e.g. `47s ago`). |
 | **Clock** | `.foundation` | `Foundation` | `WidgetKit` | `ClockDataProvider` | `Small` | Analog Roman numeral dial with center hour watermark, accurate hour/minute hands, and red second needle with Dark/Light theme support. |
-| **Gradient** | `.weather` | `WeatherKit` | `CoreLocation`, `Foundation`, `WidgetKit` | `WeatherProvider`, `LocationProvider` | `Small`, `Medium` | Natural editorial weather summary sentences on 5 selectable styles (Ruby planetary aurora, Amber volumetric light bleed, Fractal fluted glass prism, Cyan oceanic topographic contours, and Emerald cyber matrix grid) with unified dark atmospheric contrast across light/dark appearances. |
+| **Gradient** | `.weather` | `WeatherKit` | `CoreLocation`, `Foundation`, `WidgetKit` | `WeatherProvider`, `LocationProvider` | `Small`, `Medium` | Natural editorial weather summary sentences on 6 selectable styles (Ruby planetary aurora, Amber volumetric light bleed, Fractal fluted glass prism, Cyan oceanic topographic contours, Emerald cyber matrix grid, and Acid Bayer phosphor dither) with unified dark atmospheric contrast across light/dark appearances. |
 
 ---
 

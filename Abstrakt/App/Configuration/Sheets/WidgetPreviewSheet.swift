@@ -1799,6 +1799,43 @@ private struct GradientPickerRow: View {
                                 }
                                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                                 .frame(width: 44, height: 44)
+                            } else if theme == .acidDither {
+                                // Bayer Matrix Phosphor Dither Swatch
+                                ZStack {
+                                    LinearGradient(
+                                        stops: [
+                                            .init(color: Color(red: 0.01, green: 0.05, blue: 0.02), location: 0.0),
+                                            .init(color: Color(red: 0.02, green: 0.09, blue: 0.04), location: 0.50),
+                                            .init(color: Color(red: 0.01, green: 0.03, blue: 0.01), location: 1.0)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+
+                                    // Acid green phosphor bloom in lower right
+                                    Circle()
+                                        .fill(Color(red: 0.20, green: 0.95, blue: 0.45).opacity(0.40))
+                                        .frame(width: 26, height: 26)
+                                        .offset(x: 8, y: 8)
+                                        .blur(radius: 6)
+
+                                    // Miniature procedural dither canvas
+                                    DitherCanvasView(width: 44, height: 44, isWide: false)
+
+                                    // Subtle diagonal scanbeam
+                                    LinearGradient(
+                                        stops: [
+                                            .init(color: Color.clear, location: 0.2),
+                                            .init(color: Color(red: 0.35, green: 1.00, blue: 0.65).opacity(0.10), location: 0.5),
+                                            .init(color: Color.clear, location: 0.8)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                    .blendMode(.plusLighter)
+                                }
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .frame(width: 44, height: 44)
                             } else {
                                 // Planetary Aurora Gradient Swatch (Ruby)
                                 RoundedRectangle(cornerRadius: 14, style: .continuous)

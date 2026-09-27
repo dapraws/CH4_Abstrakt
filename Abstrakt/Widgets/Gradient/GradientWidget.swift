@@ -213,6 +213,9 @@ struct GradientWidget: View {
                 case .emeraldMatrix:
                     // MARK: - Matrix: Phosphor Halftone Cyber Matrix Grid
                     emeraldMatrixBackground(width: w, height: h)
+                case .acidDither:
+                    // MARK: - Dither: Bayer Matrix Phosphor Pixel Dither Field
+                    ditherBackground(width: w, height: h)
                 case .rubyAurora:
                     // MARK: - Gradient: Multi-Layer Planetary Aurora
                     standardAuroraBackground(width: w, height: h)
@@ -375,6 +378,11 @@ struct GradientWidget: View {
     @ViewBuilder
     private func emeraldMatrixBackground(width w: CGFloat, height h: CGFloat) -> some View {
         EmeraldMatrixBackgroundView()
+    }
+
+    @ViewBuilder
+    private func ditherBackground(width w: CGFloat, height h: CGFloat) -> some View {
+        DitherBackgroundView()
     }
 }
 
@@ -1100,6 +1108,155 @@ public struct EmeraldMatrixDotsView: View {
                         Path(ellipseIn: rect),
                         with: .color(Color(red: 0.20, green: 0.95, blue: 0.60).opacity(opacity))
                     )
+                }
+            }
+        }
+        .frame(width: width, height: height)
+        .allowsHitTesting(false)
+    }
+}
+
+// MARK: - Dither Background View
+
+public struct DitherBackgroundView: View {
+    public init() {}
+
+    public var body: some View {
+        GeometryReader { proxy in
+            let w = max(0, proxy.size.width)
+            let h = max(0, proxy.size.height)
+            let isWide = w > 220 || (h > 0 && w / h > 1.4)
+
+            ZStack {
+                // Ultra-dark obsidian cyber moss base
+                LinearGradient(
+                    stops: [
+                        .init(color: Color(red: 0.01, green: 0.05, blue: 0.02), location: 0.0),
+                        .init(color: Color(red: 0.02, green: 0.09, blue: 0.04), location: 0.50),
+                        .init(color: Color(red: 0.01, green: 0.03, blue: 0.01), location: 1.0)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+
+                // Radiant Acid Phosphor Core Blooming in lower right
+                Circle()
+                    .fill(Color(red: 0.20, green: 0.95, blue: 0.45).opacity(0.35))
+                    .frame(width: w * 0.95, height: h * 0.95)
+                    .offset(x: isWide ? w * 0.25 : w * 0.18, y: h * 0.22)
+                    .blur(radius: 48)
+
+                // Mint Ambient Luminescence Bloom
+                Circle()
+                    .fill(Color(red: 0.45, green: 1.00, blue: 0.65).opacity(0.22))
+                    .frame(width: w * 0.70, height: h * 0.70)
+                    .offset(x: isWide ? w * 0.30 : w * 0.22, y: h * 0.26)
+                    .blur(radius: 36)
+
+                // Upper left subtle ambient counter-glow
+                Circle()
+                    .fill(Color(red: 0.08, green: 0.55, blue: 0.25).opacity(0.18))
+                    .frame(width: w * 0.60, height: h * 0.60)
+                    .offset(x: -w * 0.20, y: -h * 0.20)
+                    .blur(radius: 40)
+
+                // High-performance Procedural Bayer Matrix Dither Field
+                DitherCanvasView(width: w, height: h, isWide: isWide)
+
+                // Subtle diagonal phosphor sheen
+                LinearGradient(
+                    stops: [
+                        .init(color: Color.clear, location: 0.20),
+                        .init(color: Color(red: 0.35, green: 1.00, blue: 0.65).opacity(0.06), location: 0.50),
+                        .init(color: Color.clear, location: 0.80)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .blendMode(.plusLighter)
+            }
+        }
+    }
+}
+
+// MARK: - Procedural Bayer Matrix Dither Canvas View
+
+public struct DitherCanvasView: View {
+    public let width: CGFloat
+    public let height: CGFloat
+    public let isWide: Bool
+
+    public init(width: CGFloat, height: CGFloat, isWide: Bool = false) {
+        self.width = width
+        self.height = height
+        self.isWide = isWide
+    }
+
+    public var body: some View {
+        Canvas { context, size in
+            let pixelSize: CGFloat = 3.6
+            let cols = Int(size.width / pixelSize) + 1
+            let rows = Int(size.height / pixelSize) + 1
+
+            // 4x4 Standard Bayer Threshold Matrix (normalized 0.0 to 1.0)
+            let bayer4x4: [[Double]] = [
+                [ 0.0 / 16.0,  8.0 / 16.0,  2.0 / 16.0, 10.0 / 16.0],
+                [12.0 / 16.0,  4.0 / 16.0, 14.0 / 16.0,  6.0 / 16.0],
+                [ 3.0 / 16.0, 11.0 / 16.0,  1.0 / 16.0,  9.0 / 16.0],
+                [15.0 / 16.0,  7.0 / 16.0, 13.0 / 16.0,  5.0 / 16.0]
+            ]
+
+            // Light focal origin in lower-right
+            let originX = size.width * (isWide ? 0.88 : 0.85)
+            let originY = size.height * 0.88
+            let maxRadius = max(size.width, size.height) * (isWide ? 1.05 : 1.15)
+
+            for r in 0..<rows {
+                let by = r % 4
+                for c in 0..<cols {
+                    let bx = c % 4
+                    let x = CGFloat(c) * pixelSize
+                    let y = CGFloat(r) * pixelSize
+
+                    // Distance from phosphor light origin
+                    let dx = x - originX
+                    let dy = y - originY
+                    let dist = sqrt(dx * dx + dy * dy)
+                    let normDist = min(1.0, max(0.0, dist / max(1, maxRadius)))
+
+                    // Non-linear radiant falloff
+                    let lightIntensity = pow(1.0 - normDist, 1.45)
+                    let threshold = bayer4x4[by][bx]
+
+                    if lightIntensity > threshold {
+                        let excess = lightIntensity - threshold
+
+                        // Phosphor Color Quantization Levels
+                        let pixelColor: Color = {
+                            if excess > 0.45 {
+                                // Brightest core: Electric Acid Mint
+                                return Color(red: 0.65, green: 1.00, blue: 0.78).opacity(0.92)
+                            } else if excess > 0.22 {
+                                // Mid field: Vivid Phosphor Emerald
+                                return Color(red: 0.22, green: 0.92, blue: 0.48).opacity(0.80)
+                            } else {
+                                // Perimeter fringe: Deep Cyber Moss
+                                return Color(red: 0.08, green: 0.60, blue: 0.28).opacity(0.55)
+                            }
+                        }()
+
+                        let rect = CGRect(
+                            x: x + 0.35,
+                            y: y + 0.35,
+                            width: pixelSize - 0.7,
+                            height: pixelSize - 0.7
+                        )
+
+                        context.fill(
+                            Path(roundedRect: rect, cornerRadius: 0.6),
+                            with: .color(pixelColor)
+                        )
+                    }
                 }
             }
         }

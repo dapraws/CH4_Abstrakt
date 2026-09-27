@@ -6,6 +6,7 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
     case fractalPrism = "fractal-prism"
     case sunsetAmber = "sunset-amber"
     case emeraldMatrix = "emerald-matrix"
+    case acidDither = "acid-dither"
 
     var id: String { rawValue }
 
@@ -15,6 +16,7 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
         guard let id else { return .defaultTheme }
         if id == "velvet-violet" { return .fractalPrism }
         if id == "emerald-pulse" || id == "matrix" { return .emeraldMatrix }
+        if id == "dither" || id == "bayer" || id == "phosphor-dither" { return .acidDither }
         return GradientTheme(rawValue: id) ?? .defaultTheme
     }
 
@@ -30,6 +32,8 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
             "Amber"
         case .emeraldMatrix:
             "Emerald"
+        case .acidDither:
+            "Dither"
         }
     }
 
@@ -45,6 +49,8 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
             [Color(red: 0.08, green: 0.08, blue: 0.09), Color(red: 0.14, green: 0.06, blue: 0.02)]
         case .emeraldMatrix:
             [Color(red: 0.02, green: 0.08, blue: 0.05), Color(red: 0.01, green: 0.04, blue: 0.03)]
+        case .acidDither:
+            [Color(red: 0.02, green: 0.06, blue: 0.03), Color(red: 0.01, green: 0.03, blue: 0.02)]
         }
     }
 
@@ -60,6 +66,8 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
             Color(red: 0.06, green: 0.06, blue: 0.07)
         case .emeraldMatrix:
             Color(red: 0.06, green: 0.42, blue: 0.22)
+        case .acidDither:
+            Color(red: 0.20, green: 0.85, blue: 0.40)
         }
     }
 
@@ -75,6 +83,8 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
             Color(red: 0.22, green: 0.08, blue: 0.02).opacity(0.80)
         case .emeraldMatrix:
             Color(red: 0.08, green: 0.85, blue: 0.45)
+        case .acidDither:
+            Color(red: 0.40, green: 0.98, blue: 0.55)
         }
     }
 
@@ -90,6 +100,8 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
             Color(red: 0.98, green: 0.55, blue: 0.18).opacity(0.25)
         case .emeraldMatrix:
             Color(red: 0.45, green: 0.98, blue: 0.70).opacity(0.35)
+        case .acidDither:
+            Color(red: 0.65, green: 1.00, blue: 0.75).opacity(0.35)
         }
     }
 
@@ -105,6 +117,8 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
             Color(red: 0.88, green: 0.34, blue: 0.05).opacity(0.88)
         case .emeraldMatrix:
             Color(red: 0.05, green: 0.65, blue: 0.35).opacity(0.85)
+        case .acidDither:
+            Color(red: 0.15, green: 0.70, blue: 0.35).opacity(0.85)
         }
     }
 
@@ -120,6 +134,8 @@ enum GradientTheme: String, CaseIterable, Identifiable, Codable {
             Color(red: 1.00, green: 0.50, blue: 0.10)
         case .emeraldMatrix:
             Color(red: 0.02, green: 0.05, blue: 0.03)
+        case .acidDither:
+            Color(red: 0.01, green: 0.04, blue: 0.02)
         }
     }
 
