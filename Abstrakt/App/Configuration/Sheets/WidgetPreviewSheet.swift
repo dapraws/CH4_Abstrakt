@@ -1608,7 +1608,7 @@ private struct GradientPickerRow: View {
                     VStack(spacing: 5) {
                         ZStack {
                             if theme == .sunsetAmber {
-                                // Dark obsidian with warm amber light bleed from bottom right inside circle
+                                // Dark obsidian with warm amber light bleed from bottom right
                                 ZStack {
                                     Color(red: 0.04, green: 0.04, blue: 0.05)
 
@@ -1621,7 +1621,7 @@ private struct GradientPickerRow: View {
                                             .init(color: Color(red: 0.45, green: 0.10, blue: 0.01).opacity(0.35), location: 0.80),
                                             .init(color: Color.clear, location: 1.0)
                                         ],
-                                        center: .init(x: 0.85, y: 0.85),
+                                        center: .init(x: 0.88, y: 0.88),
                                         startRadius: 0,
                                         endRadius: 36
                                     )
@@ -1650,7 +1650,7 @@ private struct GradientPickerRow: View {
                                         .offset(x: 12, y: 12)
                                         .blur(radius: 3)
                                 }
-                                .clipShape(Circle())
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                                 .frame(width: 44, height: 44)
                             } else if theme == .fractalPrism {
                                 // Chromatic Iridescent Fluted Glass Swatch
@@ -1702,11 +1702,11 @@ private struct GradientPickerRow: View {
                                         }
                                     }
                                 }
-                                .clipShape(Circle())
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                                 .frame(width: 44, height: 44)
                             } else {
                                 // Planetary Aurora Gradient Swatch
-                                Circle()
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
                                     .fill(
                                         LinearGradient(
                                             colors: theme.baseGradient,
@@ -1734,12 +1734,12 @@ private struct GradientPickerRow: View {
                                             .blur(radius: 4)
                                             .offset(x: 2, y: 2)
                                     }
-                                    .clipShape(Circle())
+                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                                     .frame(width: 44, height: 44)
                             }
 
                             if isSelected {
-                                Circle()
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
                                     .stroke(AppColors.primaryText, lineWidth: 2)
                                     .frame(width: 50, height: 50)
                                     .transition(.scale.combined(with: .opacity))
