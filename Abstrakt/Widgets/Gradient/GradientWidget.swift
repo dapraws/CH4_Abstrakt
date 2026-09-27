@@ -200,14 +200,21 @@ struct GradientWidget: View {
             let h = max(0, proxy.size.height)
 
             ZStack {
-                if gradientTheme == .sunsetAmber {
-                    // MARK: - Dark Obsidian with Bottom Contour Light Flare
+                switch gradientTheme {
+                case .sunsetAmber:
+                    // MARK: - Bleeding: Dark Obsidian with Volumetric Corner Light Flare
                     amberBottomLightBackground(width: w, height: h)
-                } else if gradientTheme == .fractalPrism {
-                    // MARK: - Pleated Fractal Prism Gradient
+                case .fractalPrism:
+                    // MARK: - Fractal: Pleated Fluted Glass Prism Gradient
                     fractalPrismBackground(width: w, height: h)
-                } else {
-                    // MARK: - Multi-Layer Planetary Aurora
+                case .midnightCyan:
+                    // MARK: - Topographic: Bioluminescent Oceanic Contour Elevation
+                    cyanTopographicBackground(width: w, height: h)
+                case .emeraldMatrix:
+                    // MARK: - Matrix: Phosphor Halftone Cyber Matrix Grid
+                    emeraldMatrixBackground(width: w, height: h)
+                case .rubyAurora:
+                    // MARK: - Gradient: Multi-Layer Planetary Aurora
                     standardAuroraBackground(width: w, height: h)
                 }
 
@@ -358,6 +365,16 @@ struct GradientWidget: View {
     @ViewBuilder
     private func amberBottomLightBackground(width w: CGFloat, height h: CGFloat) -> some View {
         AmberBlobBackgroundView()
+    }
+
+    @ViewBuilder
+    private func cyanTopographicBackground(width w: CGFloat, height h: CGFloat) -> some View {
+        CyanTopographicBackgroundView()
+    }
+
+    @ViewBuilder
+    private func emeraldMatrixBackground(width w: CGFloat, height h: CGFloat) -> some View {
+        EmeraldMatrixBackgroundView()
     }
 }
 
@@ -750,6 +767,344 @@ public struct AmberIncandescentCoreShape: Shape {
             path.closeSubpath()
         }
         return path
+    }
+}
+
+// MARK: - Cyan Topographic Background View
+
+public struct CyanTopographicBackgroundView: View {
+    public init() {}
+
+    public var body: some View {
+        GeometryReader { proxy in
+            let w = max(0, proxy.size.width)
+            let h = max(0, proxy.size.height)
+            let isWide = w > 220 || (h > 0 && w / h > 1.4)
+
+            ZStack {
+                // Deep oceanic midnight abyss base
+                LinearGradient(
+                    stops: [
+                        .init(color: Color(red: 0.02, green: 0.06, blue: 0.12), location: 0.0),
+                        .init(color: Color(red: 0.03, green: 0.10, blue: 0.18), location: 0.50),
+                        .init(color: Color(red: 0.01, green: 0.04, blue: 0.08), location: 1.0)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+
+                // Atmospheric Abyssal Glow Blobs
+                Circle()
+                    .fill(Color(red: 0.06, green: 0.45, blue: 0.65).opacity(0.35))
+                    .frame(width: w * 0.90, height: h * 0.90)
+                    .offset(x: -w * 0.20, y: h * 0.20)
+                    .blur(radius: 45)
+
+                Circle()
+                    .fill(Color(red: 0.12, green: 0.75, blue: 0.92).opacity(0.25))
+                    .frame(width: w * 0.75, height: h * 0.75)
+                    .offset(x: w * 0.25, y: -h * 0.15)
+                    .blur(radius: 40)
+
+                // Outer ambient glow under topographic elevation lines
+                CyanTopographicMeshShape(isWide: isWide)
+                    .stroke(
+                        Color(red: 0.20, green: 0.85, blue: 0.98).opacity(0.22),
+                        lineWidth: 3.5
+                    )
+                    .blur(radius: 3)
+                    .frame(width: w, height: h)
+
+                // Crisp luminous Topographic Contour Elevation Terraces & Lines
+                CyanTopographicMeshShape(isWide: isWide)
+                    .stroke(
+                        LinearGradient(
+                            stops: [
+                                .init(color: Color(red: 0.30, green: 0.90, blue: 1.00).opacity(0.48), location: 0.0),
+                                .init(color: Color(red: 0.12, green: 0.65, blue: 0.85).opacity(0.25), location: 0.60),
+                                .init(color: Color(red: 0.05, green: 0.35, blue: 0.55).opacity(0.06), location: 1.0)
+                            ],
+                            startPoint: .bottomLeading,
+                            endPoint: .topTrailing
+                        ),
+                        lineWidth: 1.35
+                    )
+                    .frame(width: w, height: h)
+
+                // Bathymetric summit node ring
+                Circle()
+                    .stroke(Color(red: 0.35, green: 0.90, blue: 1.00).opacity(0.35), lineWidth: 1.0)
+                    .frame(width: min(w, h) * 0.22, height: min(w, h) * 0.22)
+                    .offset(x: isWide ? -w * 0.25 : -w * 0.18, y: h * 0.15)
+
+                Circle()
+                    .fill(Color(red: 0.40, green: 0.95, blue: 1.00).opacity(0.60))
+                    .frame(width: 4, height: 4)
+                    .offset(x: isWide ? -w * 0.25 : -w * 0.18, y: h * 0.15)
+                    .blur(radius: 0.5)
+            }
+        }
+    }
+}
+
+// MARK: - Cyan Topographic Contour Mesh Shape
+
+public struct CyanTopographicMeshShape: Shape {
+    public let isWide: Bool
+
+    public init(isWide: Bool = false) {
+        self.isWide = isWide
+    }
+
+    public func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+
+        if isWide {
+            // Contour 1: Sweeping bottom-left oceanic trough
+            path.move(to: CGPoint(x: -w * 0.05, y: h * 0.95))
+            path.addCurve(
+                to: CGPoint(x: w * 0.45, y: h * 0.82),
+                control1: CGPoint(x: w * 0.12, y: h * 0.72),
+                control2: CGPoint(x: w * 0.28, y: h * 0.90)
+            )
+            path.addCurve(
+                to: CGPoint(x: w * 1.05, y: h * 0.65),
+                control1: CGPoint(x: w * 0.65, y: h * 0.74),
+                control2: CGPoint(x: w * 0.85, y: h * 0.55)
+            )
+
+            // Contour 2: Mid-basin contour
+            path.move(to: CGPoint(x: -w * 0.05, y: h * 0.75))
+            path.addCurve(
+                to: CGPoint(x: w * 0.40, y: h * 0.64),
+                control1: CGPoint(x: w * 0.10, y: h * 0.54),
+                control2: CGPoint(x: w * 0.24, y: h * 0.72)
+            )
+            path.addCurve(
+                to: CGPoint(x: w * 1.05, y: h * 0.48),
+                control1: CGPoint(x: w * 0.60, y: h * 0.56),
+                control2: CGPoint(x: w * 0.82, y: h * 0.38)
+            )
+
+            // Contour 3: Upper-basin terrace
+            path.move(to: CGPoint(x: -w * 0.05, y: h * 0.55))
+            path.addCurve(
+                to: CGPoint(x: w * 0.35, y: h * 0.46),
+                control1: CGPoint(x: w * 0.08, y: h * 0.36),
+                control2: CGPoint(x: w * 0.20, y: h * 0.52)
+            )
+            path.addCurve(
+                to: CGPoint(x: w * 1.05, y: h * 0.32),
+                control1: CGPoint(x: w * 0.55, y: h * 0.38),
+                control2: CGPoint(x: w * 0.78, y: h * 0.22)
+            )
+
+            // Contour 4: Elevation ridge
+            path.move(to: CGPoint(x: -w * 0.05, y: h * 0.35))
+            path.addCurve(
+                to: CGPoint(x: w * 0.30, y: h * 0.28),
+                control1: CGPoint(x: w * 0.06, y: h * 0.18),
+                control2: CGPoint(x: w * 0.16, y: h * 0.34)
+            )
+            path.addCurve(
+                to: CGPoint(x: w * 1.05, y: h * 0.16),
+                control1: CGPoint(x: w * 0.50, y: h * 0.22),
+                control2: CGPoint(x: w * 0.75, y: h * 0.08)
+            )
+
+            // Contour 5: High ridge loop around summit
+            path.move(to: CGPoint(x: -w * 0.05, y: h * 0.18))
+            path.addCurve(
+                to: CGPoint(x: w * 0.25, y: h * 0.10),
+                control1: CGPoint(x: w * 0.04, y: h * 0.02),
+                control2: CGPoint(x: w * 0.14, y: h * 0.16)
+            )
+            path.addCurve(
+                to: CGPoint(x: w * 0.70, y: -h * 0.05),
+                control1: CGPoint(x: w * 0.40, y: h * 0.05),
+                control2: CGPoint(x: w * 0.55, y: -h * 0.02)
+            )
+        } else {
+            // Small / square widget concentric terrain curves
+            // Contour 1: Outer base arc
+            path.move(to: CGPoint(x: -w * 0.10, y: h * 1.05))
+            path.addCurve(
+                to: CGPoint(x: w * 0.50, y: h * 0.88),
+                control1: CGPoint(x: w * 0.10, y: h * 0.78),
+                control2: CGPoint(x: w * 0.30, y: h * 0.98)
+            )
+            path.addCurve(
+                to: CGPoint(x: w * 1.10, y: h * 0.70),
+                control1: CGPoint(x: w * 0.70, y: h * 0.78),
+                control2: CGPoint(x: w * 0.90, y: h * 0.60)
+            )
+
+            // Contour 2: Mid-elevation sweep
+            path.move(to: CGPoint(x: -w * 0.10, y: h * 0.82))
+            path.addCurve(
+                to: CGPoint(x: w * 0.45, y: h * 0.68),
+                control1: CGPoint(x: w * 0.08, y: h * 0.58),
+                control2: CGPoint(x: w * 0.25, y: h * 0.76)
+            )
+            path.addCurve(
+                to: CGPoint(x: w * 1.10, y: h * 0.52),
+                control1: CGPoint(x: w * 0.65, y: h * 0.60),
+                control2: CGPoint(x: w * 0.88, y: h * 0.42)
+            )
+
+            // Contour 3: Upper-elevation sweep
+            path.move(to: CGPoint(x: -w * 0.10, y: h * 0.60))
+            path.addCurve(
+                to: CGPoint(x: w * 0.40, y: h * 0.48),
+                control1: CGPoint(x: w * 0.06, y: h * 0.38),
+                control2: CGPoint(x: w * 0.22, y: h * 0.54)
+            )
+            path.addCurve(
+                to: CGPoint(x: w * 1.10, y: h * 0.34),
+                control1: CGPoint(x: w * 0.60, y: h * 0.42),
+                control2: CGPoint(x: w * 0.85, y: h * 0.24)
+            )
+
+            // Contour 4: Summit ridge sweep
+            path.move(to: CGPoint(x: -w * 0.10, y: h * 0.38))
+            path.addCurve(
+                to: CGPoint(x: w * 0.35, y: h * 0.28),
+                control1: CGPoint(x: w * 0.04, y: h * 0.18),
+                control2: CGPoint(x: w * 0.18, y: h * 0.34)
+            )
+            path.addCurve(
+                to: CGPoint(x: w * 1.10, y: h * 0.18),
+                control1: CGPoint(x: w * 0.55, y: h * 0.22),
+                control2: CGPoint(x: w * 0.82, y: h * 0.08)
+            )
+
+            // Contour 5: High peak arc
+            path.move(to: CGPoint(x: -w * 0.10, y: h * 0.18))
+            path.addCurve(
+                to: CGPoint(x: w * 0.30, y: h * 0.10),
+                control1: CGPoint(x: w * 0.02, y: h * 0.00),
+                control2: CGPoint(x: w * 0.14, y: h * 0.14)
+            )
+            path.addCurve(
+                to: CGPoint(x: w * 0.85, y: -h * 0.05),
+                control1: CGPoint(x: w * 0.48, y: h * 0.06),
+                control2: CGPoint(x: w * 0.68, y: -h * 0.02)
+            )
+        }
+
+        return path
+    }
+}
+
+// MARK: - Emerald Matrix Background View
+
+public struct EmeraldMatrixBackgroundView: View {
+    public init() {}
+
+    public var body: some View {
+        GeometryReader { proxy in
+            let w = max(0, proxy.size.width)
+            let h = max(0, proxy.size.height)
+
+            ZStack {
+                // Ultra-dark obsidian forest / cyber jade base
+                LinearGradient(
+                    stops: [
+                        .init(color: Color(red: 0.02, green: 0.07, blue: 0.04), location: 0.0),
+                        .init(color: Color(red: 0.03, green: 0.12, blue: 0.07), location: 0.50),
+                        .init(color: Color(red: 0.01, green: 0.04, blue: 0.02), location: 1.0)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+
+                // Glowing emerald phosphor aurora core
+                Circle()
+                    .fill(Color(red: 0.00, green: 0.88, blue: 0.45).opacity(0.32))
+                    .frame(width: w * 0.85, height: h * 0.85)
+                    .offset(x: -w * 0.18, y: -h * 0.10)
+                    .blur(radius: 48)
+
+                // Mint phosphorescence accent bloom
+                Circle()
+                    .fill(Color(red: 0.35, green: 0.98, blue: 0.70).opacity(0.20))
+                    .frame(width: w * 0.70, height: h * 0.70)
+                    .offset(x: w * 0.22, y: h * 0.20)
+                    .blur(radius: 42)
+
+                // Precision Cyber Halftone / Matrix Dot Grid Canvas
+                EmeraldMatrixDotsView(width: w, height: h)
+
+                // Subtle diagonal phosphor scanbeam sweep
+                LinearGradient(
+                    stops: [
+                        .init(color: Color.clear, location: 0.25),
+                        .init(color: Color(red: 0.15, green: 0.95, blue: 0.55).opacity(0.08), location: 0.50),
+                        .init(color: Color.clear, location: 0.75)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .blendMode(.plusLighter)
+            }
+        }
+    }
+}
+
+// MARK: - Emerald Phosphor Matrix Dots View
+
+public struct EmeraldMatrixDotsView: View {
+    public let width: CGFloat
+    public let height: CGFloat
+
+    public init(width: CGFloat, height: CGFloat) {
+        self.width = width
+        self.height = height
+    }
+
+    public var body: some View {
+        Canvas { context, size in
+            let spacing: CGFloat = 16.0
+            let cols = Int(size.width / spacing) + 2
+            let rows = Int(size.height / spacing) + 2
+
+            // Focal light center near upper-left / center
+            let focalX = size.width * 0.35
+            let focalY = size.height * 0.38
+            let maxDist = max(size.width, size.height) * 0.85
+
+            for r in 0..<rows {
+                for c in 0..<cols {
+                    let x = CGFloat(c) * spacing
+                    let y = CGFloat(r) * spacing
+                    let dx = x - focalX
+                    let dy = y - focalY
+                    let dist = sqrt(dx * dx + dy * dy)
+                    let normDist = min(1.0, dist / max(1, maxDist))
+
+                    // Proximity intensity: closer to core = brighter & slightly larger
+                    let intensity = 1.0 - normDist
+                    let dotRadius = 0.85 + intensity * 0.95
+                    let opacity = 0.05 + intensity * 0.38
+
+                    let rect = CGRect(
+                        x: x - dotRadius,
+                        y: y - dotRadius,
+                        width: dotRadius * 2,
+                        height: dotRadius * 2
+                    )
+
+                    context.fill(
+                        Path(ellipseIn: rect),
+                        with: .color(Color(red: 0.20, green: 0.95, blue: 0.60).opacity(opacity))
+                    )
+                }
+            }
+        }
+        .frame(width: width, height: height)
+        .allowsHitTesting(false)
     }
 }
 

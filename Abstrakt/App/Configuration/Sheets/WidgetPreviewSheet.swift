@@ -1703,7 +1703,7 @@ private struct GradientPickerRow: View {
                                     // 4 Fluted reeded glass slats
                                     HStack(spacing: 0) {
                                         ForEach(0..<4, id: \.self) { _ in
-                                            LinearGradient(
+                                             LinearGradient(
                                                 stops: [
                                                     .init(color: Color.black.opacity(0.06), location: 0.0),
                                                     .init(color: Color.black.opacity(0.10), location: 0.08),
@@ -1719,8 +1719,88 @@ private struct GradientPickerRow: View {
                                 }
                                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                                 .frame(width: 44, height: 44)
+                            } else if theme == .midnightCyan {
+                                // Bioluminescent Topographic Oceanic Contour Swatch
+                                ZStack {
+                                    LinearGradient(
+                                        stops: [
+                                            .init(color: Color(red: 0.02, green: 0.06, blue: 0.12), location: 0.0),
+                                            .init(color: Color(red: 0.03, green: 0.10, blue: 0.18), location: 0.50),
+                                            .init(color: Color(red: 0.01, green: 0.04, blue: 0.08), location: 1.0)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+
+                                    // Ambient bioluminescent glow
+                                    Circle()
+                                        .fill(Color(red: 0.08, green: 0.55, blue: 0.75).opacity(0.40))
+                                        .frame(width: 26, height: 26)
+                                        .offset(x: -8, y: 8)
+                                        .blur(radius: 6)
+
+                                    // Miniature Topographic Contour Curves
+                                    CyanTopographicMeshShape(isWide: false)
+                                        .stroke(
+                                            LinearGradient(
+                                                stops: [
+                                                    .init(color: Color(red: 0.30, green: 0.90, blue: 1.00).opacity(0.65), location: 0.0),
+                                                    .init(color: Color(red: 0.10, green: 0.60, blue: 0.80).opacity(0.30), location: 0.70),
+                                                    .init(color: Color.clear, location: 1.0)
+                                                ],
+                                                startPoint: .bottomLeading,
+                                                endPoint: .topTrailing
+                                            ),
+                                            lineWidth: 1.2
+                                        )
+
+                                    // Elevation summit node
+                                    Circle()
+                                        .fill(Color(red: 0.40, green: 0.95, blue: 1.00).opacity(0.85))
+                                        .frame(width: 3, height: 3)
+                                        .offset(x: -8, y: 7)
+                                }
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .frame(width: 44, height: 44)
+                            } else if theme == .emeraldMatrix {
+                                // Cybernetic Phosphor Matrix Grid Swatch
+                                ZStack {
+                                    LinearGradient(
+                                        stops: [
+                                            .init(color: Color(red: 0.02, green: 0.07, blue: 0.04), location: 0.0),
+                                            .init(color: Color(red: 0.03, green: 0.12, blue: 0.07), location: 0.50),
+                                            .init(color: Color(red: 0.01, green: 0.04, blue: 0.02), location: 1.0)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+
+                                    // Emerald phosphor core bloom
+                                    Circle()
+                                        .fill(Color(red: 0.00, green: 0.88, blue: 0.45).opacity(0.40))
+                                        .frame(width: 24, height: 24)
+                                        .offset(x: -6, y: -6)
+                                        .blur(radius: 6)
+
+                                    // Miniature 4x4 matrix dot grid
+                                    EmeraldMatrixDotsView(width: 44, height: 44)
+
+                                    // Subtle diagonal scanbeam
+                                    LinearGradient(
+                                        stops: [
+                                            .init(color: Color.clear, location: 0.2),
+                                            .init(color: Color(red: 0.20, green: 0.98, blue: 0.60).opacity(0.12), location: 0.5),
+                                            .init(color: Color.clear, location: 0.8)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                    .blendMode(.plusLighter)
+                                }
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .frame(width: 44, height: 44)
                             } else {
-                                // Planetary Aurora Gradient Swatch
+                                // Planetary Aurora Gradient Swatch (Ruby)
                                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                                     .fill(
                                         LinearGradient(
