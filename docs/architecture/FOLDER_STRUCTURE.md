@@ -190,7 +190,7 @@ Abstrakt/
 - `Core/Storage/SharedModelContainer.swift` provides atomic serialization and deserialization of snapshots and widget presets to App Group `UserDefaults`, plus thumbnail disk persistence and `WidgetTimelineReloadScheduler`.
 - `Core/Localization/` coordinates in-app runtime language switching via `LocalizationManager` without needing an app restart.
 - `DesignSystem/` defines shared semantic tokens for colors (`AppColors`), fonts (`AppFonts`), radii (`AppRadius`), spacings (`AppSpacing`), and widget sizes (`WidgetSizeTokens`).
-- `Widgets/` houses the 13 feature widget renderers and `SharedWidgetStyle.swift`. Renderers are compiled into both the host app target and the `AbstraktWidgetsExtension` target.
+- `Widgets/` houses the 15 feature widget renderers and `SharedWidgetStyle.swift`. Renderers are compiled into both the host app target and the `AbstraktWidgetsExtension` target.
 - `LiveActivities/` hosts ActivityKit widgets divided by presentation state: `SmartPills` (compact Dynamic Island), `Expanded` (expanded Dynamic Island), `LiveActivity` (Lock Screen / notification Live Activity), and `Shared` (attributes, typography, item renderer, empty state).
 - `AbstraktWidgetsExtension/` handles WidgetKit timeline providers, entries, App Intents (`SmallSolidWidgetIntent`, `MediumSolidWidgetIntent`, `LargeSolidWidgetIntent`), and `AppEntity` query resolvers (`SavedWidgetEntity`).
 
@@ -198,7 +198,7 @@ Abstrakt/
 
 - App screens belong in `App/Screens/` and end in `Screen.swift` (e.g. `GalleryScreen.swift`, `LibraryScreen.swift`, `LiveActivityScreen.swift`).
 - Configuration sheets belong in `App/Configuration/Sheets/` and end in `Sheet.swift` (e.g. `WidgetPreviewSheet.swift`, `LiveActivityPreviewSheet.swift`).
-- Widget folders correspond 1:1 with catalog entries: `Activity`, `Battery`, `Calendar`, `Daylight`, `Events`, `HeartRate`, `Portal`, `Reminder`, `Sleep`, `Steps`, `Storage`, `Today`, `Weather`.
+- Widget folders correspond 1:1 with catalog entries: `Activity`, `Battery`, `Calendar`, `Clock`, `Daylight`, `Events`, `Gradient`, `HeartRate`, `Portal`, `Reminder`, `Sleep`, `Steps`, `Storage`, `Today`, `Weather`.
 - ActivityKit renderer files use `Activity` naming (`DynamicIslandActivity.swift`, `ExpandedActivity.swift`, `LockScreenActivity.swift`), reflecting ActivityKit state rather than generic screens.
 - Shared domain/catalog models belong in `Core/Models/`.
 - App-only code paths in shared widget files must be wrapped with `#if !WIDGET_EXTENSION`.

@@ -271,30 +271,29 @@ struct GradientWidget: View {
     @ViewBuilder
     private func fractalPrismBackground(width w: CGFloat, height h: CGFloat) -> some View {
         // Monochromatic wide fluted glass / prism texture
-        let slatCount = max(8, Int((w / 16.0).rounded()))
+        let slatCount = max(8, Int((w / 18.0).rounded()))
         let slatWidth = w / CGFloat(slatCount)
 
         ZStack {
-            // Layer 1: Smooth atmospheric monochromatic base gradient
+            // Layer 1: Smooth atmospheric dark obsidian base gradient
             LinearGradient(
                 stops: [
-                    .init(color: Color(red: 0.06, green: 0.06, blue: 0.07), location: 0.0),   // Deep obsidian
-                    .init(color: Color(red: 0.12, green: 0.12, blue: 0.14), location: 0.18),  // Charcoal
-                    .init(color: Color(red: 0.22, green: 0.22, blue: 0.25), location: 0.36),  // Dark graphite
-                    .init(color: Color(red: 0.34, green: 0.34, blue: 0.38), location: 0.52),  // Titanium slate
-                    .init(color: Color(red: 0.48, green: 0.48, blue: 0.54), location: 0.68),  // Cool steel
-                    .init(color: Color(red: 0.64, green: 0.64, blue: 0.70), location: 0.84),  // Silver
-                    .init(color: Color(red: 0.80, green: 0.80, blue: 0.86), location: 1.0)    // Platinum sheen
+                    .init(color: Color(red: 0.02, green: 0.02, blue: 0.03), location: 0.0),   // Pitch obsidian
+                    .init(color: Color(red: 0.04, green: 0.04, blue: 0.05), location: 0.20),  // Deep noir
+                    .init(color: Color(red: 0.07, green: 0.07, blue: 0.09), location: 0.40),  // Charcoal
+                    .init(color: Color(red: 0.11, green: 0.11, blue: 0.13), location: 0.60),  // Dark graphite
+                    .init(color: Color(red: 0.16, green: 0.16, blue: 0.19), location: 0.80),  // Gunmetal
+                    .init(color: Color(red: 0.22, green: 0.22, blue: 0.26), location: 1.0)    // Subtle dark steel luster
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
 
-            // Layer 2: Radiant bottom-center soft silver bloom
+            // Layer 2: Subtle soft graphite ambient bloom
             RadialGradient(
                 colors: [
-                    Color.white.opacity(0.18),
-                    Color(white: 0.70).opacity(0.08),
+                    Color.white.opacity(0.06),
+                    Color(white: 0.40).opacity(0.02),
                     Color.clear
                 ],
                 center: .init(x: 0.55, y: 0.85),
@@ -305,13 +304,14 @@ struct GradientWidget: View {
             // Layer 3: 3D Fluted Glass / Reeded Prism Texture
             HStack(spacing: 0) {
                 ForEach(0..<slatCount, id: \.self) { _ in
-                    // Fluted 3D cylinder bevel: Shadow crease on left, luminous highlight ridge on right
+                    // Fluted 3D cylinder bevel: Deep shadow groove on left, subtle specular highlight ridge on right
                     LinearGradient(
                         stops: [
-                            .init(color: Color.black.opacity(0.10), location: 0.0),
-                            .init(color: Color.clear, location: 0.24),
-                            .init(color: Color.white.opacity(0.08), location: 0.80),
-                            .init(color: Color.white.opacity(0.20), location: 1.0)
+                            .init(color: Color.black.opacity(0.02), location: 0.0),
+                            .init(color: Color.black.opacity(0.04), location: 0.08),
+                            .init(color: Color.clear, location: 0.18),
+                            .init(color: Color.white.opacity(0.02), location: 0.82),
+                            .init(color: Color.white.opacity(0.04), location: 1.0)
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
@@ -325,79 +325,302 @@ struct GradientWidget: View {
 
     @ViewBuilder
     private func amberBottomLightBackground(width w: CGFloat, height h: CGFloat) -> some View {
-        // Deep obsidian dark canvas
-        Color(red: 0.05, green: 0.05, blue: 0.06)
+        AmberBlobBackgroundView()
+    }
+}
 
-        // Organic Cascading Glowing Light Blobs (creating the falling gradient aesthetic)
-        ZStack {
-            // Layer 1: Ambient Base Floor Light (spans the entire lower base)
-            Ellipse()
-                .fill(
-                    RadialGradient(
-                        colors: [
-                            Color(red: 0.70, green: 0.22, blue: 0.03).opacity(0.70),
-                            Color(red: 0.40, green: 0.10, blue: 0.02).opacity(0.35),
-                            Color.clear
-                        ],
-                        center: .center,
-                        startRadius: 0,
-                        endRadius: max(w, h) * 0.75
+// MARK: - Amber Blob Background View
+
+public struct AmberBlobBackgroundView: View {
+    public init() {}
+
+    public var body: some View {
+        GeometryReader { proxy in
+            let w = max(0, proxy.size.width)
+            let h = max(0, proxy.size.height)
+
+            ZStack {
+                // Pitch obsidian canvas
+                Color(red: 0.04, green: 0.04, blue: 0.05)
+
+                // Layer 0a: Atmospheric diffuse under-bleed along bottom shelf (deep smokey glow)
+                AmberAtmosphericWaveShape()
+                    .fill(
+                        LinearGradient(
+                            stops: [
+                                .init(color: Color(red: 0.88, green: 0.30, blue: 0.02).opacity(0.85), location: 0.0),
+                                .init(color: Color(red: 0.65, green: 0.18, blue: 0.01).opacity(0.55), location: 0.45),
+                                .init(color: Color(red: 0.40, green: 0.10, blue: 0.01).opacity(0.30), location: 0.75),
+                                .init(color: Color.clear, location: 1.0)
+                            ],
+                            startPoint: .bottomTrailing,
+                            endPoint: .leading
+                        )
                     )
-                )
-                .frame(width: w * 1.50, height: h * 0.90)
-                .position(x: w * 0.50, y: h * 1.05)
-                .blur(radius: max(16, h * 0.20))
+                    .frame(width: w, height: h)
+                    .blur(radius: max(22, h * 0.16))
 
-            // Layer 2: Left-Side Warm Horizon Spill
-            Ellipse()
-                .fill(Color(red: 0.85, green: 0.28, blue: 0.04).opacity(0.65))
-                .frame(width: w * 0.80, height: h * 0.55)
-                .position(x: w * 0.15, y: h * 0.95)
-                .blur(radius: max(14, h * 0.16))
-
-            // Layer 3: Dynamic Rising Amber Cascade Blob (tilted organic shape climbing the right flank)
-            Ellipse()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 0.95, green: 0.38, blue: 0.06).opacity(0.90),
-                            Color(red: 0.75, green: 0.18, blue: 0.02).opacity(0.50)
-                        ],
-                        startPoint: .bottomTrailing,
-                        endPoint: .topLeading
+                // Layer 0b: Atmospheric diffuse under-bleed along right flank (deep smokey glow)
+                AmberFlamePlumeShape()
+                    .fill(
+                        LinearGradient(
+                            stops: [
+                                .init(color: Color(red: 0.92, green: 0.35, blue: 0.02).opacity(0.85), location: 0.0),
+                                .init(color: Color(red: 0.70, green: 0.20, blue: 0.01).opacity(0.55), location: 0.45),
+                                .init(color: Color(red: 0.42, green: 0.10, blue: 0.01).opacity(0.30), location: 0.75),
+                                .init(color: Color.clear, location: 1.0)
+                            ],
+                            startPoint: .bottomTrailing,
+                            endPoint: .topTrailing
+                        )
                     )
-                )
-                .frame(width: w * 0.95, height: h * 0.75)
-                .rotationEffect(.degrees(-15))
-                .position(x: w * 0.78, y: h * 0.82)
-                .blur(radius: max(15, h * 0.18))
+                    .frame(width: w, height: h)
+                    .blur(radius: max(22, h * 0.16))
 
-            // Layer 4: Radiant Golden-Amber Hot Core Flare
-            Ellipse()
-                .fill(
-                    RadialGradient(
-                        colors: [
-                            Color(red: 1.00, green: 0.68, blue: 0.20),
-                            Color(red: 0.98, green: 0.42, blue: 0.08).opacity(0.90),
-                            Color(red: 0.85, green: 0.22, blue: 0.03).opacity(0.40),
-                            Color.clear
-                        ],
-                        center: .center,
-                        startRadius: 0,
-                        endRadius: max(w, h) * 0.40
+                // Layer 1: Core bottom edge shelf bleeding leftward with corner hook
+                AmberAtmosphericWaveShape()
+                    .fill(
+                        LinearGradient(
+                            stops: [
+                                .init(color: Color(red: 0.95, green: 0.40, blue: 0.04).opacity(0.96), location: 0.0),
+                                .init(color: Color(red: 0.82, green: 0.28, blue: 0.02).opacity(0.74), location: 0.38),
+                                .init(color: Color(red: 0.58, green: 0.16, blue: 0.01).opacity(0.48), location: 0.70),
+                                .init(color: Color(red: 0.42, green: 0.10, blue: 0.01).opacity(0.24), location: 0.88),
+                                .init(color: Color.clear, location: 1.0)
+                            ],
+                            startPoint: .bottomTrailing,
+                            endPoint: .leading
+                        )
                     )
-                )
-                .frame(width: w * 0.85, height: h * 0.65)
-                .position(x: w * 0.80, y: h * 0.90)
-                .blur(radius: max(12, h * 0.14))
+                    .frame(width: w, height: h)
+                    .blur(radius: max(12, h * 0.09))
 
-            // Layer 5: Incandescent Specular Sunburst Center
-            Circle()
-                .fill(Color(red: 1.00, green: 0.84, blue: 0.48).opacity(0.95))
-                .frame(width: min(w, h) * 0.36, height: min(w, h) * 0.36)
-                .position(x: w * 0.82, y: h * 0.94)
-                .blur(radius: max(8, min(w, h) * 0.09))
+                // Layer 2: Core right flank plume bleeding upward, thick at bottom and tapering at top
+                AmberFlamePlumeShape()
+                    .fill(
+                        LinearGradient(
+                            stops: [
+                                .init(color: Color(red: 0.96, green: 0.44, blue: 0.04).opacity(0.96), location: 0.0),
+                                .init(color: Color(red: 0.84, green: 0.30, blue: 0.02).opacity(0.74), location: 0.35),
+                                .init(color: Color(red: 0.60, green: 0.18, blue: 0.01).opacity(0.48), location: 0.68),
+                                .init(color: Color(red: 0.42, green: 0.10, blue: 0.01).opacity(0.24), location: 0.88),
+                                .init(color: Color.clear, location: 1.0)
+                            ],
+                            startPoint: .bottomTrailing,
+                            endPoint: .topTrailing
+                        )
+                    )
+                    .frame(width: w, height: h)
+                    .blur(radius: max(12, h * 0.09))
+
+                // Layer 3: Corner origin bulb where both arms meet
+                AmberFloatingCloudBlobShape()
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                Color(red: 0.98, green: 0.54, blue: 0.08).opacity(0.78),
+                                Color(red: 0.80, green: 0.24, blue: 0.02).opacity(0.30),
+                                Color.clear
+                            ],
+                            center: .init(x: 0.95, y: 0.92),
+                            startRadius: 0,
+                            endRadius: max(w, h) * 0.32
+                        )
+                    )
+                    .frame(width: w, height: h)
+                    .blur(radius: max(10, h * 0.08))
+
+                // Layer 4: Radiant warm amber-gold energy core at origin
+                AmberRadiantCoreBlobShape()
+                    .fill(
+                        LinearGradient(
+                            stops: [
+                                .init(color: Color(red: 0.98, green: 0.62, blue: 0.12).opacity(0.82), location: 0.0),
+                                .init(color: Color(red: 0.90, green: 0.30, blue: 0.02).opacity(0.50), location: 0.55),
+                                .init(color: Color.clear, location: 0.85)
+                            ],
+                            startPoint: .bottomTrailing,
+                            endPoint: .topLeading
+                        )
+                    )
+                    .frame(width: w, height: h)
+                    .blur(radius: max(7, h * 0.055))
+
+                // Layer 5: Incandescent golden filament core at corner origin (dimmed slightly, remains brightest)
+                AmberIncandescentCoreShape()
+                    .fill(
+                        LinearGradient(
+                            stops: [
+                                .init(color: Color(red: 1.00, green: 0.86, blue: 0.48).opacity(0.84), location: 0.0),
+                                .init(color: Color(red: 0.98, green: 0.60, blue: 0.15).opacity(0.58), location: 0.60),
+                                .init(color: Color.clear, location: 0.90)
+                            ],
+                            startPoint: .bottomTrailing,
+                            endPoint: .topLeading
+                        )
+                    )
+                    .frame(width: w, height: h)
+                    .blur(radius: max(5, h * 0.038))
+            }
         }
+    }
+}
+
+// MARK: - Amber Organic Bézier Blob Shapes
+
+public struct AmberAtmosphericWaveShape: Shape {
+    public init() {}
+
+    public func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+
+        // Left corner hook
+        path.move(to: CGPoint(x: -w * 0.15, y: h * 1.15))
+        path.addLine(to: CGPoint(x: -w * 0.15, y: h * 0.65))
+        // Hook curving down from left edge to bottom shelf
+        path.addCurve(
+            to: CGPoint(x: w * 0.12, y: h * 0.86),
+            control1: CGPoint(x: -w * 0.05, y: h * 0.75),
+            control2: CGPoint(x: w * 0.04, y: h * 0.84)
+        )
+        // Horizontal strip along bottom base
+        path.addCurve(
+            to: CGPoint(x: w * 0.55, y: h * 0.84),
+            control1: CGPoint(x: w * 0.25, y: h * 0.88),
+            control2: CGPoint(x: w * 0.40, y: h * 0.86)
+        )
+        // Thickens as it approaches the bottom-right origin
+        path.addCurve(
+            to: CGPoint(x: w * 0.82, y: h * 0.74),
+            control1: CGPoint(x: w * 0.66, y: h * 0.82),
+            control2: CGPoint(x: w * 0.74, y: h * 0.76)
+        )
+        // Reaches right edge
+        path.addCurve(
+            to: CGPoint(x: w * 1.15, y: h * 0.70),
+            control1: CGPoint(x: w * 0.92, y: h * 0.72),
+            control2: CGPoint(x: w * 1.05, y: h * 0.70)
+        )
+        path.addLine(to: CGPoint(x: w * 1.15, y: h * 1.15))
+        path.closeSubpath()
+        return path
+    }
+}
+
+public struct AmberFlamePlumeShape: Shape {
+    public init() {}
+
+    public func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+
+        // Top right thin tip extending higher for rich vertical bleed
+        path.move(to: CGPoint(x: w * 1.15, y: h * 0.18))
+        // Tapering thin neck on upper right edge
+        path.addCurve(
+            to: CGPoint(x: w * 0.88, y: h * 0.52),
+            control1: CGPoint(x: w * 0.96, y: h * 0.25),
+            control2: CGPoint(x: w * 0.92, y: h * 0.38)
+        )
+        // Bulbous expansion as it approaches the bottom-right origin
+        path.addCurve(
+            to: CGPoint(x: w * 0.76, y: h * 0.75),
+            control1: CGPoint(x: w * 0.85, y: h * 0.62),
+            control2: CGPoint(x: w * 0.78, y: h * 0.68)
+        )
+        // Down into bottom-right base
+        path.addCurve(
+            to: CGPoint(x: w * 0.72, y: h * 1.15),
+            control1: CGPoint(x: w * 0.76, y: h * 0.88),
+            control2: CGPoint(x: w * 0.73, y: h * 1.02)
+        )
+        path.addLine(to: CGPoint(x: w * 1.15, y: h * 1.15))
+        path.closeSubpath()
+        return path
+    }
+}
+
+public struct AmberFloatingCloudBlobShape: Shape {
+    public init() {}
+
+    public func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+
+        // Corner origin bulb expanding from bottom-right vertex
+        path.move(to: CGPoint(x: w * 0.60, y: h * 1.15))
+        path.addLine(to: CGPoint(x: w * 0.60, y: h * 0.94))
+        path.addCurve(
+            to: CGPoint(x: w * 0.78, y: h * 0.76),
+            control1: CGPoint(x: w * 0.64, y: h * 0.86),
+            control2: CGPoint(x: w * 0.70, y: h * 0.78)
+        )
+        path.addCurve(
+            to: CGPoint(x: w * 1.15, y: h * 0.65),
+            control1: CGPoint(x: w * 0.90, y: h * 0.74),
+            control2: CGPoint(x: w * 1.05, y: h * 0.68)
+        )
+        path.addLine(to: CGPoint(x: w * 1.15, y: h * 1.15))
+        path.closeSubpath()
+        return path
+    }
+}
+
+public struct AmberRadiantCoreBlobShape: Shape {
+    public init() {}
+
+    public func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+
+        // Radiant core lobe at corner origin
+        path.move(to: CGPoint(x: w * 0.68, y: h * 1.15))
+        path.addLine(to: CGPoint(x: w * 0.68, y: h * 0.98))
+        path.addCurve(
+            to: CGPoint(x: w * 0.86, y: h * 0.84),
+            control1: CGPoint(x: w * 0.72, y: h * 0.92),
+            control2: CGPoint(x: w * 0.78, y: h * 0.86)
+        )
+        path.addCurve(
+            to: CGPoint(x: w * 1.15, y: h * 0.78),
+            control1: CGPoint(x: w * 0.96, y: h * 0.82),
+            control2: CGPoint(x: w * 1.06, y: h * 0.80)
+        )
+        path.addLine(to: CGPoint(x: w * 1.15, y: h * 1.15))
+        path.closeSubpath()
+        return path
+    }
+}
+
+public struct AmberIncandescentCoreShape: Shape {
+    public init() {}
+
+    public func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+
+        // Filament core highlight at corner origin
+        path.move(to: CGPoint(x: w * 0.78, y: h * 1.15))
+        path.addLine(to: CGPoint(x: w * 0.78, y: h * 1.02))
+        path.addCurve(
+            to: CGPoint(x: w * 0.92, y: h * 0.89),
+            control1: CGPoint(x: w * 0.82, y: h * 0.96),
+            control2: CGPoint(x: w * 0.86, y: h * 0.91)
+        )
+        path.addCurve(
+            to: CGPoint(x: w * 1.15, y: h * 0.85),
+            control1: CGPoint(x: w * 1.00, y: h * 0.87),
+            control2: CGPoint(x: w * 1.08, y: h * 0.86)
+        )
+        path.addLine(to: CGPoint(x: w * 1.15, y: h * 1.15))
+        path.closeSubpath()
+        return path
     }
 }
 

@@ -1608,63 +1608,8 @@ private struct GradientPickerRow: View {
                     VStack(spacing: 5) {
                         ZStack {
                             if theme == .sunsetAmber {
-                                // Dark obsidian with organic cascading falling amber blobs
-                                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                    .fill(Color(red: 0.05, green: 0.05, blue: 0.06))
-                                    .overlay {
-                                        GeometryReader { swatchProxy in
-                                            let sw = swatchProxy.size.width
-                                            let sh = swatchProxy.size.height
-                                            ZStack {
-                                                // Ambient Base Floor Light
-                                                Ellipse()
-                                                    .fill(Color(red: 0.70, green: 0.22, blue: 0.03).opacity(0.70))
-                                                    .frame(width: sw * 1.5, height: sh * 0.9)
-                                                    .position(x: sw * 0.50, y: sh * 1.05)
-                                                    .blur(radius: 6)
-
-                                                // Left spill
-                                                Ellipse()
-                                                    .fill(Color(red: 0.85, green: 0.28, blue: 0.04).opacity(0.65))
-                                                    .frame(width: sw * 0.80, height: sh * 0.55)
-                                                    .position(x: sw * 0.15, y: sh * 0.95)
-                                                    .blur(radius: 5)
-
-                                                // Rising cascade blob
-                                                Ellipse()
-                                                    .fill(Color(red: 0.95, green: 0.38, blue: 0.06).opacity(0.90))
-                                                    .frame(width: sw * 0.95, height: sh * 0.75)
-                                                    .rotationEffect(.degrees(-15))
-                                                    .position(x: sw * 0.78, y: sh * 0.82)
-                                                    .blur(radius: 5)
-
-                                                // Hot radiant flare
-                                                Ellipse()
-                                                    .fill(
-                                                        RadialGradient(
-                                                            colors: [
-                                                                Color(red: 1.00, green: 0.68, blue: 0.20),
-                                                                Color(red: 0.98, green: 0.42, blue: 0.08).opacity(0.90),
-                                                                Color.clear
-                                                            ],
-                                                            center: .center,
-                                                            startRadius: 0,
-                                                            endRadius: 18
-                                                        )
-                                                    )
-                                                    .frame(width: sw * 0.85, height: sh * 0.65)
-                                                    .position(x: sw * 0.80, y: sh * 0.90)
-                                                    .blur(radius: 4)
-
-                                                // Specular spark
-                                                Circle()
-                                                    .fill(Color(red: 1.00, green: 0.84, blue: 0.48).opacity(0.95))
-                                                    .frame(width: sw * 0.36, height: sw * 0.36)
-                                                    .position(x: sw * 0.82, y: sh * 0.94)
-                                                    .blur(radius: 3)
-                                            }
-                                        }
-                                    }
+                                // Dark obsidian with warm amber light bleed from bottom right using organic Bézier blob shapes
+                                AmberBlobBackgroundView()
                                     .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                                     .frame(width: 44, height: 44)
                             } else if theme == .fractalPrism {
@@ -1672,10 +1617,10 @@ private struct GradientPickerRow: View {
                                 ZStack {
                                     LinearGradient(
                                         stops: [
-                                            .init(color: Color(white: 0.08), location: 0.0),
-                                            .init(color: Color(white: 0.22), location: 0.35),
-                                            .init(color: Color(white: 0.48), location: 0.70),
-                                            .init(color: Color(white: 0.80), location: 1.0)
+                                            .init(color: Color(white: 0.03), location: 0.0),
+                                            .init(color: Color(white: 0.07), location: 0.35),
+                                            .init(color: Color(white: 0.14), location: 0.70),
+                                            .init(color: Color(white: 0.22), location: 1.0)
                                         ],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
@@ -1685,10 +1630,11 @@ private struct GradientPickerRow: View {
                                         ForEach(0..<4, id: \.self) { _ in
                                             LinearGradient(
                                                 stops: [
-                                                    .init(color: Color.black.opacity(0.10), location: 0.0),
-                                                    .init(color: Color.clear, location: 0.24),
-                                                    .init(color: Color.white.opacity(0.08), location: 0.80),
-                                                    .init(color: Color.white.opacity(0.20), location: 1.0)
+                                                    .init(color: Color.black.opacity(0.02), location: 0.0),
+                                                    .init(color: Color.black.opacity(0.04), location: 0.08),
+                                                    .init(color: Color.clear, location: 0.18),
+                                                    .init(color: Color.white.opacity(0.02), location: 0.82),
+                                                    .init(color: Color.white.opacity(0.04), location: 1.0)
                                                 ],
                                                 startPoint: .leading,
                                                 endPoint: .trailing

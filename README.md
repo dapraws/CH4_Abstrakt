@@ -145,7 +145,7 @@ The current main-app flow is:
 | Settings | Appearance, app language, app font, alternate app icons, temperature unit, temperature display, distance unit, access/permissions, FAQ, share sheet, and release notes. |
 | Live Activity | Dynamic Island studio for Smart Pills, expanded Dynamic Island, and Lock Screen Live Activity configurations with Glass/Solid styling. |
 
-### Widget Catalog (13 Widgets)
+### Widget Catalog (15 Widgets)
 
 | Widget | Primary Framework | Size | Behavior |
 |---|---|---|---|
@@ -162,6 +162,8 @@ The current main-app flow is:
 | **Daylight** | `WeatherKit` | `Small` | Computes sunrise and sunset times from solar events; shows next daylight event time, icon, and temperature bounds. |
 | **Weather** | `WeatherKit` | `Small` | Reverse geocoded city name, WeatherKit temperature, high/low, and customized weather condition iconography. |
 | **Heart Rate** | `HealthKit` | `Small` | Queries the latest heart rate sample (`HKQuantityTypeIdentifier.heartRate`); displays BPM, heart icon, and relative timestamp. |
+| **Clock** | `Foundation` | `Small` | Analog Roman numeral dial with center hour watermark, accurate hour/minute hands, and red second needle with Dark/Light theme support. |
+| **Gradient** | `WeatherKit` | `Small`, `Medium` | Natural editorial weather summary sentences on 4 selectable styles (Ruby aurora, Cyan aurora, Fractal pleated prism, and Amber bottom contour light) with unified dark atmospheric contrast across light/dark appearances. |
 
 ### Live Activity Rendering
 

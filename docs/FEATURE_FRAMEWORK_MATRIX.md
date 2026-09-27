@@ -14,7 +14,7 @@ This document defines the canonical mapping between Abstrakt feature surfaces, A
 
 ## Complete Widget Catalog & Framework Mapping
 
-The catalog contains **13 widgets** spanning 5 distinct catalog categories:
+The catalog contains **15 widgets** spanning 5 distinct catalog categories:
 
 | Widget Name | Category | Primary Framework | Supporting Frameworks | Host Provider | Supported Sizes | User-Facing Purpose |
 |---|---|---|---|---|---|---|
