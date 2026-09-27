@@ -1653,28 +1653,48 @@ private struct GradientPickerRow: View {
                                 .clipShape(Circle())
                                 .frame(width: 44, height: 44)
                             } else if theme == .fractalPrism {
-                                // Monochromatic Wide Fluted Reeded Glass Swatch
+                                // Chromatic Iridescent Fluted Glass Swatch
                                 ZStack {
+                                    // Base midnight-indigo
                                     LinearGradient(
                                         stops: [
-                                            .init(color: Color(white: 0.03), location: 0.0),
-                                            .init(color: Color(white: 0.07), location: 0.35),
-                                            .init(color: Color(white: 0.14), location: 0.70),
-                                            .init(color: Color(white: 0.22), location: 1.0)
+                                            .init(color: Color(red: 0.04, green: 0.03, blue: 0.08), location: 0.0),
+                                            .init(color: Color(red: 0.08, green: 0.05, blue: 0.16), location: 0.50),
+                                            .init(color: Color(red: 0.14, green: 0.09, blue: 0.24), location: 1.0)
                                         ],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
                                     )
 
+                                    // Spectral dispersion blooms
+                                    Circle()
+                                        .fill(Color(red: 0.45, green: 0.18, blue: 0.75).opacity(0.40))
+                                        .frame(width: 22, height: 22)
+                                        .offset(x: -8, y: -8)
+                                        .blur(radius: 6)
+
+                                    Circle()
+                                        .fill(Color(red: 0.10, green: 0.65, blue: 0.80).opacity(0.35))
+                                        .frame(width: 20, height: 20)
+                                        .offset(x: 6, y: -4)
+                                        .blur(radius: 5)
+
+                                    Circle()
+                                        .fill(Color(red: 0.88, green: 0.28, blue: 0.58).opacity(0.40))
+                                        .frame(width: 22, height: 22)
+                                        .offset(x: 6, y: 8)
+                                        .blur(radius: 6)
+
+                                    // 4 Fluted reeded glass slats
                                     HStack(spacing: 0) {
                                         ForEach(0..<4, id: \.self) { _ in
                                             LinearGradient(
                                                 stops: [
-                                                    .init(color: Color.black.opacity(0.02), location: 0.0),
-                                                    .init(color: Color.black.opacity(0.04), location: 0.08),
-                                                    .init(color: Color.clear, location: 0.18),
-                                                    .init(color: Color.white.opacity(0.02), location: 0.82),
-                                                    .init(color: Color.white.opacity(0.04), location: 1.0)
+                                                    .init(color: Color.black.opacity(0.06), location: 0.0),
+                                                    .init(color: Color.black.opacity(0.10), location: 0.08),
+                                                    .init(color: Color.clear, location: 0.22),
+                                                    .init(color: Color.white.opacity(0.04), location: 0.78),
+                                                    .init(color: Color.white.opacity(0.10), location: 1.0)
                                                 ],
                                                 startPoint: .leading,
                                                 endPoint: .trailing

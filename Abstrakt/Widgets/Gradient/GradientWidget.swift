@@ -270,55 +270,87 @@ struct GradientWidget: View {
 
     @ViewBuilder
     private func fractalPrismBackground(width w: CGFloat, height h: CGFloat) -> some View {
-        // Monochromatic wide fluted glass / prism texture
+        // Chromatic Iridescent wide fluted glass / prism texture
         let slatCount = max(8, Int((w / 18.0).rounded()))
         let slatWidth = w / CGFloat(slatCount)
 
         ZStack {
-            // Layer 1: Smooth atmospheric dark obsidian base gradient
+            // Layer 1: Smooth atmospheric dark midnight-indigo obsidian base gradient
             LinearGradient(
                 stops: [
-                    .init(color: Color(red: 0.02, green: 0.02, blue: 0.03), location: 0.0),   // Pitch obsidian
-                    .init(color: Color(red: 0.04, green: 0.04, blue: 0.05), location: 0.20),  // Deep noir
-                    .init(color: Color(red: 0.07, green: 0.07, blue: 0.09), location: 0.40),  // Charcoal
-                    .init(color: Color(red: 0.11, green: 0.11, blue: 0.13), location: 0.60),  // Dark graphite
-                    .init(color: Color(red: 0.16, green: 0.16, blue: 0.19), location: 0.80),  // Gunmetal
-                    .init(color: Color(red: 0.22, green: 0.22, blue: 0.26), location: 1.0)    // Subtle dark steel luster
+                    .init(color: Color(red: 0.03, green: 0.02, blue: 0.07), location: 0.0),
+                    .init(color: Color(red: 0.05, green: 0.04, blue: 0.12), location: 0.30),
+                    .init(color: Color(red: 0.08, green: 0.06, blue: 0.18), location: 0.65),
+                    .init(color: Color(red: 0.14, green: 0.09, blue: 0.24), location: 1.0)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
 
-            // Layer 2: Subtle soft graphite ambient bloom
-            RadialGradient(
-                colors: [
-                    Color.white.opacity(0.06),
-                    Color(white: 0.40).opacity(0.02),
-                    Color.clear
-                ],
-                center: .init(x: 0.55, y: 0.85),
-                startRadius: 0,
-                endRadius: max(w, h) * 0.75
-            )
+            // Layer 2: Multi-Spectral Iridescent Dispersion Blooms (Violet, Cyan, Rose)
+            Circle()
+                .fill(Color(red: 0.45, green: 0.18, blue: 0.75).opacity(0.35))
+                .frame(width: w * 0.95, height: h * 0.95)
+                .offset(x: -w * 0.15, y: -h * 0.20)
+                .blur(radius: 45)
 
-            // Layer 3: 3D Fluted Glass / Reeded Prism Texture
+            Circle()
+                .fill(Color(red: 0.10, green: 0.65, blue: 0.80).opacity(0.28))
+                .frame(width: w * 0.85, height: h * 0.85)
+                .offset(x: w * 0.20, y: -h * 0.05)
+                .blur(radius: 40)
+
+            Circle()
+                .fill(Color(red: 0.88, green: 0.28, blue: 0.58).opacity(0.32))
+                .frame(width: w * 0.90, height: h * 0.90)
+                .offset(x: w * 0.25, y: h * 0.30)
+                .blur(radius: 42)
+
+            // Layer 3: 3D Fluted Glass / Reeded Prism Texture with Spectral Dispersion
             HStack(spacing: 0) {
-                ForEach(0..<slatCount, id: \.self) { _ in
-                    // Fluted 3D cylinder bevel: Deep shadow groove on left, subtle specular highlight ridge on right
-                    LinearGradient(
-                        stops: [
-                            .init(color: Color.black.opacity(0.02), location: 0.0),
-                            .init(color: Color.black.opacity(0.04), location: 0.08),
-                            .init(color: Color.clear, location: 0.18),
-                            .init(color: Color.white.opacity(0.02), location: 0.82),
-                            .init(color: Color.white.opacity(0.04), location: 1.0)
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
+                ForEach(0..<slatCount, id: \.self) { index in
+                    let progress = CGFloat(index) / CGFloat(max(1, slatCount - 1))
+                    let refractionTint: Color = {
+                        if progress < 0.33 {
+                            return Color(red: 0.60, green: 0.25, blue: 0.90).opacity(0.06)
+                        } else if progress < 0.66 {
+                            return Color(red: 0.15, green: 0.75, blue: 0.85).opacity(0.06)
+                        } else {
+                            return Color(red: 0.95, green: 0.35, blue: 0.65).opacity(0.06)
+                        }
+                    }()
+
+                    ZStack {
+                        refractionTint
+
+                        // Fluted 3D cylinder bevel: Deep shadow groove on left, subtle specular highlight ridge on right
+                        LinearGradient(
+                            stops: [
+                                .init(color: Color.black.opacity(0.06), location: 0.0),
+                                .init(color: Color.black.opacity(0.10), location: 0.08),
+                                .init(color: Color.clear, location: 0.22),
+                                .init(color: Color.white.opacity(0.03), location: 0.78),
+                                .init(color: Color.white.opacity(0.08), location: 1.0)
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    }
                     .frame(width: slatWidth, height: h)
                 }
             }
+
+            // Layer 4: Subtle ambient chromatic diagonal reflection band
+            LinearGradient(
+                stops: [
+                    .init(color: Color(red: 0.55, green: 0.20, blue: 0.85).opacity(0.08), location: 0.15),
+                    .init(color: Color(red: 0.15, green: 0.70, blue: 0.85).opacity(0.08), location: 0.50),
+                    .init(color: Color(red: 0.90, green: 0.30, blue: 0.60).opacity(0.08), location: 0.85)
+                ],
+                startPoint: .topTrailing,
+                endPoint: .bottomLeading
+            )
+            .blendMode(.plusLighter)
         }
         .frame(width: w, height: h)
     }
