@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 enum WidgetSharedStore {
     private static let suiteName: String = {
@@ -187,7 +188,19 @@ enum WidgetSharedStore {
     }
 
     static var batteryLevel: Int {
-        defaults?.object(forKey: "shared.battery.level") as? Int ?? 0
+        UIDevice.current.isBatteryMonitoringEnabled = true
+        let raw = UIDevice.current.batteryLevel
+        if raw >= 0 {
+            return Int((raw * 100).rounded())
+        }
+        if let stored = defaults?.object(forKey: "shared.battery.level") as? Int, stored > 0 {
+            return stored
+        }
+        #if targetEnvironment(simulator)
+        return 100
+        #else
+        return 0
+        #endif
     }
 
     static var batteryEstimatedHours: Int? {
@@ -195,6 +208,20 @@ enum WidgetSharedStore {
     }
 
     static var batteryEstimatedMinutes: Int? {
+        UIDevice.current.isBatteryMonitoringEnabled = true
+        let raw = UIDevice.current.batteryLevel
+        let state = UIDevice.current.batteryState
+        let level = batteryLevel
+        if raw >= 0 && state != .unknown {
+            if state == .charging {
+                let remainingPercent = 100 - max(0, min(100, level))
+                return max(0, Int(round(Double(remainingPercent) * 1.2)))
+            } else if state == .full {
+                return 0
+            } else {
+                return max(0, Int(round(Double(max(0, min(100, level))) * 6.0)))
+            }
+        }
         if let minutes = defaults?.object(
             forKey: "shared.battery.estimatedMinutes"
         ) as? Int {
@@ -205,7 +232,12 @@ enum WidgetSharedStore {
     }
 
     static var batteryIsCharging: Bool {
-        defaults?.bool(forKey: "shared.battery.isCharging") ?? false
+        UIDevice.current.isBatteryMonitoringEnabled = true
+        let state = UIDevice.current.batteryState
+        if state != .unknown {
+            return state == .charging || state == .full
+        }
+        return defaults?.bool(forKey: "shared.battery.isCharging") ?? false
     }
 
     static var healthSteps: Int {

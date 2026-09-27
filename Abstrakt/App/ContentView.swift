@@ -88,6 +88,11 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: UIDevice.batteryStateDidChangeNotification)) { _ in
             SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
+            WidgetTimelineReloadScheduler.schedule()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIDevice.batteryLevelDidChangeNotification)) { _ in
+            SharedModelContainer.write(battery: BatteryStatusProvider.currentSnapshot())
+            WidgetTimelineReloadScheduler.schedule()
         }
         .task(id: shouldObserveHealth) {
             guard shouldObserveHealth else {

@@ -50,13 +50,32 @@ enum BatteryStatusProvider {
         UIDevice.current.isBatteryMonitoringEnabled = true
 
         let rawLevel = UIDevice.current.batteryLevel
-        let level = rawLevel >= 0 ? Int((rawLevel * 100).rounded()) : 0
         let state = UIDevice.current.batteryState
+
+        let level: Int
+        if rawLevel >= 0 {
+            level = Int((rawLevel * 100).rounded())
+        } else if let cached = AppGroupConstants.sharedDefaults?.object(forKey: AppGroupConstants.sharedBatteryLevelKey) as? Int, cached > 0 {
+            level = cached
+        } else {
+            #if targetEnvironment(simulator)
+            level = 100
+            #else
+            level = 0
+            #endif
+        }
+
+        let isCharging: Bool
+        if state != .unknown {
+            isCharging = state == .charging || state == .full
+        } else {
+            isCharging = AppGroupConstants.sharedDefaults?.bool(forKey: AppGroupConstants.sharedBatteryIsChargingKey) ?? false
+        }
 
         return BatterySnapshot(
             level: level,
             estimatedMinutesRemaining: estimatedMinutesRemaining(for: level, state: state),
-            isCharging: state == .charging || state == .full
+            isCharging: isCharging
         )
     }
 
@@ -69,6 +88,10 @@ enum BatteryStatusProvider {
 
         guard state != .full else {
             return 0
+        }
+
+        if state == .unknown {
+            return nil
         }
 
         // iOS does not expose exact runtime remaining, so this estimates from a 10-hour full charge.

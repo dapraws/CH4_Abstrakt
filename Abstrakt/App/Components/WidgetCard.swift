@@ -180,11 +180,15 @@ struct WidgetPreview: View {
                         fontTheme: widgetFontTheme
                     )
                 case "battery":
+                    let live = BatteryStatusProvider.currentSnapshot()
+                    let displayLevel = batteryLevel > 0 ? batteryLevel : live.level
+                    let displayCharging = batteryLevel > 0 ? batteryIsCharging : live.isCharging
+                    let displayMinutes = batteryEstimatedMinutes ?? live.estimatedMinutesRemaining
                     BatteryWidget(
                         snapshot: BatterySnapshotViewData(
-                            level: batteryLevel,
-                            estimatedMinutesRemaining: batteryEstimatedMinutes,
-                            isCharging: batteryIsCharging
+                            level: displayLevel,
+                            estimatedMinutesRemaining: displayMinutes,
+                            isCharging: displayCharging
                         ),
                         fontTheme: widgetFontTheme
                     )

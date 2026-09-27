@@ -27,6 +27,7 @@ struct AbstraktApp: App {
 
 private extension AbstraktApp {
     func prewarmSharedResources() {
+        UIDevice.current.isBatteryMonitoringEnabled = true
         _ = AppGroupConstants.sharedDefaults
 
         AppFonts.registerCustomFonts()
