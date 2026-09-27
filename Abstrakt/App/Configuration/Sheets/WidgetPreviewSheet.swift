@@ -1612,43 +1612,58 @@ private struct GradientPickerRow: View {
                                 ZStack {
                                     Color(red: 0.04, green: 0.04, blue: 0.05)
 
-                                    // Amber bottom-right bloom
-                                    RadialGradient(
+                                    // Ambient bottom-up & right atmospheric glow
+                                    LinearGradient(
                                         stops: [
-                                            .init(color: Color(red: 1.00, green: 0.86, blue: 0.48), location: 0.0),
-                                            .init(color: Color(red: 0.98, green: 0.55, blue: 0.08).opacity(0.95), location: 0.30),
-                                            .init(color: Color(red: 0.85, green: 0.25, blue: 0.02).opacity(0.70), location: 0.58),
-                                            .init(color: Color(red: 0.45, green: 0.10, blue: 0.01).opacity(0.35), location: 0.80),
+                                            .init(color: Color(red: 0.94, green: 0.40, blue: 0.04).opacity(0.75), location: 0.0),
+                                            .init(color: Color(red: 0.75, green: 0.22, blue: 0.01).opacity(0.45), location: 0.40),
+                                            .init(color: Color(red: 0.45, green: 0.10, blue: 0.01).opacity(0.18), location: 0.70),
                                             .init(color: Color.clear, location: 1.0)
                                         ],
-                                        center: .init(x: 0.88, y: 0.88),
-                                        startRadius: 0,
-                                        endRadius: 36
+                                        startPoint: .bottomTrailing,
+                                        endPoint: .topLeading
                                     )
 
                                     // Right vertical flame plume glow
-                                    Ellipse()
-                                        .fill(
-                                            LinearGradient(
-                                                stops: [
-                                                    .init(color: Color(red: 0.98, green: 0.55, blue: 0.08).opacity(0.90), location: 0.0),
-                                                    .init(color: Color(red: 0.75, green: 0.20, blue: 0.01).opacity(0.40), location: 0.60),
-                                                    .init(color: Color.clear, location: 1.0)
-                                                ],
-                                                startPoint: .bottomTrailing,
-                                                endPoint: .topTrailing
-                                            )
-                                        )
-                                        .frame(width: 18, height: 32)
-                                        .offset(x: 14, y: -4)
-                                        .blur(radius: 4)
+                                    LinearGradient(
+                                        stops: [
+                                            .init(color: Color(red: 0.96, green: 0.46, blue: 0.05).opacity(0.70), location: 0.0),
+                                            .init(color: Color(red: 0.80, green: 0.24, blue: 0.02).opacity(0.35), location: 0.50),
+                                            .init(color: Color.clear, location: 1.0)
+                                        ],
+                                        startPoint: .bottomTrailing,
+                                        endPoint: .topTrailing
+                                    )
+                                    .frame(width: 20, height: 36)
+                                    .offset(x: 12, y: -4)
+                                    .blur(radius: 5)
 
-                                    // Incandescent core spark
-                                    Circle()
-                                        .fill(Color(red: 1.00, green: 0.88, blue: 0.52).opacity(0.92))
-                                        .frame(width: 14, height: 14)
-                                        .offset(x: 12, y: 12)
-                                        .blur(radius: 3)
+                                    // Bottom horizontal shelf glow
+                                    LinearGradient(
+                                        stops: [
+                                            .init(color: Color(red: 0.95, green: 0.42, blue: 0.04).opacity(0.70), location: 0.0),
+                                            .init(color: Color(red: 0.78, green: 0.22, blue: 0.02).opacity(0.35), location: 0.50),
+                                            .init(color: Color.clear, location: 1.0)
+                                        ],
+                                        startPoint: .bottomTrailing,
+                                        endPoint: .bottomLeading
+                                    )
+                                    .frame(width: 36, height: 20)
+                                    .offset(x: -4, y: 12)
+                                    .blur(radius: 5)
+
+                                    // Organic corner origin glow (soft, non-abrupt corner falloff)
+                                    RadialGradient(
+                                        stops: [
+                                            .init(color: Color(red: 1.00, green: 0.88, blue: 0.55).opacity(0.90), location: 0.0),
+                                            .init(color: Color(red: 0.98, green: 0.58, blue: 0.10).opacity(0.65), location: 0.35),
+                                            .init(color: Color(red: 0.85, green: 0.26, blue: 0.02).opacity(0.30), location: 0.65),
+                                            .init(color: Color.clear, location: 1.0)
+                                        ],
+                                        center: .bottomTrailing,
+                                        startRadius: 0,
+                                        endRadius: 22
+                                    )
                                 }
                                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                                 .frame(width: 44, height: 44)

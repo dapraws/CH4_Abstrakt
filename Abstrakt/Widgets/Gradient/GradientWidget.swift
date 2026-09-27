@@ -381,17 +381,17 @@ public struct AmberBlobBackgroundView: View {
                     .fill(
                         LinearGradient(
                             stops: [
-                                .init(color: Color(red: 0.88, green: 0.30, blue: 0.02).opacity(isWide ? 0.88 : 0.85), location: 0.0),
-                                .init(color: Color(red: 0.65, green: 0.18, blue: 0.01).opacity(isWide ? 0.60 : 0.55), location: 0.45),
-                                .init(color: Color(red: 0.40, green: 0.10, blue: 0.01).opacity(0.30), location: 0.75),
+                                .init(color: Color(red: 0.88, green: 0.30, blue: 0.02).opacity(isWide ? 0.92 : 0.85), location: 0.0),
+                                .init(color: Color(red: 0.65, green: 0.18, blue: 0.01).opacity(isWide ? 0.65 : 0.55), location: 0.40),
+                                .init(color: Color(red: 0.40, green: 0.10, blue: 0.01).opacity(0.30), location: 0.70),
                                 .init(color: Color.clear, location: 1.0)
                             ],
                             startPoint: .bottomTrailing,
-                            endPoint: .leading
+                            endPoint: isWide ? .topLeading : .leading
                         )
                     )
                     .frame(width: w, height: h)
-                    .blur(radius: max(22, h * (isWide ? 0.18 : 0.16)))
+                    .blur(radius: max(20, h * (isWide ? 0.20 : 0.16)))
 
                 // Layer 0b: Atmospheric diffuse under-bleed along right flank (deep smokey glow)
                 AmberFlamePlumeShape()
@@ -408,7 +408,7 @@ public struct AmberBlobBackgroundView: View {
                         )
                     )
                     .frame(width: w, height: h)
-                    .blur(radius: max(22, h * (isWide ? 0.18 : 0.16)))
+                    .blur(radius: max(20, h * (isWide ? 0.18 : 0.16)))
 
                 // Layer 1: Core bottom edge shelf bleeding leftward with corner hook
                 AmberAtmosphericWaveShape()
@@ -416,17 +416,17 @@ public struct AmberBlobBackgroundView: View {
                         LinearGradient(
                             stops: [
                                 .init(color: Color(red: 0.95, green: 0.40, blue: 0.04).opacity(0.96), location: 0.0),
-                                .init(color: Color(red: 0.82, green: 0.28, blue: 0.02).opacity(0.74), location: 0.38),
-                                .init(color: Color(red: 0.58, green: 0.16, blue: 0.01).opacity(0.48), location: 0.70),
-                                .init(color: Color(red: 0.42, green: 0.10, blue: 0.01).opacity(0.24), location: 0.88),
+                                .init(color: Color(red: 0.82, green: 0.28, blue: 0.02).opacity(0.74), location: 0.35),
+                                .init(color: Color(red: 0.58, green: 0.16, blue: 0.01).opacity(0.48), location: 0.65),
+                                .init(color: Color(red: 0.42, green: 0.10, blue: 0.01).opacity(0.24), location: 0.85),
                                 .init(color: Color.clear, location: 1.0)
                             ],
                             startPoint: .bottomTrailing,
-                            endPoint: .leading
+                            endPoint: isWide ? .topLeading : .leading
                         )
                     )
                     .frame(width: w, height: h)
-                    .blur(radius: max(12, h * (isWide ? 0.11 : 0.09)))
+                    .blur(radius: max(12, h * (isWide ? 0.12 : 0.09)))
 
                 // Layer 2: Core right flank plume bleeding upward, thick at bottom and tapering at top
                 AmberFlamePlumeShape()
@@ -444,7 +444,7 @@ public struct AmberBlobBackgroundView: View {
                         )
                     )
                     .frame(width: w, height: h)
-                    .blur(radius: max(12, h * (isWide ? 0.11 : 0.09)))
+                    .blur(radius: max(12, h * (isWide ? 0.12 : 0.09)))
 
                 // Layer 3: Corner origin bulb where both arms meet
                 AmberFloatingCloudBlobShape()
@@ -457,7 +457,7 @@ public struct AmberBlobBackgroundView: View {
                             ],
                             center: .init(x: 0.95, y: 0.92),
                             startRadius: 0,
-                            endRadius: isWide ? max(w, h) * 0.42 : max(w, h) * 0.32
+                            endRadius: isWide ? max(w, h) * 0.48 : max(w, h) * 0.34
                         )
                     )
                     .frame(width: w, height: h)
@@ -513,52 +513,52 @@ public struct AmberAtmosphericWaveShape: Shape {
         if isWide {
             // Taller, deeper wave shelf on medium/long widgets
             path.move(to: CGPoint(x: -w * 0.10, y: h * 1.15))
-            path.addLine(to: CGPoint(x: -w * 0.10, y: h * 0.52))
+            path.addLine(to: CGPoint(x: -w * 0.10, y: h * 0.28))
             path.addCurve(
-                to: CGPoint(x: w * 0.16, y: h * 0.80),
-                control1: CGPoint(x: -w * 0.02, y: h * 0.64),
-                control2: CGPoint(x: w * 0.08, y: h * 0.76)
+                to: CGPoint(x: w * 0.22, y: h * 0.44),
+                control1: CGPoint(x: -w * 0.02, y: h * 0.32),
+                control2: CGPoint(x: w * 0.10, y: h * 0.40)
             )
             path.addCurve(
-                to: CGPoint(x: w * 0.52, y: h * 0.76),
-                control1: CGPoint(x: w * 0.28, y: h * 0.82),
-                control2: CGPoint(x: w * 0.40, y: h * 0.78)
+                to: CGPoint(x: w * 0.56, y: h * 0.38),
+                control1: CGPoint(x: w * 0.34, y: h * 0.46),
+                control2: CGPoint(x: w * 0.44, y: h * 0.40)
             )
             path.addCurve(
-                to: CGPoint(x: w * 0.76, y: h * 0.62),
-                control1: CGPoint(x: w * 0.62, y: h * 0.74),
-                control2: CGPoint(x: w * 0.68, y: h * 0.66)
+                to: CGPoint(x: w * 0.80, y: h * 0.28),
+                control1: CGPoint(x: w * 0.66, y: h * 0.36),
+                control2: CGPoint(x: w * 0.72, y: h * 0.30)
             )
             path.addCurve(
-                to: CGPoint(x: w * 1.15, y: h * 0.56),
-                control1: CGPoint(x: w * 0.88, y: h * 0.58),
-                control2: CGPoint(x: w * 1.02, y: h * 0.56)
+                to: CGPoint(x: w * 1.15, y: h * 0.22),
+                control1: CGPoint(x: w * 0.90, y: h * 0.26),
+                control2: CGPoint(x: w * 1.02, y: h * 0.22)
             )
             path.addLine(to: CGPoint(x: w * 1.15, y: h * 1.15))
             path.closeSubpath()
         } else {
             // Square/compact widget
             path.move(to: CGPoint(x: -w * 0.15, y: h * 1.15))
-            path.addLine(to: CGPoint(x: -w * 0.15, y: h * 0.65))
+            path.addLine(to: CGPoint(x: -w * 0.15, y: h * 0.50))
             path.addCurve(
-                to: CGPoint(x: w * 0.12, y: h * 0.86),
-                control1: CGPoint(x: -w * 0.05, y: h * 0.75),
-                control2: CGPoint(x: w * 0.04, y: h * 0.84)
+                to: CGPoint(x: w * 0.15, y: h * 0.70),
+                control1: CGPoint(x: -w * 0.04, y: h * 0.58),
+                control2: CGPoint(x: w * 0.06, y: h * 0.66)
             )
             path.addCurve(
-                to: CGPoint(x: w * 0.55, y: h * 0.84),
-                control1: CGPoint(x: w * 0.25, y: h * 0.88),
-                control2: CGPoint(x: w * 0.40, y: h * 0.86)
+                to: CGPoint(x: w * 0.55, y: h * 0.68),
+                control1: CGPoint(x: w * 0.28, y: h * 0.72),
+                control2: CGPoint(x: w * 0.42, y: h * 0.70)
             )
             path.addCurve(
-                to: CGPoint(x: w * 0.82, y: h * 0.74),
-                control1: CGPoint(x: w * 0.66, y: h * 0.82),
-                control2: CGPoint(x: w * 0.74, y: h * 0.76)
+                to: CGPoint(x: w * 0.82, y: h * 0.58),
+                control1: CGPoint(x: w * 0.66, y: h * 0.66),
+                control2: CGPoint(x: w * 0.74, y: h * 0.60)
             )
             path.addCurve(
-                to: CGPoint(x: w * 1.15, y: h * 0.70),
-                control1: CGPoint(x: w * 0.92, y: h * 0.72),
-                control2: CGPoint(x: w * 1.05, y: h * 0.70)
+                to: CGPoint(x: w * 1.15, y: h * 0.50),
+                control1: CGPoint(x: w * 0.92, y: h * 0.54),
+                control2: CGPoint(x: w * 1.05, y: h * 0.50)
             )
             path.addLine(to: CGPoint(x: w * 1.15, y: h * 1.15))
             path.closeSubpath()
@@ -631,17 +631,17 @@ public struct AmberFloatingCloudBlobShape: Shape {
         let isWide = w > 220 || (h > 0 && w / h > 1.4)
 
         if isWide {
-            path.move(to: CGPoint(x: w * 0.48, y: h * 1.15))
-            path.addLine(to: CGPoint(x: w * 0.48, y: h * 0.86))
+            path.move(to: CGPoint(x: w * 0.35, y: h * 1.15))
+            path.addLine(to: CGPoint(x: w * 0.35, y: h * 0.72))
             path.addCurve(
-                to: CGPoint(x: w * 0.68, y: h * 0.60),
-                control1: CGPoint(x: w * 0.52, y: h * 0.74),
-                control2: CGPoint(x: w * 0.58, y: h * 0.64)
+                to: CGPoint(x: w * 0.60, y: h * 0.46),
+                control1: CGPoint(x: w * 0.40, y: h * 0.60),
+                control2: CGPoint(x: w * 0.48, y: h * 0.50)
             )
             path.addCurve(
-                to: CGPoint(x: w * 1.15, y: h * 0.48),
-                control1: CGPoint(x: w * 0.82, y: h * 0.54),
-                control2: CGPoint(x: w * 1.00, y: h * 0.50)
+                to: CGPoint(x: w * 1.15, y: h * 0.36),
+                control1: CGPoint(x: w * 0.78, y: h * 0.40),
+                control2: CGPoint(x: w * 0.98, y: h * 0.36)
             )
             path.addLine(to: CGPoint(x: w * 1.15, y: h * 1.15))
             path.closeSubpath()
@@ -675,17 +675,17 @@ public struct AmberRadiantCoreBlobShape: Shape {
         let isWide = w > 220 || (h > 0 && w / h > 1.4)
 
         if isWide {
-            path.move(to: CGPoint(x: w * 0.58, y: h * 1.15))
-            path.addLine(to: CGPoint(x: w * 0.58, y: h * 0.92))
+            path.move(to: CGPoint(x: w * 0.50, y: h * 1.15))
+            path.addLine(to: CGPoint(x: w * 0.50, y: h * 0.82))
             path.addCurve(
-                to: CGPoint(x: w * 0.78, y: h * 0.72),
-                control1: CGPoint(x: w * 0.62, y: h * 0.82),
-                control2: CGPoint(x: w * 0.68, y: h * 0.75)
+                to: CGPoint(x: w * 0.72, y: h * 0.58),
+                control1: CGPoint(x: w * 0.56, y: h * 0.72),
+                control2: CGPoint(x: w * 0.62, y: h * 0.64)
             )
             path.addCurve(
-                to: CGPoint(x: w * 1.15, y: h * 0.64),
-                control1: CGPoint(x: w * 0.90, y: h * 0.68),
-                control2: CGPoint(x: w * 1.04, y: h * 0.66)
+                to: CGPoint(x: w * 1.15, y: h * 0.50),
+                control1: CGPoint(x: w * 0.88, y: h * 0.54),
+                control2: CGPoint(x: w * 1.02, y: h * 0.52)
             )
             path.addLine(to: CGPoint(x: w * 1.15, y: h * 1.15))
             path.closeSubpath()
@@ -719,17 +719,17 @@ public struct AmberIncandescentCoreShape: Shape {
         let isWide = w > 220 || (h > 0 && w / h > 1.4)
 
         if isWide {
-            path.move(to: CGPoint(x: w * 0.70, y: h * 1.15))
-            path.addLine(to: CGPoint(x: w * 0.70, y: h * 0.96))
+            path.move(to: CGPoint(x: w * 0.65, y: h * 1.15))
+            path.addLine(to: CGPoint(x: w * 0.65, y: h * 0.90))
             path.addCurve(
-                to: CGPoint(x: w * 0.88, y: h * 0.80),
-                control1: CGPoint(x: w * 0.74, y: h * 0.88),
-                control2: CGPoint(x: w * 0.80, y: h * 0.83)
+                to: CGPoint(x: w * 0.84, y: h * 0.72),
+                control1: CGPoint(x: w * 0.70, y: h * 0.82),
+                control2: CGPoint(x: w * 0.76, y: h * 0.76)
             )
             path.addCurve(
-                to: CGPoint(x: w * 1.15, y: h * 0.74),
-                control1: CGPoint(x: w * 0.98, y: h * 0.76),
-                control2: CGPoint(x: w * 1.08, y: h * 0.75)
+                to: CGPoint(x: w * 1.15, y: h * 0.64),
+                control1: CGPoint(x: w * 0.96, y: h * 0.68),
+                control2: CGPoint(x: w * 1.06, y: h * 0.66)
             )
             path.addLine(to: CGPoint(x: w * 1.15, y: h * 1.15))
             path.closeSubpath()
