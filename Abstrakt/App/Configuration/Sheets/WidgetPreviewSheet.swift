@@ -1608,10 +1608,50 @@ private struct GradientPickerRow: View {
                     VStack(spacing: 5) {
                         ZStack {
                             if theme == .sunsetAmber {
-                                // Dark obsidian with warm amber light bleed from bottom right using organic Bézier blob shapes
-                                AmberBlobBackgroundView()
-                                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                                    .frame(width: 44, height: 44)
+                                // Dark obsidian with warm amber light bleed from bottom right inside circle
+                                ZStack {
+                                    Color(red: 0.04, green: 0.04, blue: 0.05)
+
+                                    // Amber bottom-right bloom
+                                    RadialGradient(
+                                        stops: [
+                                            .init(color: Color(red: 1.00, green: 0.86, blue: 0.48), location: 0.0),
+                                            .init(color: Color(red: 0.98, green: 0.55, blue: 0.08).opacity(0.95), location: 0.30),
+                                            .init(color: Color(red: 0.85, green: 0.25, blue: 0.02).opacity(0.70), location: 0.58),
+                                            .init(color: Color(red: 0.45, green: 0.10, blue: 0.01).opacity(0.35), location: 0.80),
+                                            .init(color: Color.clear, location: 1.0)
+                                        ],
+                                        center: .init(x: 0.85, y: 0.85),
+                                        startRadius: 0,
+                                        endRadius: 36
+                                    )
+
+                                    // Right vertical flame plume glow
+                                    Ellipse()
+                                        .fill(
+                                            LinearGradient(
+                                                stops: [
+                                                    .init(color: Color(red: 0.98, green: 0.55, blue: 0.08).opacity(0.90), location: 0.0),
+                                                    .init(color: Color(red: 0.75, green: 0.20, blue: 0.01).opacity(0.40), location: 0.60),
+                                                    .init(color: Color.clear, location: 1.0)
+                                                ],
+                                                startPoint: .bottomTrailing,
+                                                endPoint: .topTrailing
+                                            )
+                                        )
+                                        .frame(width: 18, height: 32)
+                                        .offset(x: 14, y: -4)
+                                        .blur(radius: 4)
+
+                                    // Incandescent core spark
+                                    Circle()
+                                        .fill(Color(red: 1.00, green: 0.88, blue: 0.52).opacity(0.92))
+                                        .frame(width: 14, height: 14)
+                                        .offset(x: 12, y: 12)
+                                        .blur(radius: 3)
+                                }
+                                .clipShape(Circle())
+                                .frame(width: 44, height: 44)
                             } else if theme == .fractalPrism {
                                 // Monochromatic Wide Fluted Reeded Glass Swatch
                                 ZStack {
@@ -1642,11 +1682,11 @@ private struct GradientPickerRow: View {
                                         }
                                     }
                                 }
-                                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                .clipShape(Circle())
                                 .frame(width: 44, height: 44)
                             } else {
                                 // Planetary Aurora Gradient Swatch
-                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                Circle()
                                     .fill(
                                         LinearGradient(
                                             colors: theme.baseGradient,
@@ -1674,12 +1714,12 @@ private struct GradientPickerRow: View {
                                             .blur(radius: 4)
                                             .offset(x: 2, y: 2)
                                     }
-                                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                    .clipShape(Circle())
                                     .frame(width: 44, height: 44)
                             }
 
                             if isSelected {
-                                RoundedRectangle(cornerRadius: 23, style: .continuous)
+                                Circle()
                                     .stroke(AppColors.primaryText, lineWidth: 2)
                                     .frame(width: 50, height: 50)
                                     .transition(.scale.combined(with: .opacity))
