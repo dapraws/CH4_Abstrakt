@@ -52,15 +52,22 @@ Abstrakt/
 │   │   ├── FadingNavigationBar.swift
 │   │   ├── ScreenSectionTitle.swift
 │   │   ├── ScrollFadeView.swift
-│   │   └── WidgetCard.swift
+│   │   ├── WidgetCard.swift
+│   │   └── WidgetSegmentedControl.swift
 │   └── Configuration/
 │       ├── Components/
-│       │   └── ConfigRow.swift
+│       │   ├── ConfigRow.swift
+│       │   ├── GradientPickerRow.swift
+│       │   ├── PortalCustomizationControls.swift
+│       │   ├── WidgetAppearanceControls.swift
+│       │   └── WidgetPreviewPrimaryButton.swift
 │       └── Sheets/
 │           ├── AppsPickerSheet.swift
 │           ├── FontPickerSheet.swift
 │           ├── LiveActivityPreviewSheet.swift
+│           ├── ReminderPickerSheet.swift
 │           ├── ShareAppSheet.swift
+│           ├── WidgetFontPickerSheet.swift
 │           └── WidgetPreviewSheet.swift
 ├── Core/
 │   ├── Constants/
