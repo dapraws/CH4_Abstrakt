@@ -4,51 +4,101 @@ struct GradientPickerRow: View {
     @Binding var selection: GradientTheme
 
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(GradientTheme.allCases) { theme in
-                let isSelected = selection == theme
+        GeometryReader { proxy in
+            let options = GradientTheme.allCases
+            let selectedIndex = options.firstIndex(of: selection) ?? 0
+            let innerPadding: CGFloat = 5
+            let segmentWidth = max(
+                0,
+                (proxy.size.width - (innerPadding * 2)) / CGFloat(options.count)
+            )
 
-                Button {
-                    Haptics.selection.play()
-                    withAnimation(.smooth(duration: 0.20)) {
-                        selection = theme
-                    }
-                } label: {
-                    VStack(spacing: 5) {
-                        ZStack {
-                            themeSwatch(for: theme)
+            ZStack(alignment: .leading) {
+                // Sliding Active Card Indicator
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(AppColors.card)
+                    .frame(width: segmentWidth, height: 74)
+                    .offset(
+                        x: innerPadding
+                            + (CGFloat(selectedIndex) * segmentWidth)
+                    )
+                    .animation(
+                        .snappy(duration: 0.24, extraBounce: 0),
+                        value: selection
+                    )
 
-                            if isSelected {
-                                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                    .stroke(AppColors.primaryText, lineWidth: 2)
-                                    .frame(width: 50, height: 50)
-                                    .transition(.scale.combined(with: .opacity))
+                HStack(spacing: 0) {
+                    ForEach(options) { theme in
+                        let isSelected = selection == theme
+
+                        Button {
+                            Haptics.selection.play()
+                            selection = theme
+                        } label: {
+                            VStack(spacing: 5) {
+                                ZStack {
+                                    themeSwatch(for: theme)
+                                        .overlay(
+                                            RoundedRectangle(
+                                                cornerRadius: 14,
+                                                style: .continuous
+                                            )
+                                            .stroke(
+                                                Color.white.opacity(0.12),
+                                                lineWidth: 0.8
+                                            )
+                                        )
+                                        .scaleEffect(isSelected ? 1.05 : 0.94)
+
+                                    if isSelected {
+                                        RoundedRectangle(
+                                            cornerRadius: 18,
+                                            style: .continuous
+                                        )
+                                        .stroke(
+                                            AppColors.primaryText.opacity(0.85),
+                                            lineWidth: 1.6
+                                        )
+                                        .frame(width: 50, height: 50)
+                                        .transition(
+                                            .scale.combined(with: .opacity)
+                                        )
+                                    }
+                                }
+                                .frame(width: 52, height: 52)
+                                .animation(
+                                    .snappy(duration: 0.22, extraBounce: 0),
+                                    value: isSelected
+                                )
+
+                                Text(theme.displayName)
+                                    .font(AppFonts.font(.caption))
+                                    .fontWeight(
+                                        isSelected ? .medium : .regular
+                                    )
+                                    .foregroundStyle(
+                                        isSelected
+                                            ? AppColors.primaryText
+                                            : AppColors.secondaryText
+                                    )
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
                             }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 74)
+                            .contentShape(Rectangle())
                         }
-                        .frame(width: 52, height: 52)
-
-                        Text(theme.displayName)
-                            .font(AppFonts.font(.caption))
-                            .foregroundStyle(
-                                isSelected
-                                    ? AppColors.primaryText
-                                    : AppColors.secondaryText
-                            )
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("\(theme.displayName) gradient theme")
                     }
-                    .frame(maxWidth: .infinity)
-                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("\(theme.displayName) gradient theme")
+                .padding(innerPadding)
             }
+            .background(AppColors.cardSoft)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 6)
-        .background(AppColors.cardSoft)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .frame(maxWidth: 360)
+        .frame(height: 84)
     }
 
     @ViewBuilder
@@ -216,35 +266,31 @@ struct GradientPickerRow: View {
     }
 
     private func rubySwatch(for theme: GradientTheme) -> some View {
-        RoundedRectangle(cornerRadius: 14, style: .continuous)
-            .fill(
-                LinearGradient(
-                    colors: theme.baseGradient,
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+        ZStack {
+            LinearGradient(
+                colors: theme.baseGradient,
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
-            .overlay(alignment: .topLeading) {
-                Circle()
-                    .fill(theme.topLeftGlow)
-                    .frame(width: 18, height: 18)
-                    .blur(radius: 4)
-                    .offset(x: 1, y: 1)
-            }
-            .overlay(alignment: .center) {
-                Circle()
-                    .fill(theme.midFieldGlow)
-                    .frame(width: 22, height: 22)
-                    .blur(radius: 5)
-            }
-            .overlay(alignment: .bottomTrailing) {
-                Circle()
-                    .fill(theme.bottomRightDome)
-                    .frame(width: 22, height: 22)
-                    .blur(radius: 4)
-                    .offset(x: 2, y: 2)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .frame(width: 44, height: 44)
+
+            Circle()
+                .fill(theme.topLeftGlow)
+                .frame(width: 18, height: 18)
+                .blur(radius: 4)
+                .offset(x: -8, y: -8)
+
+            Circle()
+                .fill(theme.midFieldGlow)
+                .frame(width: 22, height: 22)
+                .blur(radius: 5)
+
+            Circle()
+                .fill(theme.bottomRightDome)
+                .frame(width: 22, height: 22)
+                .blur(radius: 4)
+                .offset(x: 8, y: 8)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .frame(width: 44, height: 44)
     }
 }
