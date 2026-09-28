@@ -22,29 +22,32 @@ struct DynamicIslandActivity: Widget {
                 } else {
                     LiveActivityEmptyState(
                         backgroundStyle: context.state.lockScreenBackgroundStyle,
-                        showsGlassBorder: true,
+                        showsGlassBorder: false,
                         adaptsContentColorForGlass: true
                     )
-                        .frame(maxWidth: .infinity)
-                        .frame(height: LiveActivityWidgetMetrics.lockScreenEmptyStateHeight)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: LiveActivityWidgetMetrics.lockScreenEmptyStateHeight)
                 }
             }
-            .activityBackgroundTint(.clear)
+            .activityBackgroundTint(
+                context.state.lockScreenBackgroundStyle == .solid ? Color.black : Color.clear
+            )
             .activitySystemActionForegroundColor(.white)
         } dynamicIsland: { context in
             DynamicIsland {
-                DynamicIslandExpandedRegion(.center) {
+                DynamicIslandExpandedRegion(.bottom) {
                     if let widget = context.state.expandedWidget {
                         ExpandedActivity(
                             widget: widget,
                             isTest: context.state.isTest
                         )
                     } else {
-                        LiveActivityEmptyState()
-                            .frame(
-                                width: LiveActivityWidgetMetrics.islandWidth,
-                                height: LiveActivityWidgetMetrics.expandedIslandHeight
-                            )
+                        LiveActivityEmptyState(
+                            backgroundStyle: .solid,
+                            showsGlassBorder: false
+                        )
+                        .frame(maxWidth: .infinity)
+                        .frame(height: LiveActivityWidgetMetrics.expandedIslandHeight)
                     }
                 }
             } compactLeading: {

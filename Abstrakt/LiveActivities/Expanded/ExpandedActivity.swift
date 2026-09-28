@@ -15,42 +15,25 @@ struct ExpandedActivity: View {
                 item: widget,
                 isLiveActivity: false,
                 showsActivityTitle: false,
-                activityCornerRadius: LiveActivityWidgetMetrics.expandedIslandCornerRadius,
+                activityCornerRadius: 0,
+                drawsActivitySurface: false,
                 isTest: isTest
             )
             .frame(
-                width: LiveActivityWidgetMetrics.activitySurfaceWidth,
-                height: widget.layout.activityPreviewHeight(isLiveActivity: false),
+                maxWidth: .infinity,
                 alignment: .top
             )
-            .compositingGroup()
-            .clipShape(
-                RoundedRectangle(
-                    cornerRadius: LiveActivityWidgetMetrics.expandedIslandCornerRadius,
-                    style: .continuous
-                )
-            )
+            .frame(height: widget.layout.activityPreviewHeight(isLiveActivity: false))
         } else {
-            ZStack {
-                RoundedRectangle(
-                    cornerRadius: LiveActivityWidgetMetrics.expandedIslandCornerRadius,
-                    style: .continuous
-                )
-                .fill(isTest ? Color.yellow.opacity(0.82) : Color.black)
-
-                LiveActivityItemRenderer(
-                    item: widget,
-                    isLiveActivity: true,
-                    showsActivityTitle: false,
-                    isTest: isTest
-                )
-                    .fixedSize()
-                    .scaleEffect(0.86)
-            }
-            .frame(
-                width: LiveActivityWidgetMetrics.activitySurfaceWidth,
-                height: LiveActivityWidgetMetrics.expandedIslandHeight
+            LiveActivityItemRenderer(
+                item: widget,
+                isLiveActivity: false,
+                showsActivityTitle: false,
+                drawsActivitySurface: false,
+                isTest: isTest
             )
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .frame(height: LiveActivityWidgetMetrics.expandedIslandHeight)
         }
     }
 }

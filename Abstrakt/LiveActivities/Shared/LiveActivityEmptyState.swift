@@ -14,31 +14,32 @@ struct LiveActivityEmptyState: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(
-                cornerRadius: LiveActivityWidgetMetrics.lockScreenActivityCornerRadius,
-                style: .continuous
-            )
-            .fill(backgroundStyle == .glass ? .clear : Color.black.opacity(0.74))
-            .glassEffectIfNeeded(backgroundStyle)
-            .overlay(
+            if showsGlassBorder {
                 RoundedRectangle(
                     cornerRadius: LiveActivityWidgetMetrics.lockScreenActivityCornerRadius,
                     style: .continuous
                 )
-                .strokeBorder(
-                    LinearGradient(
-                        colors: [
-                            .white.opacity(backgroundStyle == .glass ? 0.20 : 0.18),
-                            .white.opacity(0.08),
-                            .white.opacity(backgroundStyle == .glass ? 0.12 : 0.1)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: backgroundStyle == .glass ? 0.6 : 0.8
+                .fill(backgroundStyle == .glass ? .clear : Color.black.opacity(0.74))
+                .glassEffectIfNeeded(backgroundStyle)
+                .overlay(
+                    RoundedRectangle(
+                        cornerRadius: LiveActivityWidgetMetrics.lockScreenActivityCornerRadius,
+                        style: .continuous
+                    )
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [
+                                .white.opacity(backgroundStyle == .glass ? 0.20 : 0.18),
+                                .white.opacity(0.08),
+                                .white.opacity(backgroundStyle == .glass ? 0.12 : 0.1)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: backgroundStyle == .glass ? 0.6 : 0.8
+                    )
                 )
-                .opacity(showsGlassBorder ? 1 : 0)
-            )
+            }
 
             VStack(spacing: 9) {
                 Image(systemName: "plus.circle.fill")
@@ -55,6 +56,7 @@ struct LiveActivityEmptyState: View {
                     .foregroundStyle(emptyStateContentColor.opacity(0.58))
                     .liveActivityTextFormatting()
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .multilineTextAlignment(.center)
         }
     }

@@ -269,9 +269,16 @@ struct LiveActivityItemRenderer: View {
             .frame(height: surfaceLayout.height)
             .frame(maxWidth: .infinity)
             .background {
-                activitySurfaceBackground(cornerRadius: activityCornerRadius)
+                if drawsActivitySurface {
+                    activitySurfaceBackground(cornerRadius: activityCornerRadius)
+                }
             }
-            .clipShape(RoundedRectangle(cornerRadius: activityCornerRadius, style: .continuous))
+            .clipShape(
+                RoundedRectangle(
+                    cornerRadius: drawsActivitySurface ? activityCornerRadius : 0,
+                    style: .continuous
+                )
+            )
 
             activityTitle(item.name)
         }
@@ -329,9 +336,16 @@ struct LiveActivityItemRenderer: View {
             .frame(height: surfaceLayout.height)
             .frame(maxWidth: .infinity)
             .background {
-                activitySurfaceBackground(cornerRadius: activityCornerRadius)
+                if drawsActivitySurface {
+                    activitySurfaceBackground(cornerRadius: activityCornerRadius)
+                }
             }
-            .clipShape(RoundedRectangle(cornerRadius: activityCornerRadius, style: .continuous))
+            .clipShape(
+                RoundedRectangle(
+                    cornerRadius: drawsActivitySurface ? activityCornerRadius : 0,
+                    style: .continuous
+                )
+            )
 
             activityTitle(item.name)
         }
@@ -339,9 +353,10 @@ struct LiveActivityItemRenderer: View {
 
     private var calendarInfo: some View {
         VStack(spacing: surfaceLayout.titleSpacing) {
-            HStack(spacing: 8) {
+            HStack(spacing: 0) {
                 ForEach(calendarDays, id: \.date) { day in
                     calendarDayView(day)
+                        .frame(maxWidth: .infinity)
                 }
             }
             .padding(.horizontal, surfaceLayout.horizontalPadding)
@@ -349,9 +364,16 @@ struct LiveActivityItemRenderer: View {
             .frame(height: surfaceLayout.height)
             .frame(maxWidth: .infinity)
             .background {
-                activitySurfaceBackground(cornerRadius: activityCornerRadius)
+                if drawsActivitySurface {
+                    activitySurfaceBackground(cornerRadius: activityCornerRadius)
+                }
             }
-            .clipShape(RoundedRectangle(cornerRadius: activityCornerRadius, style: .continuous))
+            .clipShape(
+                RoundedRectangle(
+                    cornerRadius: drawsActivitySurface ? activityCornerRadius : 0,
+                    style: .continuous
+                )
+            )
 
             activityTitle("Calendar Info")
         }
@@ -365,15 +387,15 @@ struct LiveActivityItemRenderer: View {
             let activeShape = RoundedRectangle(cornerRadius: 15, style: .continuous)
 
             ZStack(alignment: .bottom) {
-                    LinearGradient(
-                        colors: [
-                            Color(red: 1, green: 0.28, blue: 0.36),
-                            Color(red: 1, green: 0.55, blue: 0.18)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    .clipShape(activeShape)
+                LinearGradient(
+                    colors: [
+                        Color(red: 1, green: 0.28, blue: 0.36),
+                        Color(red: 1, green: 0.55, blue: 0.18)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .clipShape(activeShape)
 
                 VStack(spacing: 0) {
                     Spacer(minLength: 0)
@@ -418,7 +440,7 @@ struct LiveActivityItemRenderer: View {
                     .font(LiveActivityTypography.islandFont(.number, scale: fontScale).monospacedDigit())
                     .foregroundStyle(primaryContentColor)
             }
-            .frame(width: 29, height: 56)
+            .frame(height: 56)
         }
     }
 

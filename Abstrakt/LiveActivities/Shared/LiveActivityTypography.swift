@@ -62,7 +62,7 @@ struct LiveActivityTypography {
 enum LiveActivityWidgetMetrics {
     static let islandWidth: CGFloat = 291
     static let activitySurfaceWidth: CGFloat = islandWidth
-    static let lockScreenActivityWidth: CGFloat = activitySurfaceWidth
+    static let lockScreenActivityWidth: CGFloat = 328
     static let expandedIslandCornerRadius: CGFloat = 20
     static let lockScreenActivityCornerRadius: CGFloat = 24
     static let expandedPreviewCornerRadius: CGFloat = 38

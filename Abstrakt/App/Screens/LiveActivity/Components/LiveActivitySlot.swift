@@ -37,6 +37,7 @@ struct LiveActivitySlot: View {
                             showsActivityTitle: false,
                             activityCornerRadius: cornerRadius,
                             activityBackgroundStyle: isLiveActivity ? backgroundStyle : .solid,
+                            drawsActivitySurface: false,
                             adaptsContentColorForGlass: isLiveActivity
                         )
                         .frame(width: width, alignment: .top)
@@ -52,7 +53,8 @@ struct LiveActivitySlot: View {
                         LiveActivityItemRenderer(
                             item: selectedWidget,
                             isLiveActivity: false,
-                            showsActivityTitle: false
+                            showsActivityTitle: false,
+                            drawsActivitySurface: false
                         )
                             .fixedSize()
                             .scaleEffect(previewWidgetScale)
