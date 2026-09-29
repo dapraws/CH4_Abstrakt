@@ -35,6 +35,13 @@ struct DynamicIslandActivity: Widget {
             .activitySystemActionForegroundColor(.white)
         } dynamicIsland: { context in
             DynamicIsland {
+                DynamicIslandExpandedRegion(.leading) {
+                    Image("logo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 22, height: 22)
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                }
                 DynamicIslandExpandedRegion(.bottom) {
                     if let widget = context.state.expandedWidget {
                         ExpandedActivity(
