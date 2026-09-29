@@ -175,19 +175,19 @@ extension LiveActivityWidgetLayout {
         case .todayInfo:
             LiveActivitySurfaceLayout(
                 height: LiveActivityWidgetMetrics.liveActivityTodayInfoSurfaceHeight,
-                horizontalPadding: 16,
+                horizontalPadding: 20,
                 verticalPadding: 18
             )
         case .weatherInfo:
             LiveActivitySurfaceLayout(
                 height: LiveActivityWidgetMetrics.liveActivityWeatherInfoSurfaceHeight,
-                horizontalPadding: 16,
+                horizontalPadding: 20,
                 verticalPadding: 14
             )
         case .calendarInfo:
             LiveActivitySurfaceLayout(
                 height: LiveActivityWidgetMetrics.liveActivityCalendarInfoSurfaceHeight,
-                horizontalPadding: 12,
+                horizontalPadding: 14,
                 verticalPadding: 14
             )
         default:
