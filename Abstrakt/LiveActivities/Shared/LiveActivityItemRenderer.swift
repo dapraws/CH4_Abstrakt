@@ -20,9 +20,9 @@ struct LiveActivityItemRenderer: View {
 
     private var fontScale: CGFloat {
         if item.layout.usesFullActivityPreview {
-            isLiveActivity ? 1.12 : 1.08
+            isLiveActivity ? 1.08 : 1.06
         } else {
-            isLiveActivity ? 1.25 : 1.15
+            isLiveActivity ? 1 : 0.88
         }
     }
 
@@ -225,64 +225,53 @@ struct LiveActivityItemRenderer: View {
 
     private var todayInfo: some View {
         VStack(spacing: surfaceLayout.titleSpacing) {
-            VStack(spacing: 14) {
-                HStack(spacing: 6) {
-                    circularIcon(systemName: "gauge.with.needle", background: .white, foreground: .black)
+            VStack(spacing: 12) {
+                HStack(spacing: 5) {
                     Text("It's")
-                        .font(LiveActivityTypography.islandFont(.body, scale: fontScale))
                         .foregroundStyle(secondaryContentColor)
+                    circularIcon(systemName: "gauge.with.needle", background: .white, foreground: .black)
                     Text(item.primaryText ?? "Monday")
-                        .font(LiveActivityTypography.islandFont(.body, scale: fontScale))
                         .foregroundStyle(primaryContentColor)
-                    
-                    Spacer(minLength: 8)
-                    
+                    Text("and")
+                        .foregroundStyle(secondaryContentColor)
                     calendarBadge
                     Text(item.secondaryText ?? "Jul 13")
-                        .font(LiveActivityTypography.islandFont(.body, scale: fontScale))
                         .foregroundStyle(primaryContentColor)
                 }
-                .liveActivityTextFormatting()
 
-                HStack(spacing: 8) {
-                    todayMetricChip(
-                        systemName: "figure.walk",
-                        iconColor: .green,
-                        text: "\(metadataValue("stepsLabel", fallback: "0")) steps"
-                    )
-                    .frame(maxWidth: .infinity)
-
-                    todayMetricChip(
-                        systemName: metadataValue("weatherIcon", fallback: "cloud.sun.fill"),
-                        iconColor: usesLightGlassContent ? primaryContentColor : .yellow,
-                        isMultiColor: !usesLightGlassContent,
-                        text: metadataValue("temperatureRange", fallback: "--°")
-                    )
-                    .frame(maxWidth: .infinity)
-
-                    todayMetricChip(
-                        systemName: "location.north.fill",
-                        iconColor: .blue,
-                        text: metadataValue("location", fallback: "Local")
-                    )
-                    .frame(maxWidth: .infinity)
+                HStack(spacing: 6) {
+                    circularIcon(systemName: "figure.walk", background: .green, foreground: .black)
+                    Text(metadataValue("stepsLabel", fallback: "0"))
+                        .foregroundStyle(primaryContentColor)
+                    Text("steps,")
+                        .foregroundStyle(secondaryContentColor)
+                    Image(systemName: metadataValue("weatherIcon", fallback: "cloud.sun.fill"))
+                        .font(.system(size: 22 * fontScale, weight: .bold))
+                        .symbolRenderingMode(usesLightGlassContent ? .monochrome : .multicolor)
+                        .foregroundStyle(primaryContentColor)
+                    Text(metadataValue("temperatureRange", fallback: "--°"))
+                        .foregroundStyle(primaryContentColor)
+                    if let location = item.metadata["location"], !location.isEmpty {
+                        Text("in")
+                            .foregroundStyle(secondaryContentColor)
+                        circularIcon(systemName: "location.north.fill", background: .blue, foreground: .black)
+                        Text(location)
+                            .foregroundStyle(primaryContentColor)
+                    }
                 }
             }
+            .font(LiveActivityTypography.islandFont(.body, scale: fontScale))
+            .minimumScaleFactor(0.72)
+            .lineLimit(1)
+            .liveActivityTextFormatting()
             .padding(.horizontal, surfaceLayout.horizontalPadding)
             .padding(.vertical, surfaceLayout.verticalPadding)
             .frame(height: surfaceLayout.height)
             .frame(maxWidth: .infinity)
             .background {
-                if drawsActivitySurface {
-                    activitySurfaceBackground(cornerRadius: activityCornerRadius)
-                }
+                activitySurfaceBackground(cornerRadius: activityCornerRadius)
             }
-            .clipShape(
-                RoundedRectangle(
-                    cornerRadius: activityCornerRadius > 0 ? activityCornerRadius : LiveActivityWidgetMetrics.activityPreviewCornerRadius,
-                    style: .continuous
-                )
-            )
+            .clipShape(RoundedRectangle(cornerRadius: activityCornerRadius, style: .continuous))
 
             activityTitle(item.name)
         }
@@ -290,54 +279,49 @@ struct LiveActivityItemRenderer: View {
 
     private var weatherInfo: some View {
         VStack(spacing: surfaceLayout.titleSpacing) {
-            VStack(spacing: 14) {
-                HStack(spacing: 12) {
+            VStack(spacing: 10) {
+                HStack(spacing: 11) {
                     Image(systemName: metadataValue("weatherIcon", fallback: item.iconName))
-                        .font(.system(size: 26 * fontScale, weight: .semibold))
+                        .font(.system(size: 23 * fontScale, weight: .semibold))
                         .symbolRenderingMode(.multicolor)
-                        .frame(width: 32, height: 32)
+                        .frame(width: 30, height: 30)
 
-                    VStack(alignment: .leading, spacing: 1) {
+                    VStack(alignment: .leading, spacing: 0) {
                         Text(metadataValue("conditionLabel", fallback: item.primaryText ?? "Weather"))
                             .font(LiveActivityTypography.islandFont(.body, scale: fontScale))
                             .foregroundStyle(primaryContentColor)
                             .liveActivityTextFormatting()
 
                         Text("feels like \(metadataValue("currentTemperature", fallback: "--°"))")
-                            .font(LiveActivityTypography.islandFont(.label, scale: fontScale * 0.88))
+                            .font(LiveActivityTypography.islandFont(.label, scale: fontScale * 0.84))
                             .foregroundStyle(secondaryContentColor)
                             .liveActivityTextFormatting()
                     }
 
-                    Spacer(minLength: 8)
+                    Spacer(minLength: 4)
 
                     Text(metadataValue("temperatureRange", fallback: item.secondaryText ?? "--°"))
-                        .font(LiveActivityTypography.islandFont(.headline, scale: fontScale * 1.02).monospacedDigit())
+                        .font(LiveActivityTypography.islandFont(.headline, scale: fontScale * 0.98).monospacedDigit())
                         .foregroundStyle(primaryContentColor)
                         .liveActivityTextFormatting()
                 }
 
-                HStack(spacing: 8) {
+                HStack(spacing: 7) {
                     weatherMetricChip(
                         systemName: "arrow.up",
                         value: metadataValue("highTemperature", fallback: "--°"),
                         tint: .orange
                     )
-                    .frame(maxWidth: .infinity)
-
                     weatherMetricChip(
                         systemName: "arrow.down",
                         value: metadataValue("lowTemperature", fallback: "--°"),
                         tint: .blue
                     )
-                    .frame(maxWidth: .infinity)
-
                     weatherMetricChip(
                         systemName: "figure.walk",
                         value: metadataValue("stepsLabel", fallback: "0"),
                         tint: .green
                     )
-                    .frame(maxWidth: .infinity)
                 }
             }
             .padding(.horizontal, surfaceLayout.horizontalPadding)
@@ -345,16 +329,9 @@ struct LiveActivityItemRenderer: View {
             .frame(height: surfaceLayout.height)
             .frame(maxWidth: .infinity)
             .background {
-                if drawsActivitySurface {
-                    activitySurfaceBackground(cornerRadius: activityCornerRadius)
-                }
+                activitySurfaceBackground(cornerRadius: activityCornerRadius)
             }
-            .clipShape(
-                RoundedRectangle(
-                    cornerRadius: activityCornerRadius > 0 ? activityCornerRadius : LiveActivityWidgetMetrics.activityPreviewCornerRadius,
-                    style: .continuous
-                )
-            )
+            .clipShape(RoundedRectangle(cornerRadius: activityCornerRadius, style: .continuous))
 
             activityTitle(item.name)
         }
@@ -362,10 +339,9 @@ struct LiveActivityItemRenderer: View {
 
     private var calendarInfo: some View {
         VStack(spacing: surfaceLayout.titleSpacing) {
-            HStack(spacing: 0) {
+            HStack(spacing: 8) {
                 ForEach(calendarDays, id: \.date) { day in
                     calendarDayView(day)
-                        .frame(maxWidth: .infinity)
                 }
             }
             .padding(.horizontal, surfaceLayout.horizontalPadding)
@@ -373,16 +349,9 @@ struct LiveActivityItemRenderer: View {
             .frame(height: surfaceLayout.height)
             .frame(maxWidth: .infinity)
             .background {
-                if drawsActivitySurface {
-                    activitySurfaceBackground(cornerRadius: activityCornerRadius)
-                }
+                activitySurfaceBackground(cornerRadius: activityCornerRadius)
             }
-            .clipShape(
-                RoundedRectangle(
-                    cornerRadius: activityCornerRadius > 0 ? activityCornerRadius : LiveActivityWidgetMetrics.activityPreviewCornerRadius,
-                    style: .continuous
-                )
-            )
+            .clipShape(RoundedRectangle(cornerRadius: activityCornerRadius, style: .continuous))
 
             activityTitle("Calendar Info")
         }
@@ -393,23 +362,23 @@ struct LiveActivityItemRenderer: View {
         _ day: (weekday: String, date: String, isToday: Bool)
     ) -> some View {
         if day.isToday {
-            let activeShape = RoundedRectangle(cornerRadius: 16, style: .continuous)
+            let activeShape = RoundedRectangle(cornerRadius: 15, style: .continuous)
 
             ZStack(alignment: .bottom) {
-                LinearGradient(
-                    colors: [
-                        Color(red: 1, green: 0.28, blue: 0.36),
-                        Color(red: 1, green: 0.55, blue: 0.18)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .clipShape(activeShape)
+                    LinearGradient(
+                        colors: [
+                            Color(red: 1, green: 0.28, blue: 0.36),
+                            Color(red: 1, green: 0.55, blue: 0.18)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .clipShape(activeShape)
 
                 VStack(spacing: 0) {
                     Spacer(minLength: 0)
                     Color.white
-                        .frame(height: 18)
+                        .frame(height: 17)
                 }
                 .clipShape(activeShape)
 
@@ -434,14 +403,14 @@ struct LiveActivityItemRenderer: View {
                 .padding(.top, 6)
                 .padding(.bottom, 3)
             }
-            .frame(width: 48, height: 68)
+            .frame(width: 46, height: 62)
             .overlay {
                 activeShape
                     .stroke(.white.opacity(0.16), lineWidth: 1)
             }
             .shadow(color: .orange.opacity(0.16), radius: 9, x: 0, y: 3)
         } else {
-            VStack(spacing: 6) {
+            VStack(spacing: 5) {
                 Text(day.weekday)
                     .font(LiveActivityTypography.islandFont(.label, scale: fontScale))
                     .foregroundStyle(secondaryContentColor)
@@ -449,7 +418,7 @@ struct LiveActivityItemRenderer: View {
                     .font(LiveActivityTypography.islandFont(.number, scale: fontScale).monospacedDigit())
                     .foregroundStyle(primaryContentColor)
             }
-            .frame(height: 60)
+            .frame(width: 29, height: 56)
         }
     }
 
@@ -489,53 +458,26 @@ struct LiveActivityItemRenderer: View {
             .clipShape(Circle())
     }
 
-    private func todayMetricChip(
-        systemName: String,
-        iconColor: Color,
-        isMultiColor: Bool = false,
-        text: String
-    ) -> some View {
-        HStack(spacing: 5) {
-            Image(systemName: systemName)
-                .font(.system(size: 11 * fontScale, weight: .bold))
-                .symbolRenderingMode(isMultiColor ? .multicolor : .monochrome)
-                .foregroundStyle(iconColor)
-
-            Text(text)
-                .font(LiveActivityTypography.islandFont(.label, scale: fontScale * 0.88).monospacedDigit())
-                .foregroundStyle(primaryContentColor)
-                .liveActivityTextFormatting()
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .frame(maxWidth: .infinity)
-        .background(
-            Capsule(style: .continuous)
-                .fill(usesLightGlassContent ? Color.black.opacity(0.07) : Color.white.opacity(0.1))
-        )
-    }
-
     private func weatherMetricChip(
         systemName: String,
         value: String,
         tint: Color
     ) -> some View {
-        HStack(spacing: 5) {
+        HStack(spacing: 4) {
             Image(systemName: systemName)
-                .font(.system(size: 10 * fontScale, weight: .heavy))
+                .font(.system(size: 9 * fontScale, weight: .heavy))
                 .foregroundStyle(tint)
 
             Text(value)
-                .font(LiveActivityTypography.islandFont(.label, scale: fontScale * 0.88).monospacedDigit())
+                .font(LiveActivityTypography.islandFont(.label, scale: fontScale * 0.84).monospacedDigit())
                 .foregroundStyle(primaryContentColor)
                 .liveActivityTextFormatting()
         }
         .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .frame(maxWidth: .infinity)
+        .padding(.vertical, 4)
         .background(
             Capsule(style: .continuous)
-                .fill(usesLightGlassContent ? Color.black.opacity(0.07) : Color.white.opacity(0.1))
+                .fill(usesLightGlassContent ? .black.opacity(0.07) : .white.opacity(0.1))
         )
     }
 

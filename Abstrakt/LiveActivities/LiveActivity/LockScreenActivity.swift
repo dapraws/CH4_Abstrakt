@@ -12,25 +12,40 @@ struct LockScreenActivity: View {
 
     var body: some View {
         selectedSurface
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, alignment: .center)
             .frame(height: activityHeight)
             .background(activityBackground)
     }
 
     @ViewBuilder
     private var selectedSurface: some View {
-        LiveActivityItemRenderer(
-            item: widget,
-            isLiveActivity: true,
-            showsActivityTitle: false,
-            activityCornerRadius: LiveActivityWidgetMetrics.lockScreenActivityCornerRadius,
-            activityBackgroundStyle: backgroundStyle,
-            drawsActivitySurface: false,
-            adaptsContentColorForGlass: true,
-            isTest: isTest
-        )
-        .frame(maxWidth: .infinity, alignment: .center)
-        .frame(height: activityHeight)
+        if widget.layout.usesFullActivityPreview {
+            LiveActivityItemRenderer(
+                item: widget,
+                isLiveActivity: true,
+                showsActivityTitle: false,
+                activityCornerRadius: LiveActivityWidgetMetrics.lockScreenActivityCornerRadius,
+                activityBackgroundStyle: backgroundStyle,
+                drawsActivitySurface: false,
+                adaptsContentColorForGlass: true,
+                isTest: isTest
+            )
+            .frame(maxWidth: .infinity, alignment: .top)
+            .frame(height: activityHeight)
+        } else {
+            LiveActivityItemRenderer(
+                item: widget,
+                isLiveActivity: true,
+                showsActivityTitle: false,
+                activityCornerRadius: LiveActivityWidgetMetrics.lockScreenActivityCornerRadius,
+                activityBackgroundStyle: backgroundStyle,
+                drawsActivitySurface: false,
+                adaptsContentColorForGlass: true,
+                isTest: isTest
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .frame(height: activityHeight)
+        }
     }
 
     private var activityHeight: CGFloat {

@@ -10,8 +10,8 @@ import SwiftUI
 
 struct LiveActivityFrame: View {
     private enum Metrics {
-        static let canvasSize = CGSize(width: 352, height: 216)
-        static let previewAreaHeight: CGFloat = 248
+        static let canvasSize = CGSize(width: 352, height: 191)
+        static let previewAreaHeight: CGFloat = 224
         static let previewContentScale: CGFloat = 0.92
         static let baseWidth: CGFloat = canvasSize.width
         static let pageSpacing: CGFloat = 26
@@ -23,15 +23,15 @@ struct LiveActivityFrame: View {
         static let islandSurfaceHeight: CGFloat = LiveActivityWidgetMetrics.expandedSurfaceHeight
         static let expandedSlotCornerRadius: CGFloat = LiveActivityWidgetMetrics.expandedPreviewCornerRadius
         static let liveActivitySlotCornerRadius: CGFloat = LiveActivityWidgetMetrics.lockScreenActivityCornerRadius
-        static let liveActivitySlotBarWidth: CGFloat = LiveActivityWidgetMetrics.lockScreenActivityWidth
+        static let liveActivitySlotBarWidth: CGFloat = LiveActivityWidgetMetrics.islandWidth
         static let liveActivitySlotBarHeight: CGFloat = LiveActivityWidgetMetrics.lockScreenIslandHeight
-        static let topControlPadding: CGFloat = 18
-        static let liveActivityTopControlPadding: CGFloat = 18
+        static let topControlPadding: CGFloat = 20
+        static let liveActivityTopControlPadding: CGFloat = 24
         static let actionTopPadding: CGFloat = 6
         static let liveActivityControlsTopPadding: CGFloat = 8
         static let slotButtonSize: CGFloat = 40
         static let compactWidgetScale: CGFloat = 0.58
-        static let previewWidgetScale: CGFloat = 0.65
+        static let previewWidgetScale: CGFloat = 0.56
         static let activeSlotBorderOutset: CGFloat = 4
         static let activeSlotBorderCornerRadius: CGFloat = 27
         static let activeSlotBorderLineWidth: CGFloat = 2

@@ -60,24 +60,24 @@ struct LiveActivityTypography {
 }
 
 enum LiveActivityWidgetMetrics {
-    static let islandWidth: CGFloat = 328
+    static let islandWidth: CGFloat = 291
     static let activitySurfaceWidth: CGFloat = islandWidth
-    static let lockScreenActivityWidth: CGFloat = 328
-    static let expandedIslandCornerRadius: CGFloat = 38
-    static let lockScreenActivityCornerRadius: CGFloat = 28
+    static let lockScreenActivityWidth: CGFloat = activitySurfaceWidth
+    static let expandedIslandCornerRadius: CGFloat = 20
+    static let lockScreenActivityCornerRadius: CGFloat = 24
     static let expandedPreviewCornerRadius: CGFloat = 38
-    static let activityPreviewCornerRadius: CGFloat = 30
+    static let activityPreviewCornerRadius: CGFloat = expandedPreviewCornerRadius
     static let islandCornerRadius: CGFloat = expandedIslandCornerRadius
-    static let expandedIslandHeight: CGFloat = 132
-    static let lockScreenIslandHeight: CGFloat = 136
-    static let lockScreenEmptyStateHeight: CGFloat = 136
-    static let expandedSurfaceHeight: CGFloat = 120
-    static let liveActivityTodayInfoSurfaceHeight: CGFloat = 136
-    static let liveActivityWeatherInfoSurfaceHeight: CGFloat = 136
-    static let expandedTodayInfoSurfaceHeight: CGFloat = 132
-    static let expandedWeatherInfoSurfaceHeight: CGFloat = 132
-    static let expandedCalendarInfoSurfaceHeight: CGFloat = 120
-    static let liveActivityCalendarInfoSurfaceHeight: CGFloat = 124
+    static let expandedIslandHeight: CGFloat = 112
+    static let lockScreenIslandHeight: CGFloat = expandedIslandHeight
+    static let lockScreenEmptyStateHeight: CGFloat = 118
+    static let expandedSurfaceHeight: CGFloat = 96
+    static let liveActivityTodayInfoSurfaceHeight: CGFloat = 110
+    static let liveActivityWeatherInfoSurfaceHeight: CGFloat = 110
+    static let expandedTodayInfoSurfaceHeight: CGFloat = liveActivityTodayInfoSurfaceHeight
+    static let expandedWeatherInfoSurfaceHeight: CGFloat = liveActivityWeatherInfoSurfaceHeight
+    static let expandedCalendarInfoSurfaceHeight: CGFloat = 96
+    static let liveActivityCalendarInfoSurfaceHeight: CGFloat = expandedCalendarInfoSurfaceHeight
 }
 
 extension View {
