@@ -76,7 +76,7 @@ enum LiveActivityWidgetMetrics {
     static let liveActivityWeatherInfoSurfaceHeight: CGFloat = 110
     static let expandedTodayInfoSurfaceHeight: CGFloat = liveActivityTodayInfoSurfaceHeight
     static let expandedWeatherInfoSurfaceHeight: CGFloat = liveActivityWeatherInfoSurfaceHeight
-    static let expandedCalendarInfoSurfaceHeight: CGFloat = 96
+    static let expandedCalendarInfoSurfaceHeight: CGFloat = 100
     static let liveActivityCalendarInfoSurfaceHeight: CGFloat = expandedCalendarInfoSurfaceHeight
 }
 
