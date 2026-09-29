@@ -148,15 +148,20 @@ Users can choose their active typography theme in **Settings > Font**:
 ## Live Activity & Dynamic Island Design Language
 
 ### Sizing & Geometric Constants (`LiveActivityWidgetMetrics`)
-- `islandWidth`: **291 pt**
-- `expandedIslandCornerRadius`: **20 pt**
+- `islandWidth`: **328 pt**
+- `lockScreenActivityWidth`: **328 pt**
+- `expandedIslandCornerRadius`: **24 pt**
 - `lockScreenActivityCornerRadius`: **24 pt**
-- `expandedPreviewCornerRadius`: **38 pt**
-- `expandedIslandHeight`: **112 pt**
-- `lockScreenEmptyStateHeight`: **118 pt**
-- `liveActivityTodayInfoSurfaceHeight`: **110 pt**
-- `liveActivityWeatherInfoSurfaceHeight`: **110 pt**
-- `liveActivityCalendarInfoSurfaceHeight`: **96 pt**
+- `expandedPreviewCornerRadius`: **28 pt**
+- `expandedIslandHeight`: **132 pt**
+- `lockScreenIslandHeight`: **136 pt**
+- `lockScreenEmptyStateHeight`: **136 pt**
+- `liveActivityTodayInfoSurfaceHeight`: **136 pt**
+- `liveActivityWeatherInfoSurfaceHeight`: **136 pt**
+- `expandedTodayInfoSurfaceHeight`: **132 pt**
+- `expandedWeatherInfoSurfaceHeight`: **132 pt**
+- `liveActivityCalendarInfoSurfaceHeight`: **124 pt**
+- `expandedCalendarInfoSurfaceHeight`: **120 pt**
 
 ### Visual Modes for Lock Screen
 - **Glass**: Utilizes SwiftUI Liquid Glass (`glassEffect(.regular, in: shape)`) with a multi-stop specular gradient border. In light mode, text automatically shifts to dark primary text (`#141414`) for high-contrast readability.

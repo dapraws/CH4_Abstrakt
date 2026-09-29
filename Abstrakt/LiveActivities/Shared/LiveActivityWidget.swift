@@ -174,27 +174,35 @@ extension LiveActivityWidgetLayout {
         switch self {
         case .todayInfo:
             LiveActivitySurfaceLayout(
-                height: LiveActivityWidgetMetrics.liveActivityTodayInfoSurfaceHeight,
+                height: isLiveActivity
+                    ? LiveActivityWidgetMetrics.liveActivityTodayInfoSurfaceHeight
+                    : LiveActivityWidgetMetrics.expandedTodayInfoSurfaceHeight,
                 horizontalPadding: 16,
-                verticalPadding: 20
+                verticalPadding: 14
             )
         case .weatherInfo:
             LiveActivitySurfaceLayout(
-                height: LiveActivityWidgetMetrics.liveActivityWeatherInfoSurfaceHeight,
-                horizontalPadding: 18,
-                verticalPadding: 12
+                height: isLiveActivity
+                    ? LiveActivityWidgetMetrics.liveActivityWeatherInfoSurfaceHeight
+                    : LiveActivityWidgetMetrics.expandedWeatherInfoSurfaceHeight,
+                horizontalPadding: 16,
+                verticalPadding: 14
             )
         case .calendarInfo:
             LiveActivitySurfaceLayout(
-                height: LiveActivityWidgetMetrics.liveActivityCalendarInfoSurfaceHeight,
+                height: isLiveActivity
+                    ? LiveActivityWidgetMetrics.liveActivityCalendarInfoSurfaceHeight
+                    : LiveActivityWidgetMetrics.expandedCalendarInfoSurfaceHeight,
                 horizontalPadding: 14,
-                verticalPadding: 12
+                verticalPadding: 14
             )
         default:
             LiveActivitySurfaceLayout(
-                height: LiveActivityWidgetMetrics.expandedIslandHeight,
-                horizontalPadding: 0,
-                verticalPadding: 0
+                height: isLiveActivity
+                    ? LiveActivityWidgetMetrics.lockScreenIslandHeight
+                    : LiveActivityWidgetMetrics.expandedIslandHeight,
+                horizontalPadding: 16,
+                verticalPadding: 14
             )
         }
     }
