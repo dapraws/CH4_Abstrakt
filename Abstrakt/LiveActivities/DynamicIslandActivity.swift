@@ -25,6 +25,7 @@ struct DynamicIslandActivity: Widget {
                         showsGlassBorder: false,
                         adaptsContentColorForGlass: true
                     )
+                    .padding(.horizontal, 12)
                     .frame(maxWidth: .infinity)
                     .frame(height: LiveActivityWidgetMetrics.lockScreenEmptyStateHeight)
                 }
