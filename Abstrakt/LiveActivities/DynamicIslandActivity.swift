@@ -25,7 +25,7 @@ struct DynamicIslandActivity: Widget {
                         showsGlassBorder: false,
                         adaptsContentColorForGlass: true
                     )
-                    .padding([.horizontal, .bottom], 12)
+                    .padding(.horizontal, 12)
                     .frame(maxWidth: .infinity)
                     .frame(height: LiveActivityWidgetMetrics.lockScreenEmptyStateHeight)
                 }
@@ -36,15 +36,6 @@ struct DynamicIslandActivity: Widget {
             .activitySystemActionForegroundColor(.white)
         } dynamicIsland: { context in
             DynamicIsland {
-                DynamicIslandExpandedRegion(.leading) {
-                    Image("logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20)
-                        .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
-                        .padding(.leading, 14)
-                        .padding(.top, 8)
-                }
                 DynamicIslandExpandedRegion(.bottom) {
                     if let widget = context.state.expandedWidget {
                         ExpandedActivity(

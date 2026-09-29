@@ -41,9 +41,9 @@ struct LiveActivityEmptyState: View {
                 )
             }
 
-            VStack(spacing: 9) {
+            VStack(spacing: 6) {
                 Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
                     .foregroundStyle(emptyStateContentColor.opacity(0.94))
 
                 Text("Add Activity")
