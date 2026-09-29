@@ -19,6 +19,7 @@ struct DynamicIslandActivity: Widget {
                         backgroundStyle: context.state.lockScreenBackgroundStyle,
                         isTest: context.state.isTest
                     )
+                    .padding(.vertical, 10)
                 } else {
                     LiveActivityEmptyState(
                         backgroundStyle: context.state.lockScreenBackgroundStyle,

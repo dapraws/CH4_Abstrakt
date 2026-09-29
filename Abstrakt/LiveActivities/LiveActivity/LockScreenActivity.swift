@@ -12,7 +12,7 @@ struct LockScreenActivity: View {
 
     var body: some View {
         selectedSurface
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 6)
             .frame(maxWidth: .infinity, alignment: .center)
             .frame(height: activityHeight)
             .background(activityBackground)

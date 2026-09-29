@@ -200,7 +200,7 @@ struct LiveActivityFrame: View {
                         : Metrics.expandedSlotCornerRadius,
                     backgroundStyle: state.lockScreenBackgroundStyle
                 ) {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
                         if mode == .expanded {
                             state.toggleSelection(for: .expanded)
                         } else if mode == .lockScreen {
@@ -219,7 +219,7 @@ struct LiveActivityFrame: View {
                         .transition(.liveActivityControl)
                 }
             }
-            .animation(.smooth(duration: 0.3, extraBounce: 0), value: selectedWidget?.id)
+            .animation(.spring(response: 0.38, dampingFraction: 0.82), value: selectedWidget?.id)
             .padding(.top, isLiveActivity ? Metrics.liveActivityTopControlPadding : Metrics.topControlPadding)
         }
     }
@@ -233,7 +233,7 @@ struct LiveActivityFrame: View {
                     .transition(.liveActivityControl)
             }
         }
-        .animation(.smooth(duration: 0.28, extraBounce: 0), value: hasSelection)
+        .animation(.spring(response: 0.38, dampingFraction: 0.82), value: hasSelection)
     }
 
     private var liveActivityStyleMenu: some View {

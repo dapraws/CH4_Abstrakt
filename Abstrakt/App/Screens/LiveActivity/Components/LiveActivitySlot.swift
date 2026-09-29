@@ -22,52 +22,43 @@ struct LiveActivitySlot: View {
 
     var body: some View {
         Button {
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
                 toggleSelection()
             }
         } label: {
             ZStack {
-                if let selectedWidget {
-                    if selectedWidget.layout.usesFullActivityPreview {
-                        slotBackground
+                slotBackground
 
-                        LiveActivityItemRenderer(
-                            item: selectedWidget,
-                            isLiveActivity: isLiveActivity,
-                            showsActivityTitle: false,
-                            activityCornerRadius: cornerRadius,
-                            activityBackgroundStyle: isLiveActivity ? backgroundStyle : .solid,
-                            adaptsContentColorForGlass: isLiveActivity
-                        )
-                        .frame(width: width, alignment: .top)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .clipShape(
-                            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        )
-                        .id(selectedWidget.id)
-                        .transition(.liveActivitySlotContent)
-                    } else {
-                        slotBackground
-
-                        LiveActivityItemRenderer(
-                            item: selectedWidget,
-                            isLiveActivity: false,
-                            showsActivityTitle: false
-                        )
+                Group {
+                    if let selectedWidget {
+                        if selectedWidget.layout.usesFullActivityPreview {
+                            LiveActivityItemRenderer(
+                                item: selectedWidget,
+                                isLiveActivity: isLiveActivity,
+                                showsActivityTitle: false,
+                                activityCornerRadius: cornerRadius,
+                                activityBackgroundStyle: isLiveActivity ? backgroundStyle : .solid,
+                                adaptsContentColorForGlass: isLiveActivity
+                            )
+                            .frame(width: width, height: height, alignment: .top)
+                        } else {
+                            LiveActivityItemRenderer(
+                                item: selectedWidget,
+                                isLiveActivity: false,
+                                showsActivityTitle: false
+                            )
                             .fixedSize()
                             .scaleEffect(previewWidgetScale)
                             .frame(width: height, height: height)
-                            .id(selectedWidget.id)
-                            .transition(.liveActivitySlotContent)
+                        }
+                    } else {
+                        Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(plusForegroundStyle)
                     }
-                } else {
-                    slotBackground
-
-                    Image(systemName: "plus")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(plusForegroundStyle)
-                        .transition(.liveActivitySlotContent)
                 }
+                .id(selectedWidget?.id ?? "empty-\(isLiveActivity ? "lock" : "expanded")")
+                .transition(.liveActivitySlotContent)
             }
             .frame(width: width, height: height)
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
@@ -78,8 +69,6 @@ struct LiveActivitySlot: View {
             )
         }
         .buttonStyle(.plain)
-        .animation(.smooth(duration: 0.28, extraBounce: 0.02), value: height)
-        .animation(.smooth(duration: 0.28, extraBounce: 0.04), value: selectedWidget?.id)
     }
 
     @ViewBuilder
@@ -124,11 +113,30 @@ struct LiveActivitySlot: View {
     }
 }
 
+private struct LiveActivitySlotContentTransitionModifier: ViewModifier {
+    let opacity: Double
+    let scale: CGFloat
+    let blurRadius: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(opacity)
+            .scaleEffect(scale)
+            .blur(radius: blurRadius)
+    }
+}
+
 private extension AnyTransition {
     static var liveActivitySlotContent: AnyTransition {
         .asymmetric(
-            insertion: .scale(scale: 0.92, anchor: .center).combined(with: .opacity),
-            removal: .scale(scale: 0.98, anchor: .center).combined(with: .opacity)
+            insertion: .modifier(
+                active: LiveActivitySlotContentTransitionModifier(opacity: 0, scale: 0.95, blurRadius: 4),
+                identity: LiveActivitySlotContentTransitionModifier(opacity: 1, scale: 1, blurRadius: 0)
+            ),
+            removal: .modifier(
+                active: LiveActivitySlotContentTransitionModifier(opacity: 0, scale: 0.98, blurRadius: 3),
+                identity: LiveActivitySlotContentTransitionModifier(opacity: 1, scale: 1, blurRadius: 0)
+            )
         )
     }
 }
