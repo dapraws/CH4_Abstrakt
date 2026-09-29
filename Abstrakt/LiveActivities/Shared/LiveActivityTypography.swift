@@ -63,10 +63,10 @@ enum LiveActivityWidgetMetrics {
     static let islandWidth: CGFloat = 328
     static let activitySurfaceWidth: CGFloat = islandWidth
     static let lockScreenActivityWidth: CGFloat = 328
-    static let expandedIslandCornerRadius: CGFloat = 24
-    static let lockScreenActivityCornerRadius: CGFloat = 24
-    static let expandedPreviewCornerRadius: CGFloat = 28
-    static let activityPreviewCornerRadius: CGFloat = expandedPreviewCornerRadius
+    static let expandedIslandCornerRadius: CGFloat = 38
+    static let lockScreenActivityCornerRadius: CGFloat = 28
+    static let expandedPreviewCornerRadius: CGFloat = 38
+    static let activityPreviewCornerRadius: CGFloat = 30
     static let islandCornerRadius: CGFloat = expandedIslandCornerRadius
     static let expandedIslandHeight: CGFloat = 132
     static let lockScreenIslandHeight: CGFloat = 136

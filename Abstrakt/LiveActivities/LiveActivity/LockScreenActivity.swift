@@ -23,7 +23,7 @@ struct LockScreenActivity: View {
             item: widget,
             isLiveActivity: true,
             showsActivityTitle: false,
-            activityCornerRadius: 0,
+            activityCornerRadius: LiveActivityWidgetMetrics.lockScreenActivityCornerRadius,
             activityBackgroundStyle: backgroundStyle,
             drawsActivitySurface: false,
             adaptsContentColorForGlass: true,

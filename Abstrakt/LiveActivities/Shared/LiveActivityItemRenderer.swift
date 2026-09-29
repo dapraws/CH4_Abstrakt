@@ -279,7 +279,7 @@ struct LiveActivityItemRenderer: View {
             }
             .clipShape(
                 RoundedRectangle(
-                    cornerRadius: drawsActivitySurface ? activityCornerRadius : 0,
+                    cornerRadius: activityCornerRadius > 0 ? activityCornerRadius : LiveActivityWidgetMetrics.activityPreviewCornerRadius,
                     style: .continuous
                 )
             )
@@ -351,7 +351,7 @@ struct LiveActivityItemRenderer: View {
             }
             .clipShape(
                 RoundedRectangle(
-                    cornerRadius: drawsActivitySurface ? activityCornerRadius : 0,
+                    cornerRadius: activityCornerRadius > 0 ? activityCornerRadius : LiveActivityWidgetMetrics.activityPreviewCornerRadius,
                     style: .continuous
                 )
             )
@@ -379,7 +379,7 @@ struct LiveActivityItemRenderer: View {
             }
             .clipShape(
                 RoundedRectangle(
-                    cornerRadius: drawsActivitySurface ? activityCornerRadius : 0,
+                    cornerRadius: activityCornerRadius > 0 ? activityCornerRadius : LiveActivityWidgetMetrics.activityPreviewCornerRadius,
                     style: .continuous
                 )
             )

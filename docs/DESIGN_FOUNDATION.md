@@ -150,9 +150,10 @@ Users can choose their active typography theme in **Settings > Font**:
 ### Sizing & Geometric Constants (`LiveActivityWidgetMetrics`)
 - `islandWidth`: **328 pt**
 - `lockScreenActivityWidth`: **328 pt**
-- `expandedIslandCornerRadius`: **24 pt**
-- `lockScreenActivityCornerRadius`: **24 pt**
-- `expandedPreviewCornerRadius`: **28 pt**
+- `expandedIslandCornerRadius`: **38 pt**
+- `lockScreenActivityCornerRadius`: **28 pt**
+- `expandedPreviewCornerRadius`: **38 pt**
+- `activityPreviewCornerRadius`: **30 pt**
 - `expandedIslandHeight`: **132 pt**
 - `lockScreenIslandHeight`: **136 pt**
 - `lockScreenEmptyStateHeight`: **136 pt**

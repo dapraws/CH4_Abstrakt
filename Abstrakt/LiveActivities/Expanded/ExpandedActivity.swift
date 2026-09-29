@@ -14,7 +14,7 @@ struct ExpandedActivity: View {
             item: widget,
             isLiveActivity: false,
             showsActivityTitle: false,
-            activityCornerRadius: 0,
+            activityCornerRadius: LiveActivityWidgetMetrics.expandedPreviewCornerRadius,
             drawsActivitySurface: false,
             isTest: isTest
         )
