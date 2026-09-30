@@ -1,0 +1,36 @@
+# SwiftLint Configuration for Abstrakt
+
+included:
+  - Abstrakt
+  - AbstraktWidgetsExtension
+
+excluded:
+  - .build
+  - Packages
+  - DerivedData
+  - "**/Preview Content/**"
+
+disabled_rules:
+  - trailing_whitespace
+  - line_length
+  - type_body_length
+  - file_length
+
+opt_in_rules:
+  - empty_count
+  - force_unwrapping
+  - closure_spacing
+  - fatal_error_message
+  - redundant_nil_coalescing
+  - unneeded_break_in_switch
+
+force_unwrapping:
+  severity: error
+
+identifier_name:
+  min_length: 1
+  max_length: 60
+  excluded:
+    - id
+    - x
+    - y
